@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 网络权限：release 构建也需要访问 RSS/Atom 订阅源。 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="flux"
+        android:label="Flux"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

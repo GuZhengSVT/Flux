@@ -297,12 +297,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               padding: const EdgeInsets.only(bottom: 16),
               child: IconButton(
                 tooltip: '设置',
-                icon: const Icon(Icons.settings_outlined),
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: FluxColors.concreteLight,
+                ),
                 onPressed: _openSettings,
               ),
             ),
           ),
-          const VerticalDivider(width: 1),
+          VerticalDivider(color: FluxColors.ink, width: 1.5),
           SizedBox(
             width: 260,
             child: _FeedSidebar(
@@ -324,7 +327,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onDeleteGroup: controller.deleteGroup,
             ),
           ),
-          const VerticalDivider(width: 1),
+          VerticalDivider(color: FluxColors.ink, width: 1.5),
           Expanded(
             child: ArticleListPanel(
               state: state,
@@ -375,7 +378,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       key: _mobileScaffoldKey,
       appBar: AppBar(
-        title: const Text('Flux'),
+        title: const Text(
+          'Flux',
+          style: TextStyle(
+            color: FluxColors.red,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+          ),
+        ),
         leading: IconButton(
           tooltip: '订阅源',
           icon: const Icon(Icons.menu),
@@ -550,80 +560,110 @@ class _FeedSidebar extends StatelessWidget {
         return a.compareTo(b);
       });
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'FEEDS',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ColoredBox(
+      color: isDark
+          ? FluxColors.darkSurface.withValues(alpha: 0.70)
+          : FluxColors.newsprint.withValues(alpha: 0.70),
+      child: Container(
+        foregroundDecoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: FluxColors.red, width: 4)),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 8, 12),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'FEEDS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: '订阅管理',
-                  icon: const Icon(Icons.tune),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const SubscriptionManagementScreen(),
+                    IconButton(
+                      tooltip: '订阅管理',
+                      icon: const Icon(Icons.tune),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SubscriptionManagementScreen(),
+                        ),
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      tooltip: '刷新全部',
+                      icon: loading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh),
+                      onPressed: loading ? null : onRefreshAll,
+                    ),
+                    IconButton(
+                      tooltip: '添加订阅',
+                      icon: const Icon(Icons.add),
+                      onPressed: onAddFeed,
+                    ),
+                  ],
                 ),
-                IconButton(
-                  tooltip: '刷新全部',
-                  icon: loading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
-                  onPressed: loading ? null : onRefreshAll,
+              ),
+              const Divider(height: 1),
+              Builder(
+                builder: (context) {
+                  final selected =
+                      selectedFeedId == null &&
+                      (selectedGroup == null || selectedGroup!.isEmpty);
+                  return Stack(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.all_inbox),
+                        title: const Text('全部订阅'),
+                        selected: selected,
+                        onTap: () => onSelectFeed(null),
+                      ),
+                      if (selected)
+                        const Positioned(
+                          left: 0,
+                          top: 4,
+                          bottom: 4,
+                          child: SizedBox(
+                            width: 3,
+                            child: ColoredBox(color: FluxColors.red),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView(
+                  children: [
+                    for (final groupName in groupNames) ...[
+                      _buildGroupHeader(
+                        context,
+                        groupName,
+                        groups[groupName]!.length,
+                        selected:
+                            selectedGroup ==
+                            (groupName == '未分组' ? '__ungrouped__' : groupName),
+                      ),
+                      for (final feed in groups[groupName]!)
+                        _buildFeedTile(context, feed),
+                    ],
+                  ],
                 ),
-                IconButton(
-                  tooltip: '添加订阅',
-                  icon: const Icon(Icons.add),
-                  onPressed: onAddFeed,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.all_inbox),
-            title: const Text('全部订阅'),
-            selected:
-                selectedFeedId == null &&
-                (selectedGroup == null || selectedGroup!.isEmpty),
-            onTap: () => onSelectFeed(null),
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: ListView(
-              children: [
-                for (final groupName in groupNames) ...[
-                  _buildGroupHeader(
-                    context,
-                    groupName,
-                    groups[groupName]!.length,
-                    selected:
-                        selectedGroup ==
-                        (groupName == '未分组' ? '__ungrouped__' : groupName),
-                  ),
-                  for (final feed in groups[groupName]!)
-                    _buildFeedTile(context, feed),
-                ],
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -638,41 +678,77 @@ class _FeedSidebar extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onSecondaryTapDown: (details) =>
           _showGroupMenu(context, details.globalPosition, name),
-      child: ListTile(
-        dense: true,
-        selected: selected,
-        title: Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: selected
-                ? FluxColors.red
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w800 : null,
+      child: Stack(
+        children: [
+          ListTile(
+            dense: true,
+            selected: selected,
+            title: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: selected
+                    ? FluxColors.red
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: selected ? FontWeight.w800 : null,
+              ),
+            ),
+            trailing: Text(
+              '$count',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            onTap: () => onSelectGroup(name == '未分组' ? '__ungrouped__' : name),
           ),
-        ),
-        trailing: Text(
-          '$count',
-          style: Theme.of(context).textTheme.labelSmall
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        ),
-        onTap: () => onSelectGroup(name == '未分组' ? '__ungrouped__' : name),
+          if (selected)
+            const Positioned(
+              left: 0,
+              top: 8,
+              bottom: 8,
+              child: SizedBox(
+                width: 3,
+                child: ColoredBox(color: FluxColors.red),
+              ),
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildFeedTile(BuildContext context, Feed feed) {
+    final selected = selectedFeedId == feed.id;
     return GestureDetector(
       onSecondaryTapDown: (details) =>
           _showFeedMenu(context, details.globalPosition, feed),
-      child: ListTile(
-        dense: true,
-        leading: Icon(feed.iconUrl == null ? Icons.rss_feed : Icons.web_asset),
-        title: Text(feed.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-        selected: selectedFeedId == feed.id,
-        onTap: () => onSelectFeed(feed.id),
-        onLongPress: () => _confirmDelete(context, feed),
+      child: Stack(
+        children: [
+          ListTile(
+            dense: true,
+            leading: Icon(
+              feed.iconUrl == null ? Icons.rss_feed : Icons.web_asset,
+            ),
+            title: Text(
+              feed.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            selected: selected,
+            onTap: () => onSelectFeed(feed.id),
+            onLongPress: () => _confirmDelete(context, feed),
+          ),
+          if (selected)
+            const Positioned(
+              left: 0,
+              top: 4,
+              bottom: 4,
+              child: SizedBox(
+                width: 3,
+                child: ColoredBox(color: FluxColors.red),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -825,11 +901,7 @@ class _FeedSidebar extends StatelessWidget {
     if (selected == ungrouped) {
       onUpdateFeedCategory(feed.id!, null);
     } else if (selected == newGroup) {
-      final name = await showTextPrompt(
-        context,
-        title: '新建分组',
-        hint: '请输入名称',
-      );
+      final name = await showTextPrompt(context, title: '新建分组', hint: '请输入名称');
       if (name != null && name.trim().isNotEmpty) {
         onUpdateFeedCategory(feed.id!, name.trim());
       }
@@ -887,6 +959,10 @@ class _ArticleFilterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dropdownColor =
+        Theme.of(context).brightness == Brightness.dark
+        ? FluxColors.darkRaised
+        : FluxColors.bone;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -894,10 +970,8 @@ class _ArticleFilterControls extends StatelessWidget {
           width: 110,
           child: DropdownButtonFormField<TimeRange>(
             initialValue: timeRange,
-            decoration: const InputDecoration(
-              labelText: '时间',
-              isDense: true,
-            ),
+            dropdownColor: dropdownColor,
+            decoration: const InputDecoration(labelText: '时间', isDense: true),
             items: const [
               DropdownMenuItem(value: TimeRange.all, child: Text('全部')),
               DropdownMenuItem(value: TimeRange.today, child: Text('今日')),
@@ -915,10 +989,8 @@ class _ArticleFilterControls extends StatelessWidget {
           width: 130,
           child: DropdownButtonFormField<ArticleSort>(
             initialValue: sort,
-            decoration: const InputDecoration(
-              labelText: '排序',
-              isDense: true,
-            ),
+            dropdownColor: dropdownColor,
+            decoration: const InputDecoration(labelText: '排序', isDense: true),
             items: const [
               DropdownMenuItem(
                 value: ArticleSort.newestFirst,
@@ -953,14 +1025,21 @@ class _ArticleFilterControls extends StatelessWidget {
             width: 120,
             child: DropdownButtonFormField<ArticleLayout>(
               initialValue: layout,
-              decoration: const InputDecoration(
-                labelText: '显示',
-                isDense: true,
-              ),
+              dropdownColor: dropdownColor,
+              decoration: const InputDecoration(labelText: '显示', isDense: true),
               items: const [
-                DropdownMenuItem(value: ArticleLayout.single, child: Text('单列')),
-                DropdownMenuItem(value: ArticleLayout.double, child: Text('双列')),
-                DropdownMenuItem(value: ArticleLayout.masonry, child: Text('瀑布流')),
+                DropdownMenuItem(
+                  value: ArticleLayout.single,
+                  child: Text('单列'),
+                ),
+                DropdownMenuItem(
+                  value: ArticleLayout.double,
+                  child: Text('双列'),
+                ),
+                DropdownMenuItem(
+                  value: ArticleLayout.masonry,
+                  child: Text('瀑布流'),
+                ),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -1039,106 +1118,109 @@ class ArticleListPanel extends StatelessWidget {
       FeedFilter.favorites => '收藏',
       FeedFilter.readLater => '稍后读',
     };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: [
-        if (withHeader) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Text(
-                      header,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                  if (state.articles.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: onMarkAllRead,
-                      icon: const Icon(Icons.done_all, size: 18),
-                      label: const Text('全部已读'),
-                    ),
-                  const SizedBox(width: 12),
-                  _ArticleFilterControls(
-                    timeRange: articleTimeRange,
-                    sort: articleSort,
-                    layout: articleLayout,
-                    onTimeRangeChanged: onArticleTimeRangeChanged,
-                    onSortChanged: onArticleSortChanged,
-                    onLayoutChanged: onArticleLayoutChanged,
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 260,
-                    child: TextField(
-                      controller: searchController,
-                      focusNode: searchFocusNode,
-                      onChanged: onSearchChanged,
-                      decoration: const InputDecoration(
-                        hintText: '搜索文章',
-                        prefixIcon: Icon(Icons.search),
-                        isDense: true,
+    return ColoredBox(
+      color: isDark
+          ? FluxColors.darkSurface.withValues(alpha: 0.45)
+          : FluxColors.bone.withValues(alpha: 0.45),
+      child: Column(
+        children: [
+          if (withHeader) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Text(
+                        header,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ] else ...[
-          // 移动端在文章列表顶部提供“全部已读”入口和时间筛选。
-          if (state.articles.isNotEmpty)
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: TextButton.icon(
-                  onPressed: onMarkAllRead,
-                  icon: const Icon(Icons.done_all, size: 18),
-                  label: const Text('全部已读'),
+                    if (state.articles.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: onMarkAllRead,
+                        icon: const Icon(Icons.done_all, size: 18),
+                        label: const Text('全部已读'),
+                      ),
+                    const SizedBox(width: 12),
+                    _ArticleFilterControls(
+                      timeRange: articleTimeRange,
+                      sort: articleSort,
+                      layout: articleLayout,
+                      onTimeRangeChanged: onArticleTimeRangeChanged,
+                      onSortChanged: onArticleSortChanged,
+                      onLayoutChanged: onArticleLayoutChanged,
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 260,
+                      child: TextField(
+                        controller: searchController,
+                        focusNode: searchFocusNode,
+                        onChanged: onSearchChanged,
+                        decoration: const InputDecoration(
+                          hintText: '搜索文章',
+                          prefixIcon: Icon(Icons.search),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: _ArticleFilterControls(
-                timeRange: articleTimeRange,
-                sort: articleSort,
-                layout: articleLayout,
-                onTimeRangeChanged: onArticleTimeRangeChanged,
-                onSortChanged: onArticleSortChanged,
-                onLayoutChanged: onArticleLayoutChanged,
-                usePopupLayout: true,
+          ] else ...[
+            // 移动端在文章列表顶部提供“全部已读”入口和时间筛选。
+            if (state.articles.isNotEmpty)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: TextButton.icon(
+                    onPressed: onMarkAllRead,
+                    icon: const Icon(Icons.done_all, size: 18),
+                    label: const Text('全部已读'),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: _ArticleFilterControls(
+                  timeRange: articleTimeRange,
+                  sort: articleSort,
+                  layout: articleLayout,
+                  onTimeRangeChanged: onArticleTimeRangeChanged,
+                  onSortChanged: onArticleSortChanged,
+                  onLayoutChanged: onArticleLayoutChanged,
+                  usePopupLayout: true,
+                ),
               ),
             ),
+          ],
+          const Divider(height: 1),
+          if (state.error != null)
+            MaterialBanner(
+              content: Text(state.error!),
+              leading: const Icon(Icons.error_outline, color: FluxColors.red),
+              actions: [
+                TextButton(onPressed: onDismissError, child: const Text('知道了')),
+              ],
+            ),
+          Expanded(
+            child: state.loading && state.articles.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : state.articles.isEmpty
+                ? const _EmptyState()
+                : _buildArticleBody(context),
           ),
         ],
-        const Divider(height: 1),
-        if (state.error != null)
-          MaterialBanner(
-            content: Text(state.error!),
-            leading: const Icon(Icons.error_outline, color: FluxColors.red),
-            actions: [
-              TextButton(
-                onPressed: onDismissError,
-                child: const Text('知道了'),
-              ),
-            ],
-          ),
-        Expanded(
-          child: state.loading && state.articles.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : state.articles.isEmpty
-              ? const _EmptyState()
-              : _buildArticleBody(context),
-        ),
-      ],
+      ),
     );
   }
 

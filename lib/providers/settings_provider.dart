@@ -12,6 +12,7 @@ class SettingsState {
   const SettingsState({
     this.themePreference = FluxThemePreference.system,
     this.showThumbnails = true,
+    this.backgroundOpacity = 0.7,
     this.readerFontSize = 16,
     this.refreshIntervalMinutes = 30,
     this.textRetentionDays = 30,
@@ -24,6 +25,7 @@ class SettingsState {
 
   final FluxThemePreference themePreference;
   final bool showThumbnails;
+  final double backgroundOpacity;
   final double readerFontSize;
   final int refreshIntervalMinutes;
 
@@ -46,6 +48,7 @@ class SettingsState {
   SettingsState copyWith({
     FluxThemePreference? themePreference,
     bool? showThumbnails,
+    double? backgroundOpacity,
     double? readerFontSize,
     int? refreshIntervalMinutes,
     int? textRetentionDays,
@@ -58,6 +61,7 @@ class SettingsState {
     return SettingsState(
       themePreference: themePreference ?? this.themePreference,
       showThumbnails: showThumbnails ?? this.showThumbnails,
+      backgroundOpacity: backgroundOpacity ?? this.backgroundOpacity,
       readerFontSize: readerFontSize ?? this.readerFontSize,
       refreshIntervalMinutes:
           refreshIntervalMinutes ?? this.refreshIntervalMinutes,
@@ -74,6 +78,7 @@ class SettingsState {
     return {
       'themePreference': themePreference.name,
       'showThumbnails': showThumbnails,
+      'backgroundOpacity': backgroundOpacity,
       'readerFontSize': readerFontSize,
       'refreshIntervalMinutes': refreshIntervalMinutes,
       'textRetentionDays': textRetentionDays,
@@ -91,6 +96,7 @@ class SettingsState {
           FluxThemePreference.values.asNameMap()[json['themePreference']] ??
           FluxThemePreference.system,
       showThumbnails: json['showThumbnails'] as bool? ?? true,
+      backgroundOpacity: (json['backgroundOpacity'] as num?)?.toDouble() ?? 0.7,
       readerFontSize: (json['readerFontSize'] as num?)?.toDouble() ?? 16,
       refreshIntervalMinutes: json['refreshIntervalMinutes'] as int? ?? 30,
       textRetentionDays: json['textRetentionDays'] as int? ?? 30,
@@ -149,6 +155,11 @@ class SettingsController extends StateNotifier<SettingsState> {
 
   Future<void> setShowThumbnails(bool value) async {
     state = state.copyWith(showThumbnails: value);
+    await _save();
+  }
+
+  Future<void> setBackgroundOpacity(double value) async {
+    state = state.copyWith(backgroundOpacity: value.clamp(0.0, 1.0).toDouble());
     await _save();
   }
 

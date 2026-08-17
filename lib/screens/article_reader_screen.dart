@@ -59,6 +59,7 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = ref.read(feedControllerProvider.notifier);
     final contentHtml = _article.contentHtml ?? '';
     final hasRichContent = contentHtml.trim().isNotEmpty;
@@ -78,7 +79,7 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
               _article.isFavorite
                   ? Icons.star_rounded
                   : Icons.star_border_rounded,
-              color: _article.isFavorite ? FluxColors.red : null,
+              color: _article.isFavorite ? FluxColors.wireGold : null,
             ),
             onPressed: () => controller.toggleFavorite(_article),
           ),
@@ -105,88 +106,102 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
             ),
         ],
       ),
-      body: SelectionArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          children: [
-            Text(
-              _article.title,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
+      body: ColoredBox(
+        color: isDark
+            ? FluxColors.darkSurface.withValues(alpha: 0.50)
+            : FluxColors.bone.withValues(alpha: 0.50),
+        child: SelectionArea(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            children: [
+              Text(
+                _article.title,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Text(
+                    widget.feedTitle,
+                    style: Theme.of(context).textTheme.labelLarge
+                        ?.copyWith(color: FluxColors.red),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    _formatDate(_article.publishedAt ?? _article.fetchedAt),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              if (_article.author != null) ...[
+                const SizedBox(height: 4),
                 Text(
-                  widget.feedTitle,
-                  style: Theme.of(context).textTheme.labelLarge
-                      ?.copyWith(color: FluxColors.red),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  _formatDate(_article.publishedAt ?? _article.fetchedAt),
+                  _article.author!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
-            ),
-            if (_article.author != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                _article.author!,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+              SizedBox(
+                height: 28,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(width: 48, height: 3, color: FluxColors.red),
                 ),
               ),
-            ],
-            const Divider(height: 28),
-            if (!hasRichContent && _article.imageUrl != null) ...[
-              LazyNetworkImage(
-                url: _article.imageUrl!,
-                height: 220,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(height: 20),
-            ],
-            if (videoUrl != null) ...[
-              EmbeddedVideoPlayer(
-                url: videoUrl,
-                height: 220,
-                useCache: ref.watch(settingsProvider).autoCacheVideos,
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (needsFullText)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: OutlinedButton.icon(
-                  onPressed: _fetchingFullText ? null : _fetchFullText,
-                  icon: _fetchingFullText
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.auto_stories),
-                  label: Text(_fetchingFullText ? '正在抓取全文...' : '抓取全文'),
+              if (!hasRichContent && _article.imageUrl != null) ...[
+                LazyNetworkImage(
+                  url: _article.imageUrl!,
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
-              ),
-            if (hasRichContent)
-              ArticleContentView(
-                html: contentHtml,
-                baseUrl: _article.link,
-                fontSize: readerFontSize,
-                onOpenLink: (url) async {
-                  final uri = Uri.tryParse(url);
-                  if (uri != null) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-              )
-            else if (!needsFullText)
-              const Text('该文章没有可显示正文，请打开原文阅读。'),
-          ],
+                const SizedBox(height: 20),
+              ],
+              if (videoUrl != null) ...[
+                EmbeddedVideoPlayer(
+                  url: videoUrl,
+                  height: 220,
+                  useCache: ref.watch(settingsProvider).autoCacheVideos,
+                ),
+                const SizedBox(height: 16),
+              ],
+              if (needsFullText)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: OutlinedButton.icon(
+                    onPressed: _fetchingFullText ? null : _fetchFullText,
+                    icon: _fetchingFullText
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.auto_stories),
+                    label: Text(_fetchingFullText ? '正在抓取全文...' : '抓取全文'),
+                  ),
+                ),
+              if (hasRichContent)
+                ArticleContentView(
+                  html: contentHtml,
+                  baseUrl: _article.link,
+                  fontSize: readerFontSize,
+                  onOpenLink: (url) async {
+                    final uri = Uri.tryParse(url);
+                    if (uri != null) {
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                )
+              else if (!needsFullText)
+                const Text('该文章没有可显示正文，请打开原文阅读。'),
+            ],
+          ),
         ),
       ),
     );

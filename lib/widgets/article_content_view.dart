@@ -411,7 +411,7 @@ class ArticleContentView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? FluxColors.darkRaised : const Color(0xFFF0ECE3),
+        color: isDark ? FluxColors.darkRaised : FluxColors.newsprint,
         borderRadius: BorderRadius.circular(2),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -431,10 +431,13 @@ class ArticleContentView extends StatelessWidget {
     dom.Element element,
     TextStyle baseStyle,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
       decoration: BoxDecoration(
+        color: isDark ? FluxColors.darkRaised : FluxColors.newsprint,
+        borderRadius: BorderRadius.circular(2),
         border: Border(
           left: BorderSide(
             color: FluxColors.red.withValues(alpha: 0.7),
@@ -695,10 +698,7 @@ class ArticleContentView extends StatelessWidget {
   /// 早期版本可能把 `<![CDATA[` / `]]>` 存进数据库，
   /// 这里在渲染前统一剥掉，避免它们出现在正文中。
   String _cleanHtml(String html) {
-    return html
-        .replaceAll('<![CDATA[', '')
-        .replaceAll(']]>', '')
-        .trim();
+    return html.replaceAll('<![CDATA[', '').replaceAll(']]>', '').trim();
   }
 
   /// 规范化行内文本：把连续空白/换行压缩为单个空格，并去掉首尾空白。

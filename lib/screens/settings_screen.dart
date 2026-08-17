@@ -23,46 +23,52 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(title: const Text('设置')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        children: [
-          _CategoryTile(
-            icon: Icons.palette_outlined,
-            title: '外观',
-            subtitle: '主题模式、缩略图',
-            onTap: () => _openCategory(context, _SettingsCategory.appearance),
-          ),
-          _CategoryTile(
-            icon: Icons.chrome_reader_mode_outlined,
-            title: '阅读',
-            subtitle: '正文字号',
-            onTap: () => _openCategory(context, _SettingsCategory.reading),
-          ),
-          _CategoryTile(
-            icon: Icons.notifications_outlined,
-            title: '刷新与通知',
-            subtitle: '自动刷新间隔',
-            onTap: () => _openCategory(context, _SettingsCategory.refresh),
-          ),
-          _CategoryTile(
-            icon: Icons.storage_outlined,
-            title: '存储与缓存',
-            subtitle: '保留天数、缓存上限、自动缓存视频',
-            onTap: () => _openCategory(context, _SettingsCategory.storage),
-          ),
-          _CategoryTile(
-            icon: Icons.sync_alt,
-            title: '数据',
-            subtitle: 'OPML 导入与导出',
-            onTap: () => _openCategory(context, _SettingsCategory.data),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 32),
-            child: _FluxFooter(),
-          ),
-        ],
+      body: ColoredBox(
+        color: isDark
+            ? FluxColors.darkSurface.withValues(alpha: 0.50)
+            : FluxColors.bone.withValues(alpha: 0.50),
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          children: [
+            _CategoryTile(
+              icon: Icons.palette_outlined,
+              title: '外观',
+              subtitle: '主题模式、缩略图、背景透明度',
+              onTap: () => _openCategory(context, _SettingsCategory.appearance),
+            ),
+            _CategoryTile(
+              icon: Icons.chrome_reader_mode_outlined,
+              title: '阅读',
+              subtitle: '正文字号',
+              onTap: () => _openCategory(context, _SettingsCategory.reading),
+            ),
+            _CategoryTile(
+              icon: Icons.notifications_outlined,
+              title: '刷新与通知',
+              subtitle: '自动刷新间隔',
+              onTap: () => _openCategory(context, _SettingsCategory.refresh),
+            ),
+            _CategoryTile(
+              icon: Icons.storage_outlined,
+              title: '存储与缓存',
+              subtitle: '保留天数、缓存上限、自动缓存视频',
+              onTap: () => _openCategory(context, _SettingsCategory.storage),
+            ),
+            _CategoryTile(
+              icon: Icons.sync_alt,
+              title: '数据',
+              subtitle: 'OPML 导入与导出',
+              onTap: () => _openCategory(context, _SettingsCategory.data),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 32),
+              child: _FluxFooter(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -119,155 +125,172 @@ class _CategoryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = ref.watch(settingsProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: Text(_title)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        children: switch (category) {
-          _SettingsCategory.appearance => [
-            const _PageHint('主题模式'),
-            SegmentedButton<FluxThemePreference>(
-              segments: const [
-                ButtonSegment(
-                  value: FluxThemePreference.system,
-                  label: Text('跟随系统'),
-                  icon: Icon(Icons.brightness_auto),
+      body: ColoredBox(
+        color: isDark
+            ? FluxColors.darkSurface.withValues(alpha: 0.50)
+            : FluxColors.bone.withValues(alpha: 0.50),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          children: switch (category) {
+            _SettingsCategory.appearance => [
+              const _PageHint('主题模式'),
+              SegmentedButton<FluxThemePreference>(
+                segments: const [
+                  ButtonSegment(
+                    value: FluxThemePreference.system,
+                    label: Text('跟随系统'),
+                    icon: Icon(Icons.brightness_auto),
+                  ),
+                  ButtonSegment(
+                    value: FluxThemePreference.light,
+                    label: Text('明亮'),
+                    icon: Icon(Icons.light_mode),
+                  ),
+                  ButtonSegment(
+                    value: FluxThemePreference.dark,
+                    label: Text('暗黑'),
+                    icon: Icon(Icons.dark_mode),
+                  ),
+                ],
+                selected: {settings.themePreference},
+                onSelectionChanged: (selection) {
+                  controller.setTheme(selection.first);
+                },
+              ),
+              const Divider(height: 28),
+              const _PageHint('背景透明度（0% 隐藏，100% 最清晰）'),
+              _SliderSetting(
+                title: '背景透明度',
+                value: settings.backgroundOpacity,
+                min: 0,
+                max: 1,
+                divisions: 20,
+                label: '${(settings.backgroundOpacity * 100).round()}%',
+                onChanged: controller.setBackgroundOpacity,
+              ),
+              const Divider(height: 28),
+              SwitchListTile(
+                title: const Text('显示缩略图'),
+                subtitle: const Text('关闭后文章列表不加载图片，可提升滚动流畅度'),
+                value: settings.showThumbnails,
+                onChanged: controller.setShowThumbnails,
+              ),
+            ],
+            _SettingsCategory.reading => [
+              const _PageHint('正文字号（拖动调节）'),
+              _SliderSetting(
+                title: '正文字号',
+                value: settings.readerFontSize,
+                min: 12,
+                max: 24,
+                divisions: 12,
+                label: '${settings.readerFontSize.round()}px',
+                onChanged: controller.setReaderFontSize,
+              ),
+            ],
+            _SettingsCategory.refresh => [
+              _NumberField(
+                label: '自动刷新间隔',
+                description: '应用运行期间每隔多少分钟自动检查一次新文章',
+                value: settings.refreshIntervalMinutes,
+                min: 5,
+                max: 180,
+                suffix: '分钟',
+                onChanged: controller.setRefreshInterval,
+              ),
+            ],
+            _SettingsCategory.storage => [
+              _NumberField(
+                label: '文本保留时间',
+                description: '超过该时间的文章会被自动清理',
+                value: settings.textRetentionDays,
+                min: 7,
+                max: 180,
+                suffix: '天',
+                onChanged: controller.setTextRetentionDays,
+              ),
+              _NumberField(
+                label: '图片缓存保留',
+                description: '图片缓存超过该时间后自动失效',
+                value: settings.imageRetentionDays,
+                min: 1,
+                max: 30,
+                suffix: '天',
+                onChanged: controller.setImageRetentionDays,
+              ),
+              _NumberField(
+                label: '视频缓存保留',
+                description: '视频缓存超过该时间后自动失效',
+                value: settings.videoRetentionDays,
+                min: 1,
+                max: 30,
+                suffix: '天',
+                onChanged: controller.setVideoRetentionDays,
+              ),
+              _NumberField(
+                label: '缓存文件数上限',
+                description: '缓存条目超过该值时，自动清理最久未使用的内容',
+                value: settings.maxCacheItems,
+                min: 100,
+                max: 5000,
+                suffix: '个',
+                onChanged: controller.setMaxCacheItems,
+              ),
+              const Divider(height: 20),
+              SwitchListTile(
+                title: const Text('自动缓存视频'),
+                subtitle: const Text('开启后视频先缓存到本地再播放，可能增加等待时间'),
+                value: settings.autoCacheVideos,
+                onChanged: controller.setAutoCacheVideos,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: () => _clearMediaCache(context),
+                  icon: const Icon(Icons.delete_sweep_outlined),
+                  label: const Text('立即清空媒体缓存'),
                 ),
-                ButtonSegment(
-                  value: FluxThemePreference.light,
-                  label: Text('明亮'),
-                  icon: Icon(Icons.light_mode),
+              ),
+            ],
+            _SettingsCategory.data => [
+              TextFormField(
+                initialValue: settings.rsshubBaseUrl,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: 'RSSHub 默认实例',
+                  helperText: '添加 RSSHub 路由时使用的默认地址',
+                  prefixIcon: Icon(Icons.dns_outlined),
                 ),
-                ButtonSegment(
-                  value: FluxThemePreference.dark,
-                  label: Text('暗黑'),
-                  icon: Icon(Icons.dark_mode),
+                onFieldSubmitted: controller.setRsshubBaseUrl,
+              ),
+              const Divider(height: 24),
+              SizedBox(
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: () => _importOpml(context, ref),
+                  icon: const Icon(Icons.file_open),
+                  label: const Text('导入 OPML'),
                 ),
-              ],
-              selected: {settings.themePreference},
-              onSelectionChanged: (selection) {
-                controller.setTheme(selection.first);
-              },
-            ),
-            const Divider(height: 28),
-            SwitchListTile(
-              title: const Text('显示缩略图'),
-              subtitle: const Text('关闭后文章列表不加载图片，可提升滚动流畅度'),
-              value: settings.showThumbnails,
-              onChanged: controller.setShowThumbnails,
-            ),
-          ],
-          _SettingsCategory.reading => [
-            const _PageHint('正文字号（拖动调节）'),
-            _SliderSetting(
-              title: '正文字号',
-              value: settings.readerFontSize,
-              min: 12,
-              max: 24,
-              divisions: 12,
-              label: '${settings.readerFontSize.round()}px',
-              onChanged: controller.setReaderFontSize,
-            ),
-          ],
-          _SettingsCategory.refresh => [
-            _NumberField(
-              label: '自动刷新间隔',
-              description: '应用运行期间每隔多少分钟自动检查一次新文章',
-              value: settings.refreshIntervalMinutes,
-              min: 5,
-              max: 180,
-              suffix: '分钟',
-              onChanged: controller.setRefreshInterval,
-            ),
-          ],
-          _SettingsCategory.storage => [
-            _NumberField(
-              label: '文本保留时间',
-              description: '超过该时间的文章会被自动清理',
-              value: settings.textRetentionDays,
-              min: 7,
-              max: 180,
-              suffix: '天',
-              onChanged: controller.setTextRetentionDays,
-            ),
-            _NumberField(
-              label: '图片缓存保留',
-              description: '图片缓存超过该时间后自动失效',
-              value: settings.imageRetentionDays,
-              min: 1,
-              max: 30,
-              suffix: '天',
-              onChanged: controller.setImageRetentionDays,
-            ),
-            _NumberField(
-              label: '视频缓存保留',
-              description: '视频缓存超过该时间后自动失效',
-              value: settings.videoRetentionDays,
-              min: 1,
-              max: 30,
-              suffix: '天',
-              onChanged: controller.setVideoRetentionDays,
-            ),
-            _NumberField(
-              label: '缓存文件数上限',
-              description: '缓存条目超过该值时，自动清理最久未使用的内容',
-              value: settings.maxCacheItems,
-              min: 100,
-              max: 5000,
-              suffix: '个',
-              onChanged: controller.setMaxCacheItems,
-            ),
-            const Divider(height: 20),
-            SwitchListTile(
-              title: const Text('自动缓存视频'),
-              subtitle: const Text('开启后视频先缓存到本地再播放，可能增加等待时间'),
-              value: settings.autoCacheVideos,
-              onChanged: controller.setAutoCacheVideos,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 52,
-              child: OutlinedButton.icon(
-                onPressed: () => _clearMediaCache(context),
-                icon: const Icon(Icons.delete_sweep_outlined),
-                label: const Text('立即清空媒体缓存'),
               ),
-            ),
-          ],
-          _SettingsCategory.data => [
-            TextFormField(
-              initialValue: settings.rsshubBaseUrl,
-              keyboardType: TextInputType.url,
-              decoration: const InputDecoration(
-                labelText: 'RSSHub 默认实例',
-                helperText: '添加 RSSHub 路由时使用的默认地址',
-                prefixIcon: Icon(Icons.dns_outlined),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: () => _exportOpml(ref),
+                  icon: const Icon(Icons.save_alt),
+                  label: const Text('导出 OPML'),
+                ),
               ),
-              onFieldSubmitted: controller.setRsshubBaseUrl,
-            ),
-            const Divider(height: 24),
-            SizedBox(
-              height: 52,
-              child: OutlinedButton.icon(
-                onPressed: () => _importOpml(context, ref),
-                icon: const Icon(Icons.file_open),
-                label: const Text('导入 OPML'),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 52,
-              child: OutlinedButton.icon(
-                onPressed: () => _exportOpml(ref),
-                icon: const Icon(Icons.save_alt),
-                label: const Text('导出 OPML'),
-              ),
-            ),
-          ],
-        },
+            ],
+          },
+        ),
       ),
     );
   }
@@ -325,7 +348,7 @@ class _CategoryTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            const Icon(Icons.chevron_right, color: FluxColors.concrete),
           ],
         ),
       ),

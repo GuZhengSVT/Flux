@@ -36,6 +36,8 @@ class _SubscriptionManagementScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dropdownColor = isDark ? FluxColors.darkRaised : FluxColors.bone;
     final state = ref.watch(feedControllerProvider);
     final controller = ref.read(feedControllerProvider.notifier);
 
@@ -60,127 +62,113 @@ class _SubscriptionManagementScreenState
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<FeedSort>(
-                    initialValue: state.feedSort,
-                    decoration: const InputDecoration(
-                      labelText: '订阅排序',
-                      isDense: true,
+      body: ColoredBox(
+        color: isDark
+            ? FluxColors.darkSurface.withValues(alpha: 0.50)
+            : FluxColors.bone.withValues(alpha: 0.50),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<FeedSort>(
+                      initialValue: state.feedSort,
+                      dropdownColor: dropdownColor,
+                      decoration: const InputDecoration(
+                        labelText: '订阅排序',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: FeedSort.name,
+                          child: Text('按名称'),
+                        ),
+                        DropdownMenuItem(
+                          value: FeedSort.lastUpdated,
+                          child: Text('按最近更新'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.setFeedSort(value);
+                        }
+                      },
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: FeedSort.name,
-                        child: Text('按名称'),
-                      ),
-                      DropdownMenuItem(
-                        value: FeedSort.lastUpdated,
-                        child: Text('按最近更新'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.setFeedSort(value);
-                      }
-                    },
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<TimeRange>(
-                    initialValue: state.feedTimeRange,
-                    decoration: const InputDecoration(
-                      labelText: '时间筛选',
-                      isDense: true,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<TimeRange>(
+                      initialValue: state.feedTimeRange,
+                      dropdownColor: dropdownColor,
+                      decoration: const InputDecoration(
+                        labelText: '时间筛选',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: TimeRange.all,
+                          child: Text('全部'),
+                        ),
+                        DropdownMenuItem(
+                          value: TimeRange.today,
+                          child: Text('今日'),
+                        ),
+                        DropdownMenuItem(
+                          value: TimeRange.week,
+                          child: Text('本周'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.setFeedTimeRange(value);
+                        }
+                      },
                     ),
-                    items: const [
-                      DropdownMenuItem(value: TimeRange.all, child: Text('全部')),
-                      DropdownMenuItem(
-                        value: TimeRange.today,
-                        child: Text('今日'),
-                      ),
-                      DropdownMenuItem(
-                        value: TimeRange.week,
-                        child: Text('本周'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.setFeedTimeRange(value);
-                      }
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _newGroupController,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) => _createGroup(),
-                    decoration: const InputDecoration(
-                      labelText: '新建分组',
-                      hintText: '例如：技术',
-                      isDense: true,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _newGroupController,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _createGroup(),
+                      decoration: const InputDecoration(
+                        labelText: '新建分组',
+                        hintText: '例如：技术',
+                        isDense: true,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  height: 48,
-                  child: FilledButton.icon(
-                    onPressed: _createGroup,
-                    icon: const Icon(Icons.add),
-                    label: const Text('添加'),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 48,
+                    child: FilledButton.icon(
+                      onPressed: _createGroup,
+                      icon: const Icon(Icons.add),
+                      label: const Text('添加'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                _GroupBlock(
-                  name: '未分组',
-                  feeds: ungrouped,
-                  canEdit: false,
-                  onMoveFeed: (feedId, groupName) =>
-                      controller.updateFeedCategory(feedId, groupName),
-                  onRefreshFeed: (feedId) => controller.refreshFeed(feedId),
-                  onToggleFavorite: (feedId) =>
-                      controller.toggleFeedFavorite(feedId),
-                  onTogglePinned: (feedId) =>
-                      controller.toggleFeedPinned(feedId),
-                  onSetRating: (feedId, rating) =>
-                      controller.setFeedRating(feedId, rating),
-                  onRenameFeed: (feedId, title) =>
-                      controller.renameFeed(feedId, title),
-                  onEditUrl: (feedId, url) =>
-                      controller.updateFeedUrl(feedId, url),
-                  onDeleteFeed: (feedId) => controller.deleteFeed(feedId),
-                ),
-                for (final group in state.groups)
+            const Divider(height: 1),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
                   _GroupBlock(
-                    name: group,
-                    feeds: grouped[group] ?? const [],
-                    canEdit: true,
+                    name: '未分组',
+                    feeds: ungrouped,
+                    canEdit: false,
                     onMoveFeed: (feedId, groupName) =>
                         controller.updateFeedCategory(feedId, groupName),
-                    onRefreshGroup: () => controller.refreshGroup(group),
-                    onRenameGroup: () => _promptRenameGroup(controller, group),
-                    onDeleteGroup: () => _confirmDeleteGroup(controller, group),
                     onRefreshFeed: (feedId) => controller.refreshFeed(feedId),
                     onToggleFavorite: (feedId) =>
                         controller.toggleFeedFavorite(feedId),
@@ -194,10 +182,36 @@ class _SubscriptionManagementScreenState
                         controller.updateFeedUrl(feedId, url),
                     onDeleteFeed: (feedId) => controller.deleteFeed(feedId),
                   ),
-              ],
+                  for (final group in state.groups)
+                    _GroupBlock(
+                      name: group,
+                      feeds: grouped[group] ?? const [],
+                      canEdit: true,
+                      onMoveFeed: (feedId, groupName) =>
+                          controller.updateFeedCategory(feedId, groupName),
+                      onRefreshGroup: () => controller.refreshGroup(group),
+                      onRenameGroup: () =>
+                          _promptRenameGroup(controller, group),
+                      onDeleteGroup: () =>
+                          _confirmDeleteGroup(controller, group),
+                      onRefreshFeed: (feedId) => controller.refreshFeed(feedId),
+                      onToggleFavorite: (feedId) =>
+                          controller.toggleFeedFavorite(feedId),
+                      onTogglePinned: (feedId) =>
+                          controller.toggleFeedPinned(feedId),
+                      onSetRating: (feedId, rating) =>
+                          controller.setFeedRating(feedId, rating),
+                      onRenameFeed: (feedId, title) =>
+                          controller.renameFeed(feedId, title),
+                      onEditUrl: (feedId, url) =>
+                          controller.updateFeedUrl(feedId, url),
+                      onDeleteFeed: (feedId) => controller.deleteFeed(feedId),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -347,11 +361,7 @@ class _GroupBlock extends StatelessWidget {
   }
 
   Future<void> _promptEditUrl(BuildContext context, Feed feed) async {
-    final url = await showTextPrompt(
-      context,
-      title: '订阅链接',
-      initial: feed.url,
-    );
+    final url = await showTextPrompt(context, title: '订阅链接', initial: feed.url);
     if (url != null && url.trim().isNotEmpty) {
       onEditUrl(feed.id!, url.trim());
     }
@@ -442,20 +452,9 @@ class _DraggableFeedTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tile = ListTile(
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.drag_indicator, color: Colors.grey),
-          IconButton(
-            tooltip: feed.isFavorite ? '取消收藏' : '收藏',
-            icon: Icon(
-              feed.isFavorite ? Icons.star : Icons.star_border,
-              color: feed.isFavorite ? FluxColors.red : null,
-            ),
-            onPressed: onToggleFavorite,
-          ),
-        ],
-      ),
+      leading: const Icon(Icons.drag_indicator, color: FluxColors.concrete),
+      minLeadingWidth: 32,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
       title: Row(
         children: [
           if (feed.isPinned) ...[
@@ -477,52 +476,54 @@ class _DraggableFeedTile extends StatelessWidget {
         ],
       ),
       subtitle: Text(feed.url, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            tooltip: '置顶/取消置顶',
-            icon: Icon(
-              feed.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+      trailing: PopupMenuButton<String>(
+        tooltip: '更多操作',
+        onSelected: (value) {
+          switch (value) {
+            case 'favorite':
+              onToggleFavorite();
+            case 'pinned':
+              onTogglePinned();
+            case 'refresh':
+              onRefresh();
+            case 'rating':
+              _showRatingSubmenu(context);
+            case 'rename':
+              onRename();
+            case 'editUrl':
+              onEditUrl();
+            case 'delete':
+              onDelete();
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'favorite',
+            child: Text(feed.isFavorite ? '取消收藏' : '收藏'),
+          ),
+          PopupMenuItem(
+            value: 'pinned',
+            child: Text(feed.isPinned ? '取消置顶' : '置顶'),
+          ),
+          const PopupMenuItem(value: 'refresh', child: Text('刷新')),
+          PopupMenuItem(
+            value: 'rating',
+            child: const SizedBox(
+              width: 150,
+              child: Row(
+                children: [
+                  Icon(Icons.grade_outlined, size: 20),
+                  SizedBox(width: 12),
+                  Text('分级'),
+                  Spacer(),
+                  Icon(Icons.chevron_right, size: 18),
+                ],
+              ),
             ),
-            onPressed: onTogglePinned,
           ),
-          IconButton(
-            tooltip: '刷新',
-            icon: const Icon(Icons.refresh),
-            onPressed: onRefresh,
-          ),
-          PopupMenuButton<int>(
-            tooltip: '分级',
-            icon: const Icon(Icons.grade_outlined),
-            onSelected: onSetRating,
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 0, child: Text('不分级')),
-              PopupMenuItem(value: 1, child: Text('★ 1')),
-              PopupMenuItem(value: 2, child: Text('★★ 2')),
-              PopupMenuItem(value: 3, child: Text('★★★ 3')),
-              PopupMenuItem(value: 4, child: Text('★★★★ 4')),
-              PopupMenuItem(value: 5, child: Text('★★★★★ 5')),
-            ],
-          ),
-          PopupMenuButton<String>(
-            tooltip: '更多操作',
-            onSelected: (value) {
-              switch (value) {
-                case 'rename':
-                  onRename();
-                case 'editUrl':
-                  onEditUrl();
-                case 'delete':
-                  onDelete();
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'rename', child: Text('重命名')),
-              const PopupMenuItem(value: 'editUrl', child: Text('修改链接')),
-              const PopupMenuItem(value: 'delete', child: Text('删除')),
-            ],
-          ),
+          const PopupMenuItem(value: 'rename', child: Text('重命名')),
+          const PopupMenuItem(value: 'editUrl', child: Text('修改链接')),
+          const PopupMenuItem(value: 'delete', child: Text('删除')),
         ],
       ),
     );
@@ -546,5 +547,30 @@ class _DraggableFeedTile extends StatelessWidget {
       childWhenDragging: Opacity(opacity: 0.4, child: tile),
       child: tile,
     );
+  }
+
+  Future<void> _showRatingSubmenu(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final selected = await showMenu<int>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        origin.dx,
+        origin.dy,
+        origin.dx,
+        origin.dy,
+      ),
+      items: const [
+        PopupMenuItem(value: 0, child: Text('不分级')),
+        PopupMenuItem(value: 1, child: Text('★ 1')),
+        PopupMenuItem(value: 2, child: Text('★★ 2')),
+        PopupMenuItem(value: 3, child: Text('★★★ 3')),
+        PopupMenuItem(value: 4, child: Text('★★★★ 4')),
+        PopupMenuItem(value: 5, child: Text('★★★★★ 5')),
+      ],
+    );
+    if (selected != null) {
+      onSetRating(selected);
+    }
   }
 }

@@ -72,11 +72,7 @@ class LazyNetworkImage extends StatelessWidget {
 }
 
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({
-    this.width,
-    this.height,
-    required this.borderRadius,
-  });
+  const _Placeholder({this.width, this.height, required this.borderRadius});
 
   final double? width;
   final double? height;
@@ -85,7 +81,7 @@ class _Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? FluxColors.darkRaised : const Color(0xFFE5E0D6);
+    final color = isDark ? FluxColors.darkRaised : FluxColors.newsprint;
     return Container(
       width: width,
       height: height,

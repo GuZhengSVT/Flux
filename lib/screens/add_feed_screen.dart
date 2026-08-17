@@ -127,6 +127,8 @@ class _AddFeedScreenState extends ConsumerState<AddFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dropdownColor = isDark ? FluxColors.darkRaised : FluxColors.bone;
     final loading = ref.watch(feedControllerProvider).loading;
     final settings = ref.watch(settingsProvider);
 
@@ -140,126 +142,132 @@ class _AddFeedScreenState extends ConsumerState<AddFeedScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          const _FluxMark(),
-          const SizedBox(height: 24),
-          Text('添加订阅', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 16),
-          SegmentedButton<_AddMode>(
-            segments: const [
-              ButtonSegment(
-                value: _AddMode.rss,
-                label: Text('RSS / Atom'),
-                icon: Icon(Icons.rss_feed),
-              ),
-              ButtonSegment(
-                value: _AddMode.rsshub,
-                label: Text('RSSHub'),
-                icon: Icon(Icons.hub_outlined),
-              ),
-            ],
-            selected: {_mode},
-            onSelectionChanged: (selection) {
-              setState(() => _mode = selection.first);
-            },
-          ),
-          const SizedBox(height: 20),
-          if (_mode == _AddMode.rss) ...[
-            TextField(
-              controller: _urlController,
-              autofocus: true,
-              keyboardType: TextInputType.url,
-              textInputAction: TextInputAction.go,
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: 'Feed URL',
-                hintText: 'https://example.com/feed.xml',
-                prefixIcon: Icon(Icons.rss_feed),
-              ),
-            ),
-          ] else ...[
-            TextField(
-              controller: _rsshubBaseController,
-              keyboardType: TextInputType.url,
-              decoration: const InputDecoration(
-                labelText: 'RSSHub 实例',
-                hintText: 'https://rsshub.app',
-                prefixIcon: Icon(Icons.dns_outlined),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _routeController,
-              textInputAction: TextInputAction.go,
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                labelText: '路由路径',
-                hintText: '/zhihu/daily 或 zhihu/daily',
-                prefixIcon: Icon(Icons.route_outlined),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _format,
-                    decoration: const InputDecoration(labelText: '输出格式'),
-                    items: const [
-                      DropdownMenuItem(value: 'rss', child: Text('RSS')),
-                      DropdownMenuItem(value: 'atom', child: Text('Atom')),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _format = value);
-                      }
-                    },
-                  ),
+      body: ColoredBox(
+        color: isDark
+            ? FluxColors.darkSurface.withValues(alpha: 0.50)
+            : FluxColors.bone.withValues(alpha: 0.50),
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            const _FluxMark(),
+            const SizedBox(height: 24),
+            Text('添加订阅', style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 16),
+            SegmentedButton<_AddMode>(
+              segments: const [
+                ButtonSegment(
+                  value: _AddMode.rss,
+                  label: Text('RSS / Atom'),
+                  icon: Icon(Icons.rss_feed),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _limitController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: '条数限制',
-                      hintText: '可选',
-                      suffixText: '条',
-                    ),
-                  ),
+                ButtonSegment(
+                  value: _AddMode.rsshub,
+                  label: Text('RSSHub'),
+                  icon: Icon(Icons.hub_outlined),
                 ),
               ],
+              selected: {_mode},
+              onSelectionChanged: (selection) {
+                setState(() => _mode = selection.first);
+              },
             ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('抓取全文'),
-              subtitle: const Text('部分路由支持 fulltext=true，会增加抓取时间'),
-              value: _fullText,
-              onChanged: (value) => setState(() => _fullText = value),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '当前默认实例：${settings.rsshubBaseUrl}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            const SizedBox(height: 20),
+            if (_mode == _AddMode.rss) ...[
+              TextField(
+                controller: _urlController,
+                autofocus: true,
+                keyboardType: TextInputType.url,
+                textInputAction: TextInputAction.go,
+                onSubmitted: (_) => _submit(),
+                decoration: const InputDecoration(
+                  labelText: 'Feed URL',
+                  hintText: 'https://example.com/feed.xml',
+                  prefixIcon: Icon(Icons.rss_feed),
+                ),
               ),
-            ),
+            ] else ...[
+              TextField(
+                controller: _rsshubBaseController,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: 'RSSHub 实例',
+                  hintText: 'https://rsshub.app',
+                  prefixIcon: Icon(Icons.dns_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _routeController,
+                textInputAction: TextInputAction.go,
+                onSubmitted: (_) => _submit(),
+                decoration: const InputDecoration(
+                  labelText: '路由路径',
+                  hintText: '/zhihu/daily 或 zhihu/daily',
+                  prefixIcon: Icon(Icons.route_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _format,
+                      dropdownColor: dropdownColor,
+                      decoration: const InputDecoration(labelText: '输出格式'),
+                      items: const [
+                        DropdownMenuItem(value: 'rss', child: Text('RSS')),
+                        DropdownMenuItem(value: 'atom', child: Text('Atom')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => _format = value);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _limitController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        labelText: '条数限制',
+                        hintText: '可选',
+                        suffixText: '条',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: const Text('抓取全文'),
+                subtitle: const Text('部分路由支持 fulltext=true，会增加抓取时间'),
+                value: _fullText,
+                onChanged: (value) => setState(() => _fullText = value),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '当前默认实例：${settings.rsshubBaseUrl}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            if (loading)
+              const LinearProgressIndicator(color: FluxColors.red)
+            else
+              Text(
+                _mode == _AddMode.rsshub
+                    ? '输入 RSSHub 路由路径即可生成订阅地址，例如 /zhihu/daily。'
+                    : '也可以稍后在浏览器中找到某个网站的 RSS 图标，复制其链接粘贴到这里。',
+                style: const TextStyle(color: FluxColors.gray),
+              ),
           ],
-          const SizedBox(height: 24),
-          if (loading)
-            const LinearProgressIndicator(color: FluxColors.red)
-          else
-            Text(
-              _mode == _AddMode.rsshub
-                  ? '输入 RSSHub 路由路径即可生成订阅地址，例如 /zhihu/daily。'
-                  : '也可以稍后在浏览器中找到某个网站的 RSS 图标，复制其链接粘贴到这里。',
-              style: const TextStyle(color: FluxColors.gray),
-            ),
-        ],
+        ),
       ),
     );
   }
