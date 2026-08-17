@@ -18,6 +18,11 @@ final refreshSchedulerProvider = Provider<RefreshScheduler>((ref) {
         ref.read(settingsProvider).textRetentionDays,
   );
   ref.onDispose(scheduler.stop);
+  // 设置页修改刷新间隔后立即重排定时器，无需重启应用。
+  ref.listen<int>(
+    settingsProvider.select((s) => s.refreshIntervalMinutes),
+    (previous, next) => scheduler.updateInterval(next),
+  );
   scheduler.start();
   return scheduler;
 });

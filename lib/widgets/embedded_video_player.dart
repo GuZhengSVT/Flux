@@ -87,8 +87,9 @@ class _EmbeddedVideoPlayerState extends State<EmbeddedVideoPlayer> {
     try {
       if (widget.useCache && MediaCache.instance.isConfigured) {
         try {
-          final file = await MediaCache.instance.videoCacheManager
-              .getSingleFile(widget.url);
+          final file = await MediaCache.instance.videos.getSingleFile(
+            widget.url,
+          );
           if (!mounted) return;
           await _player.open(Media(file.path), play: false);
         } catch (_) {
@@ -209,7 +210,7 @@ class _EmbeddedVideoPlayerState extends State<EmbeddedVideoPlayer> {
   );
 }
 
-/// 播放失败时的“外部播放器”占位，样式与 `VideoPlaceholder` 保持一致。
+/// 播放失败时的“外部播放器”占位。
 class _ExternalPlayerFallback extends StatelessWidget {
   const _ExternalPlayerFallback({required this.onOpen});
 

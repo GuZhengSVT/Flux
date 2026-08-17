@@ -33,6 +33,15 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
   void initState() {
     super.initState();
     _article = widget.article;
+    if (!_article.isRead && _article.id != null) {
+      // 打开详情页即标记已读；同步更新本地状态，避免 build 中重复触发。
+      _article = _article.copyWith(isRead: true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(feedControllerProvider.notifier).markRead(_article, true);
+        }
+      });
+    }
   }
 
   Future<void> _fetchFullText() async {
@@ -51,15 +60,6 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = ref.read(feedControllerProvider.notifier);
-    if (!_article.isRead && _article.id != null) {
-      // 打开详情页即标记已读；通过 scheduleMicrotask 避免 build 中触发状态更新。
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_article.id != null) {
-          controller.markRead(_article.copyWith(isRead: true), true);
-        }
-      });
-    }
-
     final contentHtml = _article.contentHtml ?? '';
     final hasRichContent = contentHtml.trim().isNotEmpty;
     final needsFullText =
@@ -205,43 +205,5 @@ class _ArticleReaderScreenState extends ConsumerState<ArticleReaderScreen> {
     if (date == null) return '';
     final local = date.toLocal();
     return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-  }
-}
-
-class VideoPlaceholder extends StatelessWidget {
-  const VideoPlaceholder({super.key, required this.url, required this.height});
-
-  final String url;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        final uri = Uri.tryParse(url);
-        if (uri != null) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-      },
-      child: Container(
-        height: height,
-        decoration: BoxDecoration(
-          color: FluxColors.darkRaised,
-          borderRadius: BorderRadius.circular(2),
-          border: Border.all(color: FluxColors.red),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.play_circle_fill, color: FluxColors.red, size: 56),
-            const SizedBox(height: 8),
-            Text(
-              '点击播放视频（外部播放器）',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

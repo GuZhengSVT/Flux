@@ -71,19 +71,4 @@ class Feed {
     );
   }
 
-  Map<String, Object?> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'url': url,
-      'site_url': siteUrl,
-      'description': description,
-      'category': category,
-      'icon_url': iconUrl,
-      'last_fetched_at': lastFetchedAt?.toIso8601String(),
-      'is_favorite': isFavorite ? 1 : 0,
-      'rating': rating,
-      'is_pinned': isPinned ? 1 : 0,
-    };
-  }
 }

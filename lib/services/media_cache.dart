@@ -63,12 +63,6 @@ class MediaCache {
     oldVideos?.dispose();
   }
 
-  /// 获取图片缓存管理器（供 CachedNetworkImage 使用）。
-  CacheManager get imageCacheManager => images;
-
-  /// 获取视频缓存管理器（供 EmbeddedVideoPlayer 使用）。
-  CacheManager get videoCacheManager => videos;
-
   /// 清空全部媒体缓存（用于“立即清理”按钮）。
   Future<void> clearAll() async {
     if (isConfigured) {

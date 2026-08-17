@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../data/app_database.dart';
 import '../providers/feed_provider.dart';
-import '../providers/settings_provider.dart';
 import 'notification_service.dart';
 
 /// 应用运行期间的定时刷新调度器。
@@ -19,20 +18,6 @@ class RefreshScheduler {
     NotificationService? notificationService,
   }) : _notificationService =
            notificationService ?? NotificationService.instance;
-
-  /// 使用固定的 [SettingsState] 构造调度器（适合在启动时就拿到设置快照）。
-  RefreshScheduler.withSettings({
-    required AppDatabase database,
-    required FeedController feedController,
-    required SettingsState settings,
-    NotificationService? notificationService,
-  }) : this(
-         database: database,
-         feedController: feedController,
-         readIntervalMinutes: () => settings.refreshIntervalMinutes,
-         readTextRetentionDays: () => settings.textRetentionDays,
-         notificationService: notificationService,
-       );
 
   final AppDatabase database;
   final FeedController feedController;

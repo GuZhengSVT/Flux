@@ -11,6 +11,7 @@ import '../providers/settings_provider.dart';
 import '../theme/flux_theme.dart';
 import '../widgets/article_list_tile.dart';
 import '../widgets/lazy_network_image.dart';
+import '../widgets/text_prompt.dart';
 import 'add_feed_screen.dart';
 import 'article_reader_screen.dart';
 import 'settings_screen.dart';
@@ -19,12 +20,30 @@ import 'subscription_management_screen.dart';
 /// 桌面布局切换到移动布局的最小宽度阈值。
 const double _kCompactWidth = 900;
 
+/// 按 feedId 查找订阅标题；找不到时返回空串。
+String _feedTitle(List<Feed> feeds, int feedId) {
+  for (final feed in feeds) {
+    if (feed.id == feedId) {
+      return feed.title;
+    }
+  }
+  return '';
+}
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
+
+/// 顶部导航各页面对应的筛选条件（顺序与 NavigationRail/NavigationBar 一致）。
+const _navFilters = [
+  FeedFilter.all,
+  FeedFilter.unread,
+  FeedFilter.favorites,
+  FeedFilter.readLater,
+];
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final _searchController = TextEditingController();
@@ -49,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final controller = ref.read(feedControllerProvider.notifier);
     // 切换顶部导航时清除已选订阅/分组，回到全局视图。
     controller.selectFeed(null);
-    controller.setFilter(FeedFilter.values[index]);
+    controller.setFilter(_navFilters[index]);
   }
 
   void _openAddFeed() {
@@ -143,15 +162,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final index = _selectedIndex.clamp(0, state.articles.length - 1);
     final article = state.articles[index];
     _openArticle(article, _feedTitle(state.feeds, article.feedId));
-  }
-
-  String _feedTitle(List<Feed> feeds, int feedId) {
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        return feed.title;
-      }
-    }
-    return '';
   }
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
@@ -323,6 +333,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               searchFocusNode: _searchFocusNode,
               selectedIndex: selectedIndex,
               onSearchChanged: controller.setQuery,
+              onDismissError: controller.clearError,
               onArticleTap: (article, feedTitle, index) {
                 setState(() => _selectedIndex = index);
                 _openArticle(article, feedTitle);
@@ -431,10 +442,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: ArticleListPanel(
         state: state,
         showThumbnails: settings.showThumbnails,
+        // 移动端搜索框在 AppBar 内，这里不再渲染桌面标题栏；
+        // 否则两个 TextField 共享同一 FocusNode 会导致焦点异常。
+        withHeader: false,
         searchController: _searchController,
         searchFocusNode: _searchFocusNode,
         selectedIndex: selectedIndex,
         onSearchChanged: controller.setQuery,
+        onDismissError: controller.clearError,
         onArticleTap: (article, feedTitle, index) {
           setState(() => _selectedIndex = index);
           _openArticle(article, feedTitle);
@@ -697,17 +712,26 @@ class _FeedSidebar extends StatelessWidget {
       case 'refresh':
         onRefreshFeed(feed.id!);
       case 'rename':
-        final title = await _promptText(context, '重命名订阅', feed.title);
+        final title = await showTextPrompt(
+          context,
+          title: '重命名订阅',
+          initial: feed.title,
+          hint: '请输入名称',
+        );
         if (title != null && title.trim().isNotEmpty) {
           onRenameFeed(feed.id!, title.trim());
         }
       case 'editUrl':
-        final url = await _promptText(context, '订阅链接', feed.url);
+        final url = await showTextPrompt(
+          context,
+          title: '订阅链接',
+          initial: feed.url,
+        );
         if (url != null && url.trim().isNotEmpty) {
           onUpdateFeedUrl(feed.id!, url.trim());
         }
       case 'move':
-        await _promptMoveGroup(context, feed);
+        await _promptMoveGroup(context, feed, position);
       case 'delete':
         await _confirmDelete(context, feed);
     }
@@ -736,7 +760,12 @@ class _FeedSidebar extends StatelessWidget {
     }
     switch (action) {
       case 'rename':
-        final newName = await _promptText(context, '重命名分组', groupName);
+        final newName = await showTextPrompt(
+          context,
+          title: '重命名分组',
+          initial: groupName,
+          hint: '请输入名称',
+        );
         if (newName != null && newName.trim().isNotEmpty) {
           onRenameGroup(groupName, newName.trim());
         }
@@ -767,12 +796,21 @@ class _FeedSidebar extends StatelessWidget {
     }
   }
 
-  Future<void> _promptMoveGroup(BuildContext context, Feed feed) async {
+  Future<void> _promptMoveGroup(
+    BuildContext context,
+    Feed feed,
+    Offset position,
+  ) async {
     const ungrouped = '__ungrouped__';
     const newGroup = '__new__';
     final selected = await showMenu<String>(
       context: context,
-      position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
       items: [
         const PopupMenuItem(value: ungrouped, child: Text('未分组')),
         for (final group in groups)
@@ -787,44 +825,17 @@ class _FeedSidebar extends StatelessWidget {
     if (selected == ungrouped) {
       onUpdateFeedCategory(feed.id!, null);
     } else if (selected == newGroup) {
-      final name = await _promptText(context, '新建分组', '');
+      final name = await showTextPrompt(
+        context,
+        title: '新建分组',
+        hint: '请输入名称',
+      );
       if (name != null && name.trim().isNotEmpty) {
         onUpdateFeedCategory(feed.id!, name.trim());
       }
     } else if (selected != null) {
       onUpdateFeedCategory(feed.id!, selected);
     }
-  }
-
-  Future<String?> _promptText(
-    BuildContext context,
-    String title,
-    String initial,
-  ) async {
-    final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入名称'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return result;
   }
 
   Future<void> _confirmDelete(BuildContext context, Feed feed) async {
@@ -851,6 +862,118 @@ class _FeedSidebar extends StatelessWidget {
   }
 }
 
+/// 文章筛选控件：时间 / 排序 / 显示模式。
+///
+/// [usePopupLayout] 为 true 时“显示模式”用弹出菜单（移动端），
+/// 否则用下拉框（桌面端）。
+class _ArticleFilterControls extends StatelessWidget {
+  const _ArticleFilterControls({
+    required this.timeRange,
+    required this.sort,
+    required this.layout,
+    required this.onTimeRangeChanged,
+    required this.onSortChanged,
+    required this.onLayoutChanged,
+    this.usePopupLayout = false,
+  });
+
+  final TimeRange timeRange;
+  final ArticleSort sort;
+  final ArticleLayout layout;
+  final ValueChanged<TimeRange> onTimeRangeChanged;
+  final ValueChanged<ArticleSort> onSortChanged;
+  final ValueChanged<ArticleLayout> onLayoutChanged;
+  final bool usePopupLayout;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 110,
+          child: DropdownButtonFormField<TimeRange>(
+            initialValue: timeRange,
+            decoration: const InputDecoration(
+              labelText: '时间',
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(value: TimeRange.all, child: Text('全部')),
+              DropdownMenuItem(value: TimeRange.today, child: Text('今日')),
+              DropdownMenuItem(value: TimeRange.week, child: Text('本周')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                onTimeRangeChanged(value);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 130,
+          child: DropdownButtonFormField<ArticleSort>(
+            initialValue: sort,
+            decoration: const InputDecoration(
+              labelText: '排序',
+              isDense: true,
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: ArticleSort.newestFirst,
+                child: Text('最新在前'),
+              ),
+              DropdownMenuItem(
+                value: ArticleSort.oldestFirst,
+                child: Text('最早在前'),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                onSortChanged(value);
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        if (usePopupLayout)
+          PopupMenuButton<ArticleLayout>(
+            tooltip: '显示模式',
+            icon: const Icon(Icons.view_module_outlined),
+            onSelected: onLayoutChanged,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: ArticleLayout.single, child: Text('单列')),
+              PopupMenuItem(value: ArticleLayout.double, child: Text('双列')),
+              PopupMenuItem(value: ArticleLayout.masonry, child: Text('瀑布流')),
+            ],
+          )
+        else
+          SizedBox(
+            width: 120,
+            child: DropdownButtonFormField<ArticleLayout>(
+              initialValue: layout,
+              decoration: const InputDecoration(
+                labelText: '显示',
+                isDense: true,
+              ),
+              items: const [
+                DropdownMenuItem(value: ArticleLayout.single, child: Text('单列')),
+                DropdownMenuItem(value: ArticleLayout.double, child: Text('双列')),
+                DropdownMenuItem(value: ArticleLayout.masonry, child: Text('瀑布流')),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  onLayoutChanged(value);
+                }
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// 文章列表面板：桌面端带标题栏与搜索框，移动端仅展示正文列表。
 ///
 /// [withHeader] 为 true 时渲染标题与搜索框（桌面端），否则由移动端在
@@ -864,6 +987,7 @@ class ArticleListPanel extends StatelessWidget {
     required this.searchFocusNode,
     required this.selectedIndex,
     required this.onSearchChanged,
+    this.onDismissError,
     required this.onArticleTap,
     required this.onReadToggle,
     required this.onFavoriteToggle,
@@ -885,6 +1009,7 @@ class ArticleListPanel extends StatelessWidget {
   final FocusNode searchFocusNode;
   final int selectedIndex;
   final ValueChanged<String> onSearchChanged;
+  final VoidCallback? onDismissError;
   final void Function(Article article, String feedTitle, int index)
   onArticleTap;
   final void Function(Article article, bool read) onReadToggle;
@@ -938,90 +1063,13 @@ class ArticleListPanel extends StatelessWidget {
                       label: const Text('全部已读'),
                     ),
                   const SizedBox(width: 12),
-                  SizedBox(
-                    width: 110,
-                    child: DropdownButtonFormField<TimeRange>(
-                      initialValue: articleTimeRange,
-                      decoration: const InputDecoration(
-                        labelText: '时间',
-                        isDense: true,
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: TimeRange.all,
-                          child: Text('全部'),
-                        ),
-                        DropdownMenuItem(
-                          value: TimeRange.today,
-                          child: Text('今日'),
-                        ),
-                        DropdownMenuItem(
-                          value: TimeRange.week,
-                          child: Text('本周'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onArticleTimeRangeChanged(value);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 130,
-                    child: DropdownButtonFormField<ArticleSort>(
-                      initialValue: articleSort,
-                      decoration: const InputDecoration(
-                        labelText: '排序',
-                        isDense: true,
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: ArticleSort.newestFirst,
-                          child: Text('最新在前'),
-                        ),
-                        DropdownMenuItem(
-                          value: ArticleSort.oldestFirst,
-                          child: Text('最早在前'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onArticleSortChanged(value);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 120,
-                    child: DropdownButtonFormField<ArticleLayout>(
-                      initialValue: articleLayout,
-                      decoration: const InputDecoration(
-                        labelText: '显示',
-                        isDense: true,
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: ArticleLayout.single,
-                          child: Text('单列'),
-                        ),
-                        DropdownMenuItem(
-                          value: ArticleLayout.double,
-                          child: Text('双列'),
-                        ),
-                        DropdownMenuItem(
-                          value: ArticleLayout.masonry,
-                          child: Text('瀑布流'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onArticleLayoutChanged(value);
-                        }
-                      },
-                    ),
+                  _ArticleFilterControls(
+                    timeRange: articleTimeRange,
+                    sort: articleSort,
+                    layout: articleLayout,
+                    onTimeRangeChanged: onArticleTimeRangeChanged,
+                    onSortChanged: onArticleSortChanged,
+                    onLayoutChanged: onArticleLayoutChanged,
                   ),
                   const SizedBox(width: 12),
                   SizedBox(
@@ -1059,83 +1107,14 @@ class ArticleListPanel extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 120,
-                    child: DropdownButtonFormField<TimeRange>(
-                      initialValue: articleTimeRange,
-                      decoration: const InputDecoration(
-                        labelText: '时间',
-                        isDense: true,
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: TimeRange.all,
-                          child: Text('全部'),
-                        ),
-                        DropdownMenuItem(
-                          value: TimeRange.today,
-                          child: Text('今日'),
-                        ),
-                        DropdownMenuItem(
-                          value: TimeRange.week,
-                          child: Text('本周'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onArticleTimeRangeChanged(value);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 130,
-                    child: DropdownButtonFormField<ArticleSort>(
-                      initialValue: articleSort,
-                      decoration: const InputDecoration(
-                        labelText: '排序',
-                        isDense: true,
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: ArticleSort.newestFirst,
-                          child: Text('最新在前'),
-                        ),
-                        DropdownMenuItem(
-                          value: ArticleSort.oldestFirst,
-                          child: Text('最早在前'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          onArticleSortChanged(value);
-                        }
-                      },
-                    ),
-                  ),
-                  PopupMenuButton<ArticleLayout>(
-                    tooltip: '显示模式',
-                    icon: const Icon(Icons.view_module_outlined),
-                    onSelected: onArticleLayoutChanged,
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
-                        value: ArticleLayout.single,
-                        child: Text('单列'),
-                      ),
-                      PopupMenuItem(
-                        value: ArticleLayout.double,
-                        child: Text('双列'),
-                      ),
-                      PopupMenuItem(
-                        value: ArticleLayout.masonry,
-                        child: Text('瀑布流'),
-                      ),
-                    ],
-                  ),
-                ],
+              child: _ArticleFilterControls(
+                timeRange: articleTimeRange,
+                sort: articleSort,
+                layout: articleLayout,
+                onTimeRangeChanged: onArticleTimeRangeChanged,
+                onSortChanged: onArticleSortChanged,
+                onLayoutChanged: onArticleLayoutChanged,
+                usePopupLayout: true,
               ),
             ),
           ),
@@ -1145,7 +1124,12 @@ class ArticleListPanel extends StatelessWidget {
           MaterialBanner(
             content: Text(state.error!),
             leading: const Icon(Icons.error_outline, color: FluxColors.red),
-            actions: [TextButton(onPressed: () {}, child: const Text('知道了'))],
+            actions: [
+              TextButton(
+                onPressed: onDismissError,
+                child: const Text('知道了'),
+              ),
+            ],
           ),
         Expanded(
           child: state.loading && state.articles.isEmpty
@@ -1397,7 +1381,6 @@ class ArticleListPanel extends StatelessWidget {
     Article article,
     int index, {
     bool selected = false,
-    bool compact = false,
   }) {
     final feedTitle = _feedTitle(state.feeds, article.feedId);
     final groupName = _feedGroup(state.feeds, article.feedId);
@@ -1405,7 +1388,7 @@ class ArticleListPanel extends StatelessWidget {
       article: article,
       feedTitle: feedTitle,
       groupName: groupName,
-      showThumbnail: showThumbnails && !compact,
+      showThumbnail: showThumbnails,
       selected: selected,
       onTap: () => onArticleTap(article, feedTitle, index),
       onLongPress: onArticleLongPress == null
@@ -1417,15 +1400,6 @@ class ArticleListPanel extends StatelessWidget {
       onReadToggle: () => onReadToggle(article, !article.isRead),
       onFavoriteToggle: () => onFavoriteToggle(article),
     );
-  }
-
-  String _feedTitle(List<Feed> feeds, int feedId) {
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        return feed.title;
-      }
-    }
-    return '';
   }
 
   String? _feedGroup(List<Feed> feeds, int feedId) {

@@ -17,7 +17,7 @@ class FeedFetcher {
 
   final Dio _dio;
 
-  Future<ParsedFeed> fetchAndParse(String url, {Duration? timeout}) async {
+  Future<ParsedFeed> fetchAndParse(String url) async {
     final uri = Uri.tryParse(url.trim());
     if (uri == null ||
         !uri.hasScheme ||
@@ -30,8 +30,8 @@ class FeedFetcher {
         uri.toString(),
         options: Options(
           responseType: ResponseType.plain,
-          sendTimeout: timeout ?? const Duration(seconds: 20),
-          receiveTimeout: timeout ?? const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 20),
+          receiveTimeout: const Duration(seconds: 30),
           followRedirects: true,
           headers: {
             'User-Agent': 'FluxRSS/0.1 (+https://github.com/flux-rss)',

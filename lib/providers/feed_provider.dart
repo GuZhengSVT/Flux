@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/app_database.dart';
@@ -34,6 +36,8 @@ class FeedLibraryState {
     this.articleTimeRange = TimeRange.all,
     this.articleSort = ArticleSort.newestFirst,
     this.articleLayout = ArticleLayout.single,
+    this.articleLimit = 1000,
+    this.hasMoreArticles = false,
   });
 
   final bool loading;
@@ -51,9 +55,14 @@ class FeedLibraryState {
   final ArticleSort articleSort;
   final ArticleLayout articleLayout;
 
+  /// 当前文章列表每页加载数量，默认与数据库单次查询上限一致。
+  final int articleLimit;
+  final bool hasMoreArticles;
+
   FeedLibraryState copyWith({
     bool? loading,
     String? error,
+    bool clearError = false,
     List<Feed>? feeds,
     List<Article>? articles,
     List<String>? groups,
@@ -66,10 +75,12 @@ class FeedLibraryState {
     TimeRange? articleTimeRange,
     ArticleSort? articleSort,
     ArticleLayout? articleLayout,
+    int? articleLimit,
+    bool? hasMoreArticles,
   }) {
     return FeedLibraryState(
       loading: loading ?? this.loading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       feeds: feeds ?? this.feeds,
       articles: articles ?? this.articles,
       groups: groups ?? this.groups,
@@ -82,6 +93,8 @@ class FeedLibraryState {
       articleTimeRange: articleTimeRange ?? this.articleTimeRange,
       articleSort: articleSort ?? this.articleSort,
       articleLayout: articleLayout ?? this.articleLayout,
+      articleLimit: articleLimit ?? this.articleLimit,
+      hasMoreArticles: hasMoreArticles ?? this.hasMoreArticles,
     );
   }
 }
@@ -96,45 +109,70 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   final FeedFetcher _fetcher;
   final FullTextExtractor _fullTextExtractor;
 
+  /// 搜索输入防抖定时器，静默一段时间后才触发重查。
+  Timer? _searchDebounce;
+
+  /// 当前文章列表已加载到的偏移量，供“加载更多”使用。
+  int _articleOffset = 0;
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
+  }
+
   Future<void> load() async {
-    state = state.copyWith(loading: true, error: null);
     _reload();
   }
 
+  /// 清除当前错误提示（供 UI 上的“知道了”按钮调用）。
+  void clearError() {
+    if (state.error != null) {
+      state = state.copyWith(clearError: true);
+    }
+  }
+
   void _reload({String? error}) {
+    final feeds = _applyFeedPreferences(_db.getFeeds());
+    final articles = _applyGroupFilter(
+      _applyArticleTimeRange(
+        _db.getArticles(
+          feedId: state.selectedFeedId,
+          unreadOnly: state.filter == FeedFilter.unread ? true : null,
+          favoritesOnly: state.filter == FeedFilter.favorites ? true : null,
+          readLaterOnly: state.filter == FeedFilter.readLater ? true : null,
+          query: state.query,
+          limit: state.articleLimit,
+          offset: 0,
+        ),
+      ),
+      feeds: feeds,
+    );
+    _articleOffset = 0;
     state = state.copyWith(
       loading: false,
       error: error,
-      feeds: _applyFeedPreferences(_db.getFeeds()),
+      feeds: feeds,
       groups: _db.getGroups(),
-      articles: _applyGroupFilter(
-        _applyArticleTimeRange(
-          _db.getArticles(
-            feedId: state.selectedFeedId,
-            unreadOnly: state.filter == FeedFilter.unread ? true : null,
-            favoritesOnly: state.filter == FeedFilter.favorites ? true : null,
-            readLaterOnly: state.filter == FeedFilter.readLater ? true : null,
-            query: state.query,
-          ),
-        ),
-      ),
+      articles: articles,
+      hasMoreArticles: articles.length >= state.articleLimit,
     );
   }
 
-  List<Article> _applyGroupFilter(List<Article> articles) {
+  List<Article> _applyGroupFilter(List<Article> articles, {List<Feed>? feeds}) {
     final group = state.selectedGroup;
     if (group == null || group.isEmpty) {
       return articles;
     }
-    final feeds = _db.getFeeds();
+    final sourceFeeds = feeds ?? state.feeds;
     final Set<int> feedIds;
     if (group == '__ungrouped__') {
-      feedIds = feeds
+      feedIds = sourceFeeds
           .where((f) => f.category == null || f.category!.trim().isEmpty)
           .map((f) => f.id!)
           .toSet();
     } else {
-      feedIds = feeds
+      feedIds = sourceFeeds
           .where((f) => f.category == group)
           .map((f) => f.id!)
           .toSet();
@@ -224,7 +262,10 @@ class FeedController extends StateNotifier<FeedLibraryState> {
 
   void setQuery(String query) {
     state = state.copyWith(query: query);
-    _reload();
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      _reload();
+    });
   }
 
   void setFeedSort(FeedSort sort) {
@@ -250,6 +291,35 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   void setArticleLayout(ArticleLayout layout) {
     state = state.copyWith(articleLayout: layout);
     _reload();
+  }
+
+  /// 加载下一页文章并追加到当前列表。
+  ///
+  /// UI 尚未接线；此方法供后续分页 UI 使用，当前保持向后兼容。
+  Future<void> loadMore() async {
+    if (!state.hasMoreArticles) {
+      return;
+    }
+    final offset = _articleOffset + state.articleLimit;
+    final more = _applyGroupFilter(
+      _applyArticleTimeRange(
+        _db.getArticles(
+          feedId: state.selectedFeedId,
+          unreadOnly: state.filter == FeedFilter.unread ? true : null,
+          favoritesOnly: state.filter == FeedFilter.favorites ? true : null,
+          readLaterOnly: state.filter == FeedFilter.readLater ? true : null,
+          query: state.query,
+          limit: state.articleLimit,
+          offset: offset,
+        ),
+      ),
+      feeds: state.feeds,
+    );
+    _articleOffset = offset;
+    state = state.copyWith(
+      articles: [...state.articles, ...more],
+      hasMoreArticles: more.length >= state.articleLimit,
+    );
   }
 
   Future<void> addFeed(String url) async {
@@ -289,21 +359,25 @@ class FeedController extends StateNotifier<FeedLibraryState> {
       return;
     }
     state = state.copyWith(loading: true, error: null);
-    for (final feed in feeds) {
-      await _refreshOne(feed, notify: false);
-    }
+    await _refreshFeeds(feeds);
     _reload();
   }
 
-  Future<void> refreshFeed(int feedId) async {
-    final feeds = _db.getFeeds();
-    Feed? feed;
-    for (final f in feeds) {
-      if (f.id == feedId) {
-        feed = f;
-        break;
-      }
+  /// 以有界并发方式刷新多个订阅。
+  ///
+  /// 每次最多并发 [refreshConcurrency] 个，`_refreshOne` 内部已隔离单源异常。
+  Future<void> _refreshFeeds(
+    List<Feed> feeds, {
+    int refreshConcurrency = 4,
+  }) async {
+    for (var start = 0; start < feeds.length; start += refreshConcurrency) {
+      final batch = feeds.skip(start).take(refreshConcurrency).toList();
+      await Future.wait(batch.map((feed) => _refreshOne(feed, notify: false)));
     }
+  }
+
+  Future<void> refreshFeed(int feedId) async {
+    final feed = _db.getFeedById(feedId);
     if (feed == null) {
       return;
     }
@@ -347,15 +421,18 @@ class FeedController extends StateNotifier<FeedLibraryState> {
     _reload();
   }
 
-  void renameFeed(int feedId, String newTitle) {
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(title: newTitle.trim()));
-        break;
-      }
+  /// 按 id 更新单个订阅；订阅不存在时静默跳过。
+  void _updateFeedById(int feedId, Feed Function(Feed feed) update) {
+    final feed = _db.getFeedById(feedId);
+    if (feed == null) {
+      return;
     }
+    _db.updateFeed(update(feed));
     _reload();
+  }
+
+  void renameFeed(int feedId, String newTitle) {
+    _updateFeedById(feedId, (feed) => feed.copyWith(title: newTitle.trim()));
   }
 
   void updateFeedCategory(int feedId, String? category) {
@@ -364,13 +441,9 @@ class FeedController extends StateNotifier<FeedLibraryState> {
     if (normalized != null) {
       _db.ensureGroup(normalized);
     }
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(category: normalized));
-        break;
-      }
-    }
+    // 直写 SQL：`Feed.copyWith` 无法把可空字段置回 null，
+    // 走 copyWith 会导致“移到未分组”静默失败。
+    _db.updateFeedCategory(feedId, normalized);
     _reload();
   }
 
@@ -379,48 +452,23 @@ class FeedController extends StateNotifier<FeedLibraryState> {
     if (clean.isEmpty) {
       return;
     }
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(url: clean));
-        break;
-      }
-    }
-    _reload();
+    _updateFeedById(feedId, (feed) => feed.copyWith(url: clean));
   }
 
   void toggleFeedFavorite(int feedId) {
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(isFavorite: !feed.isFavorite));
-        break;
-      }
-    }
-    _reload();
+    _updateFeedById(
+      feedId,
+      (feed) => feed.copyWith(isFavorite: !feed.isFavorite),
+    );
   }
 
   void setFeedRating(int feedId, int rating) {
     final clamped = rating.clamp(0, 5);
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(rating: clamped));
-        break;
-      }
-    }
-    _reload();
+    _updateFeedById(feedId, (feed) => feed.copyWith(rating: clamped));
   }
 
   void toggleFeedPinned(int feedId) {
-    final feeds = _db.getFeeds();
-    for (final feed in feeds) {
-      if (feed.id == feedId) {
-        _db.updateFeed(feed.copyWith(isPinned: !feed.isPinned));
-        break;
-      }
-    }
-    _reload();
+    _updateFeedById(feedId, (feed) => feed.copyWith(isPinned: !feed.isPinned));
   }
 
   void createGroup(String name) {
@@ -453,9 +501,7 @@ class FeedController extends StateNotifier<FeedLibraryState> {
       return;
     }
     state = state.copyWith(loading: true, error: null);
-    for (final feed in feeds) {
-      await _refreshOne(feed, notify: false);
-    }
+    await _refreshFeeds(feeds);
     _reload();
   }
 
@@ -474,6 +520,10 @@ class FeedController extends StateNotifier<FeedLibraryState> {
       }
       try {
         final parsed = await _fetcher.fetchAndParse(item.xmlUrl);
+        final category = item.category?.trim();
+        if (category != null && category.isNotEmpty) {
+          _db.ensureGroup(category);
+        }
         final feedId = _db.insertFeed(
           Feed(
             title: parsed.title.isNotEmpty ? parsed.title : item.title,
@@ -481,6 +531,7 @@ class FeedController extends StateNotifier<FeedLibraryState> {
             siteUrl: parsed.siteUrl,
             description: parsed.description,
             iconUrl: parsed.iconUrl,
+            category: category,
             lastFetchedAt: DateTime.now(),
           ),
         );
@@ -501,9 +552,7 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   }
 
   void markRead(Article article, bool read) {
-    final updated = article.copyWith(isRead: read);
-    _db.updateArticle(updated);
-    _reload();
+    _updateSingleArticle(article.copyWith(isRead: read));
   }
 
   void markAllRead() {
@@ -512,15 +561,39 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   }
 
   void toggleFavorite(Article article) {
-    final updated = article.copyWith(isFavorite: !article.isFavorite);
-    _db.updateArticle(updated);
-    _reload();
+    _updateSingleArticle(article.copyWith(isFavorite: !article.isFavorite));
   }
 
   void toggleReadLater(Article article) {
-    final updated = article.copyWith(isReadLater: !article.isReadLater);
+    _updateSingleArticle(article.copyWith(isReadLater: !article.isReadLater));
+  }
+
+  /// 单条文章操作后的内存更新。
+  ///
+  /// 先写库，再在 `state.articles` 中替换对应项；若当前筛选（未读/收藏/稍后读）
+  /// 不再满足，则从当前列表移除。由于操作只改变布尔状态，不改变 feed/分组/
+  /// 时间/搜索条件，无需重查 feeds/groups 或全量文章。
+  /// 若文章不在当前列表（例如从外部打开的文章），回退到全量 `_reload()`。
+  void _updateSingleArticle(Article updated) {
     _db.updateArticle(updated);
-    _reload();
+    final index = state.articles.indexWhere((a) => a.id == updated.id);
+    if (index == -1) {
+      _reload();
+      return;
+    }
+
+    final nextArticles = [...state.articles];
+    nextArticles[index] = updated;
+    final filtered = nextArticles.where((a) {
+      return switch (state.filter) {
+        FeedFilter.all => true,
+        FeedFilter.unread => !a.isRead,
+        FeedFilter.favorites => a.isFavorite,
+        FeedFilter.readLater => a.isReadLater,
+      };
+    }).toList();
+
+    state = state.copyWith(articles: filtered);
   }
 
   /// 抓取原文全文并更新本地缓存。

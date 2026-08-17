@@ -79,9 +79,35 @@ class AppDatabase {
     _db.execute(
       'CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at DESC);',
     );
+    // 旧索引对 NULL link 不生效（SQLite 唯一索引中 NULL 互不相同），
+    // 会导致无 link 文章每次刷新重复插入。先删旧索引，再清理历史重复数据，
+    // 最后创建以空字符串归一化的表达式唯一索引。
+    final existingIndex = _db.select('''
+      SELECT sql FROM sqlite_master
+      WHERE type = 'index' AND name = 'idx_articles_feed_link_title'
+    ''');
+    final legacySql = existingIndex.isEmpty
+        ? ''
+        : (existingIndex.first['sql'] as String? ?? '');
+    final hasLegacyIndex =
+        existingIndex.isNotEmpty &&
+        legacySql.contains('link') &&
+        !legacySql.contains('COALESCE');
+    _db.execute('DROP INDEX IF EXISTS idx_articles_feed_link_title');
+    if (hasLegacyIndex) {
+      // 仅在旧索引确实存在时清理历史重复行，避免每次启动都全表扫描。
+      _db.execute('''
+        DELETE FROM articles
+        WHERE id NOT IN (
+          SELECT MIN(id)
+          FROM articles
+          GROUP BY feed_id, COALESCE(link, ''), title
+        )
+        ''');
+    }
     _db.execute(
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_articles_feed_link_title '
-      'ON articles(feed_id, link, title);',
+      "ON articles(feed_id, COALESCE(link, ''), title);",
     );
 
     _ensureColumn('feeds', 'is_favorite', 'INTEGER NOT NULL DEFAULT 0');
@@ -162,6 +188,25 @@ class AppDatabase {
       url,
     ]);
     return rows.first['c'] as int;
+  }
+
+  Feed? getFeedById(int feedId) {
+    final rows = _db.select('SELECT * FROM feeds WHERE id = ?', [feedId]);
+    if (rows.isEmpty) {
+      return null;
+    }
+    return Feed.fromMap(rows.first);
+  }
+
+  /// 直接更新订阅分组。
+  ///
+  /// 绕开 `Feed.copyWith` 无法把可空字段置回 null 的限制，
+  /// [category] 为 null 时把订阅移回“未分组”。
+  void updateFeedCategory(int feedId, String? category) {
+    _db.execute('UPDATE feeds SET category = ? WHERE id = ?', [
+      category,
+      feedId,
+    ]);
   }
 
   // ============ Groups ============
@@ -267,7 +312,8 @@ class AppDatabase {
     bool? favoritesOnly,
     bool? readLaterOnly,
     String? query,
-    int limit = 500,
+    int limit = 1000,
+    int? offset,
   }) {
     final where = <String>[];
     final args = <Object?>[];
@@ -293,17 +339,57 @@ class AppDatabase {
 
     final sql =
         '''
-      SELECT a.*, f.title AS feed_title, f.icon_url AS feed_icon_url
+      SELECT a.*
       FROM articles a
-      LEFT JOIN feeds f ON f.id = a.feed_id
       ${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')}'}
       ORDER BY COALESCE(a.published_at, a.fetched_at) DESC
-      LIMIT ?
+      LIMIT ?${offset == null ? '' : ' OFFSET ?'}
     ''';
     args.add(limit);
+    if (offset != null) {
+      args.add(offset);
+    }
 
     final rows = _db.select(sql, args);
     return rows.map(Article.fromMap).toList();
+  }
+
+  /// 统计当前筛选条件下符合条件的文章总数，供分页/加载更多使用。
+  int countArticles({
+    int? feedId,
+    bool? unreadOnly,
+    bool? favoritesOnly,
+    bool? readLaterOnly,
+    String? query,
+  }) {
+    final where = <String>[];
+    final args = <Object?>[];
+
+    if (feedId != null) {
+      where.add('feed_id = ?');
+      args.add(feedId);
+    }
+    if (unreadOnly == true) {
+      where.add('is_read = 0');
+    }
+    if (favoritesOnly == true) {
+      where.add('is_favorite = 1');
+    }
+    if (readLaterOnly == true) {
+      where.add('is_read_later = 1');
+    }
+    if (query != null && query.trim().isNotEmpty) {
+      where.add('(title LIKE ? OR summary LIKE ? OR content LIKE ?)');
+      final like = '%${query.trim()}%';
+      args.addAll([like, like, like]);
+    }
+
+    final rows = _db.select('''
+      SELECT COUNT(*) AS c
+      FROM articles a
+      ${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')}'}
+      ''', args);
+    return rows.first['c'] as int;
   }
 
   void updateArticle(Article article) {
@@ -339,11 +425,7 @@ class AppDatabase {
     }
   }
 
-  void deleteArticlesForFeed(int feedId) {
-    _db.execute('DELETE FROM articles WHERE feed_id = ?', [feedId]);
-  }
-
-  /// 删除早于 [retention] 的文章（文本保存策略）。
+  /// 删除早于 [retention] 的文章（文本保留策略）。
   ///
   /// 使用 `fetched_at`，缺失时回退到 `published_at`。
   int deleteArticlesOlderThan(Duration retention) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/feed.dart';
 import '../providers/feed_provider.dart';
 import '../theme/flux_theme.dart';
+import '../widgets/text_prompt.dart';
 import 'add_feed_screen.dart';
 
 class SubscriptionManagementScreen extends ConsumerStatefulWidget {
@@ -205,7 +206,7 @@ class _SubscriptionManagementScreenState
     FeedController controller,
     String group,
   ) async {
-    final name = await _promptText(context, '重命名分组', group);
+    final name = await showTextPrompt(context, title: '重命名分组', initial: group);
     if (name != null && name.trim().isNotEmpty) {
       controller.renameGroup(group, name.trim());
     }
@@ -244,37 +245,6 @@ class _SubscriptionManagementScreenState
     } else if (action == 'delete') {
       controller.deleteGroupWithOption(group, deleteFeeds: true);
     }
-  }
-
-  Future<String?> _promptText(
-    BuildContext context,
-    String title,
-    String initial,
-  ) async {
-    final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入内容'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return result;
   }
 }
 
@@ -366,48 +336,25 @@ class _GroupBlock extends StatelessWidget {
   }
 
   Future<void> _promptRename(BuildContext context, Feed feed) async {
-    final title = await _promptText(context, '重命名订阅', feed.title);
+    final title = await showTextPrompt(
+      context,
+      title: '重命名订阅',
+      initial: feed.title,
+    );
     if (title != null && title.trim().isNotEmpty) {
       onRenameFeed(feed.id!, title.trim());
     }
   }
 
   Future<void> _promptEditUrl(BuildContext context, Feed feed) async {
-    final url = await _promptText(context, '订阅链接', feed.url);
+    final url = await showTextPrompt(
+      context,
+      title: '订阅链接',
+      initial: feed.url,
+    );
     if (url != null && url.trim().isNotEmpty) {
       onEditUrl(feed.id!, url.trim());
     }
-  }
-
-  Future<String?> _promptText(
-    BuildContext context,
-    String title,
-    String initial,
-  ) async {
-    final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入内容'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return result;
   }
 }
 

@@ -48,16 +48,4 @@ class RSSHubService {
         .replace(queryParameters: {...uri.queryParameters, ...query})
         .toString();
   }
-
-  /// 判断是否为 RSSHub 地址（用于自动识别）。
-  bool isRssHubUrl(String url) {
-    final uri = Uri.tryParse(url);
-    if (uri == null) {
-      return false;
-    }
-    final host = uri.host.toLowerCase();
-    return host == 'rsshub.app' ||
-        host.endsWith('.rsshub.app') ||
-        host.contains('rsshub');
-  }
 }

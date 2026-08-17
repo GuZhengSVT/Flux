@@ -212,15 +212,6 @@ class _CategoryPage extends ConsumerWidget {
               onChanged: controller.setVideoRetentionDays,
             ),
             _NumberField(
-              label: '媒体缓存空间上限',
-              description: '缓存空间达到上限后，自动清理最久未使用的内容',
-              value: settings.mediaCacheLimitMb,
-              min: 128,
-              max: 4096,
-              suffix: 'MB',
-              onChanged: controller.setMediaCacheLimit,
-            ),
-            _NumberField(
               label: '缓存文件数上限',
               description: '缓存条目超过该值时，自动清理最久未使用的内容',
               value: settings.maxCacheItems,

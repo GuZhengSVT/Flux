@@ -91,31 +91,4 @@ class Article {
     );
   }
 
-  Map<String, Object?> toMap() {
-    return {
-      'id': id,
-      'feed_id': feedId,
-      'title': title,
-      'link': link,
-      'author': author,
-      'published_at': publishedAt?.toIso8601String(),
-      'content': contentHtml,
-      'summary': summary,
-      'image_url': imageUrl,
-      'categories': categories?.join('|'),
-      'is_read': isRead ? 1 : 0,
-      'is_favorite': isFavorite ? 1 : 0,
-      'is_read_later': isReadLater ? 1 : 0,
-      'fetched_at': fetchedAt?.toIso8601String(),
-    };
-  }
-
-  /// 简单排序比较器：最新发布在前。
-  static int byNewest(Article a, Article b) {
-    final at =
-        a.publishedAt ?? a.fetchedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final bt =
-        b.publishedAt ?? b.fetchedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-    return bt.compareTo(at);
-  }
 }

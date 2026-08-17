@@ -50,17 +50,10 @@ class FullTextExtractor {
         document.querySelector('#content')!,
     ];
 
-    final main = candidates.firstOrNull ?? document.body;
+    final main = candidates.isEmpty ? document.body : candidates.first;
     if (main == null) {
       throw const FormatException('未能定位正文');
     }
     return main.innerHtml.trim();
-  }
-}
-
-extension _FirstOrNull<T> on Iterable<T> {
-  T? get firstOrNull {
-    final iterator = this.iterator;
-    return iterator.moveNext() ? iterator.current : null;
   }
 }

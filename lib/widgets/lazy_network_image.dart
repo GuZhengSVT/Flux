@@ -49,7 +49,7 @@ class LazyNetworkImage extends StatelessWidget {
       borderRadius: borderRadius,
       child: CachedNetworkImage(
         imageUrl: imageUrl,
-        cacheManager: MediaCache.instance.imageCacheManager,
+        cacheManager: MediaCache.instance.images,
         width: width,
         height: height,
         fit: fit,

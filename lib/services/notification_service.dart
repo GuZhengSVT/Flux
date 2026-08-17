@@ -100,7 +100,3 @@ class NotificationService {
     }
   }
 }
-
-/// 顶层便捷函数：展示「Flux 有新文章」通知。
-Future<void> showNewArticlesNotification(int count) =>
-    NotificationService.instance.showNewArticlesNotification(count);

@@ -17,7 +17,6 @@ class SettingsState {
     this.textRetentionDays = 30,
     this.imageRetentionDays = 7,
     this.videoRetentionDays = 1,
-    this.mediaCacheLimitMb = 512,
     this.maxCacheItems = 500,
     this.autoCacheVideos = false,
     this.rsshubBaseUrl = 'https://rsshub.app',
@@ -32,7 +31,6 @@ class SettingsState {
   final int textRetentionDays;
   final int imageRetentionDays;
   final int videoRetentionDays;
-  final int mediaCacheLimitMb;
   final int maxCacheItems;
   final bool autoCacheVideos;
 
@@ -53,7 +51,6 @@ class SettingsState {
     int? textRetentionDays,
     int? imageRetentionDays,
     int? videoRetentionDays,
-    int? mediaCacheLimitMb,
     int? maxCacheItems,
     bool? autoCacheVideos,
     String? rsshubBaseUrl,
@@ -67,7 +64,6 @@ class SettingsState {
       textRetentionDays: textRetentionDays ?? this.textRetentionDays,
       imageRetentionDays: imageRetentionDays ?? this.imageRetentionDays,
       videoRetentionDays: videoRetentionDays ?? this.videoRetentionDays,
-      mediaCacheLimitMb: mediaCacheLimitMb ?? this.mediaCacheLimitMb,
       maxCacheItems: maxCacheItems ?? this.maxCacheItems,
       autoCacheVideos: autoCacheVideos ?? this.autoCacheVideos,
       rsshubBaseUrl: rsshubBaseUrl ?? this.rsshubBaseUrl,
@@ -83,7 +79,6 @@ class SettingsState {
       'textRetentionDays': textRetentionDays,
       'imageRetentionDays': imageRetentionDays,
       'videoRetentionDays': videoRetentionDays,
-      'mediaCacheLimitMb': mediaCacheLimitMb,
       'maxCacheItems': maxCacheItems,
       'autoCacheVideos': autoCacheVideos,
       'rsshubBaseUrl': rsshubBaseUrl,
@@ -101,7 +96,6 @@ class SettingsState {
       textRetentionDays: json['textRetentionDays'] as int? ?? 30,
       imageRetentionDays: json['imageRetentionDays'] as int? ?? 7,
       videoRetentionDays: json['videoRetentionDays'] as int? ?? 1,
-      mediaCacheLimitMb: json['mediaCacheLimitMb'] as int? ?? 512,
       maxCacheItems: json['maxCacheItems'] as int? ?? 500,
       autoCacheVideos: json['autoCacheVideos'] as bool? ?? false,
       rsshubBaseUrl: json['rsshubBaseUrl'] as String? ?? 'https://rsshub.app',
@@ -182,11 +176,6 @@ class SettingsController extends StateNotifier<SettingsState> {
   Future<void> setVideoRetentionDays(int days) async {
     state = state.copyWith(videoRetentionDays: days);
     _applyMediaCache();
-    await _save();
-  }
-
-  Future<void> setMediaCacheLimit(int mb) async {
-    state = state.copyWith(mediaCacheLimitMb: mb);
     await _save();
   }
 
