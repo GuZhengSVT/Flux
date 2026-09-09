@@ -87,9 +87,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _openArticle(Article article, String feedTitle) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) =>
+      PageRouteBuilder<void>(
+        // The default Material route translates the whole feed list during
+        // the transition. On desktop this makes a large list (and its image
+        // layers) repaint on every frame, which is especially noticeable in
+        // the masonry layout. Keep the existing page still and only animate
+        // the reader into place.
+        transitionDuration: const Duration(milliseconds: 180),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+        pageBuilder: (_, _, _) =>
             ArticleReaderScreen(article: article, feedTitle: feedTitle),
+        transitionsBuilder: (_, animation, _, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          // Keep the feed list completely still. Even a small page-wide
+          // translation makes a desktop list with thumbnails look like it is
+          // sliding out and can trigger expensive repaints.
+          return FadeTransition(opacity: curved, child: child);
+        },
       ),
     );
   }
@@ -959,8 +977,7 @@ class _ArticleFilterControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dropdownColor =
-        Theme.of(context).brightness == Brightness.dark
+    final dropdownColor = Theme.of(context).brightness == Brightness.dark
         ? FluxColors.darkRaised
         : FluxColors.bone;
     return Row(

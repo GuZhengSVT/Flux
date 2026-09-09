@@ -47,7 +47,9 @@ class ArticleListTile extends StatelessWidget {
           InkWell(
             onTap: onTap,
             onLongPress: onLongPress,
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
               decoration: BoxDecoration(
                 color: selected
@@ -73,33 +75,58 @@ class ArticleListTile extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                article.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.titleMedium?.copyWith(
-                                  fontWeight: article.isRead
-                                      ? FontWeight.w500
-                                      : FontWeight.w800,
-                                  color: article.isRead
-                                      ? Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 180),
+                                curve: Curves.easeOut,
+                                style:
+                                    textTheme.titleMedium?.copyWith(
+                                      fontWeight: article.isRead
+                                          ? FontWeight.w500
+                                          : FontWeight.w800,
+                                      color: article.isRead
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant
+                                          : null,
+                                    ) ??
+                                    const TextStyle(),
+                                child: Text(
+                                  article.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 160),
+                              transitionBuilder: (child, animation) =>
+                                  ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  ),
+                              child: IconButton(
+                                key: ValueKey(article.isFavorite),
+                                onPressed: onFavoriteToggle,
+                                visualDensity: VisualDensity.compact,
+                                tooltip: article.isFavorite ? '取消收藏' : '收藏',
+                                icon: Icon(
+                                  article.isFavorite
+                                      ? Icons.star_rounded
+                                      : Icons.star_border_rounded,
+                                  color: article.isFavorite
+                                      ? FluxColors.wireGold
                                       : null,
                                 ),
                               ),
                             ),
                             IconButton(
-                              onPressed: onFavoriteToggle,
+                              onPressed: onReadToggle,
                               visualDensity: VisualDensity.compact,
-                              tooltip: article.isFavorite ? '取消收藏' : '收藏',
+                              tooltip: article.isRead ? '标记为未读' : '标记为已读',
                               icon: Icon(
-                                article.isFavorite
-                                    ? Icons.star_rounded
-                                    : Icons.star_border_rounded,
-                                color: article.isFavorite
-                                    ? FluxColors.wireGold
-                                    : null,
+                                article.isRead
+                                    ? Icons.mark_email_read_outlined
+                                    : Icons.mark_email_unread_outlined,
                               ),
                             ),
                           ],

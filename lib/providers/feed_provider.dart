@@ -68,6 +68,7 @@ class FeedLibraryState {
     List<String>? groups,
     FeedFilter? filter,
     int? selectedFeedId,
+    bool clearSelectedFeedId = false,
     String? selectedGroup,
     String? query,
     FeedSort? feedSort,
@@ -85,7 +86,12 @@ class FeedLibraryState {
       articles: articles ?? this.articles,
       groups: groups ?? this.groups,
       filter: filter ?? this.filter,
-      selectedFeedId: selectedFeedId ?? this.selectedFeedId,
+      // null normally means "keep the previous value" in copyWith. Feed
+      // navigation also needs to intentionally clear the current feed, so it
+      // uses this explicit flag to distinguish the two cases.
+      selectedFeedId: clearSelectedFeedId
+          ? null
+          : (selectedFeedId ?? this.selectedFeedId),
       selectedGroup: selectedGroup ?? this.selectedGroup,
       query: query ?? this.query,
       feedSort: feedSort ?? this.feedSort,
@@ -246,12 +252,16 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   }
 
   void selectFeed(int? feedId) {
-    state = state.copyWith(selectedFeedId: feedId, selectedGroup: '');
+    state = state.copyWith(
+      selectedFeedId: feedId,
+      clearSelectedFeedId: feedId == null,
+      selectedGroup: '',
+    );
     _reload();
   }
 
   void selectGroup(String group) {
-    state = state.copyWith(selectedFeedId: null, selectedGroup: group);
+    state = state.copyWith(clearSelectedFeedId: true, selectedGroup: group);
     _reload();
   }
 
@@ -416,7 +426,7 @@ class FeedController extends StateNotifier<FeedLibraryState> {
   void deleteFeed(int feedId) {
     _db.deleteFeed(feedId);
     if (state.selectedFeedId == feedId) {
-      state = state.copyWith(selectedFeedId: null);
+      state = state.copyWith(clearSelectedFeedId: true);
     }
     _reload();
   }

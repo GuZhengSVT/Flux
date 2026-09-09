@@ -18,6 +18,7 @@ class LazyNetworkImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.borderRadius = const BorderRadius.all(Radius.circular(2)),
+    this.onTap,
   });
 
   final String url;
@@ -25,6 +26,7 @@ class LazyNetworkImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final BorderRadius borderRadius;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -45,28 +47,34 @@ class LazyNetworkImage extends StatelessWidget {
         ? (height! * dpr).round()
         : null;
 
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        cacheManager: MediaCache.instance.images,
+    final image = CachedNetworkImage(
+      imageUrl: imageUrl,
+      cacheManager: MediaCache.instance.images,
+      width: width,
+      height: height,
+      fit: fit,
+      memCacheWidth: memCacheWidth,
+      memCacheHeight: memCacheHeight,
+      filterQuality: FilterQuality.medium,
+      fadeInDuration: const Duration(milliseconds: 180),
+      fadeOutDuration: const Duration(milliseconds: 100),
+      placeholder: (context, url) => _Placeholder(
         width: width,
         height: height,
-        fit: fit,
-        memCacheWidth: memCacheWidth,
-        memCacheHeight: memCacheHeight,
-        filterQuality: FilterQuality.medium,
-        placeholder: (context, url) => _Placeholder(
-          width: width,
-          height: height,
-          borderRadius: borderRadius,
-        ),
-        errorWidget: (context, url, error) => _Placeholder(
-          width: width,
-          height: height,
-          borderRadius: borderRadius,
-        ),
+        borderRadius: borderRadius,
       ),
+      errorWidget: (context, url, error) => _Placeholder(
+        width: width,
+        height: height,
+        borderRadius: borderRadius,
+      ),
+    );
+    final clipped = ClipRRect(borderRadius: borderRadius, child: image);
+    if (onTap == null) return clipped;
+    return Semantics(
+      button: true,
+      label: '查看图片',
+      child: InkWell(onTap: onTap, child: clipped),
     );
   }
 }

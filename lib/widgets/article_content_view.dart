@@ -20,12 +20,14 @@ class ArticleContentView extends StatelessWidget {
     this.baseUrl,
     this.fontSize = 16,
     this.onOpenLink,
+    this.onOpenImage,
   });
 
   final String html;
   final String? baseUrl;
   final double fontSize;
   final void Function(String url)? onOpenLink;
+  final void Function(String url)? onOpenImage;
 
   @override
   Widget build(BuildContext context) {
@@ -311,6 +313,9 @@ class ArticleContentView extends StatelessWidget {
                   url: resolved,
                   width: double.infinity,
                   fit: BoxFit.contain,
+                  onTap: onOpenImage == null
+                      ? null
+                      : () => onOpenImage!(resolved),
                 ),
               ),
             ),
@@ -608,6 +613,9 @@ class ArticleContentView extends StatelessWidget {
                 width: 140,
                 height: 100,
                 fit: BoxFit.cover,
+                onTap: onOpenImage == null
+                    ? null
+                    : () => onOpenImage!(_resolveUrl(src)),
               ),
             ),
           ),
