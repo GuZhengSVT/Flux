@@ -4,6 +4,8 @@
 <dict>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
+	<!-- T006：Flutter macOS 模板默认缺少 client 权限，沙盒下所有对外请求会静默失败
+	     （原型实测：RSS/AI/WebDAV 全部不可用）。RSS、AI 与 WebDAV 均需出站连接。 -->
 	<key>com.apple.security.network.client</key>
 	<true/>
 </dict>

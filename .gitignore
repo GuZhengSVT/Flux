@@ -1,54 +1,133 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# Flux — 忽略规则（新 Flutter 工程）
+#
+# 平台策略（本工程的取舍，T006 落地时请保留这段说明）：
+#   - macos/ 是需要入库的平台工程目录（首发平台），**不整目录忽略**，只忽略其中
+#     的可再生产物与用户态文件（Pods/、ephemeral/、xcuserdata/、
+#     GeneratedPluginRegistrant 等）。
+#   - android/ 在 T006 会初始化，但按 D-02 暂缓发布。这里采用“通用条目 + 一行可
+#     切换”的方式：文件末尾给出 `android/` 一行，若希望 Android 工程随仓库提交
+#     （便于后续在 CI 上启用 Android 检查），取消该行注释即可；无论是否提交整个
+#     目录，其密钥与本地路径文件都会被下面的通用条目忽略。
+#   - ios/ windows/ linux/ 属 D-03 保留路线、当前不初始化，按整目录忽略；
+#     对应平台立项时再移除忽略行。
+#   - 任何平台目录下的密钥、签名与本地路径文件（key.properties、*.jks、
+#     local.properties、*.p12 等）一律忽略，不属于“可提交的工程内容”。
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# ---------------------------------------------------------------------------
+# Dart / Flutter 工具与构建产物
+# ---------------------------------------------------------------------------
 .dart_tool/
+.packages
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
+**/doc/api/
 
-# Local release artifacts (not committed to source control)
-/dist/
-
-# Tool/editor artifacts
-/.dsh-vision-router/
-
-# Symbolication related
+# 混淆与符号化输出
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Widget Preview related
+# Widget 预览
 .widget_preview/
+
+# ---------------------------------------------------------------------------
+# IDE / 编辑器
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+**/.history/
+# .vscode/ 里可能包含共享的调试配置；默认不提交，需要共享时再取消注释。
+.vscode/
+
+# ---------------------------------------------------------------------------
+# macOS 系统噪声
+# ---------------------------------------------------------------------------
+.DS_Store
+**/.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# ---------------------------------------------------------------------------
+# 未启用平台（D-03：保留路线，当前不初始化、不提交）
+# ---------------------------------------------------------------------------
+# 用根锚定（前导 /）只忽略仓库根下的平台目录，避免误伤其他位置的同名目录。
+/ios/
+/windows/
+/linux/
+
+# ---------------------------------------------------------------------------
+# Android 通用条目（无论 android/ 整个目录是否入库都适用）
+# ---------------------------------------------------------------------------
+**/android/local.properties
+**/android/key.properties
+**/key.properties
+**/android/.gradle/
+**/android/captures/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/.cxx/
+**/android/.kotlin/
+**/android/**/GeneratedPluginRegistrant.*
+*.pdb
+
+# ---------------------------------------------------------------------------
+# 平台生成物：macOS（工程本身入库，仅忽略可再生产物与用户态文件）
+# ---------------------------------------------------------------------------
+**/macos/Pods/
+**/macos/.symlinks/
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Generated.xcconfig
+**/macos/Flutter/flutter_export_environment.sh
+**/macos/Runner/GeneratedPluginRegistrant.*
+**/macos/**/xcuserdata/
+**/macos/**/*.xcuserstate
+**/macos/**/*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+# ---------------------------------------------------------------------------
+# 凭据、签名与本机配置：任何情况下都不得提交
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!/.env.example
+secrets.*
+*.[kK]eystore
+*.jks
+*.p12
+*.p8
+*.mobileprovision
+
+# ---------------------------------------------------------------------------
+# 本地发布产物
+# ---------------------------------------------------------------------------
+dist/
+
+# ---------------------------------------------------------------------------
+# pubspec.lock 策略（本仓库：提交，因此不忽略）
+# ---------------------------------------------------------------------------
+# 本仓库是**应用**而不是供他人依赖的 library。应用提交 pubspec.lock 的理由：
+#   1) 可复现构建：CI 与本地、以及不同时间的构建使用完全相同的依赖版本；
+#   2) 供应链可见：依赖版本变化会在 diff 中显式出现，而非静默漂移；
+#   3) 便于在 CI 里用 --enforce-lockfile 让 lock 与 pubspec.yaml 不一致时直接失败，
+#      而不是悄悄升级（CI 目前是普通 pub get，加严方式见 .github/workflows/ci.yml 注释）。
+# 反例：library/package 目录通常不提交 lock（消费方自行解析版本）。若将来把部分
+# 代码拆为对外发布的 package，只在该 package 目录下忽略其 pubspec.lock，根目录
+# 仍保持提交。
+# 注意：本文件不包含 pubspec.lock 的忽略行；这是有意为之。
+
+# ---------------------------------------------------------------------------
+# 可选：Android 平台目录的整体忽略（默认不启用）
+# ---------------------------------------------------------------------------
+# T006 会初始化 android/。当前默认让它进入版本控制，便于 Android 阶段与 CI 直接
+# 使用；若维护者决定暂时只提交 macOS，取消下面一行的注释即可。切换后上面的
+# Android 通用条目仍然生效，不会因此把密钥或本机路径文件带进仓库。
+# android/

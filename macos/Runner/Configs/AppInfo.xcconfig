@@ -5,10 +5,11 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
+// T006：显示名定为 Flux（bundle id 保持 io.github.guzhengsvt.flux）。
 PRODUCT_NAME = Flux
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.flux.flux
+PRODUCT_BUNDLE_IDENTIFIER = io.github.guzhengsvt.flux
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.flux. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 io.github.guzhengsvt. All rights reserved.

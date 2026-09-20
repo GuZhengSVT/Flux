@@ -1,139 +1,74 @@
 # Flux
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.13-0175C2?logo=dart&logoColor=white)](https://dart.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux%20%7C%20Android%20%7C%20iOS-lightgrey)](#)
-[![Version](https://img.shields.io/github/v/tag/GuZhengSVT/Flux?label=version)](https://github.com/GuZhengSVT/Flux)
+本地优先的新闻与 RSS 阅读器。
 
-Flux is a cross-platform RSS/Atom reader built with Flutter. It prioritizes the desktop experience and is optimized for smooth scrolling and memory usage in feeds with many images and videos.
+> **当前状态：M0（安全开工与技术路线）开发中。本仓库尚未交付任何可用功能。**
+>
+> 仓库目前处于重写初期：新工程的脚手架、Flutter 技术栈验证和基础模块仍在搭建，任何功能模块都还没有完成。下面描述的是**目标形态**，不是已经实现的功能；除构建环境准备外，不要把本文当作使用方法或功能说明。真实进度以 [docs/Flux_AI开发手册.md](./docs/Flux_AI开发手册.md) 的功能账本为准；其中「已实现列表」和「已验收列表」均为空。
 
-> [中文说明](README.zh-CN.md)
+## 项目定位
 
-## Table of Contents
+Flux 是一个**本地优先**的桌面/移动新闻与 RSS 阅读器：订阅、正文、阅读状态和总结都存在你自己的设备上。软件不提供 Flux 账号，也没有业务后端；AI、联网搜索和 WebDAV 服务由你自己配置并自行承担费用。AI 与搜索只在你主动配置并确认数据去向之后才会被调用。
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [Build](#build)
-- [Roadmap](#roadmap)
-- [Documentation](#documentation)
-- [License](#license)
+目标平台以 macOS 优先，随后是 Android。iOS、Windows、Linux 保留在跨平台路线中，但不承诺首发时间。
 
-## Introduction
+计划中的能力范围（**均为未实现的目标**）包括：RSS/Atom 订阅与 OPML 导入导出、分组的「未读／已读／稍后再读」三态与独立收藏、本地全文搜索、阅读统计、静态 HTML 正文提取、Markdown 与常用 LaTeX 数学渲染、代码高亮，以及结合订阅内容、指定网站和联网搜索生成的每日新闻总结与来源核验。
 
-Flux is a multi-platform RSS/Atom aggregator for macOS, Windows, Linux, Android, and iOS. It combines subscription management, group management, rich article rendering, media caching, and offline storage in one application for users who read many image-heavy or video-heavy feeds every day.
+明确不做的事：不内置浏览器内核、WebView 或网页脚本执行；不做账号体系、不解码动态网页。相关约束见 [docs/Flux_项目架构说明书.md](./docs/Flux_项目架构说明书.md)。
 
-Primary goals:
+## 路线图
 
-- Keep article lists smooth with feeds that contain many images and videos.
-- Provide a desktop-first reading interface while retaining mobile adaptation.
-- Use local SQLite caching and LRU media cleanup to reduce repeated network requests and disk usage.
-- Support RSSHub to extend non-standard RSS sources.
+开发按里程碑推进，每个里程碑有明确出口条件；下表是路线摘要，任务编号与验收细节见 [AI 开发手册](./docs/Flux_AI开发手册.md)。**M1 之后的内容都还没有开始。**
 
-## Features
+| 里程碑 | 内容 | 状态 |
+| --- | --- | --- |
+| M0 安全开工与技术路线 | 旧版封存与清理、四项能力原型验证（RSS 阅读、新闻总结、Markdown、数学公式）、Flutter 工具链锁定、正式脚手架与 CI 基线 | **进行中** |
+| M1 本地阅读闭环 | 数据层、导航、订阅管理、三态阅读、正文渲染、搜索与统计；完全离线可用，不依赖 AI | 未开始 |
+| M2 AI、搜索与新闻闭环 | AI 协议适配与提供商验证、联网搜索与证据链、每日总结与定时任务 | 未开始 |
+| M3 同步、恢复与清理 | WebDAV 同步共通设置与阅读状态、明文备份恢复、存储清理 | 未开始 |
+| M4 平台与质量验收 | macOS/Android 目标系统与设备验收、可访问性、国际化、性能与安全矩阵 | 未开始 |
+| M5 首发 | 干净环境下的构建与安装验证、签名与许可齐备、GitHub Releases 发布 | 未开始 |
+| M6 后续路线 | 桌面分页、跨块文本选择、其他平台客户端 | 未开始 |
 
-- Subscription management: add, rename, edit URL, delete, refresh, favorite, pin, and rate subscriptions.
-- Group management: create, rename, delete, drag subscriptions between groups, and filter articles by group.
-- Reading experience: single-column, double-column, and masonry layouts; today/this-week time filters; newest/oldest sorting.
-- Article rendering: HTML and Markdown, images, tables, KaTeX-style math, and cross-paragraph selection.
-- Media optimization: lazy image loading with size-aware decoding, embedded video playback, and fallback to an external player on failure.
-- RSSHub: configurable instance URL, format/limit/fulltext parameters, and automatic fallback to the default instance.
-- Offline cache: SQLite local storage; text retained for 30 days, images for 7 days, videos for 1 day; LRU media cache cleanup.
-- Refresh and notifications: scheduled background refresh and local notifications for new articles.
-- Import/export: OPML import and export.
-- Multi-platform: desktop context menus and shortcuts, responsive mobile UI.
-- Theme: dark/light mode and adjustable font size.
+M0–M5 的必需项全部通过才构成首发；M1、M2 只是内部可用里程碑。
 
-## Architecture
+## macOS 构建（开发中）
 
-Flux uses a layered architecture that separates UI, state, business logic, and data.
+仓库当前处于 M0，工程结构与依赖尚未锁定。以下命令是**开发期自检**方式，用于验证本机工具链能编译工程，不代表已存在可用功能或可用发行包。
 
-- Presentation: `lib/screens/`, `lib/widgets/`, `lib/theme/`
-- State: `lib/providers/`, based on Riverpod
-- Models: `lib/models/`
-- Data: `lib/data/`, based on SQLite (`package:sqlite3`)
-- Services: `lib/services/`, including feed fetching, RSS/Atom parsing, RSSHub, OPML, full-text extraction, media cache, notifications, scheduled refresh, and storage cleanup
+前置条件：
 
-Data flow:
+- 一台 Apple Silicon 的 macOS 主机（验收基线与最低系统目标见架构说明书第 8 节）。
+- 与本工程匹配的 Flutter stable 版本；版本在 M0 的 T005 锁定，锁定前请先查看仓库内的工具链记录，不要盲目使用最新版。
+- Xcode 与命令行工具；macOS 桌面构建需要宿主系统自带的相关依赖。
 
-```text
-Feed URL
-  -> FeedFetcher (Dio)
-  -> FeedParser (RSS/Atom)
-  -> AppDatabase (SQLite)
-  -> FeedController (Riverpod)
-  -> HomeScreen / ArticleReaderScreen
-```
+在仓库根目录执行：
 
-Media strategy:
+    flutter --version          # 先确认本机版本与工具链记录一致
+    flutter pub get
+    flutter build macos --debug
 
-- Article lists use virtualized lists and staggered grids; only visible items are built.
-- Images use `LazyNetworkImage` with `cacheWidth` / `cacheHeight` based on display size to reduce decoding memory.
-- Videos use `media_kit` for embedded playback and fall back to an external player on failure.
-- Media cache is managed by `flutter_cache_manager` and cleaned with LRU.
+调试运行：
 
-## Getting Started
+    flutter run -d macos
 
-Prerequisites:
+说明：
 
-- Flutter SDK 3.x (Dart 3.13 or newer)
-- macOS builds require Xcode and CocoaPods
-- Windows builds require the Visual Studio C++ toolchain
-- Linux builds require GTK development libraries
+- 此处只给出 macOS。Android 暂缓，其构建与签名方式在 Android 阶段单独补充。
+- `--debug` 是开发期自检，不是发布构建。正式发布需要 `--release` 加签名与公证，属于 M5 范围，目前均未完成。
+- 本文不写死 Flutter 版本号。版本一经 T005 锁定，会在工具链记录与 CI 中固定。
+- 测试命令（`flutter analyze`、`flutter test`）与 CI 基线见 `.github/workflows/ci.yml`。
 
-```bash
-flutter pub get
-flutter run -d macos
-```
+## 参与开发
 
-Other platforms:
+提交改动前请先读 [项目架构说明书](./docs/Flux_项目架构说明书.md) 与 [AI 开发手册](./docs/Flux_AI开发手册.md)，按编号任务做小范围、可验证的改动。新增依赖需要说明其平台范围、许可证和资源代价；数据库或同步相关改动需要提供迁移与恢复测试。
 
-```bash
-flutter run -d windows
-flutter run -d linux
-flutter run -d android
-flutter run -d ios
-```
+提 Issue 时请附上版本、系统与设备、复现步骤、预期与实际行为。日志和截图请先脱敏，不要提交 API Key、私密订阅地址或私人正文。
 
-## Build
+## 许可证
 
-```bash
-flutter build macos --debug
-flutter build windows --debug
-flutter build linux --debug
-flutter build apk --debug
-```
+本项目采用 **MIT 许可证**，见仓库根目录的 [LICENSE](./LICENSE)。MIT 允许自由使用、修改、再分发，也允许闭源衍生，只要求保留版权与许可声明。
 
-macOS release build:
+第三方依赖、字体和素材各自遵循其原许可证，不因本项目采用 MIT 而改变。
 
-```bash
-flutter build macos
-```
-
-## Roadmap
-
-Planned development directions:
-
-- Web and PWA support.
-- Cross-device synchronization of read state, favorites, and subscriptions.
-- Full-text search based on SQLite FTS5.
-- Offline article archive and offline reading improvements.
-- Per-feed notification controls and granular refresh schedules.
-- More RSSHub route templates and a visual route builder.
-- Reader annotations, highlights, and note export.
-- Isolate-based feed parsing and database operations for lower UI load.
-- Custom themes and a plugin interface.
-- Mobile home-screen widgets and deeper system integration.
-- Performance profiling and memory tuning for low-end devices.
-
-## Documentation
-
-- [Development Plan](PLAN.md)
-- [Architecture](docs/architecture.md)
-- [Design](docs/design.md)
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+**旧版 Flux 的代码与素材不属于新版本的许可范围。** 重写不会把旧代码或旧素材自动转为 MIT；已封存的旧版保留其原有授权条件，相关说明见 [docs/legacy/README.md](./docs/legacy/README.md)。

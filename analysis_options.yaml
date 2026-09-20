@@ -1,38 +1,80 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
+# Flux 静态分析配置（T006 草案）
 #
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# 基线为 flutter_lints 推荐集，叠加少量面向本项目的规则。
+# 依赖版本：pubspec.yaml 中 flutter_lints 的开发依赖版本由主代理在
+#   flutter create 之后按锁定工具链核对，此处不写死（占位 x.y.z）。
+# 若锁定版本较新，需对照该版的 flutter.yaml 检查下面显式启用的规则是否已被
+# 默认包含；重复启用不会报错，但注释应随之更新，避免与上游推荐集漂移。
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  # 平台目录与构建产物不参与分析：它们是生成/平台代码，规则差异大且噪音高。
   exclude:
     - build/**
+    - .dart_tool/**
     - android/**
     - ios/**
-    - web/**
     - windows/**
-    - macos/**
     - linux/**
+    - macos/**
+    - "**/*.g.dart"          # build_runner 生成物
+    - "**/*.freezed.dart"    # build_runner 生成物
+    - web/**
+
+  language:
+    strict-casts: true        # 禁止隐式 dynamic 转换，网络/数据库边界尤其重要
+    strict-inference: true    # 推断不出来时报错，避免隐式 dynamic 传播
+    strict-raw-types: true    # 禁止裸泛型，例如 Future 而非 Future<void>
+
+  errors:
+    # 未完成标记不允许静默通过：TODO 只是注释，这里是编译期可见的占位。
+    todo: ignore              # 允许 TODO 注释存在（规划任务会大量使用）
+    # 以下两项在本项目属于真实缺陷，升级为错误。
+    unused_import: error
+    unused_local_variable: warning
+    invalid_annotation_target: ignore
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # --- 常量与不可变性 -------------------------------------------------
+    # 无副作用、参数为常量的构造应尽量 const，减少重建与内存占用；
+    # 列表页面卡片较多时收益明显。
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # --- 日志与副作用 ---------------------------------------------------
+    # 不使用 print；诊断输出走统一日志层，避免把正文/凭据写进控制台。
+    avoid_print: true
+    # 不隐式丢弃 Future，异步任务（刷新、AI 调用）必须被等待或显式忽略。
+    unawaited_futures: true
+
+    # --- 代码清晰度 -----------------------------------------------------
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    close_sinks: true
+    prefer_single_quotes: true
+    prefer_final_fields: true
+    sort_child_properties_last: true
+    use_super_parameters: true
+    unnecessary_parenthesis: true
+    unnecessary_lambdas: true
+    avoid_unnecessary_containers: true
+    use_key_in_widget_constructors: true
+    sized_box_for_whitespace: true
+
+    # --- 面向本项目的约束 -----------------------------------------------
+    # public_member_api_docs 属于文档强度选择，暂不启用；若后续要求核心
+    # domain/application 层完整注释，再按目录用 analysis_options 拆分启用。
+    # implementation_imports: true  # 禁止跨包导入实现文件（依赖落地后再定）
+
+# 后续演进提示（不在本轮启用）：
+# 1) 可对 lib/domain 与 lib/application 使用更严格的子配置，禁止导入 infrastructure；
+# 2) 依赖方向检查（展示层不得直接访问数据库/付费 API）目前靠评审与测试，
+#    若需要工具化，另行评估 custom_lint 或 import 规则的可行性，不在此预置。

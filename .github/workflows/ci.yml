@@ -1,0 +1,90 @@
+# Flux CI 基线（T006 草稿）
+#
+# 设计取舍：
+# - matrix 仅 macos-latest。Android 按 D-02/D-03 暂缓，等 Android 阶段再补 runner。
+# - 只做静态检查与单元/组件测试，**不在此运行构建**：macOS release 构建耗时与
+#   磁盘占用都很高，构建回归放在本地验收（见 README 的 macOS 构建与 T008 契约）。
+# - 工作流不引用任何秘密（无 API Key、无签名证书、无付费服务）。若某步骤需要
+#   凭据才能运行，则该步骤不应出现在这里。
+# - 强制使用已提交的 pubspec.lock，保证 CI 与本地依赖一致。
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+# 最小权限：只需要读仓库内容。
+permissions:
+  contents: read
+
+# 同一分支的新提交取消仍在跑的旧任务，避免排队浪费。
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # 降低 Flutter/Dart 遥测与匿名统计，保持 CI 输出可控。
+  FLUTTER_SUPPRESS_ANALYTICS: "true"
+  DART_SUPPRESS_ANALYTICS: "true"
+
+jobs:
+  analyze-and-test:
+    name: format / analyze / test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # Android 暂缓，不在本文件添加 android runner。
+        os:
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ------------------------------------------------------------------
+      # Flutter 版本：占位，待主代理在 T005 锁定工具链后填入并固定。
+      # 目前写 x.y.z，说明如下：
+      #   1) 到 toolchain 记录（T005 产出）中读取精确版本与 channel；
+      #   2) 把下面的 x.y.z 替换为锁定版本号，例如 3.2x.y；
+      #   3) 若工程使用 FVM 或 .flutter-version，改为从该文件读取，避免两处漂移。
+      #   4) 锁定后不要使用 channel: stable 的“漂移”写法而不写版本，
+      #      否则 CI 会随上游升级而改变行为。
+      # ------------------------------------------------------------------
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: x.y.z   # TODO(T005): 替换为锁定版本
+          channel: stable
+          cache: true
+
+      - name: Show toolchain
+        run: |
+          flutter --version
+          dart --version
+
+      # pubspec.lock 已提交（见 .gitignore 的说明），因此正常路径是复现同一份依赖。
+      # 如已确认 lock 可用，可加 --enforce-lockfile 让 lock 与 pubspec.yaml 不一致
+      # 时直接失败而不是静默升级；工程刚 scaffold 完、lock 尚未产生时不要加。
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 格式检查只读、不修改；
+      # 目录范围待工程落地后按 build_runner 生成物情况收敛
+      # （生成代码通常需要排除，届时用 --output=none 配合路径列表）。
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+        # 若希望 info 级提示也阻断合并，可在稳定后改为 flutter analyze --fatal-infos；
+        # 现在保持默认，避免初期脚手架信息噪音造成假红。
+
+      # 单元与组件测试。默认不触网：需要外部服务的用例应使用本地 fixture/mock。
+      - name: Test
+        run: flutter test --reporter expanded
