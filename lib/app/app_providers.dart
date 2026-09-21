@@ -18,7 +18,9 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
+import 'package:flux/features/articles/application/article_extraction_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
+import 'package:flux/features/articles/application/fetch_original_article.dart';
 import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/feeds/application/refresh_providers.dart';
@@ -30,13 +32,16 @@ import 'package:flux/infrastructure/local/article_search_store.dart';
 import 'package:flux/infrastructure/local/article_image_loader.dart';
 import 'package:flux/infrastructure/local/image_cache_service.dart';
 import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
+import 'package:flux/infrastructure/local/degraded_article_extraction_store.dart';
 import 'package:flux/infrastructure/local/degraded_reading_stats_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
+import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
+import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
@@ -118,6 +123,8 @@ List<Override> bootstrapOverrides(
   SessionLocalZone? sessionZone,
   Clock? statsClock,
   ReadingStatsStore? readingStatsStore,
+  // T024：静态网页抓取端口也参数化（理由同上：Riverpod 禁止重复覆盖）。
+  StaticPageFetcherPort? staticPageFetcher,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -232,6 +239,10 @@ List<Override> bootstrapOverrides(
       readingStatsProvider.overrideWithValue(
         readingStatsStore ?? DriftReadingStatsStore(catalogDatabase),
       ),
+      // T024：提取正文读写。
+      articleExtractionProvider.overrideWithValue(
+        DriftArticleExtractionStore(catalogDatabase),
+      ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
       feedArticleStoreProvider.overrideWithValue(
@@ -255,6 +266,15 @@ List<Override> bootstrapOverrides(
       readingStatsProvider.overrideWithValue(
         readingStatsStore ?? const DegradedReadingStatsStore(),
       ),
+      articleExtractionProvider.overrideWithValue(
+        const DegradedArticleExtractionStore(),
+      ),
     ],
+    // ---- T024：静态网页抓取 --------------------------------------------------
+    // 与数据库无关（只需要 HTTP），因此两种启动状态下都给真实实现：降级模式只是不
+    // 持久化，抓一页网页不需要数据库。
+    staticPageFetcherProvider.overrideWithValue(
+      staticPageFetcher ?? HttpStaticPageFetcherAdapter(),
+    ),
   ];
 }

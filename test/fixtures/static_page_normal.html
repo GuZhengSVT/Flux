@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>离线阅读的实现细节 - 示例科技</title>
+  <meta name="keywords" content="离线阅读,RSS,本地优先">
+  <style>body { color: red; } .hidden { display: none; }</style>
+  <script>var tracking = "</div>"; console.log("should not appear");</script>
+</head>
+<body>
+  <header><nav><a href="https://example.com/">首页</a> <a href="https://example.com/about">关于</a></nav></header>
+  <aside>侧栏推荐：一堆无关的链接与广告。</aside>
+  <article class="post-content">
+    <h1>离线阅读的实现细节</h1>
+    <p>本地优先的阅读器需要在没有网络时仍然可用，因此正文必须落在本机数据库里。</p>
+    <p>这篇文章讨论离线缓存的三个要点：写入时机、体积上限，以及什么时候可以安全地丢弃旧内容。</p>
+    <p>第一条是写入时机。抓取成功后应立即写入，而不是等用户打开这篇文章时才写——那时用户可能已经断网。</p>
+    <p>第二条是体积上限。必须有一个明确的字节上限，否则一次意外的抓取会填满用户的磁盘。</p>
+    <p>第三条是丢弃策略。丢弃应当是显式的、可解释的，而不是在后台悄悄发生。</p>
+    <img src="https://cdn.example.com/one.png" alt="示意图一">
+    <p>最后，附上<a href="https://example.com/spec">规范链接</a>供读者参考。</p>
+    <img src="https://cdn.example.com/two.png" alt="示意图二">
+  </article>
+  <footer>版权所有 示例科技</footer>
+  <script>window.__data = "footer script must be removed";</script>
+</body>
+</html>

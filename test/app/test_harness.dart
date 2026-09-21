@@ -19,6 +19,7 @@ import 'package:flux/app/theme/flux_theme.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
+import 'package:flux/features/articles/application/fetch_original_article.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
@@ -104,6 +105,7 @@ final class TestBootstrap {
     SessionLocalZone? sessionZone,
     Clock? statsClock,
     ReadingStatsStore? readingStatsStore,
+    StaticPageFetcherPort? staticPageFetcher,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -131,6 +133,7 @@ final class TestBootstrap {
       sessionZone: sessionZone,
       statsClock: statsClock,
       readingStatsStore: readingStatsStore,
+      staticPageFetcher: staticPageFetcher,
       // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
       // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
       // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），

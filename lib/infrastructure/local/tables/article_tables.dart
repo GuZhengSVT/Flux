@@ -140,6 +140,36 @@ class Articles extends Table {
   /// 首图回填需要重新解析全部正文，属 T021 缓存任务的范围。
   TextColumn get imageUrl => text().nullable()();
 
+  /// 本机静态提取得到的正文（schema v8；T024）。
+  ///
+  /// 为什么与 [body] **分列存储**而不是就地覆盖：架构 4.2 要求主动提取「失败保留原内容」，
+  /// 而用户还需要在两份之间**对照**（提取可能截断了正文，或者提取到的其实是另一篇）。
+  /// 覆盖式缓存在这两点上都是信息丢失，且不可恢复。
+  TextColumn get extractedBody => text().nullable()();
+
+  /// 提取正文的哈希（schema v8）。
+  ///
+  /// 与 [bodyHash] 同一语义：只判「内容是否变过」。分开存是必需的——两次提取得到同一段
+  /// 正文时不该重写大字段，而拿它去和源正文的哈希比较则毫无意义（两者本来就是不同文本）。
+  TextColumn get extractedBodyHash => text().nullable()();
+
+  /// 提取时间（schema v8，UTC）。
+  ///
+  /// 可空：null 表示这篇文章从未提取过。界面据此决定按钮是「获取原站全文」还是「重新获取」。
+  DateTimeColumn get extractedAt => dateTime().nullable()();
+
+  /// 提取到的标题（schema v8）。
+  ///
+  /// 原站标题可能与源内标题不同（源里常有「- 站点名」后缀或旧标题），因此单独一列，
+  /// 不覆盖 [title]。
+  TextColumn get extractedTitle => text().nullable()();
+
+  /// 提取到的图片地址（schema v8；每行一个，**不下载**）。
+  ///
+  /// 用换行分隔的文本而不是 JSON：读取方只需要一个列表，而 JSON 会给这一列引入一个
+  /// 解析步骤（以及「JSON 坏了怎么办」这个额外分支）。地址本身不含换行符。
+  TextColumn get extractedImageUrls => text().nullable()();
+
   /// 单一阅读状态枚举，带数据库 CHECK 约束；默认 unread。
   ///
   /// 这里用 customConstraint 手写 CHECK：枚举取值域必须固化在 DDL 里才能被

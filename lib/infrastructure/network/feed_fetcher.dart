@@ -18,15 +18,13 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io' show ZLibDecoder;
-import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
 import 'package:flux/core/core.dart';
 
 import 'http_client_factory.dart';
+import 'response_body.dart';
 
 /// 基于 package:http 的抓取实现。
 class HttpFeedFetcher implements FeedFetcher {
@@ -189,14 +187,22 @@ class HttpFeedFetcher implements FeedFetcher {
       }
 
       // ---- 读体（带上限） --------------------------------------------------
-      final Result<_RawBody> body = await _readBody(response);
+      final Result<RawResponseBody> body = await readBoundedBody(
+        response,
+        maxBytes: config.maxResponseBytes,
+        timeout: config.timeout,
+        limitKind: 'feedFetchBody',
+      );
       if (body.isErr) {
         return Err<FeedFetchResult>(body.errorOrNull!);
       }
-      final _RawBody raw = body.unwrap();
+      final RawResponseBody raw = body.unwrap();
 
       // ---- 解压（同样限长） -----------------------------------------------
-      final Result<String> decoded = _decodeBody(raw, current);
+      final Result<String> decoded = decodeResponseBody(
+        raw,
+        maxBytes: config.maxResponseBytes,
+      );
       if (decoded.isErr) {
         return Err<FeedFetchResult>(decoded.errorOrNull!);
       }
@@ -244,227 +250,9 @@ class HttpFeedFetcher implements FeedFetcher {
     return const Ok<void>(null);
   }
 
-  /// 读取响应体，超过上限立刻中止（不把整段读完再检查）。
-  ///
-  /// 流式检查而不是「读完再看长度」：后者在 10 GiB 响应面前已经先把内存吃光了，
-  /// 上限就失去意义。
-  Future<Result<_RawBody>> _readBody(http.StreamedResponse response) async {
-    final int? declared = response.contentLength;
-    if (declared != null && declared > config.maxResponseBytes) {
-      return Err<_RawBody>(
-        NetworkError(
-          uri: response.request?.url.toString() ?? '',
-          reason: '响应体声明长度 $declared 超过上限 ${config.maxResponseBytes}',
-        ),
-      );
-    }
-
-    final BytesBuilder builder = BytesBuilder(copy: false);
-    int total = 0;
-    try {
-      await for (final List<int> chunk in response.stream.timeout(
-        config.timeout,
-        onTimeout: (EventSink<List<int>> sink) => sink.addError(
-          TimeoutException('feed body timeout', config.timeout),
-        ),
-      )) {
-        total += chunk.length;
-        if (total > config.maxResponseBytes) {
-          return Err<_RawBody>(
-            NetworkError(
-              uri: response.request?.url.toString() ?? '',
-              reason: '响应体超过上限 ${config.maxResponseBytes} 字节',
-            ),
-          );
-        }
-        builder.add(chunk);
-      }
-    } on TimeoutException {
-      return Err<_RawBody>(
-        DeadlineExceededError(
-          limitKind: 'feedFetchBody',
-          limit: config.timeout,
-        ),
-      );
-    } on Exception catch (error) {
-      return Err<_RawBody>(
-        NetworkError(
-          uri: response.request?.url.toString() ?? '',
-          reason: '读取响应体失败（${error.runtimeType}）',
-          cause: error,
-        ),
-      );
-    }
-
-    return Ok<_RawBody>(
-      _RawBody(
-        bytes: builder.takeBytes(),
-        contentEncoding: response.headers['content-encoding'],
-      ),
-    );
-  }
-
-  /// 解压并转成文本；解压**后**同样限长（zip bomb 保护）。
-  Result<String> _decodeBody(_RawBody raw, Uri uri) {
-    Uint8List bytes = raw.bytes;
-    final String? encoding = raw.contentEncoding?.toLowerCase();
-    if (encoding != null && encoding.contains('gzip')) {
-      final Result<Uint8List> inflated = _gunzipBounded(bytes);
-      if (inflated.isErr) {
-        return Err<String>(inflated.errorOrNull!);
-      }
-      bytes = inflated.unwrap();
-    }
-
-    // 编码：优先用 Content-Type 里声明的 charset，其次按 UTF-8 解析。
-    //
-    // 为什么要显式解码而不是 http 的 body 字符串：RSS 源里 latin-1 与无声明编码很常见，
-    // 直接按 UTF-8 硬解会产生大量替换字符，正文里的中文会整段变乱码。
-    final String text = _decodeText(bytes);
-    return Ok<String>(text);
-  }
-
-  /// 有界 gzip 解压。
-  ///
-  /// 用 dart:io 的 **chunked** 解码入口（ZLibDecoder.startChunkedConversion）而不是
-  /// gzip.decode(bytes)：后者是一次性转换器，会先把整个解压结果构造出来再交给我们，
-  /// 那时解压结果已经在内存里，上限等于没有。chunked 入口允许在**每个输出分块**上计数
-  /// 并在超限时立刻中止，这才是压缩炸弹的真正防线。
-  Result<Uint8List> _gunzipBounded(Uint8List input) {
-    final _BoundedSink sink = _BoundedSink(config.maxResponseBytes);
-    try {
-      final ByteConversionSink decoder = ZLibDecoder(gzip: true)
-          .startChunkedConversion(sink);
-      // 分块喂入：输入侧已受 maxResponseBytes 限制，这里按 64 KiB 切片是为了让
-      // 「边解压边计数」尽可能早地触发中止。
-      const int chunkSize = 64 * 1024;
-      for (int offset = 0; offset < input.length; offset += chunkSize) {
-        final int end = (offset + chunkSize).clamp(0, input.length);
-        decoder.add(input.sublist(offset, end));
-      }
-      decoder.close();
-    } on _BodyTooLargeException {
-      return Err<Uint8List>(
-        NetworkError(
-          uri: '',
-          reason: '解压后超过上限 ${config.maxResponseBytes} 字节（疑似压缩炸弹）',
-        ),
-      );
-    } on FormatException catch (error) {
-      return Err<Uint8List>(
-        NetworkError(
-          uri: '',
-          reason: 'gzip 数据非法（${error.message}）',
-          cause: error,
-        ),
-      );
-    } on Exception catch (error) {
-      return Err<Uint8List>(
-        NetworkError(
-          uri: '',
-          reason: 'gzip 解压失败（${error.runtimeType}）',
-          cause: error,
-        ),
-      );
-    }
-    final Uint8List decoded = sink.takeBytes();
-    // dart:io 的增量解压对**截断**输入是宽容的：它不报错，只是不产出
-    // 更多字节。因此这里必须自己判断「非空输入却解出空结果」：那是明确的
-    // 损坏，而不是「一个正常的空源」。若不检查，抓取层会报「成功、正文为空」，
-    // 把一个损坏响应描述成正常结果。真正的完整性验证仍由解析层完成（截断的 XML
-    // 会在那里报结构错误），这里只把「完全没解出东西」这种最明显的情况
-    // 提前报出。
-    if (input.isNotEmpty && decoded.isEmpty) {
-      return Err<Uint8List>(
-        NetworkError(uri: '', reason: 'gzip 数据损坏或被截断（非空输入未解出任何内容）'),
-      );
-    }
-    return Ok<Uint8List>(decoded);
-  }
-
-  /// 字节转文本：先看 BOM，再尝试 UTF-8，最后退到 latin-1。
-  ///
-  /// 退到 latin-1 而不是「用替换字符填充」：latin-1 对任意字节都能构造出确定文本，
-  /// 至少不会让整篇正文变成一个问号；源站编码声明错误是现实里很常见的情况。
-  static String _decodeText(Uint8List bytes) {
-    if (bytes.length >= 3 &&
-        bytes[0] == 0xEF &&
-        bytes[1] == 0xBB &&
-        bytes[2] == 0xBF) {
-      return utf8.decode(bytes.sublist(3), allowMalformed: true);
-    }
-    if (bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE) {
-      return _decodeUtf16(bytes.sublist(2), littleEndian: true);
-    }
-    if (bytes.length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF) {
-      return _decodeUtf16(bytes.sublist(2), littleEndian: false);
-    }
-    try {
-      return utf8.decode(bytes);
-    } on FormatException {
-      return latin1.decode(bytes, allowInvalid: true);
-    }
-  }
-
-  static String _decodeUtf16(Uint8List bytes, {required bool littleEndian}) {
-    final List<int> units = <int>[];
-    for (int i = 0; i + 1 < bytes.length; i += 2) {
-      units.add(
-        littleEndian
-            ? bytes[i] | (bytes[i + 1] << 8)
-            : (bytes[i] << 8) | bytes[i + 1],
-      );
-    }
-    return String.fromCharCodes(units);
-  }
-
   /// 日志/错误里使用的地址：脱敏后返回（去掉 query 里的秘密参数）。
   static String _safeUri(Uri uri) =>
       SecretRedaction.sanitizeUrlString(uri.toString());
-}
-
-/// 解压后的原始体。
-class _RawBody {
-  const _RawBody({required this.bytes, this.contentEncoding});
-
-  final Uint8List bytes;
-  final String? contentEncoding;
-}
-
-/// 超出体积上限的内部信号。
-class _BodyTooLargeException implements Exception {
-  const _BodyTooLargeException();
-}
-
-/// 带输出上限的字节收集器（gzip 解压的输出侧防线）。
-///
-/// 作为 ByteConversionSink 接收解码器的输出：每次 add 都在累计长度上检查，超限立即
-/// 抛 [_BodyTooLargeException]。因为解码器是 chunked 的，异常会在解压**过程中**抛出，
-/// 而不是等整段解完——这正是「上限真的挡得住压缩炸弹」与「上限只是事后检查」的区别。
-class _BoundedSink extends ByteConversionSinkBase {
-  _BoundedSink(this.limit);
-
-  final int limit;
-  final BytesBuilder _builder = BytesBuilder(copy: false);
-  int _length = 0;
-
-  @override
-  void add(List<int> chunk) {
-    if (chunk.isEmpty) {
-      return;
-    }
-    _length += chunk.length;
-    if (_length > limit) {
-      throw const _BodyTooLargeException();
-    }
-    _builder.add(chunk);
-  }
-
-  @override
-  void close() {}
-
-  /// 取出已收集的全部字节。
-  Uint8List takeBytes() => _builder.takeBytes();
 }
 
 /// 简单计数信号量。

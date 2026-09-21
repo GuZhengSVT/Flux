@@ -33,6 +33,8 @@ import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
 import '../application/article_ports.dart';
+import '../application/article_extraction_ports.dart';
+import '../application/fetch_original_article.dart';
 import '../application/article_platform_ports.dart';
 import '../application/article_state.dart';
 import '../application/article_text_actions.dart';
@@ -89,6 +91,25 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
 
   ArticleListEntry? _entry;
   DocDocument? _document;
+
+  /// 已保存的提取正文（T024）。null 表示这篇文章还没有提取过。
+  ExtractedArticleBody? _extraction;
+
+  /// 当前显示的是提取正文还是源正文。
+  ///
+  /// 默认显示**源正文**：获取全文是用户主动请求的动作，但「换掉我原本在读的东西」
+  /// 不该是它的默认后果。用户点一下切换才看提取版（两份都保留，可来回切）。
+  bool _showExtracted = false;
+
+  /// 正在获取原站全文。
+  bool _fetchingOriginal = false;
+
+  /// 最近一次获取的结果提示（成功/付费墙/过短/失败）。
+  String? _fetchNotice;
+
+  /// 最近一次失败的原因（用于显示外开入口）。
+  AppError? _fetchError;
+
   int? _activeOutlineBlock;
   AppError? _error;
   bool _loading = true;
@@ -114,9 +135,89 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     super.initState();
     unawaited(_load());
     unawaited(_loadImageSetting());
+    // 读一份可能已存在的提取正文（只读，不抓取）。
+    unawaited(_loadExtraction());
     // 会话追踪：详情页是「一次阅读」的唯一入口，因此开始/结束都挂在这里。
     unawaited(_startSessionTracking());
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// 读已保存的提取正文（T024）。
+  ///
+  /// 只读不抓：**打开文章不会触发任何网络请求**。抓取只发生在用户点「获取原站全文」
+  /// 的那一刻（架构 4.2 的「无自动/后台/批量」）。
+  Future<void> _loadExtraction() async {
+    final Result<ExtractedArticleBody?> saved = await ref
+        .read(articleExtractionProvider)
+        .readExtraction(widget.articleId);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _extraction = saved.valueOrNull);
+  }
+
+  /// 用户点击「获取原站全文」。
+  ///
+  /// 这是**唯一**会发起网页请求的入口。失败不改动任何已存正文（架构 4.2），提示里
+  /// 始终带一个「在浏览器打开」的出口。
+  Future<void> _fetchOriginal() async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String? sourceUrl = _entry?.sourceUrl;
+    setState(() {
+      _fetchingOriginal = true;
+      _fetchNotice = null;
+      _fetchError = null;
+    });
+    final Result<FetchOriginalResult> result = await ref
+        .read(fetchOriginalArticleProvider)
+        .call(articleId: widget.articleId, sourceUrl: sourceUrl);
+    if (!mounted) {
+      return;
+    }
+    if (result.isErr) {
+      setState(() {
+        _fetchingOriginal = false;
+        _fetchError = result.errorOrNull;
+      });
+      return;
+    }
+    final FetchOriginalResult outcome = result.unwrap();
+    final List<String> notes = <String>[];
+    switch (outcome.outcome) {
+      case FetchOriginalOutcome.ok:
+        notes.add(
+          l10n.readingFetchFullTextDone(outcome.extraction!.text.length),
+        );
+        // 付费墙与「正文过短」是**提示**：抓到的东西已经保存了，但用户要知道它可能
+        // 不完整，或者原站本来就需要登录。
+        if (outcome.paywallHint) {
+          notes.add(l10n.readingFetchFullTextPaywall);
+        }
+      case FetchOriginalOutcome.noContent:
+        notes.add(l10n.readingFetchFullTextShort);
+        if (outcome.paywallHint) {
+          notes.add(l10n.readingFetchFullTextPaywall);
+        }
+      case FetchOriginalOutcome.failed:
+        notes.add(
+          l10n.readingFetchFullTextFailed(
+            outcome.error?.message ?? l10n.readingFetchFullTextNoUrl,
+          ),
+        );
+    }
+    await _loadExtraction();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _fetchingOriginal = false;
+      _fetchNotice = notes.join('\n');
+      _fetchError = outcome.error;
+      // 成功时自动切到提取正文：用户刚要的就是它。失败时不动当前显示。
+      if (outcome.outcome == FetchOriginalOutcome.ok) {
+        _showExtracted = true;
+      }
+    });
   }
 
   @override
@@ -195,13 +296,30 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     super.dispose();
   }
 
-  List<ReaderOutlineEntry> get _outline => _document == null
-      ? const <ReaderOutlineEntry>[]
-      : extractOutline(_document!);
+  /// 提取正文在界面上的文档表示（每次读时解析：提取正文比源正文小得多，
+  /// 而缓存两份文档只会让「切换后忘了同步」成为一个可能的缺陷）。
+  DocDocument? get _extractedDocument {
+    final ExtractedArticleBody? extraction = _extraction;
+    if (extraction == null || extraction.body.trim().isEmpty) {
+      return null;
+    }
+    return parseMarkdownToDocument(extraction.body);
+  }
 
-  int get _matchCount => _document == null || _findQuery.isEmpty
+  /// 当前实际显示的文档（源正文或提取正文）。
+  ///
+  /// 两份**都保留**：切换只是改显示，不删任何东西，用户可以随时切回原文对照
+  /// （架构 4.2 的「失败保留原内容」与「原文始终保留」）。
+  DocDocument? get _displayDocument =>
+      _showExtracted ? (_extractedDocument ?? _document) : _document;
+
+  List<ReaderOutlineEntry> get _outline => _displayDocument == null
+      ? const <ReaderOutlineEntry>[]
+      : extractOutline(_displayDocument!);
+
+  int get _matchCount => _displayDocument == null || _findQuery.isEmpty
       ? 0
-      : DocDocumentView.countMatches(_document!, _findQuery);
+      : DocDocumentView.countMatches(_displayDocument!, _findQuery);
 
   Future<void> _load() async {
     final ArticleCatalogStore store = ref.read(articleCatalogProvider);
@@ -302,7 +420,8 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
 
   /// 复制全文：把受控文档压平成纯文本（读者要的是文字，不是渲染结构）。
   Future<void> _copyAllPlainText() async {
-    final DocDocument? document = _document;
+    // 复制的是**当前显示的**那一份：用户看到提取正文时复制原文会让他以为复制坏了。
+    final DocDocument? document = _displayDocument;
     final AppLocalizations l10n = AppLocalizations.of(context);
     if (document == null) {
       _notify(l10n.readingCopyAllEmpty);
@@ -635,8 +754,23 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
                 message: l10n.readingCompletenessSummaryOnlyNotice,
               ),
             ),
+          // T024：主动获取原站全文的入口与状态提示。放在正文**之前**：它是「要不要
+          // 换一份正文来读」的决定，读者应当先看到这个选择，而不是读到一半才发现。
+          _FetchOriginalBar(
+            entry: entry,
+            hasExtraction: _extraction != null,
+            showingExtracted: _showExtracted,
+            fetching: _fetchingOriginal,
+            notice: _fetchNotice,
+            failed: _fetchError != null,
+            onFetch: _fetchOriginal,
+            onToggle: () => setState(() => _showExtracted = !_showExtracted),
+            onOpenExternal: entry.sourceUrl == null
+                ? null
+                : () => _openLinkPanel(entry.sourceUrl!),
+          ),
         ],
-        if (_document case final DocDocument document)
+        if (_displayDocument case final DocDocument document)
           _DocumentBody(
             document: document,
             blockKeys: _blockKeys,
@@ -657,6 +791,124 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
 }
 
 /// 详情页头部：标题 + 元信息 + 完整性 + 状态控件。
+/// 主动获取原站全文的入口条（T024）。
+///
+/// 三个状态各对应一种用户动作，且**失败时始终给出外开入口**（架构 4.2）：
+///   * 未提取：显示「获取原站全文」按钮 + 一句说明它只在点击时抓取；
+///   * 已提取：显示原文/提取正文的切换（两份都保留），并保留「重新获取」；
+///   * 抓取中：按钮禁用并显示进度，避免重复点击发起第二次请求。
+///
+/// 为什么把「只在点击时抓取」写在界面上：这是产品对用户的承诺（无自动/后台/批量抓取），
+/// 让它在按钮旁边可见，用户不必去读文档才敢点。
+class _FetchOriginalBar extends StatelessWidget {
+  const _FetchOriginalBar({
+    required this.entry,
+    required this.hasExtraction,
+    required this.showingExtracted,
+    required this.fetching,
+    required this.failed,
+    required this.onFetch,
+    required this.onToggle,
+    this.notice,
+    this.onOpenExternal,
+  });
+
+  final ArticleListEntry entry;
+  final bool hasExtraction;
+  final bool showingExtracted;
+  final bool fetching;
+  final bool failed;
+  final String? notice;
+  final VoidCallback onFetch;
+  final VoidCallback onToggle;
+  final VoidCallback? onOpenExternal;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FluxSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              if (fetching) ...<Widget>[
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: FluxSpacing.xs),
+                Text(
+                  l10n.readingFetchFullTextLoading,
+                  style: theme.textTheme.labelSmall,
+                ),
+              ] else ...<Widget>[
+                FilledButton.tonalIcon(
+                  onPressed: onFetch,
+                  icon: const Icon(Icons.download_outlined, size: 18),
+                  label: Text(
+                    hasExtraction
+                        ? l10n.readingFetchFullTextAction
+                        : l10n.readingFetchFullTextAction,
+                  ),
+                ),
+                if (hasExtraction) ...<Widget>[
+                  const SizedBox(width: FluxSpacing.xs),
+                  // 切换按钮的文字说明**将会切到哪一份**，而不是当前显示的是哪一份：
+                  // 按钮描述动作。
+                  OutlinedButton.icon(
+                    onPressed: onToggle,
+                    icon: const Icon(Icons.compare_arrows, size: 18),
+                    label: Text(
+                      showingExtracted
+                          ? l10n.readingFetchFullTextViewOriginal
+                          : l10n.readingFetchFullTextViewExtracted,
+                    ),
+                  ),
+                ],
+              ],
+            ],
+          ),
+          const SizedBox(height: FluxSpacing.xxs),
+          Text(
+            l10n.readingFetchFullTextButtonHint,
+            style: theme.textTheme.labelSmall,
+          ),
+          if (notice case final String message)
+            Padding(
+              padding: const EdgeInsets.only(top: FluxSpacing.xs),
+              child: StatusBanner(
+                severity: failed
+                    ? StatusBannerSeverity.warning
+                    : StatusBannerSeverity.info,
+                message: message,
+                action: onOpenExternal == null
+                    ? null
+                    : TextButton(
+                        onPressed: onOpenExternal,
+                        child: Text(l10n.readingFetchFullTextOpenExternal),
+                      ),
+              ),
+            ),
+          // 「只做 HTTP 抓取与静态解析」这句在失败时最需要出现：用户看到失败提示时，
+          // 最容易怀疑「是不是这个应用在偷偷做别的事」。
+          if (failed)
+            Padding(
+              padding: const EdgeInsets.only(top: FluxSpacing.xxs),
+              child: Text(
+                l10n.readingFetchFullTextNoScript,
+                style: theme.textTheme.labelSmall,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Header extends ConsumerWidget {
   const _Header({required this.entry});
 

@@ -308,3 +308,54 @@ abstract interface class ArticleCatalogStore {
   /// 前者是合法状态，界面要如实说明而不是报错。
   Future<Result<String?>> readArticleBody(int articleId);
 }
+
+/// 本机静态提取的正文（T024）。
+///
+/// 与源正文**分开保存**：架构 4.2 要求失败保留原内容，而用户还需要在两份之间对照。
+final class ExtractedArticleBody {
+  /// 构造结果。
+  const ExtractedArticleBody({
+    required this.body,
+    required this.bodyHash,
+    required this.title,
+    required this.imageUrls,
+    required this.extractedAt,
+  });
+
+  /// 提取到的正文纯文本。
+  final String body;
+
+  /// 正文哈希（判「是否变过」，与 bodyHash 同一语义但独立）。
+  final String bodyHash;
+
+  /// 提取到的标题（原站标题，不覆盖文章标题）。
+  final String title;
+
+  /// 提取到的图片地址（不下载）。
+  final List<String> imageUrls;
+
+  /// 提取时刻（UTC）。
+  final DateTime extractedAt;
+}
+
+/// 写入提取结果的端口（T024）。
+///
+/// 单独一个端口而不是往 ArticleCatalogStore 上加方法：那个端口服务**列表与状态**，
+/// 它的实现只改 reading_state/favorite 两个字段是刻意写死的（见实现注释）。把写正文
+/// 塞进去会稀释那条保证（读取方再也无法从接口形状上确认列表操作不动正文）。
+abstract interface class ArticleExtractionStore {
+  /// 读取已保存的提取正文；从未提取过时为 null。
+  Future<Result<ExtractedArticleBody?>> readExtraction(int articleId);
+
+  /// 保存提取结果。
+  ///
+  /// 实现**只写提取列**：不得触碰 body、body_hash、reading_state、favorite。阅读状态不变
+  /// 是 T024 的明确要求（获取全文不是一次阅读事件）。
+  Future<Result<void>> saveExtraction({
+    required int articleId,
+    required ExtractedArticleBody extraction,
+  });
+
+  /// 清除已保存的提取正文（用户选择回到只显示原文）。
+  Future<Result<void>> clearExtraction(int articleId);
+}

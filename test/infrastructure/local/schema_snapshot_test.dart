@@ -379,5 +379,63 @@ void main() {
       expect(byName['articles_fts'], contains('trigram'));
       expect(byName['articles_fts'], contains('content_rowid'));
     });
+
+    test('v8 快照包含提取正文五列（T024），且不丢 v7 的检索对象', () {
+      final File v8Snapshot = File('drift_schemas/drift_schema_v8.json');
+      expect(
+        v8Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v8 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v8Decoded =
+          jsonDecode(v8Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v8Entities =
+          (v8Decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Set<String> v8Names = v8Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v8 只给 articles 加列：v7 的全部实体（含检索对象）都必须保留。
+      final Map<String, dynamic> v7Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v7.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v7Names = (v7Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(v8Names, v7Names, reason: 'v8 只给 articles 加列，不得新增或删除实体');
+
+      final Map<String, dynamic> v8Articles = v8Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'articles',
+      );
+      final Set<String> v8ArticleColumns =
+          ((v8Articles['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        v8ArticleColumns,
+        containsAll(<String>[
+          'extracted_body',
+          'extracted_body_hash',
+          'extracted_at',
+          'extracted_title',
+          'extracted_image_urls',
+        ]),
+      );
+      // v8 必须保留 v7 已有的列（含 v6 的 image_url 与 v5 的来源快照）。
+      expect(
+        v8ArticleColumns,
+        containsAll(<String>['body', 'body_hash', 'image_url', 'feed_title']),
+      );
+    });
   });
 }

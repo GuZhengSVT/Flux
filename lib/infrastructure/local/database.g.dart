@@ -1836,6 +1836,62 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _extractedBodyMeta = const VerificationMeta(
+    'extractedBody',
+  );
+  @override
+  late final GeneratedColumn<String> extractedBody = GeneratedColumn<String>(
+    'extracted_body',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _extractedBodyHashMeta = const VerificationMeta(
+    'extractedBodyHash',
+  );
+  @override
+  late final GeneratedColumn<String> extractedBodyHash =
+      GeneratedColumn<String>(
+        'extracted_body_hash',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _extractedAtMeta = const VerificationMeta(
+    'extractedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> extractedAt = GeneratedColumn<DateTime>(
+    'extracted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _extractedTitleMeta = const VerificationMeta(
+    'extractedTitle',
+  );
+  @override
+  late final GeneratedColumn<String> extractedTitle = GeneratedColumn<String>(
+    'extracted_title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _extractedImageUrlsMeta =
+      const VerificationMeta('extractedImageUrls');
+  @override
+  late final GeneratedColumn<String> extractedImageUrls =
+      GeneratedColumn<String>(
+        'extracted_image_urls',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   late final GeneratedColumnWithTypeConverter<ReadingState, String>
   readingState = GeneratedColumn<String>(
@@ -1908,6 +1964,11 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     bodyHash,
     summary,
     imageUrl,
+    extractedBody,
+    extractedBodyHash,
+    extractedAt,
+    extractedTitle,
+    extractedImageUrls,
     readingState,
     favorite,
     createdAt,
@@ -2038,6 +2099,51 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
         imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
       );
     }
+    if (data.containsKey('extracted_body')) {
+      context.handle(
+        _extractedBodyMeta,
+        extractedBody.isAcceptableOrUnknown(
+          data['extracted_body']!,
+          _extractedBodyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('extracted_body_hash')) {
+      context.handle(
+        _extractedBodyHashMeta,
+        extractedBodyHash.isAcceptableOrUnknown(
+          data['extracted_body_hash']!,
+          _extractedBodyHashMeta,
+        ),
+      );
+    }
+    if (data.containsKey('extracted_at')) {
+      context.handle(
+        _extractedAtMeta,
+        extractedAt.isAcceptableOrUnknown(
+          data['extracted_at']!,
+          _extractedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('extracted_title')) {
+      context.handle(
+        _extractedTitleMeta,
+        extractedTitle.isAcceptableOrUnknown(
+          data['extracted_title']!,
+          _extractedTitleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('extracted_image_urls')) {
+      context.handle(
+        _extractedImageUrlsMeta,
+        extractedImageUrls.isAcceptableOrUnknown(
+          data['extracted_image_urls']!,
+          _extractedImageUrlsMeta,
+        ),
+      );
+    }
     if (data.containsKey('favorite')) {
       context.handle(
         _favoriteMeta,
@@ -2151,6 +2257,26 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       imageUrl: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}image_url'],
+      ),
+      extractedBody: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extracted_body'],
+      ),
+      extractedBodyHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extracted_body_hash'],
+      ),
+      extractedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}extracted_at'],
+      ),
+      extractedTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extracted_title'],
+      ),
+      extractedImageUrls: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extracted_image_urls'],
       ),
       readingState: $ArticlesTable.$converterreadingState.fromSql(
         attachedDatabase.typeMapping.read(
@@ -2286,6 +2412,36 @@ class Article extends DataClass implements Insertable<Article> {
   /// 首图回填需要重新解析全部正文，属 T021 缓存任务的范围。
   final String? imageUrl;
 
+  /// 本机静态提取得到的正文（schema v8；T024）。
+  ///
+  /// 为什么与 [body] **分列存储**而不是就地覆盖：架构 4.2 要求主动提取「失败保留原内容」，
+  /// 而用户还需要在两份之间**对照**（提取可能截断了正文，或者提取到的其实是另一篇）。
+  /// 覆盖式缓存在这两点上都是信息丢失，且不可恢复。
+  final String? extractedBody;
+
+  /// 提取正文的哈希（schema v8）。
+  ///
+  /// 与 [bodyHash] 同一语义：只判「内容是否变过」。分开存是必需的——两次提取得到同一段
+  /// 正文时不该重写大字段，而拿它去和源正文的哈希比较则毫无意义（两者本来就是不同文本）。
+  final String? extractedBodyHash;
+
+  /// 提取时间（schema v8，UTC）。
+  ///
+  /// 可空：null 表示这篇文章从未提取过。界面据此决定按钮是「获取原站全文」还是「重新获取」。
+  final DateTime? extractedAt;
+
+  /// 提取到的标题（schema v8）。
+  ///
+  /// 原站标题可能与源内标题不同（源里常有「- 站点名」后缀或旧标题），因此单独一列，
+  /// 不覆盖 [title]。
+  final String? extractedTitle;
+
+  /// 提取到的图片地址（schema v8；每行一个，**不下载**）。
+  ///
+  /// 用换行分隔的文本而不是 JSON：读取方只需要一个列表，而 JSON 会给这一列引入一个
+  /// 解析步骤（以及「JSON 坏了怎么办」这个额外分支）。地址本身不含换行符。
+  final String? extractedImageUrls;
+
   /// 单一阅读状态枚举，带数据库 CHECK 约束；默认 unread。
   ///
   /// 这里用 customConstraint 手写 CHECK：枚举取值域必须固化在 DDL 里才能被
@@ -2322,6 +2478,11 @@ class Article extends DataClass implements Insertable<Article> {
     this.bodyHash,
     this.summary,
     this.imageUrl,
+    this.extractedBody,
+    this.extractedBodyHash,
+    this.extractedAt,
+    this.extractedTitle,
+    this.extractedImageUrls,
     required this.readingState,
     required this.favorite,
     required this.createdAt,
@@ -2390,6 +2551,21 @@ class Article extends DataClass implements Insertable<Article> {
     if (!nullToAbsent || imageUrl != null) {
       map['image_url'] = Variable<String>(imageUrl);
     }
+    if (!nullToAbsent || extractedBody != null) {
+      map['extracted_body'] = Variable<String>(extractedBody);
+    }
+    if (!nullToAbsent || extractedBodyHash != null) {
+      map['extracted_body_hash'] = Variable<String>(extractedBodyHash);
+    }
+    if (!nullToAbsent || extractedAt != null) {
+      map['extracted_at'] = Variable<DateTime>(extractedAt);
+    }
+    if (!nullToAbsent || extractedTitle != null) {
+      map['extracted_title'] = Variable<String>(extractedTitle);
+    }
+    if (!nullToAbsent || extractedImageUrls != null) {
+      map['extracted_image_urls'] = Variable<String>(extractedImageUrls);
+    }
     {
       map['reading_state'] = Variable<String>(
         $ArticlesTable.$converterreadingState.toSql(readingState),
@@ -2447,6 +2623,21 @@ class Article extends DataClass implements Insertable<Article> {
       imageUrl: imageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(imageUrl),
+      extractedBody: extractedBody == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractedBody),
+      extractedBodyHash: extractedBodyHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractedBodyHash),
+      extractedAt: extractedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractedAt),
+      extractedTitle: extractedTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractedTitle),
+      extractedImageUrls: extractedImageUrls == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extractedImageUrls),
       readingState: Value(readingState),
       favorite: Value(favorite),
       createdAt: Value(createdAt),
@@ -2489,6 +2680,15 @@ class Article extends DataClass implements Insertable<Article> {
       bodyHash: serializer.fromJson<String?>(json['bodyHash']),
       summary: serializer.fromJson<String?>(json['summary']),
       imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      extractedBody: serializer.fromJson<String?>(json['extractedBody']),
+      extractedBodyHash: serializer.fromJson<String?>(
+        json['extractedBodyHash'],
+      ),
+      extractedAt: serializer.fromJson<DateTime?>(json['extractedAt']),
+      extractedTitle: serializer.fromJson<String?>(json['extractedTitle']),
+      extractedImageUrls: serializer.fromJson<String?>(
+        json['extractedImageUrls'],
+      ),
       readingState: $ArticlesTable.$converterreadingState.fromJson(
         serializer.fromJson<String>(json['readingState']),
       ),
@@ -2529,6 +2729,11 @@ class Article extends DataClass implements Insertable<Article> {
       'bodyHash': serializer.toJson<String?>(bodyHash),
       'summary': serializer.toJson<String?>(summary),
       'imageUrl': serializer.toJson<String?>(imageUrl),
+      'extractedBody': serializer.toJson<String?>(extractedBody),
+      'extractedBodyHash': serializer.toJson<String?>(extractedBodyHash),
+      'extractedAt': serializer.toJson<DateTime?>(extractedAt),
+      'extractedTitle': serializer.toJson<String?>(extractedTitle),
+      'extractedImageUrls': serializer.toJson<String?>(extractedImageUrls),
       'readingState': serializer.toJson<String>(
         $ArticlesTable.$converterreadingState.toJson(readingState),
       ),
@@ -2560,6 +2765,11 @@ class Article extends DataClass implements Insertable<Article> {
     Value<String?> bodyHash = const Value.absent(),
     Value<String?> summary = const Value.absent(),
     Value<String?> imageUrl = const Value.absent(),
+    Value<String?> extractedBody = const Value.absent(),
+    Value<String?> extractedBodyHash = const Value.absent(),
+    Value<DateTime?> extractedAt = const Value.absent(),
+    Value<String?> extractedTitle = const Value.absent(),
+    Value<String?> extractedImageUrls = const Value.absent(),
     ReadingState? readingState,
     bool? favorite,
     DateTime? createdAt,
@@ -2591,6 +2801,19 @@ class Article extends DataClass implements Insertable<Article> {
     bodyHash: bodyHash.present ? bodyHash.value : this.bodyHash,
     summary: summary.present ? summary.value : this.summary,
     imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    extractedBody: extractedBody.present
+        ? extractedBody.value
+        : this.extractedBody,
+    extractedBodyHash: extractedBodyHash.present
+        ? extractedBodyHash.value
+        : this.extractedBodyHash,
+    extractedAt: extractedAt.present ? extractedAt.value : this.extractedAt,
+    extractedTitle: extractedTitle.present
+        ? extractedTitle.value
+        : this.extractedTitle,
+    extractedImageUrls: extractedImageUrls.present
+        ? extractedImageUrls.value
+        : this.extractedImageUrls,
     readingState: readingState ?? this.readingState,
     favorite: favorite ?? this.favorite,
     createdAt: createdAt ?? this.createdAt,
@@ -2632,6 +2855,21 @@ class Article extends DataClass implements Insertable<Article> {
       bodyHash: data.bodyHash.present ? data.bodyHash.value : this.bodyHash,
       summary: data.summary.present ? data.summary.value : this.summary,
       imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      extractedBody: data.extractedBody.present
+          ? data.extractedBody.value
+          : this.extractedBody,
+      extractedBodyHash: data.extractedBodyHash.present
+          ? data.extractedBodyHash.value
+          : this.extractedBodyHash,
+      extractedAt: data.extractedAt.present
+          ? data.extractedAt.value
+          : this.extractedAt,
+      extractedTitle: data.extractedTitle.present
+          ? data.extractedTitle.value
+          : this.extractedTitle,
+      extractedImageUrls: data.extractedImageUrls.present
+          ? data.extractedImageUrls.value
+          : this.extractedImageUrls,
       readingState: data.readingState.present
           ? data.readingState.value
           : this.readingState,
@@ -2664,6 +2902,11 @@ class Article extends DataClass implements Insertable<Article> {
           ..write('bodyHash: $bodyHash, ')
           ..write('summary: $summary, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('extractedBody: $extractedBody, ')
+          ..write('extractedBodyHash: $extractedBodyHash, ')
+          ..write('extractedAt: $extractedAt, ')
+          ..write('extractedTitle: $extractedTitle, ')
+          ..write('extractedImageUrls: $extractedImageUrls, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
           ..write('createdAt: $createdAt, ')
@@ -2694,6 +2937,11 @@ class Article extends DataClass implements Insertable<Article> {
     bodyHash,
     summary,
     imageUrl,
+    extractedBody,
+    extractedBodyHash,
+    extractedAt,
+    extractedTitle,
+    extractedImageUrls,
     readingState,
     favorite,
     createdAt,
@@ -2723,6 +2971,11 @@ class Article extends DataClass implements Insertable<Article> {
           other.bodyHash == this.bodyHash &&
           other.summary == this.summary &&
           other.imageUrl == this.imageUrl &&
+          other.extractedBody == this.extractedBody &&
+          other.extractedBodyHash == this.extractedBodyHash &&
+          other.extractedAt == this.extractedAt &&
+          other.extractedTitle == this.extractedTitle &&
+          other.extractedImageUrls == this.extractedImageUrls &&
           other.readingState == this.readingState &&
           other.favorite == this.favorite &&
           other.createdAt == this.createdAt &&
@@ -2750,6 +3003,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   final Value<String?> bodyHash;
   final Value<String?> summary;
   final Value<String?> imageUrl;
+  final Value<String?> extractedBody;
+  final Value<String?> extractedBodyHash;
+  final Value<DateTime?> extractedAt;
+  final Value<String?> extractedTitle;
+  final Value<String?> extractedImageUrls;
   final Value<ReadingState> readingState;
   final Value<bool> favorite;
   final Value<DateTime> createdAt;
@@ -2775,6 +3033,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.bodyHash = const Value.absent(),
     this.summary = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.extractedBody = const Value.absent(),
+    this.extractedBodyHash = const Value.absent(),
+    this.extractedAt = const Value.absent(),
+    this.extractedTitle = const Value.absent(),
+    this.extractedImageUrls = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2801,6 +3064,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.bodyHash = const Value.absent(),
     this.summary = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.extractedBody = const Value.absent(),
+    this.extractedBodyHash = const Value.absent(),
+    this.extractedAt = const Value.absent(),
+    this.extractedTitle = const Value.absent(),
+    this.extractedImageUrls = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2828,6 +3096,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Expression<String>? bodyHash,
     Expression<String>? summary,
     Expression<String>? imageUrl,
+    Expression<String>? extractedBody,
+    Expression<String>? extractedBodyHash,
+    Expression<DateTime>? extractedAt,
+    Expression<String>? extractedTitle,
+    Expression<String>? extractedImageUrls,
     Expression<String>? readingState,
     Expression<bool>? favorite,
     Expression<DateTime>? createdAt,
@@ -2856,6 +3129,12 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       if (bodyHash != null) 'body_hash': bodyHash,
       if (summary != null) 'summary': summary,
       if (imageUrl != null) 'image_url': imageUrl,
+      if (extractedBody != null) 'extracted_body': extractedBody,
+      if (extractedBodyHash != null) 'extracted_body_hash': extractedBodyHash,
+      if (extractedAt != null) 'extracted_at': extractedAt,
+      if (extractedTitle != null) 'extracted_title': extractedTitle,
+      if (extractedImageUrls != null)
+        'extracted_image_urls': extractedImageUrls,
       if (readingState != null) 'reading_state': readingState,
       if (favorite != null) 'favorite': favorite,
       if (createdAt != null) 'created_at': createdAt,
@@ -2884,6 +3163,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Value<String?>? bodyHash,
     Value<String?>? summary,
     Value<String?>? imageUrl,
+    Value<String?>? extractedBody,
+    Value<String?>? extractedBodyHash,
+    Value<DateTime?>? extractedAt,
+    Value<String?>? extractedTitle,
+    Value<String?>? extractedImageUrls,
     Value<ReadingState>? readingState,
     Value<bool>? favorite,
     Value<DateTime>? createdAt,
@@ -2911,6 +3195,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       bodyHash: bodyHash ?? this.bodyHash,
       summary: summary ?? this.summary,
       imageUrl: imageUrl ?? this.imageUrl,
+      extractedBody: extractedBody ?? this.extractedBody,
+      extractedBodyHash: extractedBodyHash ?? this.extractedBodyHash,
+      extractedAt: extractedAt ?? this.extractedAt,
+      extractedTitle: extractedTitle ?? this.extractedTitle,
+      extractedImageUrls: extractedImageUrls ?? this.extractedImageUrls,
       readingState: readingState ?? this.readingState,
       favorite: favorite ?? this.favorite,
       createdAt: createdAt ?? this.createdAt,
@@ -2989,6 +3278,21 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     if (imageUrl.present) {
       map['image_url'] = Variable<String>(imageUrl.value);
     }
+    if (extractedBody.present) {
+      map['extracted_body'] = Variable<String>(extractedBody.value);
+    }
+    if (extractedBodyHash.present) {
+      map['extracted_body_hash'] = Variable<String>(extractedBodyHash.value);
+    }
+    if (extractedAt.present) {
+      map['extracted_at'] = Variable<DateTime>(extractedAt.value);
+    }
+    if (extractedTitle.present) {
+      map['extracted_title'] = Variable<String>(extractedTitle.value);
+    }
+    if (extractedImageUrls.present) {
+      map['extracted_image_urls'] = Variable<String>(extractedImageUrls.value);
+    }
     if (readingState.present) {
       map['reading_state'] = Variable<String>(
         $ArticlesTable.$converterreadingState.toSql(readingState.value),
@@ -3029,6 +3333,11 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
           ..write('bodyHash: $bodyHash, ')
           ..write('summary: $summary, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('extractedBody: $extractedBody, ')
+          ..write('extractedBodyHash: $extractedBodyHash, ')
+          ..write('extractedAt: $extractedAt, ')
+          ..write('extractedTitle: $extractedTitle, ')
+          ..write('extractedImageUrls: $extractedImageUrls, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
           ..write('createdAt: $createdAt, ')
@@ -7236,6 +7545,11 @@ typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
   Value<String?> bodyHash,
   Value<String?> summary,
   Value<String?> imageUrl,
+  Value<String?> extractedBody,
+  Value<String?> extractedBodyHash,
+  Value<DateTime?> extractedAt,
+  Value<String?> extractedTitle,
+  Value<String?> extractedImageUrls,
   Value<ReadingState> readingState,
   Value<bool> favorite,
   Value<DateTime> createdAt,
@@ -7262,6 +7576,11 @@ typedef $$ArticlesTableUpdateCompanionBuilder = ArticlesCompanion Function({
   Value<String?> bodyHash,
   Value<String?> summary,
   Value<String?> imageUrl,
+  Value<String?> extractedBody,
+  Value<String?> extractedBodyHash,
+  Value<DateTime?> extractedAt,
+  Value<String?> extractedTitle,
+  Value<String?> extractedImageUrls,
   Value<ReadingState> readingState,
   Value<bool> favorite,
   Value<DateTime> createdAt,
@@ -7436,6 +7755,31 @@ class $$ArticlesTableFilterComposer
 
   ColumnFilters<String> get imageUrl => $composableBuilder(
     column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractedBody => $composableBuilder(
+    column: $table.extractedBody,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractedBodyHash => $composableBuilder(
+    column: $table.extractedBodyHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get extractedAt => $composableBuilder(
+    column: $table.extractedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractedTitle => $composableBuilder(
+    column: $table.extractedTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractedImageUrls => $composableBuilder(
+    column: $table.extractedImageUrls,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7638,6 +7982,31 @@ class $$ArticlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get extractedBody => $composableBuilder(
+    column: $table.extractedBody,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractedBodyHash => $composableBuilder(
+    column: $table.extractedBodyHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get extractedAt => $composableBuilder(
+    column: $table.extractedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractedTitle => $composableBuilder(
+    column: $table.extractedTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractedImageUrls => $composableBuilder(
+    column: $table.extractedImageUrls,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get readingState => $composableBuilder(
     column: $table.readingState,
     builder: (column) => ColumnOrderings(column),
@@ -7764,6 +8133,31 @@ class $$ArticlesTableAnnotationComposer
 
   GeneratedColumn<String> get imageUrl =>
       $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get extractedBody => $composableBuilder(
+    column: $table.extractedBody,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extractedBodyHash => $composableBuilder(
+    column: $table.extractedBodyHash,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get extractedAt => $composableBuilder(
+    column: $table.extractedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extractedTitle => $composableBuilder(
+    column: $table.extractedTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extractedImageUrls => $composableBuilder(
+    column: $table.extractedImageUrls,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<ReadingState, String> get readingState =>
       $composableBuilder(
@@ -7907,6 +8301,11 @@ class $$ArticlesTableTableManager
                 Value<String?> bodyHash = const Value.absent(),
                 Value<String?> summary = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> extractedBody = const Value.absent(),
+                Value<String?> extractedBodyHash = const Value.absent(),
+                Value<DateTime?> extractedAt = const Value.absent(),
+                Value<String?> extractedTitle = const Value.absent(),
+                Value<String?> extractedImageUrls = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7932,6 +8331,11 @@ class $$ArticlesTableTableManager
                 bodyHash: bodyHash,
                 summary: summary,
                 imageUrl: imageUrl,
+                extractedBody: extractedBody,
+                extractedBodyHash: extractedBodyHash,
+                extractedAt: extractedAt,
+                extractedTitle: extractedTitle,
+                extractedImageUrls: extractedImageUrls,
                 readingState: readingState,
                 favorite: favorite,
                 createdAt: createdAt,
@@ -7960,6 +8364,11 @@ class $$ArticlesTableTableManager
                 Value<String?> bodyHash = const Value.absent(),
                 Value<String?> summary = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> extractedBody = const Value.absent(),
+                Value<String?> extractedBodyHash = const Value.absent(),
+                Value<DateTime?> extractedAt = const Value.absent(),
+                Value<String?> extractedTitle = const Value.absent(),
+                Value<String?> extractedImageUrls = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7985,6 +8394,11 @@ class $$ArticlesTableTableManager
                 bodyHash: bodyHash,
                 summary: summary,
                 imageUrl: imageUrl,
+                extractedBody: extractedBody,
+                extractedBodyHash: extractedBodyHash,
+                extractedAt: extractedAt,
+                extractedTitle: extractedTitle,
+                extractedImageUrls: extractedImageUrls,
                 readingState: readingState,
                 favorite: favorite,
                 createdAt: createdAt,

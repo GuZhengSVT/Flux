@@ -75,7 +75,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -171,6 +171,16 @@ class AppDatabase extends _$AppDatabase {
               // （实测报 "no such column: image_url"）。声明为 newColumn 之后，它在
               // v5 阶段被跳过（取默认值 null），随后由下面的 v6 步骤补上。
               articles.imageUrl,
+              // v8 的五个提取列同理：它们也在**当前**表定义里，因此这次按当前定义生成的
+              // 搬数据语句会带上它们。不在这里声明，v4 及更早的库升到 v5 时就会对着还不
+              // 存在的 extracted_* 列执行 SELECT，直接把升级打崩（实测报 no such column:
+              // extracted_body）。声明为 newColumn 之后它们在 v5 阶段取默认值 null，
+              // 随后由 v8 步骤按事实判断是否需要真正加上。
+              articles.extractedBody,
+              articles.extractedBodyHash,
+              articles.extractedAt,
+              articles.extractedTitle,
+              articles.extractedImageUrls,
             ],
           ),
         );
@@ -233,11 +243,35 @@ class AppDatabase extends _$AppDatabase {
         );
       }
 
+      if (from < 8) {
+        // v7 → v8：文章表补「本机静态提取正文」（T024 的主动获取原站全文）。
+        //
+        // 五列全部可空且**不回填**：历史行并没有「提取过正文」这个事实。用现有正文
+        // 回填会让界面显示「已提取」，而用户从未点过那个按钮——那正是架构第 8 节禁止的
+        // 「用假象代替状态」。
+        //
+        // 为什么提取正文与源正文**分列**而不是覆盖 body：架构 4.2 要求失败保留原内容，
+        // 且用户需要在两份之间对照。覆盖式缓存同时丢掉这两条。
+        //
+        // 为什么要先判存在：上面 v4→v5 那一步的 alterTable 是**按当前表定义**重建 articles
+        // 的，因此当一次升级直接从 v4 及更早走到 v8 时，重建出来的表**已经带上**这五列——
+        // 再执行一次 ADD COLUMN 会报 duplicate column name（与 v6 的 image_url 完全同一个
+        // 坑，v1 快照升级的用例已经抓到过）。对**已经在 v7** 的库则反过来：它的 articles 是按
+        // v7 快照建的，没有这些列，必须真的加上。
+        if (!await _columnExists('articles', 'extracted_body')) {
+          await m.addColumn(articles, articles.extractedBody);
+          await m.addColumn(articles, articles.extractedBodyHash);
+          await m.addColumn(articles, articles.extractedAt);
+          await m.addColumn(articles, articles.extractedTitle);
+          await m.addColumn(articles, articles.extractedImageUrls);
+        }
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 7;
+      const int highestImplemented = 8;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

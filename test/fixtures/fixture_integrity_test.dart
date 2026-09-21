@@ -28,6 +28,12 @@ void main() {
         'markdown_math_sample.md',
         'fake_ai_response.json',
         'fake_ai_tool_call_response.json',
+        // T024：静态网页抽取的夹具（正常/纯 JS/付费墙/畸形/超长）。
+        'static_page_normal.html',
+        'static_page_js_only.html',
+        'static_page_paywall.html',
+        'static_page_malformed.html',
+        'static_page_oversized.html',
       ]) {
         final File file = File('$_fixtureDir/$name');
         expect(file.existsSync(), isTrue, reason: '缺少夹具 $name');
@@ -56,6 +62,9 @@ void main() {
         'example.com',
         'example.org',
         'nested.example.com',
+        // T024 的静态网页夹具用 cdn.example.com 作为图片地址（同样是保留域名，
+        // 与 nested.example.com 同一模式）。
+        'cdn.example.com',
         'www.w3.org',
         'w3.org',
         'purl.org',
@@ -295,6 +304,51 @@ void main() {
       expect(md, contains('<script>'), reason: '需要脚本样本以验证剥离');
       expect(md, contains('onerror='), reason: '需要事件属性样本');
       expect(md, contains('javascript:alert(1)'), reason: '需要危险协议样本');
+    });
+  });
+
+  group('静态网页夹具（T024）', () {
+    test('正常文章：含 article/article 容器、正文、图片与必须被剔除的噪音', () {
+      final String html = _read('static_page_normal.html');
+      expect(html, contains('<article'));
+      expect(html, contains('<h1>离线阅读的实现细节</h1>'));
+      expect(html, contains('<img src="https://cdn.example.com/one.png"'));
+      // 噪音区块：抽取结果里不该出现它们的内容。
+      expect(html, contains('<nav>'));
+      expect(html, contains('<aside>'));
+      expect(html, contains('<footer>'));
+      expect(html, contains('<script>'));
+      // 脚本里故意写了一个 `</div>` 字符串，用来验证配对扫描不会被它骗到。
+      expect(html, contains('var tracking'));
+    });
+
+    test('纯 JS 与付费墙夹具各自带上可判定的特征', () {
+      final String jsOnly = _read('static_page_js_only.html');
+      expect(jsOnly, contains('<div id="app"></div>'), reason: '正文容器是空的');
+      expect(jsOnly, contains('document.write'));
+
+      final String paywall = _read('static_page_paywall.html');
+      expect(paywall, contains('paywall-container'));
+      expect(paywall, contains('订阅后可读'));
+      expect(paywall, contains('subscriber only'));
+    });
+
+    test('畸形夹具确实缺闭合标签（否则测不到宽容解析）', () {
+      final String malformed = _read('static_page_malformed.html');
+      expect(malformed, isNot(contains('</head>')), reason: '必须真的缺 </head>');
+      expect(malformed, isNot(contains('</title>')), reason: '必须真的缺 </title>');
+      // 只断言 head/title 的缺失：这两条才是「浏览器会隐式闭合 head」这个边界的来源。
+      // （正文里仍有一些 </p>——夹具要覆盖的是缺 head 结束标签这一种畸形，不是所有畸形。）
+      // 正文长度必须超过可用阈值，否则会被判成「纯 JS 渲染」。
+      expect(malformed.length, greaterThan(400));
+    });
+
+    test('超长夹具足够大，能真正触发输入上限', () {
+      final String oversized = _read('static_page_oversized.html');
+      // 默认上限是 4 MiB；夹具不追求那么大，但长度上限测试用的是 2000，
+      // 因此这里只需要保证它明显超过那个测试用的阈值。
+      expect(oversized.length, greaterThan(20000));
+      expect(oversized, contains('<article>'));
     });
   });
 }
