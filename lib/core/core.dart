@@ -5,6 +5,8 @@
 library;
 
 export 'clock.dart';
+export 'diagnostics/diagnostic_sink.dart';
+export 'digest/sha256.dart';
 export 'domain/domain.dart';
 export 'error/app_error.dart';
 export 'error/secret_redaction.dart';

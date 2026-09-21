@@ -215,6 +215,49 @@ void main() {
         ]),
         reason: 'v2 只新增 settings，不得删除 v1 已有实体',
       );
+
+      // v3 快照是 T013 的真实增量迁移基线（订阅表补抓取诊断列）。它同样必须在
+      // 版本提升后立刻导出，否则无法用 drift 校验 v2→v3 的迁移正确性。
+      final File v3Snapshot = File('drift_schemas/drift_schema_v3.json');
+      expect(
+        v3Snapshot.existsSync(),
+        isTrue,
+        reason:
+            '缺少 v3 快照。可用 `dart run drift_dev schema dump '
+            'lib/infrastructure/local/database.dart drift_schemas/` 重新导出。',
+      );
+      final Map<String, dynamic> v3Decoded =
+          jsonDecode(v3Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v3Entities =
+          (v3Decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Set<String> v3Names = v3Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      // v3 只加列、不增删表：实体集合应与 v2 完全一致。
+      expect(v3Names, v2Names, reason: 'v3 只给 feeds 加列，不得新增或删除实体');
+
+      // feeds 表必须真的带上三个新列（只是「有快照」不等于列进去了）。
+      final Map<String, dynamic> feedsEntity = v3Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'feeds',
+      );
+      final Set<String> feedColumns =
+          ((feedsEntity['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        feedColumns,
+        containsAll(<String>[
+          'last_checked_at',
+          'last_refresh_result',
+          'last_refresh_error_kind',
+        ]),
+      );
     });
   });
 }

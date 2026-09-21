@@ -6,5 +6,10 @@
 library;
 
 export 'article_identity.dart';
+export 'article_import.dart';
 export 'citation_access.dart';
+export 'document_tree.dart';
+export 'feed_fetch.dart';
+export 'feed_store_port.dart';
+export 'feed_refresh.dart';
 export 'reading_state.dart';

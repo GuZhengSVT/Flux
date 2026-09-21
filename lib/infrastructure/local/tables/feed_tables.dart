@@ -85,6 +85,34 @@ class Feeds extends Table {
   /// 本机安全存储中的凭据引用（T010 落地）；数据库中**不存秘密本身**。
   TextColumn get credentialRef => text().nullable()();
 
+  /// 最近一次**尝试**抓取的时间（UTC；T013）。
+  ///
+  /// 与 [updatedAt] 分工不同，不能互相替代：
+  ///   - [updatedAt] 是「这一行（含名称/分组等用户改动）最后写入时间」；
+  ///   - 本列是「最后一次联网检查这个源的时间」，无论结果是 304、没有新文章
+  ///     还是网络失败都会更新。
+  /// 架构 4.1 要求区分「304」「没有新文章」「部分解析失败」「网络失败」四种结果
+  /// 并保留旧内容，界面需要如实显示「上次检查：多久之前」——因此这一列必须在
+  /// 失败时也推进；否则一个长期失败的源会一直显示很久以前的时间，看起来像
+  /// 没在刷新。
+  DateTimeColumn get lastCheckedAt => dateTime().nullable()();
+
+  /// 最近一次抓取的**结果类别**（T013），用于诊断与界面说明。
+  ///
+  /// 刻意保存枚举名文本而不是布尔「成功/失败」：架构 4.1 明确要求区分四种结果，
+  /// 用布尔会把「304 没有变化」和「网络失败」压成同一类。
+  ///
+  /// 不为此加 CHECK 约束：这是**运行时诊断**，不是用户数据本体。若某天新增一种
+  /// 结果类别，加 CHECK 会让旧值在新代码下变成非法值而需要迁移；而读取侧的
+  /// 未知值回退（见 FeedRefreshResult.fromName）已经能安全处理。
+  TextColumn get lastRefreshResult => text().nullable()();
+
+  /// 最近一次失败的类型化类别（T013）；成功时为 null。
+  ///
+  /// 只存**类别名**（如 network/parse/tooLarge），不存错误消息：消息可能含 URL
+  /// 里的秘密参数，脱敏是日志层的职责，普通列不应成为第二条泄露路径。
+  TextColumn get lastRefreshErrorKind => text().nullable()();
+
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

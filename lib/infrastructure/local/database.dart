@@ -66,7 +66,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -104,9 +104,23 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixSettingsUpdatedAt);
       }
 
+      if (from < 3) {
+        // v2 → v3：订阅表补抓取诊断列（T013 的 lastChecked / 结果类别 / 错误类别）。
+        //
+        // 三列都可空且**不回填**：历史行没有「上次检查时间」这个事实，用当前时间
+        // 填进去等于伪造一次成功的检查记录。界面按 null 显示「尚未检查」——这是
+        // 真实状态，而不是缺失。
+        //
+        // addColumn 只加列，不改写已有列语义，因此旧数据（名称/分组/加精/条件请求
+        // 缓存）保持原样。
+        await m.addColumn(feeds, feeds.lastCheckedAt);
+        await m.addColumn(feeds, feeds.lastRefreshResult);
+        await m.addColumn(feeds, feeds.lastRefreshErrorKind);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
-      const int highestImplemented = 2;
+      const int highestImplemented = 3;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

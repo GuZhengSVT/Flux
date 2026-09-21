@@ -644,6 +644,41 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _lastCheckedAtMeta = const VerificationMeta(
+    'lastCheckedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastCheckedAt =
+      GeneratedColumn<DateTime>(
+        'last_checked_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastRefreshResultMeta = const VerificationMeta(
+    'lastRefreshResult',
+  );
+  @override
+  late final GeneratedColumn<String> lastRefreshResult =
+      GeneratedColumn<String>(
+        'last_refresh_result',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastRefreshErrorKindMeta =
+      const VerificationMeta('lastRefreshErrorKind');
+  @override
+  late final GeneratedColumn<String> lastRefreshErrorKind =
+      GeneratedColumn<String>(
+        'last_refresh_error_kind',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -682,6 +717,9 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     httpEtag,
     httpLastModified,
     credentialRef,
+    lastCheckedAt,
+    lastRefreshResult,
+    lastRefreshErrorKind,
     createdAt,
     updatedAt,
   ];
@@ -784,6 +822,33 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
         ),
       );
     }
+    if (data.containsKey('last_checked_at')) {
+      context.handle(
+        _lastCheckedAtMeta,
+        lastCheckedAt.isAcceptableOrUnknown(
+          data['last_checked_at']!,
+          _lastCheckedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_refresh_result')) {
+      context.handle(
+        _lastRefreshResultMeta,
+        lastRefreshResult.isAcceptableOrUnknown(
+          data['last_refresh_result']!,
+          _lastRefreshResultMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_refresh_error_kind')) {
+      context.handle(
+        _lastRefreshErrorKindMeta,
+        lastRefreshErrorKind.isAcceptableOrUnknown(
+          data['last_refresh_error_kind']!,
+          _lastRefreshErrorKindMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -853,6 +918,18 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
         DriftSqlType.string,
         data['${effectivePrefix}credential_ref'],
       ),
+      lastCheckedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_checked_at'],
+      ),
+      lastRefreshResult: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_refresh_result'],
+      ),
+      lastRefreshErrorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_refresh_error_kind'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -907,6 +984,34 @@ class Feed extends DataClass implements Insertable<Feed> {
 
   /// 本机安全存储中的凭据引用（T010 落地）；数据库中**不存秘密本身**。
   final String? credentialRef;
+
+  /// 最近一次**尝试**抓取的时间（UTC；T013）。
+  ///
+  /// 与 [updatedAt] 分工不同，不能互相替代：
+  ///   - [updatedAt] 是「这一行（含名称/分组等用户改动）最后写入时间」；
+  ///   - 本列是「最后一次联网检查这个源的时间」，无论结果是 304、没有新文章
+  ///     还是网络失败都会更新。
+  /// 架构 4.1 要求区分「304」「没有新文章」「部分解析失败」「网络失败」四种结果
+  /// 并保留旧内容，界面需要如实显示「上次检查：多久之前」——因此这一列必须在
+  /// 失败时也推进；否则一个长期失败的源会一直显示很久以前的时间，看起来像
+  /// 没在刷新。
+  final DateTime? lastCheckedAt;
+
+  /// 最近一次抓取的**结果类别**（T013），用于诊断与界面说明。
+  ///
+  /// 刻意保存枚举名文本而不是布尔「成功/失败」：架构 4.1 明确要求区分四种结果，
+  /// 用布尔会把「304 没有变化」和「网络失败」压成同一类。
+  ///
+  /// 不为此加 CHECK 约束：这是**运行时诊断**，不是用户数据本体。若某天新增一种
+  /// 结果类别，加 CHECK 会让旧值在新代码下变成非法值而需要迁移；而读取侧的
+  /// 未知值回退（见 FeedRefreshResult.fromName）已经能安全处理。
+  final String? lastRefreshResult;
+
+  /// 最近一次失败的类型化类别（T013）；成功时为 null。
+  ///
+  /// 只存**类别名**（如 network/parse/tooLarge），不存错误消息：消息可能含 URL
+  /// 里的秘密参数，脱敏是日志层的职责，普通列不应成为第二条泄露路径。
+  final String? lastRefreshErrorKind;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Feed({
@@ -922,6 +1027,9 @@ class Feed extends DataClass implements Insertable<Feed> {
     this.httpEtag,
     this.httpLastModified,
     this.credentialRef,
+    this.lastCheckedAt,
+    this.lastRefreshResult,
+    this.lastRefreshErrorKind,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -951,6 +1059,15 @@ class Feed extends DataClass implements Insertable<Feed> {
     }
     if (!nullToAbsent || credentialRef != null) {
       map['credential_ref'] = Variable<String>(credentialRef);
+    }
+    if (!nullToAbsent || lastCheckedAt != null) {
+      map['last_checked_at'] = Variable<DateTime>(lastCheckedAt);
+    }
+    if (!nullToAbsent || lastRefreshResult != null) {
+      map['last_refresh_result'] = Variable<String>(lastRefreshResult);
+    }
+    if (!nullToAbsent || lastRefreshErrorKind != null) {
+      map['last_refresh_error_kind'] = Variable<String>(lastRefreshErrorKind);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -983,6 +1100,15 @@ class Feed extends DataClass implements Insertable<Feed> {
       credentialRef: credentialRef == null && nullToAbsent
           ? const Value.absent()
           : Value(credentialRef),
+      lastCheckedAt: lastCheckedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastCheckedAt),
+      lastRefreshResult: lastRefreshResult == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastRefreshResult),
+      lastRefreshErrorKind: lastRefreshErrorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastRefreshErrorKind),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1008,6 +1134,13 @@ class Feed extends DataClass implements Insertable<Feed> {
       httpEtag: serializer.fromJson<String?>(json['httpEtag']),
       httpLastModified: serializer.fromJson<String?>(json['httpLastModified']),
       credentialRef: serializer.fromJson<String?>(json['credentialRef']),
+      lastCheckedAt: serializer.fromJson<DateTime?>(json['lastCheckedAt']),
+      lastRefreshResult: serializer.fromJson<String?>(
+        json['lastRefreshResult'],
+      ),
+      lastRefreshErrorKind: serializer.fromJson<String?>(
+        json['lastRefreshErrorKind'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1028,6 +1161,9 @@ class Feed extends DataClass implements Insertable<Feed> {
       'httpEtag': serializer.toJson<String?>(httpEtag),
       'httpLastModified': serializer.toJson<String?>(httpLastModified),
       'credentialRef': serializer.toJson<String?>(credentialRef),
+      'lastCheckedAt': serializer.toJson<DateTime?>(lastCheckedAt),
+      'lastRefreshResult': serializer.toJson<String?>(lastRefreshResult),
+      'lastRefreshErrorKind': serializer.toJson<String?>(lastRefreshErrorKind),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1046,6 +1182,9 @@ class Feed extends DataClass implements Insertable<Feed> {
     Value<String?> httpEtag = const Value.absent(),
     Value<String?> httpLastModified = const Value.absent(),
     Value<String?> credentialRef = const Value.absent(),
+    Value<DateTime?> lastCheckedAt = const Value.absent(),
+    Value<String?> lastRefreshResult = const Value.absent(),
+    Value<String?> lastRefreshErrorKind = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Feed(
@@ -1067,6 +1206,15 @@ class Feed extends DataClass implements Insertable<Feed> {
     credentialRef: credentialRef.present
         ? credentialRef.value
         : this.credentialRef,
+    lastCheckedAt: lastCheckedAt.present
+        ? lastCheckedAt.value
+        : this.lastCheckedAt,
+    lastRefreshResult: lastRefreshResult.present
+        ? lastRefreshResult.value
+        : this.lastRefreshResult,
+    lastRefreshErrorKind: lastRefreshErrorKind.present
+        ? lastRefreshErrorKind.value
+        : this.lastRefreshErrorKind,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -1094,6 +1242,15 @@ class Feed extends DataClass implements Insertable<Feed> {
       credentialRef: data.credentialRef.present
           ? data.credentialRef.value
           : this.credentialRef,
+      lastCheckedAt: data.lastCheckedAt.present
+          ? data.lastCheckedAt.value
+          : this.lastCheckedAt,
+      lastRefreshResult: data.lastRefreshResult.present
+          ? data.lastRefreshResult.value
+          : this.lastRefreshResult,
+      lastRefreshErrorKind: data.lastRefreshErrorKind.present
+          ? data.lastRefreshErrorKind.value
+          : this.lastRefreshErrorKind,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1114,6 +1271,9 @@ class Feed extends DataClass implements Insertable<Feed> {
           ..write('httpEtag: $httpEtag, ')
           ..write('httpLastModified: $httpLastModified, ')
           ..write('credentialRef: $credentialRef, ')
+          ..write('lastCheckedAt: $lastCheckedAt, ')
+          ..write('lastRefreshResult: $lastRefreshResult, ')
+          ..write('lastRefreshErrorKind: $lastRefreshErrorKind, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1134,6 +1294,9 @@ class Feed extends DataClass implements Insertable<Feed> {
     httpEtag,
     httpLastModified,
     credentialRef,
+    lastCheckedAt,
+    lastRefreshResult,
+    lastRefreshErrorKind,
     createdAt,
     updatedAt,
   );
@@ -1153,6 +1316,9 @@ class Feed extends DataClass implements Insertable<Feed> {
           other.httpEtag == this.httpEtag &&
           other.httpLastModified == this.httpLastModified &&
           other.credentialRef == this.credentialRef &&
+          other.lastCheckedAt == this.lastCheckedAt &&
+          other.lastRefreshResult == this.lastRefreshResult &&
+          other.lastRefreshErrorKind == this.lastRefreshErrorKind &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1170,6 +1336,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
   final Value<String?> httpEtag;
   final Value<String?> httpLastModified;
   final Value<String?> credentialRef;
+  final Value<DateTime?> lastCheckedAt;
+  final Value<String?> lastRefreshResult;
+  final Value<String?> lastRefreshErrorKind;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const FeedsCompanion({
@@ -1185,6 +1354,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.httpEtag = const Value.absent(),
     this.httpLastModified = const Value.absent(),
     this.credentialRef = const Value.absent(),
+    this.lastCheckedAt = const Value.absent(),
+    this.lastRefreshResult = const Value.absent(),
+    this.lastRefreshErrorKind = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -1201,6 +1373,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.httpEtag = const Value.absent(),
     this.httpLastModified = const Value.absent(),
     this.credentialRef = const Value.absent(),
+    this.lastCheckedAt = const Value.absent(),
+    this.lastRefreshResult = const Value.absent(),
+    this.lastRefreshErrorKind = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : syncId = Value(syncId),
@@ -1219,6 +1394,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Expression<String>? httpEtag,
     Expression<String>? httpLastModified,
     Expression<String>? credentialRef,
+    Expression<DateTime>? lastCheckedAt,
+    Expression<String>? lastRefreshResult,
+    Expression<String>? lastRefreshErrorKind,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -1236,6 +1414,10 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       if (httpEtag != null) 'http_etag': httpEtag,
       if (httpLastModified != null) 'http_last_modified': httpLastModified,
       if (credentialRef != null) 'credential_ref': credentialRef,
+      if (lastCheckedAt != null) 'last_checked_at': lastCheckedAt,
+      if (lastRefreshResult != null) 'last_refresh_result': lastRefreshResult,
+      if (lastRefreshErrorKind != null)
+        'last_refresh_error_kind': lastRefreshErrorKind,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -1254,6 +1436,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Value<String?>? httpEtag,
     Value<String?>? httpLastModified,
     Value<String?>? credentialRef,
+    Value<DateTime?>? lastCheckedAt,
+    Value<String?>? lastRefreshResult,
+    Value<String?>? lastRefreshErrorKind,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -1271,6 +1456,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       httpEtag: httpEtag ?? this.httpEtag,
       httpLastModified: httpLastModified ?? this.httpLastModified,
       credentialRef: credentialRef ?? this.credentialRef,
+      lastCheckedAt: lastCheckedAt ?? this.lastCheckedAt,
+      lastRefreshResult: lastRefreshResult ?? this.lastRefreshResult,
+      lastRefreshErrorKind: lastRefreshErrorKind ?? this.lastRefreshErrorKind,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -1317,6 +1505,17 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     if (credentialRef.present) {
       map['credential_ref'] = Variable<String>(credentialRef.value);
     }
+    if (lastCheckedAt.present) {
+      map['last_checked_at'] = Variable<DateTime>(lastCheckedAt.value);
+    }
+    if (lastRefreshResult.present) {
+      map['last_refresh_result'] = Variable<String>(lastRefreshResult.value);
+    }
+    if (lastRefreshErrorKind.present) {
+      map['last_refresh_error_kind'] = Variable<String>(
+        lastRefreshErrorKind.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1341,6 +1540,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
           ..write('httpEtag: $httpEtag, ')
           ..write('httpLastModified: $httpLastModified, ')
           ..write('credentialRef: $credentialRef, ')
+          ..write('lastCheckedAt: $lastCheckedAt, ')
+          ..write('lastRefreshResult: $lastRefreshResult, ')
+          ..write('lastRefreshErrorKind: $lastRefreshErrorKind, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -5216,6 +5418,9 @@ typedef $$FeedsTableCreateCompanionBuilder = FeedsCompanion Function({
   Value<String?> httpEtag,
   Value<String?> httpLastModified,
   Value<String?> credentialRef,
+  Value<DateTime?> lastCheckedAt,
+  Value<String?> lastRefreshResult,
+  Value<String?> lastRefreshErrorKind,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -5232,6 +5437,9 @@ typedef $$FeedsTableUpdateCompanionBuilder = FeedsCompanion Function({
   Value<String?> httpEtag,
   Value<String?> httpLastModified,
   Value<String?> credentialRef,
+  Value<DateTime?> lastCheckedAt,
+  Value<String?> lastRefreshResult,
+  Value<String?> lastRefreshErrorKind,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -5337,6 +5545,21 @@ class $$FeedsTableFilterComposer extends Composer<_$AppDatabase, $FeedsTable> {
 
   ColumnFilters<String> get credentialRef => $composableBuilder(
     column: $table.credentialRef,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastCheckedAt => $composableBuilder(
+    column: $table.lastCheckedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastRefreshResult => $composableBuilder(
+    column: $table.lastRefreshResult,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastRefreshErrorKind => $composableBuilder(
+    column: $table.lastRefreshErrorKind,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5463,6 +5686,21 @@ class $$FeedsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get lastCheckedAt => $composableBuilder(
+    column: $table.lastCheckedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastRefreshResult => $composableBuilder(
+    column: $table.lastRefreshResult,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastRefreshErrorKind => $composableBuilder(
+    column: $table.lastRefreshErrorKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5546,6 +5784,21 @@ class $$FeedsTableAnnotationComposer
 
   GeneratedColumn<String> get credentialRef => $composableBuilder(
     column: $table.credentialRef,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastCheckedAt => $composableBuilder(
+    column: $table.lastCheckedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastRefreshResult => $composableBuilder(
+    column: $table.lastRefreshResult,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastRefreshErrorKind => $composableBuilder(
+    column: $table.lastRefreshErrorKind,
     builder: (column) => column,
   );
 
@@ -5644,6 +5897,9 @@ class $$FeedsTableTableManager
                 Value<String?> httpEtag = const Value.absent(),
                 Value<String?> httpLastModified = const Value.absent(),
                 Value<String?> credentialRef = const Value.absent(),
+                Value<DateTime?> lastCheckedAt = const Value.absent(),
+                Value<String?> lastRefreshResult = const Value.absent(),
+                Value<String?> lastRefreshErrorKind = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FeedsCompanion(
@@ -5659,6 +5915,9 @@ class $$FeedsTableTableManager
                 httpEtag: httpEtag,
                 httpLastModified: httpLastModified,
                 credentialRef: credentialRef,
+                lastCheckedAt: lastCheckedAt,
+                lastRefreshResult: lastRefreshResult,
+                lastRefreshErrorKind: lastRefreshErrorKind,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -5676,6 +5935,9 @@ class $$FeedsTableTableManager
                 Value<String?> httpEtag = const Value.absent(),
                 Value<String?> httpLastModified = const Value.absent(),
                 Value<String?> credentialRef = const Value.absent(),
+                Value<DateTime?> lastCheckedAt = const Value.absent(),
+                Value<String?> lastRefreshResult = const Value.absent(),
+                Value<String?> lastRefreshErrorKind = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => FeedsCompanion.insert(
@@ -5691,6 +5953,9 @@ class $$FeedsTableTableManager
                 httpEtag: httpEtag,
                 httpLastModified: httpLastModified,
                 credentialRef: credentialRef,
+                lastCheckedAt: lastCheckedAt,
+                lastRefreshResult: lastRefreshResult,
+                lastRefreshErrorKind: lastRefreshErrorKind,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

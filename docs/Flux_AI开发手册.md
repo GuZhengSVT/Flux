@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的三项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）与 T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）。现状：可启动真实应用并进入壳层，三个顶层去向均为明确占位且标注计划任务；SET-001 语言与 SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；真实 macOS 窗口（1200×832 内容区）已截图入证据。T012 起的界面与业务功能尚未验收 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的五项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）与 T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）。现状：可启动真实应用并进入壳层，三个顶层去向均为明确占位且标注计划任务；导航与空态已使用 T012 的原创图标与共享控件；SET-001 语言与 SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6），但**尚未接到界面**（订阅管理 UI 属 T014），因此界面上仍看不到文章。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T011 已完成并有本机证据；下一任务 T012（SVG 图标/设计 token 与通用控件），前置 T011 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T013 已完成并有本机证据；下一任务 T014（单源导入、编辑、分组/排序/置顶/加精），前置 T010 与 T013 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -55,8 +55,8 @@
 | 功能组 | 要求/对应设置 | 关联任务 | 当前状态 |
 | --- | --- | --- | --- |
 | 工程/架构/许可证/CI | D-01–05、D-14 | T001–T010 | TODO |
-| 导航、外观、中英和原创图标 | SET-001–009、014、016 | T011、T012、T019、T051 | DOING（T011 已交付三个顶层去向与占位页、SET-001/002 真实生效、浅深主题 token、中英资源与即时切换；SET-003–009/014/016 与原创 SVG 图标仍待 T012/T019/T051） |
-| RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | TODO |
+| 导航、外观、中英和原创图标 | SET-001–009、014、016 | T011、T012、T019、T051 | DOING（T011 交付三个顶层去向与占位页、SET-001/002 真实生效、浅深主题 token、中英资源与即时切换；T012 交付 14 个原创 SVG 图标（20/24 两套尺寸）、三态阅读控件、独立收藏、空态/状态横幅/卡片与八类状态验证，导航与空态已真正使用原创图标；SET-003–009/014/016 仍待 T012 后续/T019/T051） |
+| RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | DOING（T013 已交付并真实源验证：条件请求/304、限并发与超时、大响应与压缩炸弹防护、DTD/实体拒绝、RSS 2.0/Atom 解析、受控文档树清洗、身份去重与正文修订；订阅管理 UI、OPML 与刷新调度属 T014–T016，界面上尚看不到文章） |
 | 文章三态/收藏/批量操作 | F-STATE；SET-010、081 | T017、T018、T045 | TODO |
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | TODO |
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | TODO |
@@ -112,8 +112,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T009 | T007、T008 | SQLite/Drift 实体、索引、事务及迁移 | 架构第 5 节实体落地；迁移成功/失败和拒绝较新 schema 测试，失败不重建数据库 | DONE |
 | T010 | T009 | 安全存储、设置注册表和脱敏诊断 | SET 类型、范围/默认值、C/D/S 分类校验；Keychain/Keystore 实测，日志/导出无秘密，缺能力不明文回退 | DONE（macOS Keychain 实测通过；Android Keystore 随 Android 阶段，未实测） |
 | T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | DONE |
-| T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | TODO |
-| T013 | T009 | RSS/Atom 网络、解析、去重与内容清洗 | 同/异源 GUID、URL 参数、正文修订、无日期、304、异常 XML、外部实体、大响应、取消均有 fixture | TODO |
+| T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | DONE |
+| T013 | T009 | RSS/Atom 网络、解析、去重与内容清洗 | 同/异源 GUID、URL 参数、正文修订、无日期、304、异常 XML、外部实体、大响应、取消均有 fixture | DONE（取消仅做到抓取层的超时与信号量层面，用户可见的“取消按钮”属 T016/T019；详见第 7.1.6 节的遗留问题）|
 | T014 | T010、T013 | 单源导入、编辑、分组/排序/置顶/加精 | SET-020–028 相应行为、未分类保护、加精不改变新闻选材；失败项可修正，不破坏已有源 | TODO |
 | T015 | T014 | OPML 预览、批量导入、逐项重试与导出 | 默认未分类/可保留分组，重复/无效明细；往返保留标准订阅地址/名称/分组，重复导入匹配已有源且不重置状态；不承诺 OPML 保留内部 ID 或应用专属设置，认证被脱敏/排除 | TODO |
 | T016 | T014 | 刷新调度/并发/网络策略 | 启动、定时、手动合并；超时/限流/离线保留旧内容；前后台限制有实测与说明，计费网络遵守 SET-013 | TODO |
@@ -684,6 +684,254 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
     下一可执行任务及前置条件：T012（SVG 图标/设计 token 与通用控件），前置 T011 已 DONE；
       需保持“不提前实现 T013 及以后”的范围边界，并复用本轮 design token、主题扩展与 i18n 资源。
 
+### 7.1.5 轮次记录 R012（T012）
+
+    轮次/日期：R012 / 2026-09-21
+    任务 ID 与状态变化：T012 TODO → DONE；T011 遗留的「原创 SVG 图标」交接项已落地
+    相关决策/功能/SET 项：架构第 7 节全部美术标准（图标 20/24 逻辑尺寸、1.5–2 线宽、状态三选一
+      占一个控件位、收藏独立星形、普通文字 4.5:1 对比度、桌面键盘焦点、手机 48dp 触控目标、
+      动效 120–200ms）；架构 2.1（自制 SVG，不依赖在线图标库）；架构第 8 节（资源也在边界校验）；
+      SET-023（单源加精，仅显示标识）；SET-014「减少动态效果」的跟随系统部分
+    修改文件与主要行为：
+      - 新增 assets/icons/ 共 28 个原创 SVG（today/rss/sliders 导航三件、state-unread/read/later
+        三态、star 与 star-filled 收藏、badge-featured 加精、inbox-empty 空态、alert-info/warning/error
+        三档提示、mark-check 成功标记），每个都有 20 与 24 两套逻辑尺寸，各自线宽 1.5 / 1.75；
+        文件顶部统一含 Original artwork for Flux, MIT License (c) 2025 GuZhengSVT；
+        素材一律 stroke/fill=currentColor，不带固定颜色；
+      - 新增 lib/ui/（与特征无关的共享控件层）：icons/flux_icons.dart（FluxIcon/FluxIconSize 枚举
+        + FluxSvgIcon）、controls/flux_control_status.dart（八类状态解析 + 由 ColorScheme 计算的视觉取值）、
+        controls/flux_stateful_tap.dart（统一可交互基座：状态、焦点环、48dp 命中区、键盘 Enter/Space、
+        语义）、controls/reading_state_control.dart（ReadingStateControl 一个控件位内循环切换三态 +
+        FavoriteToggle 独立星形 + FeaturedBadge 盾形）、controls/flux_loading_indicator.dart（线宽/直径
+        取自 token 的不确定进度圆弧）、widgets/flux_common_widgets.dart（FluxCard / FluxEmptyState /
+        StatusBanner 三档严重性）、flux_motion.dart；
+      - lib/core/design/design_tokens.dart 新增 FluxIconTokens（20/24、1.5/1.75、48）与 FluxControlTokens
+        （悬停/按下不透明度、焦点环宽度、禁用不透明度、加载指示器尺寸）；
+      - **枚举提升**：ReadingState / IdentityBasis / FingerprintReliability / BodyCompleteness /
+        CitationAccessMethod 从 lib/infrastructure/local/tables/enums.dart 提升到 lib/core/domain/，
+        原文件改为转出口（取值名称、顺序、落库文本完全不变，因此无需数据迁移）。动机：控件与
+        features 用例必须使用这些产品规则，而 features 不得 import infrastructure；enums.dart 原本
+        就写明「若 T017/T041 需要提升为 domain 层类型，必须保持名称与 @name 注解不变」；
+      - 导航与空态真正接入原创图标：app_destination.dart 的 icon 由 IconData 改为 FluxIcon，
+        app_shell.dart 用 FluxSvgIcon 渲染（侧栏 24 / 底栏 20），placeholder_page.dart 的空态改用
+        共享 FluxEmptyState；
+      - ARB 新增 15 条控件文案（三态名称/循环提示/播报、收藏动作、加精标签、控件状态标签），
+        zh/en 各 105 条；
+      - 新增测试：test/ui/{flux_icons_test,flux_controls_test,control_harness}.dart 与
+        test/ui/golden/controls_golden_test.dart（6 张 golden）；更新 test/app/app_shell_test.dart
+        （新增「导航图标是 T012 原创 SVG」交接断言）与 test/app/l10n_test.dart（条目数与新增文案）
+    数据迁移/删除/依赖变化：无 schema 迁移（枚举提升不改变落库文本与 CHECK 约束）；
+      新增依赖 flutter_svg ^2.3.0（任务白名单内唯一新增项），其传递依赖 vector_graphics /
+      vector_graphics_codec / vector_graphics_compiler / path_parsing 一并进入 lock；
+      未引入 vector_graphics 的代码生成管线
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 无源码冲突
+      dart format --output=none --set-exit-if-changed lib test integration_test | 0 | PASS | 103 files（0 changed）
+      flutter analyze | 0 | PASS | No issues found（0 issue）
+      flutter test | 0 | PASS | 381 tests all passed（较 T011 的 337 增加 44 个用例，含 6 张新增 golden）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      flutter build apk --debug --target-platform android-arm64 | NOT_RUN | android/ 按 D-02 仍未初始化
+      flutter_svg 在 macOS 真实渲染验证 | 0 | PASS | 先用临时探针用例确认 SvgPicture.asset 能加载
+        assets/icons/ 并把 currentColor（经 SvgTheme）解析为传入颜色，再据此设计 FluxSvgIcon；探针已删除
+    图标清单（28 个文件 / 14 组，每组 20 与 24 两套）：
+      today（日记本+太阳）、rss（圆点+同心波）、sliders（三条滑杆）、state-unread（环+实心点）、
+      state-read（环+对勾）、state-later（环+时钟）、star（描边星）、star-filled（实心星）、
+      badge-featured（盾+小星）、inbox-empty（收件盘）、alert-info（圈+i）、alert-warning（三角+!）、
+      alert-error（圈+×）、mark-check（对勾）
+    控件状态实现（八类 + 交互细节）：
+      - 状态解析集中在 resolveFluxControlStatus，优先级：禁用 > 反馈（加载/成功/失败）> 按下 > 焦点 > 悬停 > 默认；
+      - 视觉取值由 FluxControlVisuals 从 ColorScheme 计算（lib/ui 不 import lib/app，避免 T011 抓到的
+        目录级循环）；悬停 8% / 按下 16% 强调色叠加、焦点环 2px 边框、禁用 0.38 不透明度、
+        加载态用自绘圆弧替换图标（线宽 2、直径 60% 图标尺寸）；
+      - 行为：禁用与加载拦截回调（含键盘路径）；焦点/悬停/按下由真实指针与 Focus 驱动；
+        Enter/NumpadEnter/Space 均可激活；命中区恒为 48dp 而图标仍是 20/24；
+        语义标签含控件名与当前值、hint 说明循环顺序、禁用时 isEnabled 明确报 false
+    测试覆盖要点（T012 验收）：
+      - 资源：每个图标 20/24 双尺寸存在；磁盘文件与枚举登记一一对应（双向差集为空）；
+        每个 SVG 顶部有 MIT 原创声明；线宽落在 1.5–2 且与枚举声明一致；不含固定颜色（必须 currentColor）；
+        viewBox 与声明尺寸一致（证明 20 不是 24 缩放而来）；不含 script/事件/外链；pubspec 声明了 assets/icons/；
+      - 八类状态：优先级逐条断言；视觉签名两两互不相同（不会出现两个状态看着一样）；只有焦点态有焦点环、
+        只有加载态有指示器；只有禁用与加载拦截交互、只有禁用向读屏报告不可用；
+      - 三态控件：点按循环推进；悬停底色与默认不同且等于 hover token；按下时才触发（避免误触）且比悬停更深；
+        Tab 聚焦后 Enter 与 Space 都能推进；禁用态点按与键盘均不触发且读屏报不可用；加载态显示指示器并拦截重复触发；
+        成功/失败可继续交互且失败用错误色；三个取值渲染三张不同 SVG；语义标签含控件名/当前值/循环提示；
+        未给回调时为只读展示态（读屏不报可点）；通过语义 tap 动作也能切换（读屏双击路径）；
+        两种尺寸下命中区都 ≥48 而图标仍是 20/24；
+      - 收藏：点按按当前值反向切换；已收藏用实心星；语义标签只说明收藏动作、不提及阅读状态（证明与三态解耦）；
+        禁用与加载同样被拦截；
+      - 加精：盾形而非星形（避免与收藏混淆）；不可交互（只读标记）；语义标签为「加精」
+      - golden：6 张入库——三态三值+收藏 on/off+加精（浅/深各 1）、八类状态对照（浅/深各 1，
+        用 debugStatusOverride 把状态钉住以便同图复核）、空态+三档横幅+卡片（浅色中文 / 深色英文）
+    本轮发现并修复的实现风险（重要）：
+      1) **flutter_svg 对 const 构造的限制**：SvgPicture.asset 不是 const 构造，最初的 const 用法直接编译失败；
+         已改为非常量构造并保留其余不可变字段；
+      2) **currentColor 的传递方式**：currentColor 由 bytesLoader 里的 SvgTheme 承载，而不是 SvgPicture 的字段；
+         最初在测试里读错了位置，导致「颜色没生效」的假判断。已在测试中按 bytesLoader 读取；
+      3) **加精徽标的语义重复**：Semantics + 内部 Text 各产生一次标签，读屏会念「加精 加精」；
+         已改为整块容器语义 + ExcludeSemantics 包裹内部图形与文字；
+      4) **golden 需要真实视口**：setSurfaceSize 只改 MediaQuery 的声明尺寸，不改变渲染视口；
+         8 行状态矩阵在默认 800×600 下触发 RenderFlex 溢出（测试视为失败）。已新增
+         setControlSurfaceSize 直接设置 binding 视口；
+      5) **AnimatedContainer 的动画相位**：按下态断言在动画起点读到的是默认色，必须把 160ms 动画推完
+         才能观察到稳态；已在需要时 pump 足够时长；
+      6) golden 失败时 flutter_test 会在测试目录旁写出对比图（failures/），已加入 .gitignore 而不是提交进来
+    UI/真实端点/双设备测试：有 6 张新增控件 golden（浅深 × 精选组合）；**未接任何真实端点**（网络属 T013）；
+      无同步与双设备测试（属 T041+）
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用产生；未读取或写入任何真实凭据
+    遗留问题与未运行项：
+      1) Android 工程仍未初始化，flutter build apk 未运行（随 Android 阶段补）；
+      2) SET-003–009/014/016 的外观项仍只显示禁用态入口；本轮只落地「跟随系统减少动效」的时长函数，
+         用户可强制开启的开关属 T051；
+      3) 三态控件的**循环切换**是本轮选定的交互（键盘一次回车推进并播报结果）。T017 若在列表批量操作里
+         需要更快的直达方式，可在同一控件上叠加右键/长按菜单，但「一个控件位、单一取值」的结构不变；
+      4) 图标目前只有 14 组；T019/T049 可能需要更多（目录/上下篇/外开/图片等），届时按同样规则补充并复用
+         flux_icons_test 的资源与线宽断言；
+      5) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要、功能账本与本轮记录。
+      图标尺寸/线宽/状态占位与收藏独立严格取自架构第 7 节，未自行改口径。
+    提交/差异范围：提交 "T012: original SVG icons, reading-state control, shared widgets"
+      （9e70b65a1cea901e017eb0a806820426d6fba522）；
+      基线为 4688b7d（T011）。未 push。
+    下一可执行任务及前置条件：T013（RSS/Atom 网络、解析、去重与内容清洗），前置 T009 已 DONE；
+      需保持“不提前实现 T014 的订阅管理 UI”的范围边界。
+
+### 7.1.6 轮次记录 R013（T013）
+
+    轮次/日期：R013 / 2026-09-21
+    任务 ID 与状态变化：T013 TODO → DONE（M1 第五项）
+    相关决策/功能/SET 项：架构 4.1（身份规则、条件请求/304、限并发、四种刷新结果、保留旧内容、
+      无日期用抓取时间并注明、URL 参数不随意剥离）；架构 4.2（受控文档树、拒绝脚本/事件属性/iframe/
+      表单/危险 URL）；架构 2.1/2.2（分层与 FeedFetcher 端口）；架构 5.1（Article/Revision 与 UTC 存储）；
+      架构第 8 节（边界校验、只允许 http(s)、自动发现拒绝私网、不全局忽略 TLS）；SET-028（并发 4 /
+      单源超时 30 秒，范围 1–8 / 10–120）；SET-023（加精与选材无关，本轮只落字段不改选材）
+    修改文件与主要行为：
+      - **schema v3**：feeds 表新增 lastCheckedAt / lastRefreshResult / lastRefreshErrorKind 三列
+        （v2→v3 增量迁移只加列、不回填；历史行保持 null 表示「尚未检查」，不用当前时间伪造检查记录），
+        导出 drift_schemas/drift_schema_v3.json 与 test/generated/schema_v3.dart；
+      - 新增 lib/core/domain/：document_tree.dart（受控文档树：标题/段落/强调/链接/图片/引用/列表/
+        代码块/表格/分隔线 + 危险 URL 拒绝节点，含纯文本导出）、article_import.dart（导入 DTO，
+        从 infrastructure 提升）、feed_refresh.dart（四类刷新结果）、feed_fetch.dart（抓取端口与配置）、
+        feed_store_port.dart（写入端口）；
+      - 新增 lib/core/digest/sha256.dart：**自实现的 SHA-256**（FIPS 180-4），用于正文哈希与兜底指纹。
+        理由：任务依赖白名单只有 flutter_svg 与 xml，而这里只需要一条公开、固定、可用 NIST 官方
+        测试向量逐条验证的算法；不把已在依赖图里的 crypto 提升为直接依赖以缩小供应链面；
+      - 新增 lib/core/diagnostics/diagnostic_sink.dart：诊断端口（features 不得 import infrastructure，
+        而刷新必须记录失败与丢弃信息）；
+      - 新增 lib/features/feeds/domain/feed_parser.dart：RSS 2.0/1.0 与 Atom 1.0 解析。安全上
+        在解析**前**拒绝 DOCTYPE 与 ENTITY（大小写与空白变形同样拒绝），再用事件流扫描嵌套深度与
+        元素数上限；提取标题/链接/guid(isPermaLink)/pubDate/updated/enclosure 图片/作者/摘要/正文，
+        支持 Atom 的 html/xhtml/text 三种 content（xhtml 序列化回 HTML 字符串）与 feed 级作者继承；
+        日期解析同时支持 RFC 822（含时区名与偏移、两位年份）与 ISO 8601，并把「超范围字段静默滚动」
+        的问题显式拒绝；
+      - 新增 lib/features/feeds/domain/content_sanitizer.dart：HTML→受控文档树的三步流水线
+        （宽容分词 → 元素树 → 白名单转换）。script/style/iframe/form 等**连同内容**丢弃；未知标签
+        拆外壳保留文字；事件属性与 style/id/srcset 等一律丢弃，同名属性只保留第一个；javascript:/data:/
+        vbscript:/file: 与相对地址变成可见但不可点的拒绝节点；实体解码覆盖常用命名实体与数字引用，
+        并拒绝控制字符与方向控制符；输入长度/节点数/深度三重上限；
+      - 新增 lib/features/feeds/domain/article_identity.dart：身份规则（GUID → 规范化链接 → 指纹）、
+        链接规范化（小写 scheme/host、去默认端口与末尾斜杠、**只**剥离明确的跟踪参数、其余参数排序）、
+        正文哈希；指纹含源标识，因此异源同标题不会合并；无发布时间时指纹标为 unreliable；
+      - 新增 lib/features/feeds/application/refresh_feed.dart：刷新用例，串起取字节→解析→清洗→入库，
+        并把四种结果如实区分（notModified / unchanged / partial / updated 与两类失败）；
+      - 新增 lib/infrastructure/network/feed_fetcher.dart：条件请求、手动跟随重定向（每跳校验协议、
+        ≤5 跳）、单源超时、计数信号量限并发、响应体 10 MiB 上限（声明长度预检 + 流式计数）、
+        gzip 解压后同样 10 MiB（chunked 解码边解压边计数，真正的压缩炸弹防线）、非 2xx/304 类型化错误、
+        BOM 与 latin-1 回退的文本解码；
+      - 新增 lib/infrastructure/network/http_client_factory.dart：显式关闭 dart:io 的自动解压（见下「本轮发现」）；
+      - 新增 lib/infrastructure/local/feed_store_adapter.dart：把 drift ArticleStore 与 feeds 表接到
+        core 的两个端口；条件请求缓存缺失时**不覆盖**旧值；
+      - 新增测试：test/core/sha256_test.dart（12）、test/features/feeds/feed_parser_test.dart（33）、
+        test/features/feeds/content_sanitizer_test.dart（28）、test/features/feeds/refresh_feed_test.dart（23）、
+        test/infrastructure/network/feed_fetcher_test.dart（32）、
+        test/infrastructure/local/migration_v2_to_v3_test.dart（3）与
+        test/features/feeds/live_feed_verification_test.dart（联网最小验证，默认跳过）
+    数据迁移/删除/依赖变化：schema v2 → v3（只加三列，无数据改写；新增 drift_schema_v3.json 快照与
+      v2→v3 迁移校验用例）；既有测试中硬编码的版本号改为跟随当前版本（否则迁移测试会停在 v2 而
+      看起来仍在通过——本轮实测踩到并修正）；新增依赖 xml ^7.0.1（白名单内），传递 petitparser 7.0.2；
+      未新增其他依赖（SHA-256 自实现）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 无源码冲突
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS |
+        生成 drift_schema_v3.json
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 | PASS |
+        生成 schema_v3.dart
+      dart format --output=none --set-exit-if-changed lib test integration_test | 0 | PASS | 0 changed
+      flutter analyze | 0 | PASS | No issues found（0 issue）
+      flutter test | 0 | PASS | 512 tests all passed, 2 skipped（较 T012 的 381 增加 131 个用例）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      flutter build apk --debug --target-platform android-arm64 | NOT_RUN | android/ 按 D-02 仍未初始化
+      flutter test --dart-define=FLUX_LIVE_FEED=1 test/features/feeds/live_feed_verification_test.dart |
+        0 | PASS | 真实源端到端（见下）
+    真实源验证结果（用户已授权从 chinese-independent-blogs 列表验证；串行、带 UA、每源两次请求）：
+      blog.t9t.io/atom.xml（Atom）| 首次 updated / 20 篇入库；二次 notModified（304）/ 仍 20 篇；ETag 已缓存
+      reorx.com/feed.xml（RSS 2.0 + gzip）| 首次 updated / 51 篇入库；二次 notModified（304）/ 仍 51 篇；ETag 已缓存
+      两源均断言：文章数 > 0、每篇都有身份依据（GUID/规范化链接/指纹之一）、有可见内容（正文或摘要）、
+      二次抓取既非重复也非丢行。真实源用例默认跳过，只有显式传 --dart-define=FLUX_LIVE_FEED=1 才联网，
+      以免日常测试依赖外部网络
+    安全拒绝用例结果（全部通过）：
+      含 DOCTYPE（外部实体读 /etc/passwd）与含 ENTITY（billion laughs）的文档均在解析前被拒绝，
+        返回类型化 ParseError，且错误信息**不回显**实体目标路径；大小写/空白变形的 DOCTYPE 同样拒绝；
+      普通 XML 声明不被误判；事件流再次确认 doctype；深度与元素数上限生效并给出结构性描述；
+      script/style/iframe/form/noscript 连同内容丢弃（脚本源码不得以文本形式残留）；嵌套同名丢弃标签正确配对；
+      javascript:/JavaScript:/data:/vbscript:/file: 链接与图片被替换为可见但不可点/不可加载的拒绝节点，
+        链接文字保留；相对地址与协议相对地址同样拒绝（没有可信 base URL 时不猜）；
+      事件属性被丢弃、同名属性只保留第一个（后写的覆盖值不生效）；实体编码的 NUL/方向控制符被丢弃；
+      超长响应按上限拒绝（声明长度与流式计数两条路径）；gzip 解压炸弹（1 MiB 压缩出 >64 KiB 限制）被拒绝
+    去重测试矩阵（全部通过）：
+      同源同 GUID 重复导入 → 不新增 ｜ 异源同 GUID → 各自成篇（不合并）
+      同源不同跟踪参数 → 视为同一篇 ｜ 无 GUID 按规范化链接去重（参数顺序变化也命中）
+      无 GUID 无链接 → 指纹兜底（有日期为 reliable） ｜ 无日期指纹 unreliable 且 publishedAt 保持 null
+      异源同标题同时间 → 指纹含源标识，不合并 ｜ 原始链接保留参数、规范化链接仅用于匹配
+      正文哈希变化 → 更新正文且**保留 readingState=later 与 favorite=true**；哈希相同 → 完全不写（updatedAt 不动）；
+        HTML 属性变化但纯文本相同 → 不算修订
+    本轮发现并修复的实现风险（重要，均为真实缺陷）：
+      1) **gzip 双重解压（由真实源暴露）**：package:http 的 IOClient 默认让 dart:io **自动解压**，但响应
+         保留 content-encoding: gzip。抓取层为限制解压后体积而自行解压，于是对 reorx.com 的响应解压两次，
+         报「gzip 数据非法（Filter error, bad data）」。已新增 http_client_factory.dart 显式设
+         autoUncompress=false，并补一条回归断言。这个缺陷会让**所有** gzip 源在生产中失效，只有真实网络
+         才能暴露——fixture 用的字节流不会自动解压；
+      2) **解析层元素名大小写**：按本地名查找时查询侧未小写化，导致 pubDate 这类驼峰标签永远匹配不到，
+         静默把发布时间变成 null（用 T008 的 RSS fixture 实测踩到）；
+      3) **DateTime.tryParse 对超范围字段静默滚动**：2026-13-45T99:99:99Z 会变成 2027-02-18（凭空造出一个
+         时间并当作源声明展示）。已加严格 ISO 校验（字段范围 + 回读比对捕获二月三十日）；
+      4) **引用块与列表项内容重复**：转换器同时调用 convertBlocks 与 convertInline，导致段落被产出两遍；
+         已改为只走 convertBlocks；
+      5) **hr 被降级为硬换行**：hr 同时满足「孤立标签」与「块级语义」，错误落进行内分支后整条分隔线消失；
+         已单独识别；
+      6) **空元素表不完整**：<input> 未列入空元素，导致其后真正的结束标签配对错位、后续内容整段被吞；
+         已按 HTML 规范补全 void elements；
+      7) **gzip 对截断输入静默成功**：dart:io 的增量解码不会为截断数据报错，只会「解不出东西」。已在解压
+         层显式判定「非空输入解出空结果」为损坏，避免把损坏响应描述成成功；
+      8) **迁移测试版本硬编码**：T013 把版本提到 3 后，硬编码 2 的迁移用例会停在 v2 却仍然通过（失去验证力），
+         已改为跟随当前版本
+    UI/真实端点/双设备测试：有真实端点测试 2 个源（见上表，属授权范围内的最小验证）；**无 UI**——订阅管理界面属
+      T014，因此界面上仍看不到文章（本轮只交付能力与数据，不伪造「已可用」的观感）；无同步与双设备测试（属 T041+）
+    费用与秘密：未发起任何 AI/搜索调用，无费用产生；真实网络请求仅 4 次（2 源 × 2 次），带项目标识 UA、
+      串行、无凭据；诊断日志只记录计数与结构性描述，不含正文与 URL 秘密参数（有专门断言覆盖 DTD 场景）
+    遗留问题与未运行项：
+      1) Android 工程仍未初始化，flutter build apk 未运行（随 Android 阶段补）；
+      2) **取消（CancelledError）**：本轮只做到「单源超时」与「完成后释放并发名额」的层面；用户可见的
+         「取消刷新」按钮与取消在途请求属 T016（刷新调度）/T019。架构 4.1 的「取消」契约因此在 T013 只
+         部分落地，已在此处如实记录而不是标成已完成；
+      3) T013 的验收条件里提到「图片尺寸上限」——本轮在解析层只识别 enclosure/link 的图片地址并对协议做
+         安全校验，**不下载图片**；实际下载、解码限额、缓存与 LRU 属 T021，故「图片尺寸上限」在 T013
+         范围内仅体现为「不抓取、只保留安全地址」；
+      4) Atom content type=src（只有 src 没有内嵌内容）不主动二次抓取，返回 null 并保留 summary；真正的
+         src 抓取属 T024 的静态网页路径；
+      5) 清洗器对未知命名实体（长尾实体）退化为字面文本，而非收录全部 2000+ 实体；这是有意的取舍，已写入
+         代码注释与测试；
+      6) SHA-256 为自实现：已用 NIST 官方向量（空串/abc/两块的 56 字节/112 字节/一百万个 a）逐条验证，
+         但它不追求抗侧信道等密码学工程属性——本项目只把它当内容摘要用，不做签名或密钥派生；
+      7) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要、功能账本与本轮记录。
+      并发/超时默认值、四种刷新结果、身份优先级、正文哈希只判修订等都严格取自架构 4.1，未自行改口径。
+    提交/差异范围：提交 "T013: feed fetching, safe RSS/Atom parsing, dedup and content sanitization"；
+      基线为 9e70b65（T012）。未 push。
+    下一可执行任务及前置条件：T014（单源导入、编辑、分组/排序/置顶/加精），前置 T010 与 T013 已 DONE；
+      需实现 SET-020–028 的相应行为与未分类保护，且不得让加精影响新闻选材。
+
 ### 7.2 工具链与环境记录（T008 填写）
 
 实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
@@ -699,6 +947,7 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | Drift / 代码生成 | drift 2.35.0、drift_dev 2.35.0、build_runner 2.16.1 | pubspec.lock（T008 读取） |
 | SQLite | sqlite3 3.6.0 | pubspec.lock；由 sqlite3 3.x 原生资源机制自带动态库，未使用已 EOL 的 sqlite3_flutter_libs |
 | HTTP / 路径 | http 1.6.0、path_provider 2.1.6、path 1.9.1 | pubspec.lock（T008 读取） |
+| SVG 与 XML（T012/T013 新增） | flutter_svg 2.3.0（转带 vector_graphics 1.2.3、vector_graphics_codec 1.1.13、vector_graphics_compiler 1.3.0、path_parsing 1.1.0）、xml 7.0.1（转带 petitparser 7.0.2） | pubspec.lock（T012/T013 实测）；两者均在任务白名单内。**未引入**第三方代码生成管线：SVG 走 flutter_svg 的运行期解析（macOS 实测可用，见 7.1.4），不依赖 vector_graphics 编译器固化资源 |
 | Lint / 图标 | flutter_lints 6.0.0、cupertino_icons 1.0.9 | pubspec.lock（T008 读取） |
 | 最低设备验收 | M1、天玑 9400 级别目标 | 未运行（M0 未做真机验收）；本轮实测机为 Apple M4 |
 | 包体/内存/启动/能耗基线与阈值 | 待 M0 测量并记录批准阈值 | 未运行；本轮只记录构建成功，不含性能基线 |

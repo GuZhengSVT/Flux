@@ -1,4 +1,4 @@
-// T010：v1 → v2 真实增量迁移。
+// T010 建立、T013 更新为「v1 → 当前版本」的真实增量迁移。
 //
 // 与 migration_test.dart 的分工：
 //   - migration_test.dart 验证「拒绝较新 schema」「迁移失败不重建」这类安全策略；
@@ -21,13 +21,19 @@ import 'package:flux/infrastructure/local/tables/enums.dart';
 
 import '../../generated/schema.dart';
 import '../../generated/schema_v1.dart' as v1;
-import '../../generated/schema_v2.dart' as v2;
+import '../../generated/schema_v3.dart' as v3;
+
+/// 当前 schema 版本（与应用代码一致）。
+///
+/// 不写死数字：T013 把版本从 2 提到 3 之后，硬编码 2 的迁移测试就不再验证真实路径
+/// （它会停在 v2，而应用实际会继续迁到 v3），看起来还在跑、实际已经失去意义。
+const int currentSchemaVersion = 3;
 
 void main() {
   drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
-  group('v1 → v2 增量迁移', () {
-    test('带旧数据的 v1 库升级到 v2：结构正确且旧数据完好', () async {
+  group('v1 → 当前版本 增量迁移', () {
+    test('带旧数据的 v1 库升级到当前版本：结构正确且旧数据完好', () async {
       final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
       final InitializedSchema schema = await verifier.schemaAt(1);
 
@@ -81,7 +87,7 @@ void main() {
 
       // --- 用应用的真实代码打开同一库，触发 v1 → v2 迁移 ---------------------
       final AppDatabase migrated = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(migrated, 2);
+      await verifier.migrateAndValidate(migrated, currentSchemaVersion);
 
       // 结构：drift 已逐列比对；这里再确认 settings 表可用且索引存在。
       await migrated.customStatement(
@@ -117,41 +123,43 @@ void main() {
       schema.close();
     });
 
-    test('迁移后 user_version 推进到 2', () async {
+    test('迁移后 user_version 推进到当前版本', () async {
       final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
       final InitializedSchema schema = await verifier.schemaAt(1);
 
       final AppDatabase migrated = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(migrated, 2);
+      await verifier.migrateAndValidate(migrated, currentSchemaVersion);
 
       final drift.QueryRow row = await migrated
           .customSelect('PRAGMA user_version')
           .getSingle();
-      expect(row.read<int>('user_version'), 2);
+      expect(row.read<int>('user_version'), currentSchemaVersion);
 
       await migrated.close();
       schema.close();
     });
 
-    test('迁移后 v2 结构可由 v2 生成类读取（settings 列与索引齐全）', () async {
+    test('迁移后 settings 结构可由当前版本生成类读取（v3 未改该表）', () async {
       final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
       final InitializedSchema schema = await verifier.schemaAt(1);
 
       final AppDatabase migrated = AppDatabase(schema.newConnection());
-      await verifier.migrateAndValidate(migrated, 2);
+      await verifier.migrateAndValidate(migrated, currentSchemaVersion);
       await migrated.close();
 
-      // 用 v2 生成类连接同一份 schema，确认列定义与迁移结果一致。
-      final v2.DatabaseAtV2 check = v2.DatabaseAtV2(schema.newConnection());
+      // 用**当前版本**的生成类连接同一份 schema，确认列定义与迁移结果一致。
+      // 用 v3 而不是 v2：迁移终点是 v3，用 v2 生成类打开 v3 库会因为版本不符失败；
+      // 而 settings 表在 v2→v3 里没有变化，用 v3 类验证同样覆盖它的列定义。
+      final v3.DatabaseAtV3 check = v3.DatabaseAtV3(schema.newConnection());
       await check
           .into(check.settings)
           .insert(
-            v2.SettingsCompanion.insert(
+            v3.SettingsCompanion.insert(
               key: 'SET-082',
               value: '{"level":"error"}',
             ),
           );
-      final v2.SettingsData row = await check
+      final v3.SettingsData row = await check
           .select(check.settings)
           .getSingle();
       expect(row.key, 'SET-082');

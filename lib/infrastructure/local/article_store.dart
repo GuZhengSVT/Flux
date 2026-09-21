@@ -18,69 +18,9 @@ import 'package:flux/core/core.dart';
 import 'database.dart';
 import 'tables/article_tables.dart';
 
-/// 待导入的一篇文章（解析层产出的纯数据，不含网络与业务决策）。
-class ArticleImport {
-  const ArticleImport({
-    required this.feedId,
-    required this.title,
-    required this.identityBasis,
-    this.guid,
-    this.guidPresent = false,
-    this.normalizedLink,
-    this.sourceUrl,
-    this.fallbackFingerprint,
-    this.fingerprintReliability,
-    this.author,
-    this.publishedAt,
-    this.fetchedAt,
-    this.body,
-    this.bodyCompleteness = BodyCompleteness.unknown,
-    this.bodyHash,
-    this.summary,
-  });
-
-  final int feedId;
-  final String title;
-  final IdentityBasis identityBasis;
-
-  final String? guid;
-  final bool guidPresent;
-  final String? normalizedLink;
-  final String? sourceUrl;
-  final String? fallbackFingerprint;
-  final FingerprintReliability? fingerprintReliability;
-
-  final String? author;
-  final DateTime? publishedAt;
-  final DateTime? fetchedAt;
-
-  final String? body;
-  final BodyCompleteness bodyCompleteness;
-  final String? bodyHash;
-  final String? summary;
-}
-
-/// 一次批量导入的结果计数（用于导入预览与诊断，不用于 UI 文案）。
-class ArticleImportOutcome {
-  const ArticleImportOutcome({
-    required this.inserted,
-    required this.updated,
-    required this.bodyUpdated,
-    required this.unchanged,
-  });
-
-  /// 新增文章数。
-  final int inserted;
-
-  /// 已存在且内容字段确有变化（不含阅读状态/收藏）。
-  final int updated;
-
-  /// 其中正文被替换（正文哈希变化）的数量，[updated] 的子集。
-  final int bodyUpdated;
-
-  /// 已存在且无内容变化（重复导入的典型结果）。
-  final int unchanged;
-}
+// 导入 DTO（ArticleImport / ArticleImportOutcome）自 T012 起定义在
+// lib/core/domain/article_import.dart：解析层（features）要产出它们，而 features
+// 不得 import infrastructure。这里不再重复声明，避免出现两份形状接近的定义。
 
 /// 文章数据层操作。
 extension ArticleStore on AppDatabase {
