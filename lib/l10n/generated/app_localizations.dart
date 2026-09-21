@@ -2376,6 +2376,294 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'范围'**
   String get searchScopeLabel;
+
+  /// No description provided for @statsPageTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'阅读统计'**
+  String get statsPageTitle;
+
+  /// No description provided for @statsHeatmapTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'年度热力图'**
+  String get statsHeatmapTitle;
+
+  /// No description provided for @statsHeatmapLegendLess.
+  ///
+  /// In zh, this message translates to:
+  /// **'少'**
+  String get statsHeatmapLegendLess;
+
+  /// No description provided for @statsHeatmapLegendMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'多'**
+  String get statsHeatmapLegendMore;
+
+  /// No description provided for @statsHeatmapCellTooltip.
+  ///
+  /// In zh, this message translates to:
+  /// **'{date}：{minutes} 分钟'**
+  String statsHeatmapCellTooltip(Object date, Object minutes);
+
+  /// No description provided for @statsHeatmapEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'这一年还没有阅读记录。'**
+  String get statsHeatmapEmpty;
+
+  /// No description provided for @statsWeeklyTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'近七日'**
+  String get statsWeeklyTitle;
+
+  /// No description provided for @statsWeeklyEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'近七日还没有阅读记录。'**
+  String get statsWeeklyEmpty;
+
+  /// No description provided for @statsYearLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'年份'**
+  String get statsYearLabel;
+
+  /// No description provided for @statsYearTotal.
+  ///
+  /// In zh, this message translates to:
+  /// **'这一年累计 {minutes} 分钟'**
+  String statsYearTotal(Object minutes);
+
+  /// No description provided for @statsActiveDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'有记录 {days} 天'**
+  String statsActiveDays(Object days);
+
+  /// No description provided for @statsWeekdayMon.
+  ///
+  /// In zh, this message translates to:
+  /// **'周一'**
+  String get statsWeekdayMon;
+
+  /// No description provided for @statsWeekdayTue.
+  ///
+  /// In zh, this message translates to:
+  /// **'周二'**
+  String get statsWeekdayTue;
+
+  /// No description provided for @statsWeekdayWed.
+  ///
+  /// In zh, this message translates to:
+  /// **'周三'**
+  String get statsWeekdayWed;
+
+  /// No description provided for @statsWeekdayThu.
+  ///
+  /// In zh, this message translates to:
+  /// **'周四'**
+  String get statsWeekdayThu;
+
+  /// No description provided for @statsWeekdayFri.
+  ///
+  /// In zh, this message translates to:
+  /// **'周五'**
+  String get statsWeekdayFri;
+
+  /// No description provided for @statsWeekdaySat.
+  ///
+  /// In zh, this message translates to:
+  /// **'周六'**
+  String get statsWeekdaySat;
+
+  /// No description provided for @statsWeekdaySun.
+  ///
+  /// In zh, this message translates to:
+  /// **'周日'**
+  String get statsWeekdaySun;
+
+  /// No description provided for @statsTodayLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get statsTodayLabel;
+
+  /// No description provided for @statsDateLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'{month}/{day}'**
+  String statsDateLabel(Object day, Object month);
+
+  /// No description provided for @statsClearAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空统计'**
+  String get statsClearAction;
+
+  /// No description provided for @statsClearConfirmTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空阅读统计？'**
+  String get statsClearConfirmTitle;
+
+  /// No description provided for @statsClearConfirmBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'将删除本机记录的全部阅读会话与时长，历史年份与热力图都会清空。文章、阅读状态与收藏不受影响。此操作不可撤销。'**
+  String get statsClearConfirmBody;
+
+  /// No description provided for @statsClearConfirmYes.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空'**
+  String get statsClearConfirmYes;
+
+  /// No description provided for @statsClearCancel.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get statsClearCancel;
+
+  /// No description provided for @statsClearDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已清空 {count} 条阅读会话。'**
+  String statsClearDone(Object count);
+
+  /// No description provided for @statsClearFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'清空失败：{reason}'**
+  String statsClearFailed(Object reason);
+
+  /// No description provided for @statsRecordToggleLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'记录阅读时间'**
+  String get statsRecordToggleLabel;
+
+  /// No description provided for @statsRecordToggleHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭后不再记录新的阅读时间；已有历史仍保留，可随时清空。'**
+  String get statsRecordToggleHint;
+
+  /// No description provided for @statsIdlePauseLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'空闲 {minutes} 分钟后暂停累计'**
+  String statsIdlePauseLabel(Object minutes);
+
+  /// No description provided for @statsDisabledNotice.
+  ///
+  /// In zh, this message translates to:
+  /// **'阅读统计已关闭（SET-015），本页显示的是已有历史记录。'**
+  String get statsDisabledNotice;
+
+  /// No description provided for @statsLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'读取统计失败：{reason}'**
+  String statsLoadFailed(Object reason);
+
+  /// No description provided for @statsRetry.
+  ///
+  /// In zh, this message translates to:
+  /// **'重试'**
+  String get statsRetry;
+
+  /// No description provided for @statsEstimateNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'统计是本机的估计值：只在前台可见且活跃时累计，不跨设备相加。'**
+  String get statsEstimateNote;
+
+  /// No description provided for @settingsStatsEntryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'阅读统计'**
+  String get settingsStatsEntryTitle;
+
+  /// No description provided for @settingsStatsEntrySubtitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'年度热力图与近七日阅读时长'**
+  String get settingsStatsEntrySubtitle;
+
+  /// No description provided for @readingFetchFullTextAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'获取原站全文'**
+  String get readingFetchFullTextAction;
+
+  /// No description provided for @readingFetchFullTextLoading.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在获取原站正文…'**
+  String get readingFetchFullTextLoading;
+
+  /// No description provided for @readingFetchFullTextDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已提取原站正文（{chars} 字）'**
+  String readingFetchFullTextDone(Object chars);
+
+  /// No description provided for @readingFetchFullTextFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未能获取原站正文：{reason}'**
+  String readingFetchFullTextFailed(Object reason);
+
+  /// No description provided for @readingFetchFullTextViewOriginal.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看原文'**
+  String get readingFetchFullTextViewOriginal;
+
+  /// No description provided for @readingFetchFullTextViewExtracted.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看提取正文'**
+  String get readingFetchFullTextViewExtracted;
+
+  /// No description provided for @readingFetchFullTextPaywall.
+  ///
+  /// In zh, this message translates to:
+  /// **'原站可能要求付费或登录，可能拿不到全文。'**
+  String get readingFetchFullTextPaywall;
+
+  /// No description provided for @readingFetchFullTextShort.
+  ///
+  /// In zh, this message translates to:
+  /// **'提取到的正文很短，原站可能需要脚本渲染。'**
+  String get readingFetchFullTextShort;
+
+  /// No description provided for @readingFetchFullTextOpenExternal.
+  ///
+  /// In zh, this message translates to:
+  /// **'在浏览器打开'**
+  String get readingFetchFullTextOpenExternal;
+
+  /// No description provided for @readingFetchFullTextNoUrl.
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有可访问的原站地址。'**
+  String get readingFetchFullTextNoUrl;
+
+  /// No description provided for @readingFetchFullTextNoScript.
+  ///
+  /// In zh, this message translates to:
+  /// **'只做 HTTP 抓取与静态解析：不执行脚本，也不绕过付费墙或登录。'**
+  String get readingFetchFullTextNoScript;
+
+  /// No description provided for @readingFetchFullTextButtonHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'仅在点击时抓取原站，不会自动或后台执行。'**
+  String get readingFetchFullTextButtonHint;
 }
 
 class _AppLocalizationsDelegate

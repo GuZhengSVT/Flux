@@ -175,10 +175,11 @@ void main() {
       await tester.pumpWidget(wrapWrap(bootstrap));
       await tester.pumpAndSettle();
 
-      // 展示 14 个未实现的阅读与外观项。
+      // 展示 13 个未实现的阅读与外观项（T023 交付 SET-015 后，它从占位列表移到
+      // 「阅读统计」入口；占位项减少是功能落地的结果，不是被删掉了）。
       expect(find.text('主题背景图'), findsOneWidget);
       expect(find.text('自动加载远程图片'), findsOneWidget);
-      expect(find.text('即将推出'), findsNWidgets(14));
+      expect(find.text('即将推出'), findsNWidgets(13));
 
       // 全页只有两条 SegmentedButton（SET-001 语言、SET-002 主题）。
       // 多一个就说明有「看起来能用」的假开关混进来了。

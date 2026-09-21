@@ -23,8 +23,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/ai/application/ai_availability.dart';
+import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/features/settings/application/settings_navigation.dart';
+import 'package:flux/features/statistics/application/reading_session_tracker.dart';
+import 'package:flux/features/statistics/application/reading_stats_ports.dart';
+import 'package:flux/features/statistics/presentation/session_interaction_listener.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
@@ -71,7 +75,18 @@ class ArticleDetailPage extends ConsumerStatefulWidget {
   ConsumerState<ArticleDetailPage> createState() => _ArticleDetailPageState();
 }
 
-class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
+class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
+    with WidgetsBindingObserver {
+  /// 阅读会话追踪（T023）。null 表示本次打开还没有开始追踪（或追踪不可用）。
+  ///
+  /// 生命周期绑定在**这个页面**上：会话的语义是「这一次阅读」，页面销毁即结束。
+  /// 因此不需要一个全局单例，也不需要担心两个页面同时计数——一次只会有一个详情页
+  /// 处于前台。
+  ReadingSessionTracker? _sessionTracker;
+
+  /// 秒级心跳（驱动空闲判定与周期落库）。
+  Timer? _sessionHeartbeat;
+
   ArticleListEntry? _entry;
   DocDocument? _document;
   int? _activeOutlineBlock;
@@ -99,6 +114,51 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
     super.initState();
     unawaited(_load());
     unawaited(_loadImageSetting());
+    // 会话追踪：详情页是「一次阅读」的唯一入口，因此开始/结束都挂在这里。
+    unawaited(_startSessionTracking());
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // 失焦/锁屏/后台一律暂停累计（架构 5.3）。inactive 在 macOS 上会在窗口失去焦点时
+    // 触发，而 paused/hidden 覆盖锁屏与后台；三者都按「不可见」处理。
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _sessionTracker?.onVisibilityChanged(true);
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        _sessionTracker?.onVisibilityChanged(false);
+    }
+  }
+
+  /// 开始记录本次阅读（T023）。
+  ///
+  /// 页面一出现就开始，不等正文加载完成：「打开详情页并看着它」正是架构所说的前台可见
+  /// 且活跃状态。SET-015 关闭时 tracker 内部不会累计任何时间，也不需要在这里分支。
+  Future<void> _startSessionTracking() async {
+    final ReadingSessionTracker tracker = ReadingSessionTracker(
+      articleId: widget.articleId,
+      stats: ref.read(readingStatsProvider),
+      settings: ref.read(settingsStoreProvider),
+      clock: ref.read(statsClockProvider),
+      zone: ref.read(sessionZoneProvider),
+      diagnostics: ref.read(diagnosticSinkProvider),
+    );
+    _sessionTracker = tracker;
+    await tracker.start();
+    if (!mounted) {
+      return;
+    }
+    // 心跳间隔取 1 秒：空闲阈值最小是 1 分钟，1 秒的粒度足以在阈值到达时就停住；
+    // 周期落库由 tracker 自己按 flushInterval（30 秒）判断，因此这个定时器只是
+    // 「叫醒它」——它不做任何计时决策。
+    _sessionHeartbeat = Timer.periodic(const Duration(seconds: 1), (Timer _) {
+      unawaited(_sessionTracker?.tick() ?? Future<void>.value());
+    });
   }
 
   /// 读取 SET-012（是否自动加载远程图片）。
@@ -125,6 +185,13 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
     _findController.dispose();
     _scrollController.dispose();
     _selection.dispose();
+    _sessionHeartbeat?.cancel();
+    // stop() 是异步的（要落库），而 dispose 不能 await。这里 fire-and-forget：
+    // tracker 的写入走自己的端口，不依赖本页面的 element 树，因此在页面销毁后仍然
+    // 能完成。丢掉这一次收尾的后果也只是「最后一段要在下一次 flush 时才落库」——
+    // 而周期 flush 已经把绝大部分时间写进去了。
+    unawaited(_sessionTracker?.stop() ?? Future<void>.value());
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -492,47 +559,52 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: <Widget>[
-                if (_findOpen)
-                  FindBar(
-                    controller: _findController,
-                    matchCount: _matchCount,
-                    hasQuery: _findQuery.isNotEmpty,
-                    onChanged: (String value) =>
-                        setState(() => _findQuery = value),
-                    onClose: _toggleFind,
+          // 交互监听包在最外层：指针与键盘都要刷新「最后活跃」，从而让空闲暂停
+          // 只在用户真的离开（而不是页面开着）时生效（T023 的活跃判定）。
+          : SessionInteractionListener(
+              onInteraction: () => _sessionTracker?.onInteraction(),
+              child: Column(
+                children: <Widget>[
+                  if (_findOpen)
+                    FindBar(
+                      controller: _findController,
+                      matchCount: _matchCount,
+                      hasQuery: _findQuery.isNotEmpty,
+                      onChanged: (String value) =>
+                          setState(() => _findQuery = value),
+                      onClose: _toggleFind,
+                    ),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder:
+                          (BuildContext context, BoxConstraints constraints) {
+                            // 桌面宽窗（与架构第 7 节三栏断点一致）显示目录侧栏；窄窗不显示
+                            // ——把正文挤到 500 宽以下去换一个目录，读者会先把目录关掉。
+                            final bool wide =
+                                constraints.maxWidth >=
+                                FluxBreakpoints.threeColumn;
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Expanded(child: _body(l10n)),
+                                if (wide)
+                                  OutlinePane(
+                                    outline: _outline,
+                                    activeBlockIndex: _activeOutlineBlock,
+                                    onSelect: _scrollToBlock,
+                                  ),
+                              ],
+                            );
+                          },
+                    ),
                   ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder:
-                        (BuildContext context, BoxConstraints constraints) {
-                          // 桌面宽窗（与架构第 7 节三栏断点一致）显示目录侧栏；窄窗不显示
-                          // ——把正文挤到 500 宽以下去换一个目录，读者会先把目录关掉。
-                          final bool wide =
-                              constraints.maxWidth >=
-                              FluxBreakpoints.threeColumn;
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Expanded(child: _body(l10n)),
-                              if (wide)
-                                OutlinePane(
-                                  outline: _outline,
-                                  activeBlockIndex: _activeOutlineBlock,
-                                  onSelect: _scrollToBlock,
-                                ),
-                            ],
-                          );
-                        },
+                  NeighborBar(
+                    snapshot: widget.snapshot,
+                    currentId: widget.articleId,
+                    onNavigate: _navigateTo,
                   ),
-                ),
-                NeighborBar(
-                  snapshot: widget.snapshot,
-                  currentId: widget.articleId,
-                  onNavigate: _navigateTo,
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }

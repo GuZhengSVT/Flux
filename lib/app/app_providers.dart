@@ -30,10 +30,12 @@ import 'package:flux/infrastructure/local/article_search_store.dart';
 import 'package:flux/infrastructure/local/article_image_loader.dart';
 import 'package:flux/infrastructure/local/image_cache_service.dart';
 import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
+import 'package:flux/infrastructure/local/degraded_reading_stats_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
+import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
@@ -42,6 +44,8 @@ import 'package:flux/infrastructure/platform/external_link_opener.dart';
 import 'package:flux/infrastructure/platform/file_selector_access.dart';
 import 'package:flux/infrastructure/platform/image_save_service.dart';
 import 'package:flux/infrastructure/platform/system_share_service.dart';
+import 'package:flux/infrastructure/platform/device_local_zone.dart';
+import 'package:flux/features/statistics/application/reading_stats_ports.dart';
 
 import 'app_bootstrap.dart';
 
@@ -108,6 +112,12 @@ List<Override> bootstrapOverrides(
   ImageSaveService? imageSaveService,
   SystemShareService? systemShareService,
   ArticleImageLoader? articleImageLoader,
+  // T023：统计的三个端口也参数化，理由与上面几个**完全一致**——Riverpod 不允许在同一个
+  // 容器里覆盖同一个 Provider 两次，因此测试必须通过这里（生产装配路径上的那一个位置）
+  // 换掉时区/时钟/统计存储，而不是在 ProviderScope 里再覆盖一遍（那会直接断言失败）。
+  SessionLocalZone? sessionZone,
+  Clock? statsClock,
+  ReadingStatsStore? readingStatsStore,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -190,6 +200,16 @@ List<Override> bootstrapOverrides(
             ),
           ),
     ),
+    // ---- T023：阅读统计 ------------------------------------------------------
+    // 会话时区在**启动时**取一次快照：会话归属依据是「会话发生时的时区」，而不是
+    // 查询时的时区（架构 5.3）。取一次快照也避免同一次会话的不同片段因为中途重读
+    // 系统时区而落到不同日期上。
+    //
+    // 时钟给真实系统时钟：统计的时间必须来自墙钟（假时钟只用于测试）。
+    sessionZoneProvider.overrideWithValue(
+      sessionZone ?? DeviceLocalZone.current(),
+    ),
+    statsClockProvider.overrideWithValue(statsClock ?? const SystemClock()),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(
         DriftFeedCatalogStore(catalogDatabase),
@@ -207,6 +227,10 @@ List<Override> bootstrapOverrides(
       ),
       groupCollapseStoreProvider.overrideWithValue(
         GroupCollapseRepository(catalogDatabase),
+      ),
+      // T023：阅读统计读写。
+      readingStatsProvider.overrideWithValue(
+        readingStatsStore ?? DriftReadingStatsStore(catalogDatabase),
       ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
@@ -226,6 +250,10 @@ List<Override> bootstrapOverrides(
       // 折叠状态在降级模式下退到会话内存：记不住不算错误（见端口说明）。
       groupCollapseStoreProvider.overrideWithValue(
         InMemoryGroupCollapseStore(),
+      ),
+      // 降级模式下统计读返回空、写与清空明确失败（见该实现的说明）。
+      readingStatsProvider.overrideWithValue(
+        readingStatsStore ?? const DegradedReadingStatsStore(),
       ),
     ],
   ];

@@ -21,6 +21,7 @@ import 'package:flux/core/app_metadata.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
+import 'package:flux/features/statistics/presentation/reading_stats_page.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/settings_controller.dart';
@@ -112,6 +113,19 @@ class _SettingsBody extends ConsumerWidget {
             MaterialPageRoute<void>(
               builder: (BuildContext context) =>
                   const SubscriptionManagerPage(),
+            ),
+          ),
+        ),
+        // T023：阅读统计。SET-015 已在统计页内真正生效（开关 + 空闲暂停），
+        // 因此它从「即将推出」占位列表里移除，改成这个入口——留一个禁用的占位项
+        // 而功能其实可用，会让 T051 的设置审计无法区分「已实现」与「看起来能用」。
+        _NavigationRow(
+          title: l10n.settingsStatsEntryTitle,
+          subtitle: l10n.settingsStatsEntrySubtitle,
+          icon: Icons.insights_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const ReadingStatsPage(),
             ),
           ),
         ),
@@ -388,12 +402,6 @@ final List<_PlannedSetting> _plannedSettings = <_PlannedSetting>[
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet014,
     classification: SettingClassification.device,
     tasks: 'T012/T051',
-  ),
-  _PlannedSetting(
-    id: SettingId.set015,
-    titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet015,
-    classification: SettingClassification.device,
-    tasks: 'T023',
   ),
   _PlannedSetting(
     id: SettingId.set016,

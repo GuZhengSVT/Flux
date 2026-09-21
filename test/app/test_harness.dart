@@ -101,6 +101,9 @@ final class TestBootstrap {
     ImageSaveService? imageSaveService,
     SystemShareService? systemShareService,
     ArticleImageLoader? articleImageLoader,
+    SessionLocalZone? sessionZone,
+    Clock? statsClock,
+    ReadingStatsStore? readingStatsStore,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -125,6 +128,9 @@ final class TestBootstrap {
       externalLinkOpener: externalLinkOpener,
       imageSaveService: imageSaveService,
       systemShareService: systemShareService,
+      sessionZone: sessionZone,
+      statsClock: statsClock,
+      readingStatsStore: readingStatsStore,
       // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
       // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
       // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），

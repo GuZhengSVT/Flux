@@ -1363,4 +1363,178 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchScopeLabel => 'Scope';
+
+  @override
+  String get statsPageTitle => 'Reading stats';
+
+  @override
+  String get statsHeatmapTitle => 'Year heatmap';
+
+  @override
+  String get statsHeatmapLegendLess => 'Less';
+
+  @override
+  String get statsHeatmapLegendMore => 'More';
+
+  @override
+  String statsHeatmapCellTooltip(Object date, Object minutes) {
+    return '$date: $minutes min';
+  }
+
+  @override
+  String get statsHeatmapEmpty => 'No reading recorded for this year yet.';
+
+  @override
+  String get statsWeeklyTitle => 'Last 7 days';
+
+  @override
+  String get statsWeeklyEmpty => 'No reading recorded in the last 7 days.';
+
+  @override
+  String get statsYearLabel => 'Year';
+
+  @override
+  String statsYearTotal(Object minutes) {
+    return '$minutes min total this year';
+  }
+
+  @override
+  String statsActiveDays(Object days) {
+    return '$days days with activity';
+  }
+
+  @override
+  String get statsWeekdayMon => 'Mon';
+
+  @override
+  String get statsWeekdayTue => 'Tue';
+
+  @override
+  String get statsWeekdayWed => 'Wed';
+
+  @override
+  String get statsWeekdayThu => 'Thu';
+
+  @override
+  String get statsWeekdayFri => 'Fri';
+
+  @override
+  String get statsWeekdaySat => 'Sat';
+
+  @override
+  String get statsWeekdaySun => 'Sun';
+
+  @override
+  String get statsTodayLabel => 'Today';
+
+  @override
+  String statsDateLabel(Object day, Object month) {
+    return '$month/$day';
+  }
+
+  @override
+  String get statsClearAction => 'Clear stats';
+
+  @override
+  String get statsClearConfirmTitle => 'Clear reading stats?';
+
+  @override
+  String get statsClearConfirmBody =>
+      'This deletes every reading session and duration stored on this device; the year heatmap and history will be emptied. Articles, reading state and favorites are not affected. This cannot be undone.';
+
+  @override
+  String get statsClearConfirmYes => 'Clear';
+
+  @override
+  String get statsClearCancel => 'Cancel';
+
+  @override
+  String statsClearDone(Object count) {
+    return 'Cleared $count reading sessions.';
+  }
+
+  @override
+  String statsClearFailed(Object reason) {
+    return 'Clear failed: $reason';
+  }
+
+  @override
+  String get statsRecordToggleLabel => 'Record reading time';
+
+  @override
+  String get statsRecordToggleHint =>
+      'Turning this off stops recording new reading time; existing history is kept and can be cleared at any time.';
+
+  @override
+  String statsIdlePauseLabel(Object minutes) {
+    return 'Pause after $minutes min idle';
+  }
+
+  @override
+  String get statsDisabledNotice =>
+      'Reading stats are off (SET-015); this page shows the history already recorded.';
+
+  @override
+  String statsLoadFailed(Object reason) {
+    return 'Could not load stats: $reason';
+  }
+
+  @override
+  String get statsRetry => 'Retry';
+
+  @override
+  String get statsEstimateNote =>
+      'Stats are a local estimate: time only counts while visible and active, and is never summed across devices.';
+
+  @override
+  String get settingsStatsEntryTitle => 'Reading stats';
+
+  @override
+  String get settingsStatsEntrySubtitle =>
+      'Year heatmap and last-7-day reading time';
+
+  @override
+  String get readingFetchFullTextAction => 'Fetch full text from source';
+
+  @override
+  String get readingFetchFullTextLoading => 'Fetching the source page…';
+
+  @override
+  String readingFetchFullTextDone(Object chars) {
+    return 'Extracted source text ($chars chars)';
+  }
+
+  @override
+  String readingFetchFullTextFailed(Object reason) {
+    return 'Could not fetch the source text: $reason';
+  }
+
+  @override
+  String get readingFetchFullTextViewOriginal => 'View original';
+
+  @override
+  String get readingFetchFullTextViewExtracted => 'View extracted';
+
+  @override
+  String get readingFetchFullTextPaywall =>
+      'The source may require payment or sign-in, so full text may be unavailable.';
+
+  @override
+  String get readingFetchFullTextShort =>
+      'The extracted text is very short; the source may need script rendering.';
+
+  @override
+  String get readingFetchFullTextOpenExternal => 'Open in browser';
+
+  @override
+  String get readingFetchFullTextNoUrl =>
+      'This article has no reachable source address.';
+
+  @override
+  String get readingFetchFullTextNoScript =>
+      'HTTP fetch and static parsing only: no scripts are run and no paywall or sign-in is bypassed.';
+
+  @override
+  String get readingFetchFullTextButtonHint =>
+      'Fetches the source only when you click, never automatically or in the background.';
 }

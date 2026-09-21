@@ -1302,4 +1302,170 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get searchScopeLabel => '范围';
+
+  @override
+  String get statsPageTitle => '阅读统计';
+
+  @override
+  String get statsHeatmapTitle => '年度热力图';
+
+  @override
+  String get statsHeatmapLegendLess => '少';
+
+  @override
+  String get statsHeatmapLegendMore => '多';
+
+  @override
+  String statsHeatmapCellTooltip(Object date, Object minutes) {
+    return '$date：$minutes 分钟';
+  }
+
+  @override
+  String get statsHeatmapEmpty => '这一年还没有阅读记录。';
+
+  @override
+  String get statsWeeklyTitle => '近七日';
+
+  @override
+  String get statsWeeklyEmpty => '近七日还没有阅读记录。';
+
+  @override
+  String get statsYearLabel => '年份';
+
+  @override
+  String statsYearTotal(Object minutes) {
+    return '这一年累计 $minutes 分钟';
+  }
+
+  @override
+  String statsActiveDays(Object days) {
+    return '有记录 $days 天';
+  }
+
+  @override
+  String get statsWeekdayMon => '周一';
+
+  @override
+  String get statsWeekdayTue => '周二';
+
+  @override
+  String get statsWeekdayWed => '周三';
+
+  @override
+  String get statsWeekdayThu => '周四';
+
+  @override
+  String get statsWeekdayFri => '周五';
+
+  @override
+  String get statsWeekdaySat => '周六';
+
+  @override
+  String get statsWeekdaySun => '周日';
+
+  @override
+  String get statsTodayLabel => '今天';
+
+  @override
+  String statsDateLabel(Object day, Object month) {
+    return '$month/$day';
+  }
+
+  @override
+  String get statsClearAction => '清空统计';
+
+  @override
+  String get statsClearConfirmTitle => '清空阅读统计？';
+
+  @override
+  String get statsClearConfirmBody =>
+      '将删除本机记录的全部阅读会话与时长，历史年份与热力图都会清空。文章、阅读状态与收藏不受影响。此操作不可撤销。';
+
+  @override
+  String get statsClearConfirmYes => '清空';
+
+  @override
+  String get statsClearCancel => '取消';
+
+  @override
+  String statsClearDone(Object count) {
+    return '已清空 $count 条阅读会话。';
+  }
+
+  @override
+  String statsClearFailed(Object reason) {
+    return '清空失败：$reason';
+  }
+
+  @override
+  String get statsRecordToggleLabel => '记录阅读时间';
+
+  @override
+  String get statsRecordToggleHint => '关闭后不再记录新的阅读时间；已有历史仍保留，可随时清空。';
+
+  @override
+  String statsIdlePauseLabel(Object minutes) {
+    return '空闲 $minutes 分钟后暂停累计';
+  }
+
+  @override
+  String get statsDisabledNotice => '阅读统计已关闭（SET-015），本页显示的是已有历史记录。';
+
+  @override
+  String statsLoadFailed(Object reason) {
+    return '读取统计失败：$reason';
+  }
+
+  @override
+  String get statsRetry => '重试';
+
+  @override
+  String get statsEstimateNote => '统计是本机的估计值：只在前台可见且活跃时累计，不跨设备相加。';
+
+  @override
+  String get settingsStatsEntryTitle => '阅读统计';
+
+  @override
+  String get settingsStatsEntrySubtitle => '年度热力图与近七日阅读时长';
+
+  @override
+  String get readingFetchFullTextAction => '获取原站全文';
+
+  @override
+  String get readingFetchFullTextLoading => '正在获取原站正文…';
+
+  @override
+  String readingFetchFullTextDone(Object chars) {
+    return '已提取原站正文（$chars 字）';
+  }
+
+  @override
+  String readingFetchFullTextFailed(Object reason) {
+    return '未能获取原站正文：$reason';
+  }
+
+  @override
+  String get readingFetchFullTextViewOriginal => '查看原文';
+
+  @override
+  String get readingFetchFullTextViewExtracted => '查看提取正文';
+
+  @override
+  String get readingFetchFullTextPaywall => '原站可能要求付费或登录，可能拿不到全文。';
+
+  @override
+  String get readingFetchFullTextShort => '提取到的正文很短，原站可能需要脚本渲染。';
+
+  @override
+  String get readingFetchFullTextOpenExternal => '在浏览器打开';
+
+  @override
+  String get readingFetchFullTextNoUrl => '这篇文章没有可访问的原站地址。';
+
+  @override
+  String get readingFetchFullTextNoScript =>
+      '只做 HTTP 抓取与静态解析：不执行脚本，也不绕过付费墙或登录。';
+
+  @override
+  String get readingFetchFullTextButtonHint => '仅在点击时抓取原站，不会自动或后台执行。';
 }

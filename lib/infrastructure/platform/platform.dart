@@ -13,6 +13,7 @@
 library;
 
 export 'credential_store.dart';
+export 'device_local_zone.dart';
 export 'external_link_opener.dart';
 export 'image_save_service.dart';
 export 'keychain_store.dart';
