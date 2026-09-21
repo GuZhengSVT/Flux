@@ -1,0 +1,16 @@
+{
+  "query": "flux reader",
+  "number_of_results": 142,
+  "results": [
+    {
+      "title": "Flux documentation",
+      "url": "https://example.com/docs",
+      "content": "Instance-hosted SearXNG result.",
+      "publishedDate": "2026-09-19T10:00:00+08:00"
+    },
+    {
+      "title": "No date result",
+      "url": "https://example.com/no-date"
+    }
+  ]
+}

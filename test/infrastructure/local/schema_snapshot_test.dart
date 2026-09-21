@@ -670,5 +670,92 @@ void main() {
         'cache_key',
       ]);
     });
+
+    test('v11 快照新增搜索服务表（T031），且不丢 v10 的任何实体', () {
+      final File v11Snapshot = File('drift_schemas/drift_schema_v11.json');
+      expect(
+        v11Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v11 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v11Decoded =
+          jsonDecode(v11Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v11Entities =
+          (v11Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v11Names = v11Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v10 的全部实体都必须保留：v11 只**新增**一张表与它的两个索引。
+      final Map<String, dynamic> v10Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v10.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v10Names = (v10Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v11Names,
+        containsAll(v10Names),
+        reason: 'v11 只新增搜索服务表，不得删除 v10 的任何实体',
+      );
+      expect(v11Names.difference(v10Names), <String>{
+        'search_service_records',
+        'ux_search_service_label',
+        'ix_search_service_sort',
+      }, reason: 'v11 相对 v10 的新增实体应只有一张表与它的两个索引');
+
+      final Set<String> columns =
+          ((v11Entities.firstWhere(
+                        (Map<String, dynamic> e) =>
+                            (e['data'] as Map<String, dynamic>)['name'] ==
+                            'search_service_records',
+                      )['data']
+                      as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        columns,
+        containsAll(<String>[
+          'id',
+          'label',
+          'protocol_id',
+          'base_url',
+          'enabled',
+          'sort_order',
+          'max_results',
+          'timeout_seconds',
+          'allow_private_endpoint',
+          'is_default_for_tasks',
+          'created_at',
+          'updated_at',
+        ]),
+      );
+
+      // SET-039 的硬约束：这张表也**不得**出现凭据列（Key 只住 Keychain）。
+      for (final String forbidden in <String>[
+        'api_key',
+        'key',
+        'token',
+        'secret',
+        'credential',
+        'password',
+      ]) {
+        expect(
+          columns.where((String name) => name.contains(forbidden)),
+          isEmpty,
+          reason: '搜索服务表不得出现凭据列（含「$forbidden」）',
+        );
+      }
+    });
   });
 }

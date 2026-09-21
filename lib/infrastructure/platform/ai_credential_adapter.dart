@@ -12,6 +12,7 @@ library;
 
 import 'package:flux/core/core.dart';
 import 'package:flux/features/ai/domain/ai_credential_store.dart';
+import 'package:flux/features/ai/domain/search_credential_store.dart';
 
 import 'credential_store.dart';
 
@@ -21,6 +22,14 @@ import 'credential_store.dart';
 /// 填一次 Key」）。这里显式写字符串而不是 import features 的常量：适配器的职责只是
 /// 转发，让「改类别名」不必跨越一次分层改动。
 const String aiProviderCredentialCategory = 'ai-provider';
+
+/// 搜索服务凭据的类别（Keychain account 前缀）。
+///
+/// 与 AI 提供商**分开**（SET-039「与 AI 凭据分开管理」）：两处同名（例如用户给
+/// 一个模型和一个搜索服务都起名 openai）时，共用前缀会让「按名字取凭据」取到另一
+/// 类的 Key，然后把搜索 Key 当 API Key 发给模型端点。类别前缀让两类凭据在
+/// Keychain 里就是两条不同的条目。
+const String searchServiceCredentialCategory = 'search-service';
 
 /// 适配器。
 final class AiCredentialStoreAdapter implements AiCredentialStore {
@@ -47,4 +56,39 @@ final class AiCredentialStoreAdapter implements AiCredentialStore {
 
   static CredentialKey _key(String alias) =>
       CredentialKey(category: aiProviderCredentialCategory, identifier: alias);
+}
+
+/// 把同一份 [CredentialStore] 接到搜索服务凭据上。
+///
+/// 与 [AiCredentialStoreAdapter] 唯一的不同是类别前缀（见
+/// [searchServiceCredentialCategory]）；同样是纯转发，不加工任何值、不产生任何日志。
+final class SearchCredentialStoreAdapter implements SearchCredentialStore {
+  /// 绑定一个底层凭据存储。
+  const SearchCredentialStoreAdapter(this._inner);
+
+  final CredentialStore _inner;
+
+  @override
+  Future<Result<String>> read(String identifier) =>
+      _inner.read(_key(identifier));
+
+  @override
+  Future<Result<void>> write(String identifier, String apiKey) =>
+      _inner.write(_key(identifier), apiKey);
+
+  @override
+  Future<Result<void>> delete(String identifier) =>
+      _inner.delete(_key(identifier));
+
+  @override
+  Future<Result<bool>> exists(String identifier) =>
+      _inner.exists(_key(identifier));
+
+  @override
+  Future<bool> isAvailable() => _inner.isAvailable();
+
+  static CredentialKey _key(String identifier) => CredentialKey(
+    category: searchServiceCredentialCategory,
+    identifier: identifier,
+  );
 }

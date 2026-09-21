@@ -8856,6 +8856,739 @@ class AiResultCacheRecordsCompanion
   }
 }
 
+class $SearchServiceRecordsTable extends SearchServiceRecords
+    with TableInfo<$SearchServiceRecordsTable, SearchServiceRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SearchServiceRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _protocolIdMeta = const VerificationMeta(
+    'protocolId',
+  );
+  @override
+  late final GeneratedColumn<String> protocolId = GeneratedColumn<String>(
+    'protocol_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _baseUrlMeta = const VerificationMeta(
+    'baseUrl',
+  );
+  @override
+  late final GeneratedColumn<String> baseUrl = GeneratedColumn<String>(
+    'base_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _maxResultsMeta = const VerificationMeta(
+    'maxResults',
+  );
+  @override
+  late final GeneratedColumn<int> maxResults = GeneratedColumn<int>(
+    'max_results',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(10),
+  );
+  static const VerificationMeta _timeoutSecondsMeta = const VerificationMeta(
+    'timeoutSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> timeoutSeconds = GeneratedColumn<int>(
+    'timeout_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(20),
+  );
+  static const VerificationMeta _allowPrivateEndpointMeta =
+      const VerificationMeta('allowPrivateEndpoint');
+  @override
+  late final GeneratedColumn<bool> allowPrivateEndpoint = GeneratedColumn<bool>(
+    'allow_private_endpoint',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("allow_private_endpoint" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isDefaultForTasksMeta = const VerificationMeta(
+    'isDefaultForTasks',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefaultForTasks = GeneratedColumn<bool>(
+    'is_default_for_tasks',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_default_for_tasks" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    label,
+    protocolId,
+    baseUrl,
+    enabled,
+    sortOrder,
+    maxResults,
+    timeoutSeconds,
+    allowPrivateEndpoint,
+    isDefaultForTasks,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'search_service_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SearchServiceRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('protocol_id')) {
+      context.handle(
+        _protocolIdMeta,
+        protocolId.isAcceptableOrUnknown(data['protocol_id']!, _protocolIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_protocolIdMeta);
+    }
+    if (data.containsKey('base_url')) {
+      context.handle(
+        _baseUrlMeta,
+        baseUrl.isAcceptableOrUnknown(data['base_url']!, _baseUrlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_baseUrlMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('max_results')) {
+      context.handle(
+        _maxResultsMeta,
+        maxResults.isAcceptableOrUnknown(data['max_results']!, _maxResultsMeta),
+      );
+    }
+    if (data.containsKey('timeout_seconds')) {
+      context.handle(
+        _timeoutSecondsMeta,
+        timeoutSeconds.isAcceptableOrUnknown(
+          data['timeout_seconds']!,
+          _timeoutSecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('allow_private_endpoint')) {
+      context.handle(
+        _allowPrivateEndpointMeta,
+        allowPrivateEndpoint.isAcceptableOrUnknown(
+          data['allow_private_endpoint']!,
+          _allowPrivateEndpointMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_default_for_tasks')) {
+      context.handle(
+        _isDefaultForTasksMeta,
+        isDefaultForTasks.isAcceptableOrUnknown(
+          data['is_default_for_tasks']!,
+          _isDefaultForTasksMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SearchServiceRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SearchServiceRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      protocolId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}protocol_id'],
+      )!,
+      baseUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_url'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      maxResults: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}max_results'],
+      )!,
+      timeoutSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}timeout_seconds'],
+      )!,
+      allowPrivateEndpoint: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}allow_private_endpoint'],
+      )!,
+      isDefaultForTasks: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_default_for_tasks'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SearchServiceRecordsTable createAlias(String alias) {
+    return $SearchServiceRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class SearchServiceRecord extends DataClass
+    implements Insertable<SearchServiceRecord> {
+  final int id;
+
+  /// 服务名（用户可见，唯一）。
+  final String label;
+
+  /// 协议稳定标识（tavily/brave/searxng；见 SearchProtocol.id）。
+  ///
+  /// 存字符串而不是枚举序号：序号会在枚举里插一项之后整体错位，把一个真实用户的
+  /// 配置从 Tavily 静默变成别的协议（与 ai_model_records.protocol_id 同一理由）。
+  final String protocolId;
+
+  /// Base URL（不含协议路径；SearXNG 为自建实例地址）。
+  final String baseUrl;
+
+  /// 是否启用（SET-038）。
+  final bool enabled;
+
+  /// 排序（SET-038；升序即服务选择顺序）。
+  final int sortOrder;
+
+  /// 每次检索的结果数（SET-040；默认 10，范围 1–20）。
+  final int maxResults;
+
+  /// 单次检索超时秒数（SET-040；默认 20，范围 5–60）。
+  final int timeoutSeconds;
+
+  /// 是否已显式批准该端点指向内网/明文 HTTP（SET-041）。
+  ///
+  /// 默认 false：私网端点必须由用户逐条批准（见 SearchService 的说明）。
+  final bool allowPrivateEndpoint;
+
+  /// 是否为任务默认搜索服务（本机唯一）。
+  final bool isDefaultForTasks;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SearchServiceRecord({
+    required this.id,
+    required this.label,
+    required this.protocolId,
+    required this.baseUrl,
+    required this.enabled,
+    required this.sortOrder,
+    required this.maxResults,
+    required this.timeoutSeconds,
+    required this.allowPrivateEndpoint,
+    required this.isDefaultForTasks,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['label'] = Variable<String>(label);
+    map['protocol_id'] = Variable<String>(protocolId);
+    map['base_url'] = Variable<String>(baseUrl);
+    map['enabled'] = Variable<bool>(enabled);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['max_results'] = Variable<int>(maxResults);
+    map['timeout_seconds'] = Variable<int>(timeoutSeconds);
+    map['allow_private_endpoint'] = Variable<bool>(allowPrivateEndpoint);
+    map['is_default_for_tasks'] = Variable<bool>(isDefaultForTasks);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SearchServiceRecordsCompanion toCompanion(bool nullToAbsent) {
+    return SearchServiceRecordsCompanion(
+      id: Value(id),
+      label: Value(label),
+      protocolId: Value(protocolId),
+      baseUrl: Value(baseUrl),
+      enabled: Value(enabled),
+      sortOrder: Value(sortOrder),
+      maxResults: Value(maxResults),
+      timeoutSeconds: Value(timeoutSeconds),
+      allowPrivateEndpoint: Value(allowPrivateEndpoint),
+      isDefaultForTasks: Value(isDefaultForTasks),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SearchServiceRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SearchServiceRecord(
+      id: serializer.fromJson<int>(json['id']),
+      label: serializer.fromJson<String>(json['label']),
+      protocolId: serializer.fromJson<String>(json['protocolId']),
+      baseUrl: serializer.fromJson<String>(json['baseUrl']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      maxResults: serializer.fromJson<int>(json['maxResults']),
+      timeoutSeconds: serializer.fromJson<int>(json['timeoutSeconds']),
+      allowPrivateEndpoint: serializer.fromJson<bool>(
+        json['allowPrivateEndpoint'],
+      ),
+      isDefaultForTasks: serializer.fromJson<bool>(json['isDefaultForTasks']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'label': serializer.toJson<String>(label),
+      'protocolId': serializer.toJson<String>(protocolId),
+      'baseUrl': serializer.toJson<String>(baseUrl),
+      'enabled': serializer.toJson<bool>(enabled),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'maxResults': serializer.toJson<int>(maxResults),
+      'timeoutSeconds': serializer.toJson<int>(timeoutSeconds),
+      'allowPrivateEndpoint': serializer.toJson<bool>(allowPrivateEndpoint),
+      'isDefaultForTasks': serializer.toJson<bool>(isDefaultForTasks),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SearchServiceRecord copyWith({
+    int? id,
+    String? label,
+    String? protocolId,
+    String? baseUrl,
+    bool? enabled,
+    int? sortOrder,
+    int? maxResults,
+    int? timeoutSeconds,
+    bool? allowPrivateEndpoint,
+    bool? isDefaultForTasks,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => SearchServiceRecord(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    protocolId: protocolId ?? this.protocolId,
+    baseUrl: baseUrl ?? this.baseUrl,
+    enabled: enabled ?? this.enabled,
+    sortOrder: sortOrder ?? this.sortOrder,
+    maxResults: maxResults ?? this.maxResults,
+    timeoutSeconds: timeoutSeconds ?? this.timeoutSeconds,
+    allowPrivateEndpoint: allowPrivateEndpoint ?? this.allowPrivateEndpoint,
+    isDefaultForTasks: isDefaultForTasks ?? this.isDefaultForTasks,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SearchServiceRecord copyWithCompanion(SearchServiceRecordsCompanion data) {
+    return SearchServiceRecord(
+      id: data.id.present ? data.id.value : this.id,
+      label: data.label.present ? data.label.value : this.label,
+      protocolId: data.protocolId.present
+          ? data.protocolId.value
+          : this.protocolId,
+      baseUrl: data.baseUrl.present ? data.baseUrl.value : this.baseUrl,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      maxResults: data.maxResults.present
+          ? data.maxResults.value
+          : this.maxResults,
+      timeoutSeconds: data.timeoutSeconds.present
+          ? data.timeoutSeconds.value
+          : this.timeoutSeconds,
+      allowPrivateEndpoint: data.allowPrivateEndpoint.present
+          ? data.allowPrivateEndpoint.value
+          : this.allowPrivateEndpoint,
+      isDefaultForTasks: data.isDefaultForTasks.present
+          ? data.isDefaultForTasks.value
+          : this.isDefaultForTasks,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchServiceRecord(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('baseUrl: $baseUrl, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('maxResults: $maxResults, ')
+          ..write('timeoutSeconds: $timeoutSeconds, ')
+          ..write('allowPrivateEndpoint: $allowPrivateEndpoint, ')
+          ..write('isDefaultForTasks: $isDefaultForTasks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    label,
+    protocolId,
+    baseUrl,
+    enabled,
+    sortOrder,
+    maxResults,
+    timeoutSeconds,
+    allowPrivateEndpoint,
+    isDefaultForTasks,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SearchServiceRecord &&
+          other.id == this.id &&
+          other.label == this.label &&
+          other.protocolId == this.protocolId &&
+          other.baseUrl == this.baseUrl &&
+          other.enabled == this.enabled &&
+          other.sortOrder == this.sortOrder &&
+          other.maxResults == this.maxResults &&
+          other.timeoutSeconds == this.timeoutSeconds &&
+          other.allowPrivateEndpoint == this.allowPrivateEndpoint &&
+          other.isDefaultForTasks == this.isDefaultForTasks &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SearchServiceRecordsCompanion
+    extends UpdateCompanion<SearchServiceRecord> {
+  final Value<int> id;
+  final Value<String> label;
+  final Value<String> protocolId;
+  final Value<String> baseUrl;
+  final Value<bool> enabled;
+  final Value<int> sortOrder;
+  final Value<int> maxResults;
+  final Value<int> timeoutSeconds;
+  final Value<bool> allowPrivateEndpoint;
+  final Value<bool> isDefaultForTasks;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const SearchServiceRecordsCompanion({
+    this.id = const Value.absent(),
+    this.label = const Value.absent(),
+    this.protocolId = const Value.absent(),
+    this.baseUrl = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.maxResults = const Value.absent(),
+    this.timeoutSeconds = const Value.absent(),
+    this.allowPrivateEndpoint = const Value.absent(),
+    this.isDefaultForTasks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  SearchServiceRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String label,
+    required String protocolId,
+    required String baseUrl,
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.maxResults = const Value.absent(),
+    this.timeoutSeconds = const Value.absent(),
+    this.allowPrivateEndpoint = const Value.absent(),
+    this.isDefaultForTasks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : label = Value(label),
+       protocolId = Value(protocolId),
+       baseUrl = Value(baseUrl);
+  static Insertable<SearchServiceRecord> custom({
+    Expression<int>? id,
+    Expression<String>? label,
+    Expression<String>? protocolId,
+    Expression<String>? baseUrl,
+    Expression<bool>? enabled,
+    Expression<int>? sortOrder,
+    Expression<int>? maxResults,
+    Expression<int>? timeoutSeconds,
+    Expression<bool>? allowPrivateEndpoint,
+    Expression<bool>? isDefaultForTasks,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (label != null) 'label': label,
+      if (protocolId != null) 'protocol_id': protocolId,
+      if (baseUrl != null) 'base_url': baseUrl,
+      if (enabled != null) 'enabled': enabled,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (maxResults != null) 'max_results': maxResults,
+      if (timeoutSeconds != null) 'timeout_seconds': timeoutSeconds,
+      if (allowPrivateEndpoint != null)
+        'allow_private_endpoint': allowPrivateEndpoint,
+      if (isDefaultForTasks != null) 'is_default_for_tasks': isDefaultForTasks,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  SearchServiceRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? label,
+    Value<String>? protocolId,
+    Value<String>? baseUrl,
+    Value<bool>? enabled,
+    Value<int>? sortOrder,
+    Value<int>? maxResults,
+    Value<int>? timeoutSeconds,
+    Value<bool>? allowPrivateEndpoint,
+    Value<bool>? isDefaultForTasks,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return SearchServiceRecordsCompanion(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      protocolId: protocolId ?? this.protocolId,
+      baseUrl: baseUrl ?? this.baseUrl,
+      enabled: enabled ?? this.enabled,
+      sortOrder: sortOrder ?? this.sortOrder,
+      maxResults: maxResults ?? this.maxResults,
+      timeoutSeconds: timeoutSeconds ?? this.timeoutSeconds,
+      allowPrivateEndpoint: allowPrivateEndpoint ?? this.allowPrivateEndpoint,
+      isDefaultForTasks: isDefaultForTasks ?? this.isDefaultForTasks,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (protocolId.present) {
+      map['protocol_id'] = Variable<String>(protocolId.value);
+    }
+    if (baseUrl.present) {
+      map['base_url'] = Variable<String>(baseUrl.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (maxResults.present) {
+      map['max_results'] = Variable<int>(maxResults.value);
+    }
+    if (timeoutSeconds.present) {
+      map['timeout_seconds'] = Variable<int>(timeoutSeconds.value);
+    }
+    if (allowPrivateEndpoint.present) {
+      map['allow_private_endpoint'] = Variable<bool>(
+        allowPrivateEndpoint.value,
+      );
+    }
+    if (isDefaultForTasks.present) {
+      map['is_default_for_tasks'] = Variable<bool>(isDefaultForTasks.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchServiceRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('baseUrl: $baseUrl, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('maxResults: $maxResults, ')
+          ..write('timeoutSeconds: $timeoutSeconds, ')
+          ..write('allowPrivateEndpoint: $allowPrivateEndpoint, ')
+          ..write('isDefaultForTasks: $isDefaultForTasks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8932,6 +9665,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AiTasksTable aiTasks = $AiTasksTable(this);
   late final $AiResultCacheRecordsTable aiResultCacheRecords =
       $AiResultCacheRecordsTable(this);
+  late final $SearchServiceRecordsTable searchServiceRecords =
+      $SearchServiceRecordsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -8984,6 +9719,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_ai_result_cache_created',
     'CREATE INDEX ix_ai_result_cache_created ON ai_result_cache_records (created_at)',
   );
+  late final Index uxSearchServiceLabel = Index(
+    'ux_search_service_label',
+    'CREATE UNIQUE INDEX ux_search_service_label ON search_service_records (label)',
+  );
+  late final Index ixSearchServiceSort = Index(
+    'ix_search_service_sort',
+    'CREATE INDEX ix_search_service_sort ON search_service_records (sort_order)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9015,6 +9758,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     aiModelRecords,
     aiTasks,
     aiResultCacheRecords,
+    searchServiceRecords,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -9028,6 +9772,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixAiTasksCreated,
     ixAiTasksStatus,
     ixAiResultCacheCreated,
+    uxSearchServiceLabel,
+    ixSearchServiceSort,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14148,6 +14894,370 @@ typedef $$AiResultCacheRecordsTableProcessedTableManager =
       AiResultCacheRecord,
       PrefetchHooks Function()
     >;
+typedef $$SearchServiceRecordsTableCreateCompanionBuilder =
+    SearchServiceRecordsCompanion Function({
+      Value<int> id,
+      required String label,
+      required String protocolId,
+      required String baseUrl,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<int> maxResults,
+      Value<int> timeoutSeconds,
+      Value<bool> allowPrivateEndpoint,
+      Value<bool> isDefaultForTasks,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$SearchServiceRecordsTableUpdateCompanionBuilder =
+    SearchServiceRecordsCompanion Function({
+      Value<int> id,
+      Value<String> label,
+      Value<String> protocolId,
+      Value<String> baseUrl,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<int> maxResults,
+      Value<int> timeoutSeconds,
+      Value<bool> allowPrivateEndpoint,
+      Value<bool> isDefaultForTasks,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$SearchServiceRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $SearchServiceRecordsTable> {
+  $$SearchServiceRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUrl => $composableBuilder(
+    column: $table.baseUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get maxResults => $composableBuilder(
+    column: $table.maxResults,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeoutSeconds => $composableBuilder(
+    column: $table.timeoutSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allowPrivateEndpoint => $composableBuilder(
+    column: $table.allowPrivateEndpoint,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SearchServiceRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SearchServiceRecordsTable> {
+  $$SearchServiceRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseUrl => $composableBuilder(
+    column: $table.baseUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get maxResults => $composableBuilder(
+    column: $table.maxResults,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timeoutSeconds => $composableBuilder(
+    column: $table.timeoutSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allowPrivateEndpoint => $composableBuilder(
+    column: $table.allowPrivateEndpoint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SearchServiceRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SearchServiceRecordsTable> {
+  $$SearchServiceRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get baseUrl =>
+      $composableBuilder(column: $table.baseUrl, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<int> get maxResults => $composableBuilder(
+    column: $table.maxResults,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get timeoutSeconds => $composableBuilder(
+    column: $table.timeoutSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get allowPrivateEndpoint => $composableBuilder(
+    column: $table.allowPrivateEndpoint,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SearchServiceRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SearchServiceRecordsTable,
+          SearchServiceRecord,
+          $$SearchServiceRecordsTableFilterComposer,
+          $$SearchServiceRecordsTableOrderingComposer,
+          $$SearchServiceRecordsTableAnnotationComposer,
+          $$SearchServiceRecordsTableCreateCompanionBuilder,
+          $$SearchServiceRecordsTableUpdateCompanionBuilder,
+          (
+            SearchServiceRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $SearchServiceRecordsTable,
+              SearchServiceRecord
+            >,
+          ),
+          SearchServiceRecord,
+          PrefetchHooks Function()
+        > {
+  $$SearchServiceRecordsTableTableManager(
+    _$AppDatabase db,
+    $SearchServiceRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SearchServiceRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SearchServiceRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SearchServiceRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<String> protocolId = const Value.absent(),
+                Value<String> baseUrl = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> maxResults = const Value.absent(),
+                Value<int> timeoutSeconds = const Value.absent(),
+                Value<bool> allowPrivateEndpoint = const Value.absent(),
+                Value<bool> isDefaultForTasks = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SearchServiceRecordsCompanion(
+                id: id,
+                label: label,
+                protocolId: protocolId,
+                baseUrl: baseUrl,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                maxResults: maxResults,
+                timeoutSeconds: timeoutSeconds,
+                allowPrivateEndpoint: allowPrivateEndpoint,
+                isDefaultForTasks: isDefaultForTasks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String label,
+                required String protocolId,
+                required String baseUrl,
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> maxResults = const Value.absent(),
+                Value<int> timeoutSeconds = const Value.absent(),
+                Value<bool> allowPrivateEndpoint = const Value.absent(),
+                Value<bool> isDefaultForTasks = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SearchServiceRecordsCompanion.insert(
+                id: id,
+                label: label,
+                protocolId: protocolId,
+                baseUrl: baseUrl,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                maxResults: maxResults,
+                timeoutSeconds: timeoutSeconds,
+                allowPrivateEndpoint: allowPrivateEndpoint,
+                isDefaultForTasks: isDefaultForTasks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SearchServiceRecordsTable, SearchServiceRecord>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $SearchServiceRecordsTable,
+                    SearchServiceRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SearchServiceRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SearchServiceRecordsTable,
+      SearchServiceRecord,
+      $$SearchServiceRecordsTableFilterComposer,
+      $$SearchServiceRecordsTableOrderingComposer,
+      $$SearchServiceRecordsTableAnnotationComposer,
+      $$SearchServiceRecordsTableCreateCompanionBuilder,
+      $$SearchServiceRecordsTableUpdateCompanionBuilder,
+      (
+        SearchServiceRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $SearchServiceRecordsTable,
+          SearchServiceRecord
+        >,
+      ),
+      SearchServiceRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14176,4 +15286,6 @@ class $AppDatabaseManager {
       $$AiTasksTableTableManager(_db, _db.aiTasks);
   $$AiResultCacheRecordsTableTableManager get aiResultCacheRecords =>
       $$AiResultCacheRecordsTableTableManager(_db, _db.aiResultCacheRecords);
+  $$SearchServiceRecordsTableTableManager get searchServiceRecords =>
+      $$SearchServiceRecordsTableTableManager(_db, _db.searchServiceRecords);
 }

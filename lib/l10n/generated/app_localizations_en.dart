@@ -1937,4 +1937,161 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiTaskKindOther => 'Other task';
+
+  @override
+  String get searchPageTitle => 'Search services';
+
+  @override
+  String get settingsSearchEntryTitle => 'Search services';
+
+  @override
+  String get settingsSearchEntrySubtitle =>
+      'Endpoints and credentials for Tavily / Brave / self-hosted SearXNG';
+
+  @override
+  String get searchAddService => 'Add search service';
+
+  @override
+  String get searchEditService => 'Edit search service';
+
+  @override
+  String get searchServicesSection => 'Configured search services';
+
+  @override
+  String get searchSortHint =>
+      'The order is the order the tool executor picks services in; a disabled service is skipped.';
+
+  @override
+  String get searchEmptyNotice =>
+      'No search service is configured yet. Without one, web-search tasks say configuration is missing instead of silently skipping search.';
+
+  @override
+  String searchLoadFailed(String reason) {
+    return 'Could not load search services: $reason';
+  }
+
+  @override
+  String get searchDefaultBadge => 'Task default';
+
+  @override
+  String get searchDefaultLabel => 'Default for tasks';
+
+  @override
+  String searchBudgetHint(int maxResults, int timeoutSeconds) {
+    return '$maxResults results per query · ${timeoutSeconds}s timeout (SET-040)';
+  }
+
+  @override
+  String get searchPrivateApproved =>
+      'Private/HTTP endpoint explicitly approved (SET-041)';
+
+  @override
+  String get searchCredentialMissingHint =>
+      'No credential yet: this protocol always fails without a key, so the test button is disabled.';
+
+  @override
+  String get searchTestDisabledNoCredential =>
+      'Save a credential first; this protocol cannot be called without a key';
+
+  @override
+  String get searchTestButton => 'Test';
+
+  @override
+  String get searchTestConfirmTitle => 'Send one real search?';
+
+  @override
+  String searchTestConfirmBody(String protocol, String endpoint) {
+    return 'This sends the query to the $protocol endpoint $endpoint and may incur cost. The query leaves this device.';
+  }
+
+  @override
+  String get searchTestConfirmYes => 'Send';
+
+  @override
+  String get searchTestConfirmCancel => 'Cancel';
+
+  @override
+  String searchTestSuccess(int elapsedMs, int count) {
+    return 'Search succeeded: $elapsedMs ms, $count result(s)';
+  }
+
+  @override
+  String searchDeleteConfirmTitle(String label) {
+    return 'Delete search service \"$label\"?';
+  }
+
+  @override
+  String get searchDeleteConfirmBody =>
+      'This search service becomes unavailable. The stored key is not deleted.';
+
+  @override
+  String searchDeleteInUseBody(String references) {
+    return 'This search service is still referenced by: $references. After deletion those settings point at a service that no longer exists, and you must fix them by hand.';
+  }
+
+  @override
+  String get searchDeleteConfirmYes => 'Delete anyway';
+
+  @override
+  String get searchDeleteCancel => 'Cancel';
+
+  @override
+  String searchDeleteFailed(String reason) {
+    return 'Delete failed: $reason';
+  }
+
+  @override
+  String get searchSaveService => 'Save';
+
+  @override
+  String get searchLabelField => 'Service name';
+
+  @override
+  String get searchProtocolField => 'Protocol';
+
+  @override
+  String get searchEndpointField => 'Endpoint';
+
+  @override
+  String get searchEndpointRequiredHint =>
+      'A self-hosted SearXNG has no default address; enter your own instance URL.';
+
+  @override
+  String searchEndpointResolved(String endpoint) {
+    return 'Will request: $endpoint';
+  }
+
+  @override
+  String get searchKeyField => 'API key / instance auth';
+
+  @override
+  String get searchKeyConfigured =>
+      'Configured (never echoed; leave empty to keep it)';
+
+  @override
+  String get searchKeyNotConfigured => 'Not configured';
+
+  @override
+  String get searchKeyOptionalHint =>
+      'Credential is optional for this protocol: leaving it empty sends no auth header (typical when a reverse proxy authenticates the instance).';
+
+  @override
+  String get searchDeleteKey => 'Delete stored credential';
+
+  @override
+  String get searchMaxResultsField => 'Results per query (1–20)';
+
+  @override
+  String get searchTimeoutField => 'Timeout seconds (5–60)';
+
+  @override
+  String get searchAllowPrivateLabel => 'Allow private/HTTP endpoint (SET-041)';
+
+  @override
+  String get searchAllowPrivateHint =>
+      'Turn this on only for a self-hosted instance on your LAN or over plain HTTP. Without approval the endpoint is rejected by the URL guard and no request is sent.';
+
+  @override
+  String get searchPlannedNotice =>
+      'The query keyword list (SET-052), forbidden query terms and topic filters (SET-053), and the daily-news search orchestration (T036/T037) come later; this page only manages the search services themselves.';
 }

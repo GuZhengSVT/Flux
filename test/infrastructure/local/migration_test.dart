@@ -1,6 +1,7 @@
 // T009（T010 改为 v2 基线，T013 改为 v3 基线，T014 改为 v4 基线，
 // T018 改为 v5 基线，T019+ 改为 v6 基线，T022 改为 v7 基线，
-// T024 改为 v8 基线，T025 改为 v9 基线，T030 改为 v10 基线）：迁移安全。
+// T024 改为 v8 基线，T025 改为 v9 基线，T030 改为 v10 基线，
+// T031 改为 v11 基线）：迁移安全。
 //
 // 三条硬要求（架构 5.3「旧版本不能写较新 schema」、手册 6.3「恢复」）：
 //   1) 正常按当前 schemaVersion 建库成功；
@@ -9,9 +10,9 @@
 //
 // schemaVersion 依次提到 2（settings 表）、3（抓取诊断列）、4（启用列）、
 // 5（收藏脱离源 + 删除事件表）、6（卡片图片地址）、7（全文检索索引）、
-// 8（本机静态提取正文，T024）、9（AI 模型表，T025）、10（AI 任务表与结果缓存，T030）
-// 之后，本文件里的断言相应改为 10，而「代码比库新但迁移写坏」的场景用**比当前版本
-// 再高一级**的坏实现模拟（现为 v11）；
+// 8（本机静态提取正文，T024）、9（AI 模型表，T025）、10（AI 任务表与结果缓存，T030）、
+// 11（搜索服务记录表，T031）之后，本文件里的断言相应改为 11，而「代码比库新但迁移
+// 写坏」的场景用**比当前版本再高一级**的坏实现模拟（现为 v12）；
 // 真正的增量迁移正确性由各 migration_vN_*_test.dart 用 drift 快照校验。
 //
 // 测试策略：优先使用内存库与共享的原始 sqlite3 句柄，避免磁盘残留；
@@ -37,7 +38,7 @@ class _FailingUpgradeDatabase extends AppDatabase {
   _FailingUpgradeDatabase(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   drift.MigrationStrategy get migration => drift.MigrationStrategy(
@@ -107,7 +108,7 @@ void main() {
       await second.close();
 
       expect(_rowCount(raw, 'groups'), 1);
-      expect(_userVersion(raw), 10);
+      expect(_userVersion(raw), 11);
     });
   });
 
@@ -223,9 +224,9 @@ void main() {
             ),
           );
       await before.close();
-      expect(_userVersion(raw), 10);
+      expect(_userVersion(raw), 11);
 
-      // 用「代码已是 v11 但迁移写坏」的版本打开同一库（版本号必须严格高于当前版本，
+      // 用「代码已是 v12 但迁移写坏」的版本打开同一库（版本号必须严格高于当前版本，
       // 否则 drift 不会触发 onUpgrade，测试会退化成「什么都没发生也算过」）。
       final _FailingUpgradeDatabase broken = _FailingUpgradeDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
@@ -236,7 +237,7 @@ void main() {
       );
 
       // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成旧版本。
-      expect(_userVersion(raw), 10, reason: '迁移失败不得推进版本号');
+      expect(_userVersion(raw), 11, reason: '迁移失败不得推进版本号');
       expect(
         raw.select('SELECT name FROM feeds').single['name'],
         '升级前就有的源',

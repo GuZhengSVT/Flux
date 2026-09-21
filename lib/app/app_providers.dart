@@ -23,6 +23,8 @@ import 'package:flux/features/ai/application/model_manager_controller.dart';
 import 'package:flux/features/ai/domain/ai_model_store.dart';
 import 'package:flux/features/ai/domain/ai_task_store.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/search_provider.dart';
+import 'package:flux/features/ai/domain/search_service_store.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_extraction_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
@@ -49,11 +51,14 @@ import 'package:flux/infrastructure/local/ai_model_store.dart';
 import 'package:flux/infrastructure/local/degraded_ai_model_store.dart';
 import 'package:flux/infrastructure/local/ai_task_store.dart';
 import 'package:flux/infrastructure/local/degraded_ai_task_store.dart';
+import 'package:flux/infrastructure/local/search_service_store.dart';
+import 'package:flux/infrastructure/local/degraded_search_service_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
 import 'package:flux/infrastructure/network/ai_provider_factory.dart';
+import 'package:flux/infrastructure/network/search_provider_factory.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
@@ -149,6 +154,9 @@ List<Override> bootstrapOverrides(
   // 测试要能构造「任务读取失败」「缓存写入失败」这类无法用内存库直接制造的世界）。
   AiTaskStore? aiTaskStore,
   AiResultCache? aiResultCache,
+  // T031：搜索服务的存储与适配器工厂同样参数化（理由同 aiModelStore）。
+  SearchServiceStore? searchServiceStore,
+  SearchProviderFactory? searchProviderFactory,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -188,6 +196,16 @@ List<Override> bootstrapOverrides(
     // （参数化而不是在 ProviderScope 里再覆盖一次，理由同上面几个端口）。
     aiProviderFactoryProvider.overrideWithValue(
       aiProviderFactory ?? const OpenAiProviderFactory(),
+    ),
+    // ---- T031：搜索服务 ------------------------------------------------------
+    // 凭据端口读的是**同一个** result.credentialStore，但类别前缀不同
+    // （search-service）：SET-039 要求搜索凭据与 AI 凭据分开管理，而分开的落点就是
+    // Keychain 的类别。共用两份判断路径会让「搜索 Key 被当 API Key 发出去」成为可能。
+    searchCredentialStoreProvider.overrideWithValue(
+      SearchCredentialStoreAdapter(result.credentialStore),
+    ),
+    searchProviderFactoryProvider.overrideWithValue(
+      searchProviderFactory ?? const HttpSearchProviderFactory(),
     ),
     if (result.database case final AppDatabase database)
       databaseProvider.overrideWithValue(database),
@@ -296,6 +314,11 @@ List<Override> bootstrapOverrides(
       aiResultCacheProvider.overrideWithValue(
         aiResultCache ?? DriftAiResultCache(catalogDatabase),
       ),
+      // T031：搜索服务记录。与其它数据表同一个库，因此「数据库不可用」时下面的
+      // 降级分支会给出明确的只读/写入失败语义。
+      searchServiceStoreProvider.overrideWithValue(
+        searchServiceStore ?? DriftSearchServiceStore(catalogDatabase),
+      ),
       // T024：提取正文读写。
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
@@ -338,6 +361,11 @@ List<Override> bootstrapOverrides(
       ),
       aiResultCacheProvider.overrideWithValue(
         aiResultCache ?? const DegradedAiResultCache(),
+      ),
+      // T031：数据库不可用时搜索服务列表读作空（这是**真实**答案：本次运行确实
+      // 没有可用服务），写入明确失败（不假装保存成功）。
+      searchServiceStoreProvider.overrideWithValue(
+        searchServiceStore ?? const DegradedSearchServiceStore(),
       ),
     ],
     // ---- T024：静态网页抓取 --------------------------------------------------

@@ -27,5 +27,16 @@
 //   domain/ai_task_store.dart（持久任务与结果缓存两个端口）、
 //   application/persistent_ai_task_service.dart（先查缓存再执行、成功才写缓存、
 //   启动标中断、重新开始走新任务）、presentation/ai_task_list_page.dart。
+// T031 已落地：domain/search_protocol.dart（三个搜索协议与认证方式）、
+//   domain/search_result.dart（统一结果结构与 sourceId 摘要）、
+//   domain/search_service.dart（服务记录，SET-038/040/041）、
+//   domain/search_service_store.dart、domain/search_credential_store.dart（SET-039，
+//   与 AI 凭据分属不同 Keychain 类别）、domain/search_provider.dart（SearchProvider 契约）、
+//   domain/search_errors.dart（搜索口径的错误映射、结果地址守卫、访问类别、高亮剥离）、
+//   application/search_manager.dart（CRUD/排序/引用检查/最小检索测试）、
+//   application/search_manager_controller.dart、
+//   presentation/search_services_page.dart + search_service_form.dart；
+//   infrastructure/network/{search_http,tavily_search_adapter,brave_search_adapter,
+//   searxng_search_adapter,search_provider_factory}.dart。
 // TODO(T032): search/fetchPage/inspectImage 受控工具。
 library;

@@ -17,6 +17,9 @@ import '../domain/ai_credential_store.dart';
 import '../domain/ai_model_store.dart';
 import '../domain/ai_provider.dart';
 import '../domain/ai_task_store.dart';
+import '../domain/search_credential_store.dart';
+import '../domain/search_provider.dart';
+import '../domain/search_service_store.dart';
 
 /// AI 任务的持久记录端口（T030）。
 ///
@@ -56,6 +59,29 @@ final Provider<AiCredentialStore> aiCredentialStoreProvider =
 /// 明确说明（「协议适配器尚未实现」），而不是让一次点击静默什么都不做。
 final Provider<AiProviderFactory?> aiProviderFactoryProvider =
     Provider<AiProviderFactory?>((Ref ref) => null);
+
+/// 搜索服务记录的读写端口（T031；SET-038）。
+final Provider<SearchServiceStore> searchServiceStoreProvider =
+    Provider<SearchServiceStore>(
+      (Ref ref) => throw StateError(
+        'searchServiceStoreProvider 未被组合根覆盖：见 lib/app/app_providers.dart',
+      ),
+    );
+
+/// 搜索服务凭据端口（T031；SET-039，与 AI 凭据分开的 Keychain 类别）。
+final Provider<SearchCredentialStore> searchCredentialStoreProvider =
+    Provider<SearchCredentialStore>(
+      (Ref ref) => throw StateError(
+        'searchCredentialStoreProvider 未被组合根覆盖：见 lib/app/app_bootstrap.dart',
+      ),
+    );
+
+/// 搜索适配器工厂（T031 提供真实实现）。
+///
+/// 允许为空：与 [aiProviderFactoryProvider] 同一理由——测试按钮在没有工厂时必须给出
+/// 明确说明（「适配器未接线」），而不是让一次点击静默什么都不做。
+final Provider<SearchProviderFactory?> searchProviderFactoryProvider =
+    Provider<SearchProviderFactory?>((Ref ref) => null);
 
 /// 诊断记录端口。
 ///

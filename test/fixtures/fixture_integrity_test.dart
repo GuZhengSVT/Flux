@@ -28,6 +28,13 @@ void main() {
         'markdown_math_sample.md',
         'fake_ai_response.json',
         'fake_ai_tool_call_response.json',
+        // T031：三个搜索协议各一份响应夹具（外加一份私网结果夹具）。
+        // 放在 ai/ 子目录：与三个 AI 协议的夹具同处一室（SearchProvider 属 features/ai）。
+        'ai/tavily_search_response.json',
+        'ai/tavily_search_error_429.json',
+        'ai/brave_search_response.json',
+        'ai/searxng_search_response.json',
+        'ai/searxng_private_response.json',
         // T024：静态网页抽取的夹具（正常/纯 JS/付费墙/畸形/超长）。
         'static_page_normal.html',
         'static_page_js_only.html',

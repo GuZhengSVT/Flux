@@ -1,0 +1,22 @@
+{
+  "web": {
+    "results": [
+      {
+        "title": "Flux <b>reader</b>",
+        "url": "https://example.com/flux",
+        "description": "A <b>local-first</b> reader for news &amp; RSS.",
+        "age": "3 days ago"
+      },
+      {
+        "title": "Dart language docs",
+        "url": "https://docs.dart.dev/language",
+        "description": "The <b>Dart</b> language tour."
+      },
+      {
+        "title": "Loopback service",
+        "url": "http://127.0.0.1:8080/admin",
+        "description": "Must be dropped."
+      }
+    ]
+  }
+}

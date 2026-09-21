@@ -195,3 +195,60 @@ class AiResultCacheRecords extends Table {
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{cacheKey};
 }
+
+/// 搜索服务记录（T031；架构 5.1 的 SearchConfig 实体、SET-038/039/040/041）。
+///
+/// 「数据库不含秘密」（架构 5.1、第 8 节）在这张表上同样体现为**没有任何 Key 列**：
+/// 凭据只以「服务名」为标识住在 Keychain 里（SET-039），本表最多知道名字。
+/// 这样即使有人拿到 flux.sqlite 明文文件，也拿不到任何搜索服务的 Key。
+///
+/// 命名与 AiModelRecords 同一口径（用 Records 后缀而不是 Services）：drift 按
+/// 「去掉末尾 s」派生数据类名，SearchServices 会生成一个与领域类型同名的
+/// SearchService 数据类，两处同名会让每个使用点都必须加前缀。
+///
+/// 索引与查询场景：
+///   - ux_search_service_label：名字是 Keychain 条目的定位键与界面展示名，
+///     必须唯一，否则「按名字取凭据」会取到另一个服务的 Key；
+///   - ix_search_service_sort：按工具执行器的服务选择顺序取值。
+@TableIndex(name: 'ux_search_service_label', columns: {#label}, unique: true)
+@TableIndex(name: 'ix_search_service_sort', columns: {#sortOrder})
+class SearchServiceRecords extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// 服务名（用户可见，唯一）。
+  TextColumn get label => text()();
+
+  /// 协议稳定标识（tavily/brave/searxng；见 SearchProtocol.id）。
+  ///
+  /// 存字符串而不是枚举序号：序号会在枚举里插一项之后整体错位，把一个真实用户的
+  /// 配置从 Tavily 静默变成别的协议（与 ai_model_records.protocol_id 同一理由）。
+  TextColumn get protocolId => text()();
+
+  /// Base URL（不含协议路径；SearXNG 为自建实例地址）。
+  TextColumn get baseUrl => text()();
+
+  /// 是否启用（SET-038）。
+  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+
+  /// 排序（SET-038；升序即服务选择顺序）。
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// 每次检索的结果数（SET-040；默认 10，范围 1–20）。
+  IntColumn get maxResults => integer().withDefault(const Constant(10))();
+
+  /// 单次检索超时秒数（SET-040；默认 20，范围 5–60）。
+  IntColumn get timeoutSeconds => integer().withDefault(const Constant(20))();
+
+  /// 是否已显式批准该端点指向内网/明文 HTTP（SET-041）。
+  ///
+  /// 默认 false：私网端点必须由用户逐条批准（见 SearchService 的说明）。
+  BoolColumn get allowPrivateEndpoint =>
+      boolean().withDefault(const Constant(false))();
+
+  /// 是否为任务默认搜索服务（本机唯一）。
+  BoolColumn get isDefaultForTasks =>
+      boolean().withDefault(const Constant(false))();
+
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}

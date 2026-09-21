@@ -20,6 +20,8 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/ai/domain/ai_model_store.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/search_provider.dart';
+import 'package:flux/features/ai/domain/search_service_store.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
 import 'package:flux/features/articles/application/fetch_original_article.dart';
 import 'package:flux/infrastructure/local/database.dart';
@@ -110,6 +112,9 @@ final class TestBootstrap {
     StaticPageFetcherPort? staticPageFetcher,
     AiModelStore? aiModelStore,
     AiProviderFactory? aiProviderFactory,
+    // T031：搜索服务的存储与适配器工厂（理由同上：Riverpod 禁止重复覆盖）。
+    SearchServiceStore? searchServiceStore,
+    SearchProviderFactory? searchProviderFactory,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -140,6 +145,8 @@ final class TestBootstrap {
       staticPageFetcher: staticPageFetcher,
       aiModelStore: aiModelStore,
       aiProviderFactory: aiProviderFactory,
+      searchServiceStore: searchServiceStore,
+      searchProviderFactory: searchProviderFactory,
       // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
       // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
       // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），

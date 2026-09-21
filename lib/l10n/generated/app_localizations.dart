@@ -3341,6 +3341,264 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'其它任务'**
   String get aiTaskKindOther;
+
+  /// 搜索服务页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索服务'**
+  String get searchPageTitle;
+
+  /// 设置页入口
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索服务'**
+  String get settingsSearchEntryTitle;
+
+  /// 设置页入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'Tavily / Brave / 自建 SearXNG 的端点与凭据'**
+  String get settingsSearchEntrySubtitle;
+
+  /// 新增按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'添加搜索服务'**
+  String get searchAddService;
+
+  /// 编辑对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑搜索服务'**
+  String get searchEditService;
+
+  /// 列表小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索服务列表'**
+  String get searchServicesSection;
+
+  /// 排序说明
+  ///
+  /// In zh, this message translates to:
+  /// **'顺序即工具执行器选择服务的顺序；停用后不参与选择。'**
+  String get searchSortHint;
+
+  /// 空态说明
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有配置任何搜索服务。没有搜索服务时，联网检索类任务会明确提示缺少配置，而不是静默跳过。'**
+  String get searchEmptyNotice;
+
+  /// 读取失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取搜索服务列表失败：{reason}'**
+  String searchLoadFailed(String reason);
+
+  /// 默认服务徽章
+  ///
+  /// In zh, this message translates to:
+  /// **'任务默认'**
+  String get searchDefaultBadge;
+
+  /// 默认服务开关
+  ///
+  /// In zh, this message translates to:
+  /// **'任务默认搜索'**
+  String get searchDefaultLabel;
+
+  /// 预算提示
+  ///
+  /// In zh, this message translates to:
+  /// **'每次取 {maxResults} 条 · 超时 {timeoutSeconds} 秒（SET-040）'**
+  String searchBudgetHint(int maxResults, int timeoutSeconds);
+
+  /// 已批准内网
+  ///
+  /// In zh, this message translates to:
+  /// **'已显式批准内网/HTTP 端点（SET-041）'**
+  String get searchPrivateApproved;
+
+  /// 缺凭据提示
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未配置凭据：该协议没有 Key 一定失败，因此测试按钮已禁用。'**
+  String get searchCredentialMissingHint;
+
+  /// 测试禁用原因
+  ///
+  /// In zh, this message translates to:
+  /// **'请先填写并保存凭据，本协议没有 Key 无法调用'**
+  String get searchTestDisabledNoCredential;
+
+  /// 测试按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'测试'**
+  String get searchTestButton;
+
+  /// 测试确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'发送一次真实检索？'**
+  String get searchTestConfirmTitle;
+
+  /// 测试确认正文（费用与数据去向）
+  ///
+  /// In zh, this message translates to:
+  /// **'这次会把查询词发送到 {protocol} 的端点 {endpoint}，并可能产生费用。查询词会离开本机。'**
+  String searchTestConfirmBody(String protocol, String endpoint);
+
+  /// 确认发送
+  ///
+  /// In zh, this message translates to:
+  /// **'发送'**
+  String get searchTestConfirmYes;
+
+  /// 取消发送
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get searchTestConfirmCancel;
+
+  /// 测试成功回执
+  ///
+  /// In zh, this message translates to:
+  /// **'检索成功：{elapsedMs} ms，返回 {count} 条'**
+  String searchTestSuccess(int elapsedMs, int count);
+
+  /// 删除确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除搜索服务「{label}」？'**
+  String searchDeleteConfirmTitle(String label);
+
+  /// 删除确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'删除后这条搜索服务不再可用。它使用的 Key 不会被删除。'**
+  String get searchDeleteConfirmBody;
+
+  /// 被引用时的删除确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'这个搜索服务仍被以下配置引用：{references}。删除后这些配置会指向不存在的服务，需要你随后手动修正。'**
+  String searchDeleteInUseBody(String references);
+
+  /// 确认删除
+  ///
+  /// In zh, this message translates to:
+  /// **'仍然删除'**
+  String get searchDeleteConfirmYes;
+
+  /// 取消删除
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get searchDeleteCancel;
+
+  /// 删除失败
+  ///
+  /// In zh, this message translates to:
+  /// **'删除失败：{reason}'**
+  String searchDeleteFailed(String reason);
+
+  /// 保存按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get searchSaveService;
+
+  /// 服务名字段
+  ///
+  /// In zh, this message translates to:
+  /// **'服务名'**
+  String get searchLabelField;
+
+  /// 协议字段
+  ///
+  /// In zh, this message translates to:
+  /// **'协议'**
+  String get searchProtocolField;
+
+  /// 端点字段
+  ///
+  /// In zh, this message translates to:
+  /// **'端点地址'**
+  String get searchEndpointField;
+
+  /// 端点必填提示
+  ///
+  /// In zh, this message translates to:
+  /// **'自建 SearXNG 实例没有默认地址，必须填写你自己的实例地址。'**
+  String get searchEndpointRequiredHint;
+
+  /// 最终端点提示
+  ///
+  /// In zh, this message translates to:
+  /// **'实际请求：{endpoint}'**
+  String searchEndpointResolved(String endpoint);
+
+  /// 凭据字段
+  ///
+  /// In zh, this message translates to:
+  /// **'API Key / 实例认证'**
+  String get searchKeyField;
+
+  /// 凭据已配置
+  ///
+  /// In zh, this message translates to:
+  /// **'已配置（不回显内容；留空表示不修改）'**
+  String get searchKeyConfigured;
+
+  /// 凭据未配置
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未配置'**
+  String get searchKeyNotConfigured;
+
+  /// 凭据可选提示
+  ///
+  /// In zh, this message translates to:
+  /// **'该协议凭据可选：留空则不发送认证头（实例由反向代理认证时如此）。'**
+  String get searchKeyOptionalHint;
+
+  /// 删除凭据按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除已保存的凭据'**
+  String get searchDeleteKey;
+
+  /// 结果数字段
+  ///
+  /// In zh, this message translates to:
+  /// **'每次结果数（1–20）'**
+  String get searchMaxResultsField;
+
+  /// 超时字段
+  ///
+  /// In zh, this message translates to:
+  /// **'超时秒数（5–60）'**
+  String get searchTimeoutField;
+
+  /// 内网批准开关
+  ///
+  /// In zh, this message translates to:
+  /// **'允许内网/HTTP 端点（SET-041）'**
+  String get searchAllowPrivateLabel;
+
+  /// 内网批准说明
+  ///
+  /// In zh, this message translates to:
+  /// **'仅在自建实例位于局域网或使用明文 HTTP 时打开。未批准时该端点会被地址守卫拒绝，不会发出请求。'**
+  String get searchAllowPrivateHint;
+
+  /// 未实现部分说明
+  ///
+  /// In zh, this message translates to:
+  /// **'查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。'**
+  String get searchPlannedNotice;
 }
 
 class _AppLocalizationsDelegate

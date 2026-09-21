@@ -1844,4 +1844,153 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiTaskKindOther => '其它任务';
+
+  @override
+  String get searchPageTitle => '搜索服务';
+
+  @override
+  String get settingsSearchEntryTitle => '搜索服务';
+
+  @override
+  String get settingsSearchEntrySubtitle =>
+      'Tavily / Brave / 自建 SearXNG 的端点与凭据';
+
+  @override
+  String get searchAddService => '添加搜索服务';
+
+  @override
+  String get searchEditService => '编辑搜索服务';
+
+  @override
+  String get searchServicesSection => '搜索服务列表';
+
+  @override
+  String get searchSortHint => '顺序即工具执行器选择服务的顺序；停用后不参与选择。';
+
+  @override
+  String get searchEmptyNotice =>
+      '还没有配置任何搜索服务。没有搜索服务时，联网检索类任务会明确提示缺少配置，而不是静默跳过。';
+
+  @override
+  String searchLoadFailed(String reason) {
+    return '读取搜索服务列表失败：$reason';
+  }
+
+  @override
+  String get searchDefaultBadge => '任务默认';
+
+  @override
+  String get searchDefaultLabel => '任务默认搜索';
+
+  @override
+  String searchBudgetHint(int maxResults, int timeoutSeconds) {
+    return '每次取 $maxResults 条 · 超时 $timeoutSeconds 秒（SET-040）';
+  }
+
+  @override
+  String get searchPrivateApproved => '已显式批准内网/HTTP 端点（SET-041）';
+
+  @override
+  String get searchCredentialMissingHint => '尚未配置凭据：该协议没有 Key 一定失败，因此测试按钮已禁用。';
+
+  @override
+  String get searchTestDisabledNoCredential => '请先填写并保存凭据，本协议没有 Key 无法调用';
+
+  @override
+  String get searchTestButton => '测试';
+
+  @override
+  String get searchTestConfirmTitle => '发送一次真实检索？';
+
+  @override
+  String searchTestConfirmBody(String protocol, String endpoint) {
+    return '这次会把查询词发送到 $protocol 的端点 $endpoint，并可能产生费用。查询词会离开本机。';
+  }
+
+  @override
+  String get searchTestConfirmYes => '发送';
+
+  @override
+  String get searchTestConfirmCancel => '取消';
+
+  @override
+  String searchTestSuccess(int elapsedMs, int count) {
+    return '检索成功：$elapsedMs ms，返回 $count 条';
+  }
+
+  @override
+  String searchDeleteConfirmTitle(String label) {
+    return '删除搜索服务「$label」？';
+  }
+
+  @override
+  String get searchDeleteConfirmBody => '删除后这条搜索服务不再可用。它使用的 Key 不会被删除。';
+
+  @override
+  String searchDeleteInUseBody(String references) {
+    return '这个搜索服务仍被以下配置引用：$references。删除后这些配置会指向不存在的服务，需要你随后手动修正。';
+  }
+
+  @override
+  String get searchDeleteConfirmYes => '仍然删除';
+
+  @override
+  String get searchDeleteCancel => '取消';
+
+  @override
+  String searchDeleteFailed(String reason) {
+    return '删除失败：$reason';
+  }
+
+  @override
+  String get searchSaveService => '保存';
+
+  @override
+  String get searchLabelField => '服务名';
+
+  @override
+  String get searchProtocolField => '协议';
+
+  @override
+  String get searchEndpointField => '端点地址';
+
+  @override
+  String get searchEndpointRequiredHint => '自建 SearXNG 实例没有默认地址，必须填写你自己的实例地址。';
+
+  @override
+  String searchEndpointResolved(String endpoint) {
+    return '实际请求：$endpoint';
+  }
+
+  @override
+  String get searchKeyField => 'API Key / 实例认证';
+
+  @override
+  String get searchKeyConfigured => '已配置（不回显内容；留空表示不修改）';
+
+  @override
+  String get searchKeyNotConfigured => '尚未配置';
+
+  @override
+  String get searchKeyOptionalHint => '该协议凭据可选：留空则不发送认证头（实例由反向代理认证时如此）。';
+
+  @override
+  String get searchDeleteKey => '删除已保存的凭据';
+
+  @override
+  String get searchMaxResultsField => '每次结果数（1–20）';
+
+  @override
+  String get searchTimeoutField => '超时秒数（5–60）';
+
+  @override
+  String get searchAllowPrivateLabel => '允许内网/HTTP 端点（SET-041）';
+
+  @override
+  String get searchAllowPrivateHint =>
+      '仅在自建实例位于局域网或使用明文 HTTP 时打开。未批准时该端点会被地址守卫拒绝，不会发出请求。';
+
+  @override
+  String get searchPlannedNotice =>
+      '查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。';
 }

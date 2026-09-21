@@ -22,6 +22,7 @@ import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/ai/presentation/ai_services_page.dart';
 import 'package:flux/features/ai/presentation/ai_task_list_page.dart';
+import 'package:flux/features/ai/presentation/search_services_page.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
 import 'package:flux/features/statistics/presentation/reading_stats_page.dart';
 import 'package:flux/l10n/l10n.dart';
@@ -131,6 +132,19 @@ class _SettingsBody extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) => const AiTaskListPage(),
+            ),
+          ),
+        ),
+        // T031：搜索服务（Tavily / Brave / 自建 SearXNG）。与上面两条分开的理由：
+        // 它们管 AI 提供商与任务历史，这条管**出网检索**——是另一类数据去向
+        // （查询词会发给搜索服务），因此入口、凭据与告知提示都独立。
+        _NavigationRow(
+          title: l10n.settingsSearchEntryTitle,
+          subtitle: l10n.settingsSearchEntrySubtitle,
+          icon: Icons.travel_explore_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const SearchServicesPage(),
             ),
           ),
         ),

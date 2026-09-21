@@ -46,7 +46,7 @@
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）与 T030（持久任务、结果缓存与中断恢复），见 R025–R030。下一任务 T031（SearchProvider 与 Tavily/Brave/SearXNG 适配），前置 T010/T024 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的预设均无凭据，未做真实调用**（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）与 T031（三个搜索协议适配器与搜索服务管理），见 R025–R031。下一任务 T032（受控工具执行器），前置 T029/T031 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -62,7 +62,7 @@
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**T023 交付阅读统计**：会话追踪（前台可见且交互未超阈才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台立即暂停、关闭开关完全不记录）、按会话时区跨午夜拆分并按本地日期键落库、周期 flush + 结束收尾、写入失败不重复写；年度热力图（周一为列、0 值与年外占位格可辨、5 档图例、逐格日期+分钟提示）、近七日柱状图（柱顶文字分钟数）、年份选择器来自真实数据、清空统计走确认且只清会话表） |
 | 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
 | AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**T027 交付 Anthropic Messages 适配器**：独立建模（不继承 CC），认证走 x-api-key + anthropic-version（用例断言请求头**不含** Authorization）、system 是顶层参数、max_tokens 必填、content 是分量数组（文本块 / base64 图片块）；SSE 按 type 分派并忽略生命周期与未知事件；usage **分两处拼合**（input 在 message_start、output 在 message_delta 且是累计值，覆盖而非累加），协议不给 total_tokens 故如实标本地合计；529 overloaded → **可重试**（不是通用 5xx 的不可重试），200 流内的 error 先用结构化类型名换语义状态码再分类；断流（无 message_stop）明确报错。**T028 交付预设验证矩阵**：7 条预设（OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen）各含 id、显示名、协议、Base URL、认证方式、三档状态与注释，**只有实测才配「已支持」**；本轮仅 DeepSeek = 实测，OpenAI 双协议与 Anthropic = fixture 通过，Qwen/MiMo/Zen = 待验证（**共用 CC 协议不继承状态**）；OpenCode Zen 按授权用无效 Key 探 1 次返回 401 且错误体非 OpenAI 形状，如实记「端点待真实验证」；界面新增预设下拉（自动填协议 + Base URL、不代填 Key、显示最终端点）、三档徽章与验证状态小节。**T029 交付有预算的队列与五次无响应/跨模型故障转移**：按类型分类失败（只有无响应/超时/断流/连接失败/429 重试后计入五次；认证失败与内容拒绝**既不计数也不换模型**，后者是为避免跨服务商规避内容策略）；预算闸门在每次调用前检查（总时限 deadline 不重置 / HTTP 尝试 30 / Token 预算含调用前预留，无 usage 时按 CJK 1 字 1 token、非 CJK 4 字符 1 token 保守估算并标记）；总时限优先于五次规则（第 3 次后累计超限即停，不等第 5 次）；429 服从 Retry-After 一次且不做退避风暴；单次硬时限 120s 用真实计时器（卡住的流一定被打断），到点只取消这一次尝试并把取消翻译回超时；每次尝试用子取消信号（用户取消经父信号传播）；并发 2 用在途额度对象约束而故障转移保持串行；离线暂停为 waitingNetwork 且不消耗五次额度；断流但已有部分文本 → partial，跨模型的半句话**从不拼接**。**T030 交付持久任务、结果缓存与中断恢复**：schema v10 新增 ai_tasks（18 列，含输入快照、deadline、累计消耗、九态、错误**类别**）与 ai_result_cache_records 两张表及三个索引，**两张表均无凭据列**（逐列断言）；缓存键 = 任务类型 + 输入哈希 + 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此输入/模型/语言任一变化即失效是**结构性**的；命中缓存**一个请求都不发**（用请求计数断言）并标 from_cache；**只写成功结果**（failed/partial/cancelled 不写）；启动把四个活跃态一次性批量标成 interrupted 且**绝不自动重发**（架构 4.5：不为不确定是否计费的请求付两次费），成功版本不被覆盖；interrupted 显示在「设置 → AI 任务记录」并可手动重新开始——新任务承接、旧任务保持 interrupted，活跃态任务拒绝重开。**仍未实现**：视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入；**除 DeepSeek 外的预设均无真实调用证据（7.3 逐行标 NOT_RUN）**） |
-| 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | TODO |
+| 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | DOING（**T031 交付三个搜索协议适配器与搜索服务管理**：`SearchProvider`/`SearchProviderFactory` 契约返回统一 `SearchResponse`（结果列表 + answer + response_time + 总数）；三协议**完全独立建模**——Tavily 是 POST + JSON body、认证走 Authorization Bearer；Brave 是 GET + 查询参数、认证走 **X-Subscription-Token**（不是 Bearer）、结果在 `web.results` 两层嵌套里、**标题与片段里的高亮标签都剥离**、唯一支持 offset；SearXNG 是自建实例 GET + `format=json`、**没有默认端点**（不替用户猜一个公网实例）、凭据可选（无凭据不发认证头）。统一映射：`sourceId` 是「协议 + 服务商返回序号」的 SHA-256 摘要（不用 URL 或内容——同一篇材料换 URL 会被误认成两份独立证据，内容被服务商改写会让历史引用全部失效）；`publishedAt` 可空且**相对时间不换算**（Brave 的 "3 days ago" 需要抓取时刻作基准，而基准不是协议事实）；访问类别按「有发布时间 → 新闻 / 命中技术域名表 → 技术 / 其余 → 通用」判定，不用「域名含 news」这类猜测。安全边界：结果 URL 一律过地址守卫（embeddedContent 策略，拒绝私网/回环/链路本地），不合格条目**在适配器里就丢弃**而不是留给下游再判一次；**没有凭据绝不发请求**（在发出任何字节之前返回 AuthError，有用例断言请求计数为 0）；凭据只进认证头，不进 URL、日志或错误消息；SearXNG 的私网/HTTP 端点**必须由用户逐条显式批准**（SET-041，批准存在记录里），未批准时在发请求之前拒绝且错误指向「去开启显式批准」。管理面：`search_service_records`（schema v11，**无任何凭据列**，有用例逐列断言）+ 服务 CRUD/排序/启用/唯一任务默认/删除前引用检查（引用读不到时**不放行删除**）+ 最小检索测试（`SearchSendConfirmation` 是前置参数，忘了弹费用与数据发送确认在类型上不可能；测试只取 1 条，不按用户配置的 10 条去花）；界面新增「设置 → 搜索服务」（列表/表单/删除确认/发送确认，缺凭据时测试按钮**禁用并给出原因**，SearXNG 始终可点）；搜索凭据与 AI 凭据分属不同 Keychain 类别（SET-039），有用例断言同名不会互相覆盖。**仍未实现**：受控工具执行器与视觉（T032/T033）、查询关键词列表与禁用词（SET-052/053，属 T036/T037）；**三个搜索协议本轮均无真实调用证据**（无凭据，7.3 搜索三行逐条标 NOT_RUN））|
 | 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | TODO |
 | 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | TODO |
 | WebDAV 共通设置与阅读状态 | SET-070–075 | T041–T045 | TODO |
@@ -136,7 +136,7 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T028 | T026、T027 | 主流预设验证矩阵 | OpenAI/Anthropic/DeepSeek/Qwen/MiMo/OpenCode 逐个明确端点、协议、能力和真实测试状态；OpenCode 明确 API 服务产品，不拿 CLI 充当 provider；缺凭据不伪称支持 | DONE（缺失 REVIEW）：新增 domain/provider_preset.dart（PresetCatalog，7 条预设：OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen），每条含 id、显示名、协议、Base URL、认证方式、**状态标记**与注释；状态是三档互斥枚举（实测 / fixture 通过 / 待验证），且**只有实测才允许标成「已支持」**（isSupported 就是 status == liveVerified）。**本轮真实状态**：仅 DeepSeek = 实测（R026 的真实调用）；OpenAI 双协议与 Anthropic = fixture 通过（适配器有完整夹具级证据但本轮无凭据、未真实调用）；Qwen / MiMo / OpenCode Zen = 待验证——**共用 CC 协议不等于继承状态**，端点必须逐个验证（有用例断言这三条都是 unverified）。OpenCode Zen 按主代理授权探了 1 次（无效 Key）：POST https://opencode.ai/zen/v1/chat/completions 返回 **401**，响应体是 {"type":"error","error":{"type":"ModelError",...}}——**不是** OpenAI 的 error.type/code 形状，且路径是否带 /v1 未确认，因此如实记为「端点待真实验证」。界面：模型表单新增预设下拉（选中自动填协议 + Base URL，**不代填 Key**，并显示最终端点与注释供核对）、三档状态徽章（实测=accent / fixture=次要色 / 待验证=warning）、AI 服务页新增「预设验证状态」小节逐条列出预设与状态。7.3 矩阵逐行如实更新，**无一行写「已支持」**（除 DeepSeek 的实测范围） |
 | T029 | T025–T028 | 有预算的队列、五次无响应和跨模型故障转移 | 假时钟覆盖 5 次计数/重置/下一模型、45s 首响应/30s 停滞/120s 单次/10min 总限时、并发 2、429、认证失败、内容拒绝及取消；不拼流、不重复无限收费 | DONE（缺失 REVIEW）：新增 application/ai_task_runner.dart 与 application/ai_task_budget.dart、ai_failover.dart，把「有预算的队列」做成**可枚举验证的规则**而不是散在循环里的判断。**五次规则（D-09）**：同一模型连续 5 次无响应才切下一个，成功即清零，换模型后新模型从零攒自己的五次（用假时钟逐条断言「第 5 次才切」「3 失败+1 成功+再 4 失败不切」「跨任务不累积」）。**只有无响应消耗五次额度**：按**类型**分类（超时/断流/连接失败/5xx/429 重试后仍限流 = 无响应；认证/余额/模型不存在 = 配置错误，不换模型；**内容拒绝既不计数也不换模型**，换服务商再问一遍即绕过内容策略，架构 4.5 禁止；解析/格式错误不与无响应混同）。**预算闸门在每次调用前检查**：总时限（deadline 在任务创建时固定、之后不重置，复用 TaskTransition 的既有规则）、HTTP 尝试次数（含 429 重试，SET-062 的 30）、Token（usage 优先，无 usage 时按字符保守估算：CJK 1 字 1 token、非 CJK 4 字符 1 token，并在记录里标为估算）。**总时限优先于五次规则**：第 3 次尝试结束后累计 12 分钟 → 不再发起第 4 次（用例断言 secondary 的请求数为 0）。**429 服从 Retry-After 一次**（每个模型一次，等待计入总时限；第二次 429 计为该模型一次无响应，不做 2/4/8/16 退避风暴）。**取消**：每次尝试用自己的子取消信号（单次硬时限只取消这一次尝试，任务继续故障转移；用户取消经父信号传播到全部子信号），第 2 次尝试中取消 → cancelled 且不再有后续请求。**并发 2（SET-036）**：在途额度用具名对象 AiInFlightLimiter 管理（acquire/release 成对，额度直接转交等待者而不是先减再加，多释放直接抛错），故障转移本身保持**串行**（架构 4.5：先取消上一尝试再重试；并行竞速会同时计费且让产出模型不确定）。**单次硬时限 120s（架构 4.5）**由真实计时器实现（卡住的流不会有任何事件，只靠事件驱动永远等不到），到点只取消这次尝试并翻译回超时错误（不把超时误报成用户取消）。**设备离线**暂停为 waitingNetwork 且**不消耗五次额度**（离线是设备状态，不是模型不响应）。**半句话不当完整答案**：断流但有部分文本 → partial 并带失败原因；跨模型的半句话**从不拼接**（用例断言 text 只等于产出它的那个模型的一条流）。**状态机接线**：queued→running→waitingNetwork/终态，每次迁移经 TaskTransition.apply（非法边只记诊断不抛），deadline 创建时固定。SET-035 的 enabled 关闭时「五次之后只终止不换模型」（把同一份内容发给另一家需要用户明确授权）。29 条假时钟用例覆盖手册 6.3 点名的全部五次规则条目；诊断只记结构事实（别名/次数/token/耗时），有用例断言日志不含 prompt 与 Key |
 | T030 | T029、T009 | 结果缓存/持久任务/中断恢复 | 输入/prompt/模型/语言变化使缓存失效；进程重启显示 interrupted，不自动重发付费请求；成功版本不被草稿覆盖 | DONE（缺失 REVIEW）：新增 domain/ai_task_record.dart（AiTaskKind/AiInputSnapshot/AiResultCacheKey/AiTaskRecord）、domain/ai_task_store.dart（持久任务与结果缓存两个端口）、application/persistent_ai_task_service.dart、infrastructure/local/ai_task_store.dart 与 degraded_ai_task_store.dart、presentation/ai_task_list_page.dart；**schema v10** 新增 ai_tasks（18 列：task_id 主键、kind、输入快照 JSON、prompt_hash、模型别名与路由模型 ID、状态九态、deadline、累计 token、尝试次数、结果、结束原因、**错误类别**、提供商别名、cache_key、from_cache、时间戳）与 ai_result_cache_records（cache_key 主键、result_text、提供商/模型、时间）及三个索引，**两张表都没有任何凭据列**（凭据只住 Keychain，有用例逐列断言）。**结果缓存**：键 = 任务类型 + 输入哈希（工程自实现 SHA-256，不用跨进程不稳定的 String.hashCode）+ 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此「输入/模型/语言任一变化即失效」是**结构性**的（用例逐项验证输入、语言、模型、任务类型、温度五类变化都会重新真实请求）；命中缓存时**一个请求都不发**并有用例用请求计数断言，命中记录带 from_cache 并在界面上标「命中缓存（未发请求）」。**只写成功结果**：failed/cancelled/partial 都不写缓存（否则一次网络抖动会被固化成之后所有同输入任务的结论；partial 本来就承认不完整）。**持久任务**：每次状态迁移都落库（含输入快照，重启后可复盘「当时发出去什么」），输入快照 JSON 往返有无损用例。**中断语义（架构 4.5/手册 T030）**：启动时把 queued/running/waitingConfiguration/waitingNetwork 一次性批量标成 interrupted（一条带 IN 的 UPDATE，避免逐个读改写在中途崩溃时留下混合状态），**绝不自动重发**（用例断言标记后请求次数为 0，理由是不为不确定是否计费的请求付两次费）；已结束的终态任务不被覆盖（**成功版本不被草稿覆盖**的验收落点）；interrupted 任务显示在任务列表（设置 → AI 任务记录），用户手动「重新开始」时**创建新任务承接、旧任务保持 interrupted**，且活跃态任务拒绝 restart（重开会把同一份输入发两次）。启动标记的条数写进 AppBootstrapResult 的 interruptedTaskCount，启动路径在打开数据库后、任何界面读列表之前完成。20 条用例（含真实内存库的缓存持久化、重启标记、失败不写缓存、清缓存不删任务状态） |
-| T031 | T010、T024 | SearchProvider 与 Tavily/Brave/SearXNG 适配 | 依据官方资料确定请求/条款；统一 sourceId、标题、URL、片段、时间、访问类别；结果上限/超时/无凭据/错误/分页；至少一条授权真实搜索全链路通过 | TODO |
+| T031 | T010、T024 | SearchProvider 与 Tavily/Brave/SearXNG 适配 | 依据官方资料确定请求/条款；统一 sourceId、标题、URL、片段、时间、访问类别；结果上限/超时/无凭据/错误/分页；至少一条授权真实搜索全链路通过 | DONE（缺失 REVIEW）：新增 domain/search_protocol.dart（三协议 + 认证方式 + 端点拼接）、search_result.dart（统一结果结构与确定性 sourceId）、search_service.dart（记录与取值域）、search_service_store.dart、search_credential_store.dart（**与 AI 凭据分属不同 Keychain 类别**）、search_provider.dart（SearchProvider/SearchProviderFactory 契约）、search_errors.dart（搜索口径错误映射 + 结果地址守卫 + 访问类别 + 高亮剥离）；infrastructure/network 新增 search_http.dart 与三个独立适配器 tavily/brave/searxng 与 search_provider_factory.dart；application 新增 search_manager.dart（CRUD/排序/引用检查/最小检索测试）与 search_manager_controller.dart；presentation 新增搜索服务页与表单；schema v11 新增 search_service_records（**无任何凭据列**，逐列断言）；设置页新增入口。**三处协议差异各自独立验证**：Tavily 是唯一 POST+JSON、唯一有 answer/response_time、唯一用 Authorization Bearer；Brave 是唯一支持 offset、唯一用 X-Subscription-Token、唯一需要剥离 title/description 里的高亮标签；SearXNG 无默认端点、认证可选、私网端点必须显式批准（SET-041）。**真实测试 NOT_RUN**：本轮没有任何搜索服务凭据，因此一次真实检索都没有发起（7.3 搜索三行如实标 NOT_RUN）|
 | T032 | T029、T031 | search/fetchPage/inspectImage 受控工具执行器 | schema、域名、私网/DNS/重定向、安全上限强制；无 native tool calling 的文本模型可消费预先检索材料；恶意正文不能读文件、删数据或请求任意端点 | TODO |
 | T033 | T021、T025、T032 | 新闻图像理解与文本降级 | 专用视觉→有能力主模型→跳过图像；上传前采样/尺寸限制/数据告知；图片不支持时文本链路继续，动态网页不截图执行 | TODO |
 | T034 | T020、T030 | 选词解释/单文摘要/自动缺摘要开关 | 默认不开自动摘要，正文截取兜底；开启后有当日上限与缓存；选区仅发送最少上下文，取消/失败不改原文 | TODO |
@@ -2691,7 +2691,165 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
     提交/差异范围：提交 "T030: persistent AI tasks, result cache and interrupted semantics"；
       基线为 T029 的提交。未 push
     下一可执行任务及前置条件：T031（SearchProvider 与 Tavily/Brave/SearXNG 适配），
-      前置 T010/T024 均已 DONE
+     前置 T010/T024 均已 DONE
+
+### 7.1.25 轮次记录 R031（T031）
+
+    轮次/日期：R031 / 2026-09-22
+    任务 ID 与状态变化：T031 TODO → DONE（M2 第七项；**缺失 REVIEW**，理由同前几轮：本轮新增
+      一个持久化数据结构（schema v11）、一个新的 Keychain 类别（搜索凭据）与一条新的出网边界
+      （第三方搜索结果地址与内网端点批准））
+    相关决策/功能/SET 项：架构 4.3（搜索协议一行：SearchProvider 统一结果结构与首批三个适配
+      目标）、架构 4.4（引用只可使用真实获取的 sourceId）、架构 5.1（AIProvider / Model /
+      SearchConfig 实体；数据库不含秘密）、架构 5.3（迁移不得消费用户数据）、架构第 8 节
+      （出网边界、DNS/重定向复检、日志不得含秘密）、手册 T031 的三条验收、D-06；SET-038
+      （协议/端点/排序/启用）、SET-039（搜索 Key 与 AI 凭据**分开管理**）、SET-040（结果数 10 /
+      超时 20 秒，范围 1–20 / 5–60）、SET-041（内网/HTTP 端点**逐条显式批准**）、SET-042
+      （真实请求前提示收费/数据发送）
+
+    **本轮最关键的一条：三处协议差异不被「统一」抹平，统一只发生在结果层**
+
+      手册 T031 要求三个独立适配器。本轮把它落成**三个各自独立的文件**，并且用三组**互不共用
+      期望**的用例逐条钉住差异（架构 4.3 对 AI 协议的同一条要求）：
+
+      | 维度 | Tavily | Brave | SearXNG |
+      | --- | --- | --- | --- |
+      | 请求 | POST + JSON body | GET + 查询参数 | GET + 查询参数 |
+      | 认证头 | Authorization: Bearer | **X-Subscription-Token** | 可选（无凭据就不发） |
+      | 结果位置 | 顶层 results | **web.results（两层嵌套）** | 顶层 results |
+      | 片段字段 | content | **description（含高亮标签，需剥离）** | content |
+      | 分页 | **不支持 offset** | 唯一支持 offset | 用 pageno，只做第 1 页 |
+      | 额外字段 | **answer + response_time** | 只有相对时间 age | number_of_results |
+
+      「认证方式是协议的属性」这一点不是文档里的一句话，而是 SearchProtocol 上的一个字段：
+      适配器只读它，界面展示也来自同一份数据。Brave 用错认证头一律 401，而「改成 Bearer 试试」
+      是最常见的一类误改——把两种认证做成同一段代码会让这种误改看起来像是修好了。
+
+    **统一映射里三个刻意的取舍**
+
+      | 决定 | 为什么不是那个看起来更简单的做法 |
+      | --- | --- |
+      | sourceId = 协议 + **服务商返回序号**的 SHA-256 摘要（16 位十六进制） | 按 URL 会让同一篇材料在不同检索里（重定向/utm/镜像站）拿到两个 id，引用校验就会把它当成**两份独立证据**（架构 4.4 明确要求两个独立来源才算核对过）；按内容会让服务商改写摘要（截断长度、高亮标签增删）之后历史引用**全部失效** |
+      | publishedAt 可空，**相对时间不换算** | Brave 只给 "3 days ago"。换算需要抓取时刻作基准，而基准不是协议事实——猜出来的日期会被下游当作真实发布时间参与排序与展示，accessCategory 也会因此误判成「新闻」 |
+      | 访问类别 = 有发布时间 → 新闻 / 命中技术域名表 → 技术 / 其余 → 通用 | 「域名含 news 就是新闻」会把 news.ycombinator.com（技术聚合站）判成新闻，也无法处理 blog.example/news。域名后缀表是**可核对**的，且漏项只影响标签，不影响结果可用性 |
+
+    **安全边界：三条都在「发出任何字节之前」成立**
+
+      1) **结果地址守卫**：搜索结果来自第三方（搜索服务），因此按 embeddedContent 策略处理
+         ——私网/回环/链路本地/唯一本地地址一律拒绝。不合格条目**在适配器里就被丢弃**，而不是
+         留在列表里等下游再判一次（「先收进来再过滤」必然有一条路径忘记过滤）。夹具里
+         169.254.169.254（云元数据端点）与 127.0.0.1 两条结果就是要验这一条。
+      2) **没有凭据绝不发请求**：Tavily/Brave 缺 Key 时在发出任何字节之前返回 AuthError，
+         有用例用请求计数断言「0 次」。搜索服务按调用计费，一次「先试试看」就是一次真实消耗。
+      3) **内网端点必须逐条显式批准**（SET-041）：自建 SearXNG 常挂在局域网，但默认放行会让
+         一个被误导的用户把查询发到本机某个不该被访问的端口。批准存在**记录里**而不是一个全局
+         开关（全局开关无法表达「只批准这一个」）；拒绝时的错误指向「去开启显式批准」，
+         而不是一句「地址非法」。批准只放行 privateAddress 这一类，file:// 仍然拒绝。
+
+    **凭据：与 AI 凭据分开是结构性的（SET-039）**
+
+      Keychain 条目的**类别前缀**不同（ai-provider vs search-service），并且是两个不同的
+      接口类型。这一条有一个真实的失效模式：用户完全可能给一个模型和一个搜索服务都起名
+      openai，若共用一个前缀，「按名字取凭据」会取到另一类的 Key，然后把**搜索 Key 当 API Key
+      发给模型端点**。有用例断言同名写入后两边各自读回自己的值。删除服务记录**不**删除凭据
+      （凭据删除是独立动作），也有用例钉住。
+
+    **schema v11：** 新增 search_service_records 表与它的两个索引
+
+      | 列 | 说明 |
+      | --- | --- |
+      | label（唯一）/ protocol_id / base_url / enabled / sort_order | SET-038：协议/端点/排序/启用。协议存**稳定字符串**而不是枚举序号（插一项会整体错位，把用户的配置静默变成别的协议） |
+      | max_results / timeout_seconds | SET-040：默认 10 / 20，范围 1–20 / 5–60（取值域在 domain 层校验，不落库非法值） |
+      | allow_private_endpoint | SET-041：默认 **false**，必须用户逐条打开 |
+      | is_default_for_tasks | 唯一默认搜索服务（删除前的引用检查会读它） |
+
+      **没有任何凭据列**：与 ai_model_records/ai_tasks 同一条纪律，有用例逐列断言不存在含
+      api_key/key/token/secret/credential/password 字样的列（SET-039 的 Key 只住 Keychain）。
+      迁移**不回填任何数据**（升级前不存在「配好的搜索服务」这个事实），新增实体恰好是
+      一表两索引（v10→v11 用例与 v11 快照用例各断言一次）。
+
+    **界面落点：** 新增「设置 → 搜索服务」页与编辑对话框。三处与「不撒谎」直接相关的处理：
+      1) **缺凭据时测试按钮禁用并给出原因**（tooltip + 卡片上的提示行），而不是让用户点一次
+         换来必然的 401；SearXNG 不要求凭据，因此它始终可点；
+      2) **费用与数据发送确认是前置条件**：SearchSendConfirmation 是 runMinimalSearch 的必填
+         参数，且确认框里写清「查询词会离开本机」与目标端点；忘了弹框在**类型上**不可能
+         （与 T025 的 CostConfirmation 同一做法）；
+      3) **凭据状态是独立查询的**：凭据不在记录里，因此「已配置」不体现在列表数据上。UI 用
+         一个显式的 credentialEpoch 让「凭据变了」成为界面可见的事实——否则用户填完 Key 会
+         看到一个依然禁用的按钮（这在自测时真实出现过，因此加了组件用例钉住）。
+
+    修改文件与主要行为：
+      - 新增 features/ai/domain/search_protocol.dart / search_result.dart / search_service.dart /
+        search_service_store.dart / search_credential_store.dart / search_provider.dart /
+        search_errors.dart；
+      - 新增 features/ai/application/search_manager.dart / search_manager_controller.dart；
+      - 新增 features/ai/presentation/search_services_page.dart / search_service_form.dart；
+      - 新增 infrastructure/network/{search_http,tavily_search_adapter,brave_search_adapter,
+        searxng_search_adapter,search_provider_factory}.dart；
+      - 新增 infrastructure/local/search_service_store.dart、degraded_search_service_store.dart；
+      - 修改 infrastructure/local/tables/ai_tables.dart（新表）、database.dart（schema 10 → 11
+        与 v10→v11 迁移步骤，含「createTable 不建索引」这条既有教训的说明）；
+      - 新增 drift_schemas/drift_schema_v11.json 与 test/generated/schema_v11.dart；
+      - 修改 features/ai/application/ai_ports.dart（三个搜索 Provider）、lib/app/app_providers.dart
+        （两个启动状态分支 + 凭据适配器 + 工厂）、lib/features/settings/presentation/settings_page.dart
+        （新入口）、lib/features/ai/ai.dart（出口注释）；
+      - 修改 infrastructure/platform/ai_credential_adapter.dart（新增搜索凭据类别与前缀适配器）；
+      - 新增 5 份搜索夹具与 test/fixtures/README.md 的对应行；
+      - 新增 43 条中英搜索文案，l10n 条目数 538 → 581；
+      - 新增 test/features/ai/{tavily,brave,searxng}_search_adapter_test.dart（14 + 10 + 14 条）、
+        search_manager_test.dart（20 条）、search_services_page_test.dart（8 条）、
+        search_adapter_support.dart、test/infrastructure/local/migration_v10_to_v11_test.dart（3 条），
+        修改 schema_snapshot_test（v11 快照与凭据列断言）、migration_test 与 7 个迁移用例的基线
+        版本号、database_schema_test、l10n_test、fixture_integrity_test，
+        并重生成 1 张设置页 golden（新增入口导致的预期变化，已逐图核对差异只在新增行与其后的位移）。
+
+    数据迁移/删除/依赖变化：**schema v10 → v11**（新增 search_service_records 一张表与两个索引；
+      无回填、无删除、不改写已有列）；无新增第三方依赖（三个适配器只用既有的 package:http 与
+      工程自实现的 SHA-256）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 生成物含 v11 表与索引
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS | 新增 drift_schema_v11.json
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 | PASS | 新增 schema_v11.dart（共 12 个文件）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1422 通过 / 2 跳过 / 0 失败（相对 T030 的 1352 新增 70 条）
+      flutter build macos --debug | 0 | PASS | （见 7.2 的统一复核）
+    费用与秘密：**未发起任何真实网络调用，无费用产生**（三个协议均无凭据，一次真实检索都没发；
+      「无凭据绝不发请求」是本轮的核心断言之一）；新增的表经逐列断言**不含任何凭据列**；
+      搜索凭据与 AI 凭据在 Keychain 里分属不同类别；诊断日志有用例断言不含 Key 也不含查询词
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增 schema v11、新的 Keychain 类别与新的出网边界（第三方结果地址
+         与内网端点批准），属复核适用范围；
+      2) **三个协议都没有真实调用证据**：本轮无任何搜索服务凭据，7.3 的三行逐条如实标
+         NOT_RUN，**没有把任何一条写成「已支持」**。端点的实际行为（Tavily 的 search_depth
+         档位差异、Brave 免费层的 count 上限与 429 形态、自建 SearXNG 的 JSON 输出是否被实例
+         配置关掉）都要等有凭据时才能确认；
+      3) **条款（Terms）未核对**：架构 4.3 要求「端点、认证、条款和分页需在 T031 依据官方文档
+         核对」，但本轮被明确禁止使用网络检索工具，协议事实由主代理提供。条款与配额部分如实
+         记为未核对，而不是引用一个记忆里的印象；
+      4) **SearXNG 只做第 1 页**：协议用 pageno（页码），而「页码 → 条数偏移」的映射取决于实例
+         配置的每页大小，猜出来的页可能是错的，而错的页比没有页更糟（调用方会以为拿到了连续的
+         第二页）。收到 offset 时明确报错而不是静默忽略；
+      5) **结果地址守卫不做 DNS 复检**（与 T021/T024 一致的口径）：只在适配器里做字面量检查
+         （协议 + 私网/回环/链路本地主机名）。搜索结果的 URL 不会由本层发起请求，真正抓取时
+         会走 T024 的 StaticPageFetcher（它带完整的 DNS 解析后复检与逐跳校验），因此信任边界
+         在那一层才闭合；
+      6) **未接入任何检索编排**：SET-052 的查询关键词列表、SET-053 的禁止查询词与主题过滤、
+         必访问站点的逐站执行与每日新闻的检索流程（T036/T037）都还没做。本轮交付的是三个协议
+         与「服务可被配置、可被测试」这件事本身，SearchManager 已经提供工具执行器要用的
+         loadEnabledServices，接线属 T032；
+      7) **搜索缓存未做**（属 T047 的范围）：同一查询重复测试会重复计费，界面在确认框里明确
+         提示了这一点，但没有做结果缓存或去重；
+      8) Android 工程仍未初始化；9) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T031 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本、7.3 搜索三行与 R031 记录。三条既定产品边界未被改动
+      （不替用户猜公网搜索实例、没有凭据不发真实请求、搜索凭据与 AI 凭据分开管理）。
+    提交/差异范围：提交 "T031: Tavily/Brave/SearXNG search adapters with unified result model"；
+      基线为 T030 的提交。未 push
+    下一可执行任务及前置条件：T032（search/fetchPage/inspectImage 受控工具执行器），
+      前置 T029/T031 均已 DONE
 
 
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
@@ -2732,7 +2890,7 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | fts5 的 SQL 分析支持 | build.yaml 的 sql.options.modules: [fts5] | 让 drift 分析器认识 USING fts5(...)。不声明它会让该表落到「快照里没有、运行时有」的漂移上（实测报 Unknown module 且不生成表元素） |
 | AI 适配器的传输层（T026） | infrastructure/network/sse.dart、ai_stream_guard.dart、ai_http.dart | **无第三方依赖**：SSE 切分与整行解码、首响应/停滞计时与取消、错误体的有界读取全部用 dart:async / dart:convert / dart:typed_data；HTTP 用既有 http 1.6.0。**未引入**任何 SSE 或流式解析库——本工程只需要「按行取 data 负载」这一件事，而现成库会带来它自己的一套重连与 Last-Event-ID 语义，与本项目的取消模型冲突 |
 
-### 7.2.2 T029/T030 新增的运行时机制（均无第三方依赖）
+### 7.2.2 T029–T031 新增的运行时机制（均无第三方依赖）
 
 | 能力 | 实现位置 | 实测/依据 |
 | --- | --- | --- |
@@ -2740,7 +2898,11 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | 保守 Token 估算（SET-063） | features/ai/application/ai_failover.dart（estimateAiTokens） | **无第三方依赖**，也不引入分词库：CJK 按 1 字符 1 token、非 CJK 按 4 字符 1 token 向上取整（保守方向），服务商给出 usage 时以 usage 为准并标记来源 |
 | 结果缓存的键（T030） | features/ai/domain/ai_task_record.dart（AiResultCacheKey） | 用 core/digest/sha256.dart 的工程自实现（T013，无 crypto 依赖）做确定性摘要；**不用** String.hashCode——它跨进程不稳定，会让重启后同一输入得到不同的缓存判定 |
 | 任务与缓存的持久化（T030） | infrastructure/local/ai_task_store.dart、tables/ai_tables.dart、schema v10 | 用既有 drift 2.35.0；两张新表 + 三个索引；启动标中断是一条带 IN 的批量 UPDATE（SQLite 原子），不是读-改-写循环 |
-| 任务记录页（T030） | features/ai/presentation/ai_task_list_page.dart | 只用 Flutter 自带组件与既有 l10n 资源；**无第三方依赖** |
+| 搜索协议适配器（T031） | infrastructure/network/{search_http,tavily_search_adapter,brave_search_adapter,searxng_search_adapter}.dart | **无第三方依赖**：只用既有的 package:http 1.6.0；结果地址守卫复用 T021 的 core/domain/url_guard.dart（判据只有一份） |
+| 搜索结果 sourceId（T031） | features/ai/domain/search_result.dart（searchResultSourceId） | 用 core/digest/sha256.dart 的工程自实现做「协议 + 序号」的确定性摘要；**不用** String.hashCode（跨进程不稳定）也不用 URL/内容（会让同一篇材料换 id） |
+| 搜索服务凭据隔离（T031） | infrastructure/platform/ai_credential_adapter.dart（searchServiceCredentialCategory） | **无第三方依赖**：SET-039 的「分开管理」落成 Keychain 条目的类别前缀（ai-provider vs search-service），两类凭据在库层面就是两条不同条目 |
+| 搜索服务记录（T031） | infrastructure/local/search_service_store.dart、tables/ai_tables.dart、schema v11 | 用既有 drift 2.35.0；一张新表 + 两个索引；**无任何凭据列**（有用例逐列断言） |
+| 搜索服务页（T031） | features/ai/presentation/search_services_page.dart、search_service_form.dart | 只用 Flutter 自带组件与既有 l10n 资源；**无第三方依赖** |
 
 FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，完整表见 R022）：
 
@@ -2771,7 +2933,9 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
 | 千问/Qwen | 预设 `https://dashscope.aliyuncs.com/compatible-mode/v1` + CC 兼容；协议形状有夹具，但**该端点本身**未验证 | 复用 `chat_completions_*.sse`（协议相同）；**没有**该端点特有的夹具 | **NOT_RUN**（无凭据） | **否** |
 | MiMo | 预设 `https://api.xiaomimimo.com` + CC 兼容；**端点待真实验证**（主机与路径口径按协议事实登记，实际路径如是否需 `/v1` 未确认） | 复用 `chat_completions_*.sse`；**没有**该端点特有的夹具 | **NOT_RUN**（无凭据） | **否** |
 | OpenCode（Zen） | 确认是公开 **API 服务产品**（Zen），**不等同**编码 CLI；预设 `https://opencode.ai/zen` + CC 兼容，**端点待真实验证** | 复用 `chat_completions_*.sse`（假定兼容）；**没有**该端点特有的夹具 | **NOT_RUN**（无有效凭据）。按授权用**无效 Key** 探 1 次：POST `https://opencode.ai/zen/v1/chat/completions` → **401**，响应体 `{"type":"error","error":{"type":"ModelError",...}}`，**不是** OpenAI 的 `error.type/code` 形状；路径是否带 `/v1` 未确认——因此如实记为「端点需要确认」而不是「可用」 | **否**（端点口径尚未确认） |
-| Tavily / Brave / SearXNG | 三个独立 SearchProvider，分别建立子行证据（属 T031） | TODO | **NOT_RUN** | **否** |
+| Tavily | 独立 SearchProvider：`POST {base}/search`，JSON body（query/max_results/search_depth/include_answer），认证走 `Authorization: Bearer`（body 里的 api_key 是另一代写法，本工程只用头）。请求形状、响应形状与认证方式都与另两家**没有一处相同**，因此是独立适配器 | `test/fixtures/ai/tavily_search_response.json`（3 条结果含 1 条链路本地地址、answer、response_time）、`tavily_search_error_429.json`；14 条适配器用例覆盖请求形状/夹取/字段缺失容忍/私网丢弃/错误映射/无凭据不发请求 | **NOT_RUN**（无 Tavily 凭据，未伪造） | **否** |
+| Brave Search | 独立 SearchProvider：`GET {base}/res/v1/web/search`，认证走 `X-Subscription-Token`（**不是** Bearer）；结果在 `web.results` 两层嵌套里，是**唯一支持 offset** 的协议；`description` 与 `title` 里的高亮标签都要剥离；`age` 相对时间不换算 | `test/fixtures/ai/brave_search_response.json`（高亮标题与片段、相对时间、1 条回环地址）；10 条适配器用例覆盖认证头不是 Bearer、offset/语言的按需发送、高亮剥离、相对时间不猜 | **NOT_RUN**（无 Brave 凭据，未伪造） | **否** |
+| SearXNG（自建） | 独立 SearchProvider：`GET {instance}/search?format=json`；**没有默认端点**（不替用户猜公网实例）；认证**可选**（无凭据不发认证头）；只有第 1 页（协议用 pageno 而非 offset，收到 offset 明确报错）；私网/HTTP 端点需**逐条显式批准**（SET-041） | `test/fixtures/ai/searxng_search_response.json`（含 `+08:00` 偏移时间与一条缺字段结果）、`searxng_private_response.json`（结果指向私网 + 非法日期）；14 条适配器用例含「未批准时一次请求都不发」 | **NOT_RUN**（无自建实例可测，未伪造） | **否** |
 | 用户自定义端点 | 用户声明协议并实际连通测试（预设下拉的「自定义」项） | 复用所选协议的夹具 | **NOT_RUN**（取决于用户自己的凭据） | **否** |
 
 ### 7.4 产品决定变更记录

@@ -47,6 +47,7 @@ part 'database.g.dart';
     AiModelRecords,
     AiTasks,
     AiResultCacheRecords,
+    SearchServiceRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -79,7 +80,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -311,11 +312,29 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixAiResultCacheCreated);
       }
 
+      if (from < 11) {
+        // v10 → v11：搜索服务记录表（T031，架构 5.1 的 SearchConfig 实体）。
+        //
+        // 这一步**没有任何凭据列**：SET-039 是秘密项，只住在 Keychain 里，因此
+        // 明文备份（架构 5.3）与 flux.sqlite 都不会携带搜索服务的 Key。这一点是
+        // 结构性的，而不是靠「记得不要把 Key 写进去」。
+        //
+        // 不回填任何数据：升级前不存在「已经配好的搜索服务」这个事实，空表是诚实的
+        // 默认状态（与 v8→v9 的模型表、v9→v10 的任务表同一口径）。
+        //
+        // 与 v1→v2、v8→v9、v9→v10 同一个坑：createTable 只建表，**不**建索引。
+        // 索引是独立 schema 实体，漏掉 createIndex 时运行时查询照常工作，只有结构
+        // 校验才会发现差异（T010 的迁移测试曾这样抓到过一次），因此逐个显式写出。
+        await m.createTable(searchServiceRecords);
+        await m.createIndex(uxSearchServiceLabel);
+        await m.createIndex(ixSearchServiceSort);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 10;
+      const int highestImplemented = 11;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

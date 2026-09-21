@@ -1,0 +1,12 @@
+{
+  "query": "flux reader",
+  "number_of_results": 1,
+  "results": [
+    {
+      "title": "Private host result",
+      "url": "https://192.168.1.10/article",
+      "content": "Must be dropped by the URL guard.",
+      "publishedDate": "not-a-date"
+    }
+  ]
+}

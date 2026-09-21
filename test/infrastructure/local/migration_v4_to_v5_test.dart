@@ -26,7 +26,7 @@ import '../../generated/schema_v4.dart' as v4;
 ///
 /// 本文件验证的是「v4 的库能升到**当前**版本」，因此终点跟着 [AppDatabase.schemaVersion]
 /// 走（T019+ 起为 6），而不是停在 v5：一次从 v4 出发的升级实际会一路走到最新版本。
-const int currentSchemaVersion = 10;
+const int currentSchemaVersion = 11;
 
 void main() {
   drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;

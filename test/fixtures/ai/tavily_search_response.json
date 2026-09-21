@@ -1,0 +1,26 @@
+{
+  "query": "flux local-first reader",
+  "answer": "Flux is a local-first news and RSS reader.",
+  "response_time": 0.83,
+  "results": [
+    {
+      "title": "Flux — local-first news reader",
+      "url": "https://example.com/flux",
+      "content": "A local-first reader for news and RSS.",
+      "score": 0.97,
+      "published_date": "2026-09-18T08:00:00Z"
+    },
+    {
+      "title": "Release notes",
+      "url": "https://github.com/example/flux/releases",
+      "content": "Version 0.2.0 ships local full-text search.",
+      "score": 0.81
+    },
+    {
+      "title": "Internal metadata endpoint",
+      "url": "http://169.254.169.254/latest/meta-data/",
+      "content": "This result must be dropped by the URL guard.",
+      "score": 0.5
+    }
+  ]
+}
