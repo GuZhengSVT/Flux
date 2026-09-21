@@ -53,8 +53,8 @@ void main() {
       await db.close();
     });
 
-    test('schemaVersion 为当前版本（T035 起为 13）', () {
-      expect(db.schemaVersion, 13);
+    test('schemaVersion 为当前版本（T036 起为 14）', () {
+      expect(db.schemaVersion, 14);
     });
 
     test('架构 5.1 的核心表全部建出', () async {

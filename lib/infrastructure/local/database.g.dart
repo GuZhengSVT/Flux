@@ -604,6 +604,20 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _newsEnabledMeta = const VerificationMeta(
+    'newsEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> newsEnabled = GeneratedColumn<bool>(
+    'news_enabled',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("news_enabled" IN (0, 1))',
+    ),
+  );
   static const VerificationMeta _refreshIntervalMinutesMeta =
       const VerificationMeta('refreshIntervalMinutes');
   @override
@@ -728,6 +742,7 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     groupId,
     favorite,
     enabled,
+    newsEnabled,
     refreshIntervalMinutes,
     sortOrder,
     httpEtag,
@@ -803,6 +818,15 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
       context.handle(
         _enabledMeta,
         enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('news_enabled')) {
+      context.handle(
+        _newsEnabledMeta,
+        newsEnabled.isAcceptableOrUnknown(
+          data['news_enabled']!,
+          _newsEnabledMeta,
+        ),
       );
     }
     if (data.containsKey('refresh_interval_minutes')) {
@@ -924,6 +948,10 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
         DriftSqlType.bool,
         data['${effectivePrefix}enabled'],
       )!,
+      newsEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}news_enabled'],
+      ),
       refreshIntervalMinutes: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}refresh_interval_minutes'],
@@ -1006,6 +1034,20 @@ class Feed extends DataClass implements Insertable<Feed> {
   /// 默认 true：升级前就存在的订阅在用户显式关闭之前照常刷新，不因迁移静默改变行为。
   final bool enabled;
 
+  /// 是否参与**新闻选材**（SET-050 的逐源开关；schema v14，T036）。
+  ///
+  /// **可空且默认 null**，语义是「跟随 [enabled]」：SET-050 的口径是「总开/已启用订阅
+  /// 默认开」，因此没有显式设置过的源应当跟着它的刷新开关走（关掉的源不选材），而用户
+  /// 也可以单独把某个源排除在新闻之外、同时保留它的订阅刷新。
+  ///
+  /// 为什么单列一个可空布尔而不是复用 [enabled]：两者回答的是不同问题——[enabled] 是
+  /// 「这个源要不要联网刷新」，本列是「这个源的文章要不要进每日新闻」。用同一列表达会让
+  /// 「我只想让它别再进新闻，但订阅照常更新」无法配置。
+  ///
+  /// 用 **null 表示未设置**（而不是把默认值回填成 true）：回填会让「用户从未做过这个选择」
+  /// 与「用户显式选了参与」在数据上不可分辨，而这正是架构第 8 节禁止的「用假象代替状态」。
+  final bool? newsEnabled;
+
   /// 刷新间隔覆盖（分钟）；null 表示跟随全局默认（SET-020 区域）。
   ///
   /// 0 表示「手动」：该源不参与定时刷新（SET-022 的 refreshInterval 取值之一），
@@ -1063,6 +1105,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     this.groupId,
     required this.favorite,
     required this.enabled,
+    this.newsEnabled,
     this.refreshIntervalMinutes,
     required this.sortOrder,
     this.httpEtag,
@@ -1089,6 +1132,9 @@ class Feed extends DataClass implements Insertable<Feed> {
     }
     map['favorite'] = Variable<bool>(favorite);
     map['enabled'] = Variable<bool>(enabled);
+    if (!nullToAbsent || newsEnabled != null) {
+      map['news_enabled'] = Variable<bool>(newsEnabled);
+    }
     if (!nullToAbsent || refreshIntervalMinutes != null) {
       map['refresh_interval_minutes'] = Variable<int>(refreshIntervalMinutes);
     }
@@ -1130,6 +1176,9 @@ class Feed extends DataClass implements Insertable<Feed> {
           : Value(groupId),
       favorite: Value(favorite),
       enabled: Value(enabled),
+      newsEnabled: newsEnabled == null && nullToAbsent
+          ? const Value.absent()
+          : Value(newsEnabled),
       refreshIntervalMinutes: refreshIntervalMinutes == null && nullToAbsent
           ? const Value.absent()
           : Value(refreshIntervalMinutes),
@@ -1171,6 +1220,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       groupId: serializer.fromJson<int?>(json['groupId']),
       favorite: serializer.fromJson<bool>(json['favorite']),
       enabled: serializer.fromJson<bool>(json['enabled']),
+      newsEnabled: serializer.fromJson<bool?>(json['newsEnabled']),
       refreshIntervalMinutes: serializer.fromJson<int?>(
         json['refreshIntervalMinutes'],
       ),
@@ -1201,6 +1251,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       'groupId': serializer.toJson<int?>(groupId),
       'favorite': serializer.toJson<bool>(favorite),
       'enabled': serializer.toJson<bool>(enabled),
+      'newsEnabled': serializer.toJson<bool?>(newsEnabled),
       'refreshIntervalMinutes': serializer.toJson<int?>(refreshIntervalMinutes),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'httpEtag': serializer.toJson<String?>(httpEtag),
@@ -1223,6 +1274,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     Value<int?> groupId = const Value.absent(),
     bool? favorite,
     bool? enabled,
+    Value<bool?> newsEnabled = const Value.absent(),
     Value<int?> refreshIntervalMinutes = const Value.absent(),
     int? sortOrder,
     Value<String?> httpEtag = const Value.absent(),
@@ -1242,6 +1294,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     groupId: groupId.present ? groupId.value : this.groupId,
     favorite: favorite ?? this.favorite,
     enabled: enabled ?? this.enabled,
+    newsEnabled: newsEnabled.present ? newsEnabled.value : this.newsEnabled,
     refreshIntervalMinutes: refreshIntervalMinutes.present
         ? refreshIntervalMinutes.value
         : this.refreshIntervalMinutes,
@@ -1279,6 +1332,9 @@ class Feed extends DataClass implements Insertable<Feed> {
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
       favorite: data.favorite.present ? data.favorite.value : this.favorite,
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      newsEnabled: data.newsEnabled.present
+          ? data.newsEnabled.value
+          : this.newsEnabled,
       refreshIntervalMinutes: data.refreshIntervalMinutes.present
           ? data.refreshIntervalMinutes.value
           : this.refreshIntervalMinutes,
@@ -1315,6 +1371,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           ..write('groupId: $groupId, ')
           ..write('favorite: $favorite, ')
           ..write('enabled: $enabled, ')
+          ..write('newsEnabled: $newsEnabled, ')
           ..write('refreshIntervalMinutes: $refreshIntervalMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('httpEtag: $httpEtag, ')
@@ -1339,6 +1396,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     groupId,
     favorite,
     enabled,
+    newsEnabled,
     refreshIntervalMinutes,
     sortOrder,
     httpEtag,
@@ -1362,6 +1420,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           other.groupId == this.groupId &&
           other.favorite == this.favorite &&
           other.enabled == this.enabled &&
+          other.newsEnabled == this.newsEnabled &&
           other.refreshIntervalMinutes == this.refreshIntervalMinutes &&
           other.sortOrder == this.sortOrder &&
           other.httpEtag == this.httpEtag &&
@@ -1383,6 +1442,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
   final Value<int?> groupId;
   final Value<bool> favorite;
   final Value<bool> enabled;
+  final Value<bool?> newsEnabled;
   final Value<int?> refreshIntervalMinutes;
   final Value<int> sortOrder;
   final Value<String?> httpEtag;
@@ -1402,6 +1462,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.groupId = const Value.absent(),
     this.favorite = const Value.absent(),
     this.enabled = const Value.absent(),
+    this.newsEnabled = const Value.absent(),
     this.refreshIntervalMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.httpEtag = const Value.absent(),
@@ -1422,6 +1483,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.groupId = const Value.absent(),
     this.favorite = const Value.absent(),
     this.enabled = const Value.absent(),
+    this.newsEnabled = const Value.absent(),
     this.refreshIntervalMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.httpEtag = const Value.absent(),
@@ -1444,6 +1506,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Expression<int>? groupId,
     Expression<bool>? favorite,
     Expression<bool>? enabled,
+    Expression<bool>? newsEnabled,
     Expression<int>? refreshIntervalMinutes,
     Expression<int>? sortOrder,
     Expression<String>? httpEtag,
@@ -1464,6 +1527,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       if (groupId != null) 'group_id': groupId,
       if (favorite != null) 'favorite': favorite,
       if (enabled != null) 'enabled': enabled,
+      if (newsEnabled != null) 'news_enabled': newsEnabled,
       if (refreshIntervalMinutes != null)
         'refresh_interval_minutes': refreshIntervalMinutes,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -1488,6 +1552,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Value<int?>? groupId,
     Value<bool>? favorite,
     Value<bool>? enabled,
+    Value<bool?>? newsEnabled,
     Value<int?>? refreshIntervalMinutes,
     Value<int>? sortOrder,
     Value<String?>? httpEtag,
@@ -1508,6 +1573,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       groupId: groupId ?? this.groupId,
       favorite: favorite ?? this.favorite,
       enabled: enabled ?? this.enabled,
+      newsEnabled: newsEnabled ?? this.newsEnabled,
       refreshIntervalMinutes:
           refreshIntervalMinutes ?? this.refreshIntervalMinutes,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -1548,6 +1614,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     }
     if (enabled.present) {
       map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (newsEnabled.present) {
+      map['news_enabled'] = Variable<bool>(newsEnabled.value);
     }
     if (refreshIntervalMinutes.present) {
       map['refresh_interval_minutes'] = Variable<int>(
@@ -1597,6 +1666,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
           ..write('groupId: $groupId, ')
           ..write('favorite: $favorite, ')
           ..write('enabled: $enabled, ')
+          ..write('newsEnabled: $newsEnabled, ')
           ..write('refreshIntervalMinutes: $refreshIntervalMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('httpEtag: $httpEtag, ')
@@ -11000,6 +11070,1435 @@ class TranslationSegmentRecordsCompanion
   }
 }
 
+class $NewsRequiredSiteRecordsTable extends NewsRequiredSiteRecords
+    with TableInfo<$NewsRequiredSiteRecordsTable, NewsRequiredSiteRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NewsRequiredSiteRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+    'url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    url,
+    enabled,
+    sortOrder,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'news_required_site_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NewsRequiredSiteRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+        _urlMeta,
+        url.isAcceptableOrUnknown(data['url']!, _urlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NewsRequiredSiteRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NewsRequiredSiteRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      url: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}url'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NewsRequiredSiteRecordsTable createAlias(String alias) {
+    return $NewsRequiredSiteRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class NewsRequiredSiteRecord extends DataClass
+    implements Insertable<NewsRequiredSiteRecord> {
+  final int id;
+
+  /// 显示名（用户可改；组合 prompt 时用它标识站点）。
+  final String name;
+
+  /// 站点地址。
+  final String url;
+
+  /// 是否启用（停用的站点不进 prompt，也不参与逐站执行）。
+  final bool enabled;
+
+  /// 顺序权重（升序）。
+  final int sortOrder;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const NewsRequiredSiteRecord({
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.enabled,
+    required this.sortOrder,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['url'] = Variable<String>(url);
+    map['enabled'] = Variable<bool>(enabled);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  NewsRequiredSiteRecordsCompanion toCompanion(bool nullToAbsent) {
+    return NewsRequiredSiteRecordsCompanion(
+      id: Value(id),
+      name: Value(name),
+      url: Value(url),
+      enabled: Value(enabled),
+      sortOrder: Value(sortOrder),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory NewsRequiredSiteRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NewsRequiredSiteRecord(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      url: serializer.fromJson<String>(json['url']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'url': serializer.toJson<String>(url),
+      'enabled': serializer.toJson<bool>(enabled),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  NewsRequiredSiteRecord copyWith({
+    int? id,
+    String? name,
+    String? url,
+    bool? enabled,
+    int? sortOrder,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => NewsRequiredSiteRecord(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    url: url ?? this.url,
+    enabled: enabled ?? this.enabled,
+    sortOrder: sortOrder ?? this.sortOrder,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  NewsRequiredSiteRecord copyWithCompanion(
+    NewsRequiredSiteRecordsCompanion data,
+  ) {
+    return NewsRequiredSiteRecord(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      url: data.url.present ? data.url.value : this.url,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsRequiredSiteRecord(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('url: $url, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, url, enabled, sortOrder, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NewsRequiredSiteRecord &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.url == this.url &&
+          other.enabled == this.enabled &&
+          other.sortOrder == this.sortOrder &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class NewsRequiredSiteRecordsCompanion
+    extends UpdateCompanion<NewsRequiredSiteRecord> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String> url;
+  final Value<bool> enabled;
+  final Value<int> sortOrder;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const NewsRequiredSiteRecordsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.url = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  NewsRequiredSiteRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required String url,
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : name = Value(name),
+       url = Value(url);
+  static Insertable<NewsRequiredSiteRecord> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? url,
+    Expression<bool>? enabled,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (url != null) 'url': url,
+      if (enabled != null) 'enabled': enabled,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  NewsRequiredSiteRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String>? url,
+    Value<bool>? enabled,
+    Value<int>? sortOrder,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return NewsRequiredSiteRecordsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      url: url ?? this.url,
+      enabled: enabled ?? this.enabled,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsRequiredSiteRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('url: $url, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NewsConfigEntryRecordsTable extends NewsConfigEntryRecords
+    with TableInfo<$NewsConfigEntryRecordsTable, NewsConfigEntryRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NewsConfigEntryRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    value,
+    sortOrder,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'news_config_entry_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NewsConfigEntryRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NewsConfigEntryRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NewsConfigEntryRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NewsConfigEntryRecordsTable createAlias(String alias) {
+    return $NewsConfigEntryRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class NewsConfigEntryRecord extends DataClass
+    implements Insertable<NewsConfigEntryRecord> {
+  final int id;
+
+  /// 列表类别（取值见 core 的 NewsListCategory；这里存稳定字符串而不是序号——序号会在
+  /// 中间插一项之后整体错位，把关键词列表变成主题排除列表）。
+  final String kind;
+
+  /// 条目文本。
+  final String value;
+
+  /// 顺序权重（升序）。
+  final int sortOrder;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const NewsConfigEntryRecord({
+    required this.id,
+    required this.kind,
+    required this.value,
+    required this.sortOrder,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    map['value'] = Variable<String>(value);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  NewsConfigEntryRecordsCompanion toCompanion(bool nullToAbsent) {
+    return NewsConfigEntryRecordsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      value: Value(value),
+      sortOrder: Value(sortOrder),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory NewsConfigEntryRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NewsConfigEntryRecord(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      value: serializer.fromJson<String>(json['value']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'value': serializer.toJson<String>(value),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  NewsConfigEntryRecord copyWith({
+    int? id,
+    String? kind,
+    String? value,
+    int? sortOrder,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => NewsConfigEntryRecord(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    value: value ?? this.value,
+    sortOrder: sortOrder ?? this.sortOrder,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  NewsConfigEntryRecord copyWithCompanion(
+    NewsConfigEntryRecordsCompanion data,
+  ) {
+    return NewsConfigEntryRecord(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      value: data.value.present ? data.value.value : this.value,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsConfigEntryRecord(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('value: $value, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, kind, value, sortOrder, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NewsConfigEntryRecord &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.value == this.value &&
+          other.sortOrder == this.sortOrder &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class NewsConfigEntryRecordsCompanion
+    extends UpdateCompanion<NewsConfigEntryRecord> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<String> value;
+  final Value<int> sortOrder;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const NewsConfigEntryRecordsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.value = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  NewsConfigEntryRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    required String value,
+    required int sortOrder,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : kind = Value(kind),
+       value = Value(value),
+       sortOrder = Value(sortOrder);
+  static Insertable<NewsConfigEntryRecord> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<String>? value,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (value != null) 'value': value,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  NewsConfigEntryRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<String>? value,
+    Value<int>? sortOrder,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return NewsConfigEntryRecordsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      value: value ?? this.value,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsConfigEntryRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('value: $value, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NewsPromptVersionRecordsTable extends NewsPromptVersionRecords
+    with TableInfo<$NewsPromptVersionRecordsTable, NewsPromptVersionRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NewsPromptVersionRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _languageMeta = const VerificationMeta(
+    'language',
+  );
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modeMeta = const VerificationMeta('mode');
+  @override
+  late final GeneratedColumn<String> mode = GeneratedColumn<String>(
+    'mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taskInstructionMeta = const VerificationMeta(
+    'taskInstruction',
+  );
+  @override
+  late final GeneratedColumn<String> taskInstruction = GeneratedColumn<String>(
+    'task_instruction',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outputSpecMeta = const VerificationMeta(
+    'outputSpec',
+  );
+  @override
+  late final GeneratedColumn<String> outputSpec = GeneratedColumn<String>(
+    'output_spec',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _advancedPromptMeta = const VerificationMeta(
+    'advancedPrompt',
+  );
+  @override
+  late final GeneratedColumn<String> advancedPrompt = GeneratedColumn<String>(
+    'advanced_prompt',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    language,
+    version,
+    mode,
+    taskInstruction,
+    outputSpec,
+    advancedPrompt,
+    note,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'news_prompt_version_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NewsPromptVersionRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(
+        _languageMeta,
+        language.isAcceptableOrUnknown(data['language']!, _languageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_languageMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    if (data.containsKey('mode')) {
+      context.handle(
+        _modeMeta,
+        mode.isAcceptableOrUnknown(data['mode']!, _modeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modeMeta);
+    }
+    if (data.containsKey('task_instruction')) {
+      context.handle(
+        _taskInstructionMeta,
+        taskInstruction.isAcceptableOrUnknown(
+          data['task_instruction']!,
+          _taskInstructionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taskInstructionMeta);
+    }
+    if (data.containsKey('output_spec')) {
+      context.handle(
+        _outputSpecMeta,
+        outputSpec.isAcceptableOrUnknown(data['output_spec']!, _outputSpecMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_outputSpecMeta);
+    }
+    if (data.containsKey('advanced_prompt')) {
+      context.handle(
+        _advancedPromptMeta,
+        advancedPrompt.isAcceptableOrUnknown(
+          data['advanced_prompt']!,
+          _advancedPromptMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_advancedPromptMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NewsPromptVersionRecord map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NewsPromptVersionRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      )!,
+      mode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mode'],
+      )!,
+      taskInstruction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_instruction'],
+      )!,
+      outputSpec: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}output_spec'],
+      )!,
+      advancedPrompt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}advanced_prompt'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NewsPromptVersionRecordsTable createAlias(String alias) {
+    return $NewsPromptVersionRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class NewsPromptVersionRecord extends DataClass
+    implements Insertable<NewsPromptVersionRecord> {
+  final int id;
+
+  /// 生成语言（中英两套模板各自版本化，互不覆盖）。
+  final String language;
+
+  /// 版本号（从 1 开始，单调递增）。
+  final int version;
+
+  /// 模式稳定标识（composed / advancedOverride）。
+  final String mode;
+
+  /// 任务说明（用户可改部分）。
+  final String taskInstruction;
+
+  /// 输出规范（用户可改部分，**不含协议段**——协议由组合时附加，不落库）。
+  final String outputSpec;
+
+  /// 高级覆盖模式下的总 prompt（组合模式下为空串）。
+  final String advancedPrompt;
+
+  /// 可选备注。
+  final String? note;
+  final DateTime createdAt;
+  const NewsPromptVersionRecord({
+    required this.id,
+    required this.language,
+    required this.version,
+    required this.mode,
+    required this.taskInstruction,
+    required this.outputSpec,
+    required this.advancedPrompt,
+    this.note,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['language'] = Variable<String>(language);
+    map['version'] = Variable<int>(version);
+    map['mode'] = Variable<String>(mode);
+    map['task_instruction'] = Variable<String>(taskInstruction);
+    map['output_spec'] = Variable<String>(outputSpec);
+    map['advanced_prompt'] = Variable<String>(advancedPrompt);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  NewsPromptVersionRecordsCompanion toCompanion(bool nullToAbsent) {
+    return NewsPromptVersionRecordsCompanion(
+      id: Value(id),
+      language: Value(language),
+      version: Value(version),
+      mode: Value(mode),
+      taskInstruction: Value(taskInstruction),
+      outputSpec: Value(outputSpec),
+      advancedPrompt: Value(advancedPrompt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory NewsPromptVersionRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NewsPromptVersionRecord(
+      id: serializer.fromJson<int>(json['id']),
+      language: serializer.fromJson<String>(json['language']),
+      version: serializer.fromJson<int>(json['version']),
+      mode: serializer.fromJson<String>(json['mode']),
+      taskInstruction: serializer.fromJson<String>(json['taskInstruction']),
+      outputSpec: serializer.fromJson<String>(json['outputSpec']),
+      advancedPrompt: serializer.fromJson<String>(json['advancedPrompt']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'language': serializer.toJson<String>(language),
+      'version': serializer.toJson<int>(version),
+      'mode': serializer.toJson<String>(mode),
+      'taskInstruction': serializer.toJson<String>(taskInstruction),
+      'outputSpec': serializer.toJson<String>(outputSpec),
+      'advancedPrompt': serializer.toJson<String>(advancedPrompt),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  NewsPromptVersionRecord copyWith({
+    int? id,
+    String? language,
+    int? version,
+    String? mode,
+    String? taskInstruction,
+    String? outputSpec,
+    String? advancedPrompt,
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+  }) => NewsPromptVersionRecord(
+    id: id ?? this.id,
+    language: language ?? this.language,
+    version: version ?? this.version,
+    mode: mode ?? this.mode,
+    taskInstruction: taskInstruction ?? this.taskInstruction,
+    outputSpec: outputSpec ?? this.outputSpec,
+    advancedPrompt: advancedPrompt ?? this.advancedPrompt,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  NewsPromptVersionRecord copyWithCompanion(
+    NewsPromptVersionRecordsCompanion data,
+  ) {
+    return NewsPromptVersionRecord(
+      id: data.id.present ? data.id.value : this.id,
+      language: data.language.present ? data.language.value : this.language,
+      version: data.version.present ? data.version.value : this.version,
+      mode: data.mode.present ? data.mode.value : this.mode,
+      taskInstruction: data.taskInstruction.present
+          ? data.taskInstruction.value
+          : this.taskInstruction,
+      outputSpec: data.outputSpec.present
+          ? data.outputSpec.value
+          : this.outputSpec,
+      advancedPrompt: data.advancedPrompt.present
+          ? data.advancedPrompt.value
+          : this.advancedPrompt,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsPromptVersionRecord(')
+          ..write('id: $id, ')
+          ..write('language: $language, ')
+          ..write('version: $version, ')
+          ..write('mode: $mode, ')
+          ..write('taskInstruction: $taskInstruction, ')
+          ..write('outputSpec: $outputSpec, ')
+          ..write('advancedPrompt: $advancedPrompt, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    language,
+    version,
+    mode,
+    taskInstruction,
+    outputSpec,
+    advancedPrompt,
+    note,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NewsPromptVersionRecord &&
+          other.id == this.id &&
+          other.language == this.language &&
+          other.version == this.version &&
+          other.mode == this.mode &&
+          other.taskInstruction == this.taskInstruction &&
+          other.outputSpec == this.outputSpec &&
+          other.advancedPrompt == this.advancedPrompt &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt);
+}
+
+class NewsPromptVersionRecordsCompanion
+    extends UpdateCompanion<NewsPromptVersionRecord> {
+  final Value<int> id;
+  final Value<String> language;
+  final Value<int> version;
+  final Value<String> mode;
+  final Value<String> taskInstruction;
+  final Value<String> outputSpec;
+  final Value<String> advancedPrompt;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  const NewsPromptVersionRecordsCompanion({
+    this.id = const Value.absent(),
+    this.language = const Value.absent(),
+    this.version = const Value.absent(),
+    this.mode = const Value.absent(),
+    this.taskInstruction = const Value.absent(),
+    this.outputSpec = const Value.absent(),
+    this.advancedPrompt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  NewsPromptVersionRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String language,
+    required int version,
+    required String mode,
+    required String taskInstruction,
+    required String outputSpec,
+    required String advancedPrompt,
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : language = Value(language),
+       version = Value(version),
+       mode = Value(mode),
+       taskInstruction = Value(taskInstruction),
+       outputSpec = Value(outputSpec),
+       advancedPrompt = Value(advancedPrompt);
+  static Insertable<NewsPromptVersionRecord> custom({
+    Expression<int>? id,
+    Expression<String>? language,
+    Expression<int>? version,
+    Expression<String>? mode,
+    Expression<String>? taskInstruction,
+    Expression<String>? outputSpec,
+    Expression<String>? advancedPrompt,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (language != null) 'language': language,
+      if (version != null) 'version': version,
+      if (mode != null) 'mode': mode,
+      if (taskInstruction != null) 'task_instruction': taskInstruction,
+      if (outputSpec != null) 'output_spec': outputSpec,
+      if (advancedPrompt != null) 'advanced_prompt': advancedPrompt,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  NewsPromptVersionRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? language,
+    Value<int>? version,
+    Value<String>? mode,
+    Value<String>? taskInstruction,
+    Value<String>? outputSpec,
+    Value<String>? advancedPrompt,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+  }) {
+    return NewsPromptVersionRecordsCompanion(
+      id: id ?? this.id,
+      language: language ?? this.language,
+      version: version ?? this.version,
+      mode: mode ?? this.mode,
+      taskInstruction: taskInstruction ?? this.taskInstruction,
+      outputSpec: outputSpec ?? this.outputSpec,
+      advancedPrompt: advancedPrompt ?? this.advancedPrompt,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (mode.present) {
+      map['mode'] = Variable<String>(mode.value);
+    }
+    if (taskInstruction.present) {
+      map['task_instruction'] = Variable<String>(taskInstruction.value);
+    }
+    if (outputSpec.present) {
+      map['output_spec'] = Variable<String>(outputSpec.value);
+    }
+    if (advancedPrompt.present) {
+      map['advanced_prompt'] = Variable<String>(advancedPrompt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsPromptVersionRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('language: $language, ')
+          ..write('version: $version, ')
+          ..write('mode: $mode, ')
+          ..write('taskInstruction: $taskInstruction, ')
+          ..write('outputSpec: $outputSpec, ')
+          ..write('advancedPrompt: $advancedPrompt, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11082,6 +12581,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ArticleTranslationRecordsTable(this);
   late final $TranslationSegmentRecordsTable translationSegmentRecords =
       $TranslationSegmentRecordsTable(this);
+  late final $NewsRequiredSiteRecordsTable newsRequiredSiteRecords =
+      $NewsRequiredSiteRecordsTable(this);
+  late final $NewsConfigEntryRecordsTable newsConfigEntryRecords =
+      $NewsConfigEntryRecordsTable(this);
+  late final $NewsPromptVersionRecordsTable newsPromptVersionRecords =
+      $NewsPromptVersionRecordsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -11150,6 +12655,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ux_translation_segments_translation_index',
     'CREATE UNIQUE INDEX ux_translation_segments_translation_index ON translation_segment_records (translation_id, segment_index)',
   );
+  late final Index ixNewsRequiredSitesOrder = Index(
+    'ix_news_required_sites_order',
+    'CREATE INDEX ix_news_required_sites_order ON news_required_site_records (sort_order)',
+  );
+  late final Index uxNewsConfigEntriesKindOrder = Index(
+    'ux_news_config_entries_kind_order',
+    'CREATE UNIQUE INDEX ux_news_config_entries_kind_order ON news_config_entry_records (kind, sort_order)',
+  );
+  late final Index uxNewsPromptVersionsLanguageVersion = Index(
+    'ux_news_prompt_versions_language_version',
+    'CREATE UNIQUE INDEX ux_news_prompt_versions_language_version ON news_prompt_version_records (language, version)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11184,6 +12701,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     searchServiceRecords,
     articleTranslationRecords,
     translationSegmentRecords,
+    newsRequiredSiteRecords,
+    newsConfigEntryRecords,
+    newsPromptVersionRecords,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -11201,6 +12721,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixSearchServiceSort,
     uxTranslationsArticleLanguage,
     uxTranslationSegmentsTranslationIndex,
+    ixNewsRequiredSitesOrder,
+    uxNewsConfigEntriesKindOrder,
+    uxNewsPromptVersionsLanguageVersion,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -11611,6 +13134,7 @@ typedef $$FeedsTableCreateCompanionBuilder = FeedsCompanion Function({
   Value<int?> groupId,
   Value<bool> favorite,
   Value<bool> enabled,
+  Value<bool?> newsEnabled,
   Value<int?> refreshIntervalMinutes,
   Value<int> sortOrder,
   Value<String?> httpEtag,
@@ -11631,6 +13155,7 @@ typedef $$FeedsTableUpdateCompanionBuilder = FeedsCompanion Function({
   Value<int?> groupId,
   Value<bool> favorite,
   Value<bool> enabled,
+  Value<bool?> newsEnabled,
   Value<int?> refreshIntervalMinutes,
   Value<int> sortOrder,
   Value<String?> httpEtag,
@@ -11724,6 +13249,11 @@ class $$FeedsTableFilterComposer extends Composer<_$AppDatabase, $FeedsTable> {
 
   ColumnFilters<bool> get enabled => $composableBuilder(
     column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get newsEnabled => $composableBuilder(
+    column: $table.newsEnabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11870,6 +13400,11 @@ class $$FeedsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get newsEnabled => $composableBuilder(
+    column: $table.newsEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get refreshIntervalMinutes => $composableBuilder(
     column: $table.refreshIntervalMinutes,
     builder: (column) => ColumnOrderings(column),
@@ -11977,6 +13512,11 @@ class $$FeedsTableAnnotationComposer
 
   GeneratedColumn<bool> get enabled =>
       $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<bool> get newsEnabled => $composableBuilder(
+    column: $table.newsEnabled,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get refreshIntervalMinutes => $composableBuilder(
     column: $table.refreshIntervalMinutes,
@@ -12105,6 +13645,7 @@ class $$FeedsTableTableManager
                 Value<int?> groupId = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
+                Value<bool?> newsEnabled = const Value.absent(),
                 Value<int?> refreshIntervalMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> httpEtag = const Value.absent(),
@@ -12124,6 +13665,7 @@ class $$FeedsTableTableManager
                 groupId: groupId,
                 favorite: favorite,
                 enabled: enabled,
+                newsEnabled: newsEnabled,
                 refreshIntervalMinutes: refreshIntervalMinutes,
                 sortOrder: sortOrder,
                 httpEtag: httpEtag,
@@ -12145,6 +13687,7 @@ class $$FeedsTableTableManager
                 Value<int?> groupId = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
+                Value<bool?> newsEnabled = const Value.absent(),
                 Value<int?> refreshIntervalMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> httpEtag = const Value.absent(),
@@ -12164,6 +13707,7 @@ class $$FeedsTableTableManager
                 groupId: groupId,
                 favorite: favorite,
                 enabled: enabled,
+                newsEnabled: newsEnabled,
                 refreshIntervalMinutes: refreshIntervalMinutes,
                 sortOrder: sortOrder,
                 httpEtag: httpEtag,
@@ -17850,6 +19394,820 @@ typedef $$TranslationSegmentRecordsTableProcessedTableManager =
       TranslationSegmentRecord,
       PrefetchHooks Function({bool translationId})
     >;
+typedef $$NewsRequiredSiteRecordsTableCreateCompanionBuilder =
+    NewsRequiredSiteRecordsCompanion Function({
+      Value<int> id,
+      required String name,
+      required String url,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$NewsRequiredSiteRecordsTableUpdateCompanionBuilder =
+    NewsRequiredSiteRecordsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String> url,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$NewsRequiredSiteRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $NewsRequiredSiteRecordsTable> {
+  $$NewsRequiredSiteRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NewsRequiredSiteRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NewsRequiredSiteRecordsTable> {
+  $$NewsRequiredSiteRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get url => $composableBuilder(
+    column: $table.url,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NewsRequiredSiteRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NewsRequiredSiteRecordsTable> {
+  $$NewsRequiredSiteRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$NewsRequiredSiteRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NewsRequiredSiteRecordsTable,
+          NewsRequiredSiteRecord,
+          $$NewsRequiredSiteRecordsTableFilterComposer,
+          $$NewsRequiredSiteRecordsTableOrderingComposer,
+          $$NewsRequiredSiteRecordsTableAnnotationComposer,
+          $$NewsRequiredSiteRecordsTableCreateCompanionBuilder,
+          $$NewsRequiredSiteRecordsTableUpdateCompanionBuilder,
+          (
+            NewsRequiredSiteRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $NewsRequiredSiteRecordsTable,
+              NewsRequiredSiteRecord
+            >,
+          ),
+          NewsRequiredSiteRecord,
+          PrefetchHooks Function()
+        > {
+  $$NewsRequiredSiteRecordsTableTableManager(
+    _$AppDatabase db,
+    $NewsRequiredSiteRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NewsRequiredSiteRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$NewsRequiredSiteRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NewsRequiredSiteRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> url = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => NewsRequiredSiteRecordsCompanion(
+                id: id,
+                name: name,
+                url: url,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required String url,
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => NewsRequiredSiteRecordsCompanion.insert(
+                id: id,
+                name: name,
+                url: url,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $NewsRequiredSiteRecordsTable,
+                    NewsRequiredSiteRecord
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NewsRequiredSiteRecordsTable,
+                    NewsRequiredSiteRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NewsRequiredSiteRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NewsRequiredSiteRecordsTable,
+      NewsRequiredSiteRecord,
+      $$NewsRequiredSiteRecordsTableFilterComposer,
+      $$NewsRequiredSiteRecordsTableOrderingComposer,
+      $$NewsRequiredSiteRecordsTableAnnotationComposer,
+      $$NewsRequiredSiteRecordsTableCreateCompanionBuilder,
+      $$NewsRequiredSiteRecordsTableUpdateCompanionBuilder,
+      (
+        NewsRequiredSiteRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $NewsRequiredSiteRecordsTable,
+          NewsRequiredSiteRecord
+        >,
+      ),
+      NewsRequiredSiteRecord,
+      PrefetchHooks Function()
+    >;
+typedef $$NewsConfigEntryRecordsTableCreateCompanionBuilder =
+    NewsConfigEntryRecordsCompanion Function({
+      Value<int> id,
+      required String kind,
+      required String value,
+      required int sortOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$NewsConfigEntryRecordsTableUpdateCompanionBuilder =
+    NewsConfigEntryRecordsCompanion Function({
+      Value<int> id,
+      Value<String> kind,
+      Value<String> value,
+      Value<int> sortOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$NewsConfigEntryRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $NewsConfigEntryRecordsTable> {
+  $$NewsConfigEntryRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NewsConfigEntryRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NewsConfigEntryRecordsTable> {
+  $$NewsConfigEntryRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NewsConfigEntryRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NewsConfigEntryRecordsTable> {
+  $$NewsConfigEntryRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$NewsConfigEntryRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NewsConfigEntryRecordsTable,
+          NewsConfigEntryRecord,
+          $$NewsConfigEntryRecordsTableFilterComposer,
+          $$NewsConfigEntryRecordsTableOrderingComposer,
+          $$NewsConfigEntryRecordsTableAnnotationComposer,
+          $$NewsConfigEntryRecordsTableCreateCompanionBuilder,
+          $$NewsConfigEntryRecordsTableUpdateCompanionBuilder,
+          (
+            NewsConfigEntryRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $NewsConfigEntryRecordsTable,
+              NewsConfigEntryRecord
+            >,
+          ),
+          NewsConfigEntryRecord,
+          PrefetchHooks Function()
+        > {
+  $$NewsConfigEntryRecordsTableTableManager(
+    _$AppDatabase db,
+    $NewsConfigEntryRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NewsConfigEntryRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$NewsConfigEntryRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NewsConfigEntryRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => NewsConfigEntryRecordsCompanion(
+                id: id,
+                kind: kind,
+                value: value,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String kind,
+                required String value,
+                required int sortOrder,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => NewsConfigEntryRecordsCompanion.insert(
+                id: id,
+                kind: kind,
+                value: value,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $NewsConfigEntryRecordsTable,
+                    NewsConfigEntryRecord
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NewsConfigEntryRecordsTable,
+                    NewsConfigEntryRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NewsConfigEntryRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NewsConfigEntryRecordsTable,
+      NewsConfigEntryRecord,
+      $$NewsConfigEntryRecordsTableFilterComposer,
+      $$NewsConfigEntryRecordsTableOrderingComposer,
+      $$NewsConfigEntryRecordsTableAnnotationComposer,
+      $$NewsConfigEntryRecordsTableCreateCompanionBuilder,
+      $$NewsConfigEntryRecordsTableUpdateCompanionBuilder,
+      (
+        NewsConfigEntryRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $NewsConfigEntryRecordsTable,
+          NewsConfigEntryRecord
+        >,
+      ),
+      NewsConfigEntryRecord,
+      PrefetchHooks Function()
+    >;
+typedef $$NewsPromptVersionRecordsTableCreateCompanionBuilder =
+    NewsPromptVersionRecordsCompanion Function({
+      Value<int> id,
+      required String language,
+      required int version,
+      required String mode,
+      required String taskInstruction,
+      required String outputSpec,
+      required String advancedPrompt,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+    });
+typedef $$NewsPromptVersionRecordsTableUpdateCompanionBuilder =
+    NewsPromptVersionRecordsCompanion Function({
+      Value<int> id,
+      Value<String> language,
+      Value<int> version,
+      Value<String> mode,
+      Value<String> taskInstruction,
+      Value<String> outputSpec,
+      Value<String> advancedPrompt,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+    });
+
+class $$NewsPromptVersionRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $NewsPromptVersionRecordsTable> {
+  $$NewsPromptVersionRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get outputSpec => $composableBuilder(
+    column: $table.outputSpec,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get advancedPrompt => $composableBuilder(
+    column: $table.advancedPrompt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NewsPromptVersionRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NewsPromptVersionRecordsTable> {
+  $$NewsPromptVersionRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get outputSpec => $composableBuilder(
+    column: $table.outputSpec,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get advancedPrompt => $composableBuilder(
+    column: $table.advancedPrompt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NewsPromptVersionRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NewsPromptVersionRecordsTable> {
+  $$NewsPromptVersionRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get mode =>
+      $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<String> get taskInstruction => $composableBuilder(
+    column: $table.taskInstruction,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get outputSpec => $composableBuilder(
+    column: $table.outputSpec,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get advancedPrompt => $composableBuilder(
+    column: $table.advancedPrompt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$NewsPromptVersionRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NewsPromptVersionRecordsTable,
+          NewsPromptVersionRecord,
+          $$NewsPromptVersionRecordsTableFilterComposer,
+          $$NewsPromptVersionRecordsTableOrderingComposer,
+          $$NewsPromptVersionRecordsTableAnnotationComposer,
+          $$NewsPromptVersionRecordsTableCreateCompanionBuilder,
+          $$NewsPromptVersionRecordsTableUpdateCompanionBuilder,
+          (
+            NewsPromptVersionRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $NewsPromptVersionRecordsTable,
+              NewsPromptVersionRecord
+            >,
+          ),
+          NewsPromptVersionRecord,
+          PrefetchHooks Function()
+        > {
+  $$NewsPromptVersionRecordsTableTableManager(
+    _$AppDatabase db,
+    $NewsPromptVersionRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NewsPromptVersionRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$NewsPromptVersionRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NewsPromptVersionRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> language = const Value.absent(),
+                Value<int> version = const Value.absent(),
+                Value<String> mode = const Value.absent(),
+                Value<String> taskInstruction = const Value.absent(),
+                Value<String> outputSpec = const Value.absent(),
+                Value<String> advancedPrompt = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => NewsPromptVersionRecordsCompanion(
+                id: id,
+                language: language,
+                version: version,
+                mode: mode,
+                taskInstruction: taskInstruction,
+                outputSpec: outputSpec,
+                advancedPrompt: advancedPrompt,
+                note: note,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String language,
+                required int version,
+                required String mode,
+                required String taskInstruction,
+                required String outputSpec,
+                required String advancedPrompt,
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => NewsPromptVersionRecordsCompanion.insert(
+                id: id,
+                language: language,
+                version: version,
+                mode: mode,
+                taskInstruction: taskInstruction,
+                outputSpec: outputSpec,
+                advancedPrompt: advancedPrompt,
+                note: note,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $NewsPromptVersionRecordsTable,
+                    NewsPromptVersionRecord
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NewsPromptVersionRecordsTable,
+                    NewsPromptVersionRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NewsPromptVersionRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NewsPromptVersionRecordsTable,
+      NewsPromptVersionRecord,
+      $$NewsPromptVersionRecordsTableFilterComposer,
+      $$NewsPromptVersionRecordsTableOrderingComposer,
+      $$NewsPromptVersionRecordsTableAnnotationComposer,
+      $$NewsPromptVersionRecordsTableCreateCompanionBuilder,
+      $$NewsPromptVersionRecordsTableUpdateCompanionBuilder,
+      (
+        NewsPromptVersionRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $NewsPromptVersionRecordsTable,
+          NewsPromptVersionRecord
+        >,
+      ),
+      NewsPromptVersionRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -17889,5 +20247,20 @@ class $AppDatabaseManager {
       $$TranslationSegmentRecordsTableTableManager(
         _db,
         _db.translationSegmentRecords,
+      );
+  $$NewsRequiredSiteRecordsTableTableManager get newsRequiredSiteRecords =>
+      $$NewsRequiredSiteRecordsTableTableManager(
+        _db,
+        _db.newsRequiredSiteRecords,
+      );
+  $$NewsConfigEntryRecordsTableTableManager get newsConfigEntryRecords =>
+      $$NewsConfigEntryRecordsTableTableManager(
+        _db,
+        _db.newsConfigEntryRecords,
+      );
+  $$NewsPromptVersionRecordsTableTableManager get newsPromptVersionRecords =>
+      $$NewsPromptVersionRecordsTableTableManager(
+        _db,
+        _db.newsPromptVersionRecords,
       );
 }

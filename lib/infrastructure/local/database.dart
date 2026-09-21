@@ -23,6 +23,7 @@ import 'tables/feed_tables.dart';
 import 'tables/deletion_tables.dart';
 import 'tables/reading_tables.dart';
 import 'tables/settings_tables.dart';
+import 'tables/news_tables.dart';
 import 'tables/summary_tables.dart';
 import 'tables/translation_tables.dart';
 
@@ -51,6 +52,9 @@ part 'database.g.dart';
     SearchServiceRecords,
     ArticleTranslationRecords,
     TranslationSegmentRecords,
+    NewsRequiredSiteRecords,
+    NewsConfigEntryRecords,
+    NewsPromptVersionRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -83,7 +87,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -194,6 +198,9 @@ class AppDatabase extends _$AppDatabase {
               articles.aiSummary,
               articles.aiSummaryAt,
               articles.aiSummaryModel,
+              // v14 的 feeds.news_enabled 同理（T036）：它也在当前表定义里，v5 阶段取 null，
+              // 由 v14 步骤按事实判断是否真的加上。
+              feeds.newsEnabled,
             ],
           ),
         );
@@ -380,11 +387,41 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(uxTranslationSegmentsTranslationIndex);
       }
 
+      if (from < 14) {
+        // v13 → v14：新闻来源配置与版本化 prompt（T036；SET-050–055、架构 4.4）。
+        //
+        // 三张新表 + 订阅表的一个可空列：
+        //   * news_required_sites（SET-051 必访问网站）；
+        //   * news_config_entries（SET-052 关键词、SET-053 两个独立列表，用 kind 区分）；
+        //   * news_prompt_versions（SET-055 的版本历史）；
+        //   * feeds.news_enabled（SET-050 的逐源开关，**可空**：null = 跟随 enabled）。
+        //
+        // 新列**可空且不回填**：升级前不存在「用户为这个源做过新闻选择」这个事实，回填成
+        // true 会让「从未选择过」与「显式选了参与」在数据上不可分辨（架构第 8 节禁止用假象
+        // 代替状态）。行为上不回填同样安全：SET-050 的口径本就是「已启用订阅默认开」，
+        // 而 null 在读取侧（newsIncludesFeed）正是这个含义。
+        //
+        // 与 v1→v2、v8→v9、v9→v10、v10→v11、v12→v13 同一个坑：createTable 只建表，**不**建
+        // 索引；漏掉 createIndex 时运行时查询照常工作，只有结构校验才会发现差异。
+        await m.createTable(newsRequiredSiteRecords);
+        await m.createIndex(ixNewsRequiredSitesOrder);
+        await m.createTable(newsConfigEntryRecords);
+        await m.createIndex(uxNewsConfigEntriesKindOrder);
+        await m.createTable(newsPromptVersionRecords);
+        await m.createIndex(uxNewsPromptVersionsLanguageVersion);
+        // 与 v6/v8/v12 同一个坑：v4→v5 的 alterTable 是按**当前**表定义重建 feeds 的，
+        // 因此这一列也必须出现在那一步的 newColumns 里（见上方 v5 步骤），这里按事实判断
+        // 是否真的需要加上。
+        if (!await _columnExists('feeds', 'news_enabled')) {
+          await m.addColumn(feeds, feeds.newsEnabled);
+        }
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 13;
+      const int highestImplemented = 14;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

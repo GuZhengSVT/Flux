@@ -946,5 +946,125 @@ void main() {
         reason: 'v13 不得改动 articles 的任何列（原文本体、正文与摘要都要原样保留）',
       );
     });
+
+    test('v14 快照新增新闻配置三表与订阅的新闻开关列（T036）', () {
+      final File v14Snapshot = File('drift_schemas/drift_schema_v14.json');
+      expect(
+        v14Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v14 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v14Decoded =
+          jsonDecode(v14Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v14Entities =
+          (v14Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v14Names = v14Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      final Map<String, dynamic> v13Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v13.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v13Names = (v13Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v14Names,
+        containsAll(v13Names),
+        reason: 'v14 只新增新闻配置，不得删除 v13 的任何实体',
+      );
+      expect(v14Names.difference(v13Names), <String>{
+        'news_required_site_records',
+        'news_config_entry_records',
+        'news_prompt_version_records',
+        'ix_news_required_sites_order',
+        'ux_news_config_entries_kind_order',
+        'ux_news_prompt_versions_language_version',
+      }, reason: 'v14 相对 v13 的新增实体应只有三张表与它们的索引');
+
+      Map<String, dynamic> table(String name) => v14Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == name,
+      );
+      Set<String> columnsOf(String name) =>
+          ((table(name)['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      List<Map<String, dynamic>> columns(String name) =>
+          ((table(name)['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+
+      expect(
+        columnsOf('news_required_site_records'),
+        containsAll(<String>[
+          'id',
+          'name',
+          'url',
+          'enabled',
+          'sort_order',
+          'created_at',
+          'updated_at',
+        ]),
+      );
+      expect(
+        columnsOf('news_config_entry_records'),
+        containsAll(<String>['id', 'kind', 'value', 'sort_order']),
+      );
+      expect(
+        columnsOf('news_prompt_version_records'),
+        containsAll(<String>[
+          'id',
+          'language',
+          'version',
+          'mode',
+          'task_instruction',
+          'output_spec',
+          'advanced_prompt',
+          'note',
+          'created_at',
+        ]),
+      );
+
+      // SET-050 的可空开关：null 表示「跟随订阅启用状态」，因此不得有默认值、不得 NOT NULL。
+      final Map<String, dynamic> newsEnabledColumn = columns('feeds')
+          .firstWhere((Map<String, dynamic> c) => c['name'] == 'news_enabled');
+      expect(newsEnabledColumn['nullable'], isTrue);
+      expect(
+        newsEnabledColumn['default_dart'] ?? newsEnabledColumn['default'],
+        isNull,
+        reason: '默认值会让「从未选择过」与「显式选了参与」不可分辨',
+      );
+
+      // 既有实体不得被删：订阅表只多了一列。
+      final Map<String, dynamic> v13Feeds =
+          (v13Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .firstWhere(
+                (Map<String, dynamic> e) =>
+                    (e['data'] as Map<String, dynamic>)['name'] == 'feeds',
+              );
+      final Set<String> v13FeedColumns =
+          ((v13Feeds['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        columnsOf('feeds'),
+        containsAll(v13FeedColumns),
+        reason: '订阅表原有列不得消失',
+      );
+    });
   });
 }

@@ -3970,6 +3970,360 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'上次翻译未完成（进程被中断），已完成的段落保留；可以重试失败段。'**
   String get readingTranslateInterrupted;
+
+  /// 设置入口：新闻生成
+  ///
+  /// In zh, this message translates to:
+  /// **'新闻生成'**
+  String get newsSettingsEntryTitle;
+
+  /// 设置入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'来源选择、必访网站、关键词与总 prompt（SET-050–055）；今日新闻的生成流程属 T037–T040。'**
+  String get newsSettingsEntrySubtitle;
+
+  /// 页面标题
+  ///
+  /// In zh, this message translates to:
+  /// **'新闻生成来源与 prompt'**
+  String get newsPageTitle;
+
+  /// 读取失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'配置读取失败：{reason}；以下显示的是本次运行的初值，不是已保存的配置。'**
+  String newsLoadingFailed(String reason);
+
+  /// SET-050 总开关
+  ///
+  /// In zh, this message translates to:
+  /// **'让 RSS 订阅参与新闻选材'**
+  String get newsGlobalSwitchLabel;
+
+  /// SET-050 总开关说明
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭后本次生成完全不使用订阅内容；逐源开关只影响单个源，与加精无关。'**
+  String get newsGlobalSwitchHint;
+
+  /// 逐源小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'逐源开关（SET-050）'**
+  String get newsFeedSectionTitle;
+
+  /// 逐源说明
+  ///
+  /// In zh, this message translates to:
+  /// **'「跟随」表示按该源的订阅启用状态决定；可以排除某个源的新闻但保留它的订阅刷新。'**
+  String get newsFeedSectionHint;
+
+  /// 三态：跟随
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随订阅刷新'**
+  String get newsFeedFollow;
+
+  /// 三态：参与
+  ///
+  /// In zh, this message translates to:
+  /// **'参与新闻'**
+  String get newsFeedInclude;
+
+  /// 三态：不参与
+  ///
+  /// In zh, this message translates to:
+  /// **'不参与新闻'**
+  String get newsFeedExclude;
+
+  /// 订阅刷新已关的标注
+  ///
+  /// In zh, this message translates to:
+  /// **'（订阅刷新已关闭）'**
+  String get newsFeedDisabledHint;
+
+  /// 没有任何订阅时的空态
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有订阅源；添加订阅后可以在这里逐源设置。'**
+  String get newsFeedEmpty;
+
+  /// 必访小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'必访问网站（SET-051）'**
+  String get newsRequiredSectionTitle;
+
+  /// 必访说明
+  ///
+  /// In zh, this message translates to:
+  /// **'每一站在生成任务里都会被单独获取，并逐站写进总 prompt；停用的站不进 prompt。'**
+  String get newsRequiredSectionHint;
+
+  /// 必访空态
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有配置必访问网站。'**
+  String get newsRequiredEmpty;
+
+  /// 添加必访站按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'添加网站'**
+  String get newsRequiredAdd;
+
+  /// 站点名字段
+  ///
+  /// In zh, this message translates to:
+  /// **'站点名'**
+  String get newsRequiredNameField;
+
+  /// 站点地址字段
+  ///
+  /// In zh, this message translates to:
+  /// **'站点地址'**
+  String get newsRequiredUrlField;
+
+  /// 保存回执
+  ///
+  /// In zh, this message translates to:
+  /// **'必访问网站已保存。'**
+  String get newsRequiredSaved;
+
+  /// 保存失败
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败：{reason}'**
+  String newsRequiredSaveFailed(String reason);
+
+  /// 关键词小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'联网搜索关键词（SET-052）'**
+  String get newsListKeywordsTitle;
+
+  /// 关键词说明
+  ///
+  /// In zh, this message translates to:
+  /// **'空列表且没有 RSS 材料时会提示缺少输入，而不是凭空生成新闻。'**
+  String get newsListKeywordsHint;
+
+  /// 查询禁词小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'禁止发送的查询词（SET-053）'**
+  String get newsListBlockedTitle;
+
+  /// 查询禁词说明
+  ///
+  /// In zh, this message translates to:
+  /// **'含这些词的查询不会发给搜索服务（按包含匹配）；它不影响生成时排除哪些主题。'**
+  String get newsListBlockedHint;
+
+  /// 主题排除小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'排除的内容主题（SET-053）'**
+  String get newsListTopicsTitle;
+
+  /// 主题排除说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这些主题不会被写进结果；与上面的查询禁词是两个独立列表。'**
+  String get newsListTopicsHint;
+
+  /// 列表空态
+  ///
+  /// In zh, this message translates to:
+  /// **'列表为空。'**
+  String get newsListEmpty;
+
+  /// 添加输入提示
+  ///
+  /// In zh, this message translates to:
+  /// **'输入后回车添加'**
+  String get newsListAddHint;
+
+  /// 列表保存回执
+  ///
+  /// In zh, this message translates to:
+  /// **'列表已保存。'**
+  String get newsListSaved;
+
+  /// 列表保存失败
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败：{reason}'**
+  String newsListSaveFailed(String reason);
+
+  /// 模式小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'总 prompt 模式（SET-055）'**
+  String get newsPromptModeTitle;
+
+  /// 模式：自动组合
+  ///
+  /// In zh, this message translates to:
+  /// **'自动组合'**
+  String get newsPromptModeComposed;
+
+  /// 模式：高级覆盖
+  ///
+  /// In zh, this message translates to:
+  /// **'高级覆盖'**
+  String get newsPromptModeAdvanced;
+
+  /// 组合模式说明
+  ///
+  /// In zh, this message translates to:
+  /// **'按「任务 + 来源 + 规范 + 固定协议」自动组合；下面的组合结果就是实际会发的文本。'**
+  String get newsPromptModeComposedHint;
+
+  /// 高级模式说明
+  ///
+  /// In zh, this message translates to:
+  /// **'直接编辑总 prompt。固定引用协议段仍会附加在末尾，且必访站缺失会被提示。'**
+  String get newsPromptModeAdvancedHint;
+
+  /// 任务说明字段
+  ///
+  /// In zh, this message translates to:
+  /// **'任务说明'**
+  String get newsPromptTaskField;
+
+  /// 输出规范字段
+  ///
+  /// In zh, this message translates to:
+  /// **'输出规范'**
+  String get newsPromptSpecField;
+
+  /// 高级 prompt 字段
+  ///
+  /// In zh, this message translates to:
+  /// **'总 prompt（高级覆盖）'**
+  String get newsPromptAdvancedField;
+
+  /// 固定协议段标题
+  ///
+  /// In zh, this message translates to:
+  /// **'固定输出协议（不可删除，保存时始终附加）'**
+  String get newsPromptCitationFixed;
+
+  /// 恢复默认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复默认模板'**
+  String get newsPromptRestoreDefaults;
+
+  /// 恢复默认回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已恢复内置模板（尚未保存）。'**
+  String get newsPromptRestored;
+
+  /// 保存版本按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存为新版本'**
+  String get newsPromptSaveVersion;
+
+  /// 保存版本回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存为版本 {version}。'**
+  String newsPromptVersionSaved(int version);
+
+  /// 保存失败
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败：{reason}'**
+  String newsPromptSaveFailed(String reason);
+
+  /// 版本列表标题
+  ///
+  /// In zh, this message translates to:
+  /// **'版本（可回退）'**
+  String get newsPromptVersionsTitle;
+
+  /// 没有版本时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有保存过版本；当前使用内置模板。'**
+  String get newsPromptVersionNone;
+
+  /// 版本条目
+  ///
+  /// In zh, this message translates to:
+  /// **'版本 {version} · {mode}'**
+  String newsPromptVersionItem(int version, String mode);
+
+  /// 载入某个版本按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'载入这一版'**
+  String get newsPromptVersionUse;
+
+  /// 载入版本回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已载入版本 {version}；保存后才会成为当前配置。'**
+  String newsPromptVersionLoaded(int version);
+
+  /// 删除版本按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这一版'**
+  String get newsPromptVersionDelete;
+
+  /// 差异提示标题
+  ///
+  /// In zh, this message translates to:
+  /// **'必访任务缺失提示'**
+  String get newsPromptDiffTitle;
+
+  /// 缺失必访站提示
+  ///
+  /// In zh, this message translates to:
+  /// **'当前总 prompt 里没有出现这些必访网站：{sites}。它们仍然被列为必访任务，任务执行时会逐站获取；请确认这是你要的。'**
+  String newsPromptDiffMissing(String sites);
+
+  /// 缺引用标记提示
+  ///
+  /// In zh, this message translates to:
+  /// **'当前总 prompt 里没有出现引用标记（形如 [sourceId]）；固定协议段仍会在发送时附加，但建议保留你自己的引用要求。'**
+  String get newsPromptDiffCitationMissing;
+
+  /// 预览标题
+  ///
+  /// In zh, this message translates to:
+  /// **'实际会发送的 prompt'**
+  String get newsPromptPreviewTitle;
+
+  /// 预览说明
+  ///
+  /// In zh, this message translates to:
+  /// **'下面是组合或覆盖后的完整文本（含固定协议段）。复制它可核对实际请求内容。'**
+  String get newsPromptPreviewHint;
+
+  /// 生效查询标题
+  ///
+  /// In zh, this message translates to:
+  /// **'实际会发送的查询（已应用禁词）'**
+  String get newsEffectiveQueriesTitle;
+
+  /// 没有生效查询时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'当前没有可发送的查询（关键词为空或被禁词全部挡住）。'**
+  String get newsEffectiveQueriesEmpty;
+
+  /// 未实现部分说明
+  ///
+  /// In zh, this message translates to:
+  /// **'今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。'**
+  String get newsPlannedNotice;
 }
 
 class _AppLocalizationsDelegate

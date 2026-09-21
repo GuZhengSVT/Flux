@@ -50,6 +50,7 @@ import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/daily_summary_counter_store.dart';
 import 'package:flux/features/articles/application/article_ai_providers.dart';
 import 'package:flux/features/articles/application/article_translation_providers.dart';
+import 'package:flux/features/news/application/news_source_providers.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -61,6 +62,7 @@ import 'package:flux/infrastructure/local/search_service_store.dart';
 import 'package:flux/infrastructure/local/degraded_search_service_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/article_translation_store.dart';
+import 'package:flux/infrastructure/local/news_source_config_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
@@ -328,6 +330,10 @@ List<Override> bootstrapOverrides(
       searchServiceStoreProvider.overrideWithValue(
         searchServiceStore ?? DriftSearchServiceStore(catalogDatabase),
       ),
+      // T036：新闻来源配置与版本化 prompt（与其它数据表同一个库）。
+      newsSourceConfigProvider.overrideWithValue(
+        DriftNewsSourceConfigStore(catalogDatabase),
+      ),
       // T024：提取正文读写。
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
@@ -383,6 +389,10 @@ List<Override> bootstrapOverrides(
       // 没有可用服务），写入明确失败（不假装保存成功）。
       searchServiceStoreProvider.overrideWithValue(
         searchServiceStore ?? const DegradedSearchServiceStore(),
+      ),
+      // T036：降级模式下读作「还没有配置」（真实答案），写明确失败。
+      newsSourceConfigProvider.overrideWithValue(
+        const DegradedNewsSourceConfigStore(),
       ),
     ],
     // ---- T024：静态网页抓取 --------------------------------------------------

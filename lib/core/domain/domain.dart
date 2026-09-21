@@ -23,6 +23,8 @@ export 'group_collapse.dart';
 export 'image_header.dart';
 export 'media_cache.dart';
 export 'network_conditions.dart';
+export 'news_config.dart';
+export 'news_prompt.dart';
 export 'reading_state.dart';
 export 'reading_session.dart';
 export 'reading_stats.dart';

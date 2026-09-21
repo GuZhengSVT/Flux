@@ -254,6 +254,17 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
   }) => _patchFeed(feedId, FeedsCompanion(enabled: Value<bool>(enabled)));
 
   @override
+  Future<Result<void>> setFeedNewsEnabled({
+    required int feedId,
+    required bool? newsEnabled,
+  }) => _patchFeed(
+    feedId,
+    // null 是「跟随 enabled」，必须真的写 NULL（而不是写一个布尔值）：Value(null) 是
+    // drift 表达「把这一列设为 NULL」的方式，Value.absent() 则会变成「不改这一列」。
+    FeedsCompanion(newsEnabled: Value<bool?>(newsEnabled)),
+  );
+
+  @override
   Future<Result<void>> setFeedFavorite({
     required int feedId,
     required bool favorite,
@@ -753,6 +764,7 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
     groupId: row.groupId,
     favorite: row.favorite,
     enabled: row.enabled,
+    newsEnabled: row.newsEnabled,
     refreshIntervalMinutes: row.refreshIntervalMinutes,
     sortOrder: row.sortOrder,
     lastCheckedAt: row.lastCheckedAt,
@@ -859,6 +871,12 @@ final class DegradedFeedCatalogStore implements FeedCatalogStore {
     required int feedId,
     required bool enabled,
   }) async => Err<void>(_degraded('setFeedEnabled'));
+
+  @override
+  Future<Result<void>> setFeedNewsEnabled({
+    required int feedId,
+    required bool? newsEnabled,
+  }) async => Err<void>(_degraded('setFeedNewsEnabled'));
 
   @override
   Future<Result<void>> setFeedFavorite({

@@ -2222,4 +2222,203 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingTranslateInterrupted => '上次翻译未完成（进程被中断），已完成的段落保留；可以重试失败段。';
+
+  @override
+  String get newsSettingsEntryTitle => '新闻生成';
+
+  @override
+  String get newsSettingsEntrySubtitle =>
+      '来源选择、必访网站、关键词与总 prompt（SET-050–055）；今日新闻的生成流程属 T037–T040。';
+
+  @override
+  String get newsPageTitle => '新闻生成来源与 prompt';
+
+  @override
+  String newsLoadingFailed(String reason) {
+    return '配置读取失败：$reason；以下显示的是本次运行的初值，不是已保存的配置。';
+  }
+
+  @override
+  String get newsGlobalSwitchLabel => '让 RSS 订阅参与新闻选材';
+
+  @override
+  String get newsGlobalSwitchHint => '关闭后本次生成完全不使用订阅内容；逐源开关只影响单个源，与加精无关。';
+
+  @override
+  String get newsFeedSectionTitle => '逐源开关（SET-050）';
+
+  @override
+  String get newsFeedSectionHint => '「跟随」表示按该源的订阅启用状态决定；可以排除某个源的新闻但保留它的订阅刷新。';
+
+  @override
+  String get newsFeedFollow => '跟随订阅刷新';
+
+  @override
+  String get newsFeedInclude => '参与新闻';
+
+  @override
+  String get newsFeedExclude => '不参与新闻';
+
+  @override
+  String get newsFeedDisabledHint => '（订阅刷新已关闭）';
+
+  @override
+  String get newsFeedEmpty => '还没有订阅源；添加订阅后可以在这里逐源设置。';
+
+  @override
+  String get newsRequiredSectionTitle => '必访问网站（SET-051）';
+
+  @override
+  String get newsRequiredSectionHint =>
+      '每一站在生成任务里都会被单独获取，并逐站写进总 prompt；停用的站不进 prompt。';
+
+  @override
+  String get newsRequiredEmpty => '还没有配置必访问网站。';
+
+  @override
+  String get newsRequiredAdd => '添加网站';
+
+  @override
+  String get newsRequiredNameField => '站点名';
+
+  @override
+  String get newsRequiredUrlField => '站点地址';
+
+  @override
+  String get newsRequiredSaved => '必访问网站已保存。';
+
+  @override
+  String newsRequiredSaveFailed(String reason) {
+    return '保存失败：$reason';
+  }
+
+  @override
+  String get newsListKeywordsTitle => '联网搜索关键词（SET-052）';
+
+  @override
+  String get newsListKeywordsHint => '空列表且没有 RSS 材料时会提示缺少输入，而不是凭空生成新闻。';
+
+  @override
+  String get newsListBlockedTitle => '禁止发送的查询词（SET-053）';
+
+  @override
+  String get newsListBlockedHint => '含这些词的查询不会发给搜索服务（按包含匹配）；它不影响生成时排除哪些主题。';
+
+  @override
+  String get newsListTopicsTitle => '排除的内容主题（SET-053）';
+
+  @override
+  String get newsListTopicsHint => '这些主题不会被写进结果；与上面的查询禁词是两个独立列表。';
+
+  @override
+  String get newsListEmpty => '列表为空。';
+
+  @override
+  String get newsListAddHint => '输入后回车添加';
+
+  @override
+  String get newsListSaved => '列表已保存。';
+
+  @override
+  String newsListSaveFailed(String reason) {
+    return '保存失败：$reason';
+  }
+
+  @override
+  String get newsPromptModeTitle => '总 prompt 模式（SET-055）';
+
+  @override
+  String get newsPromptModeComposed => '自动组合';
+
+  @override
+  String get newsPromptModeAdvanced => '高级覆盖';
+
+  @override
+  String get newsPromptModeComposedHint =>
+      '按「任务 + 来源 + 规范 + 固定协议」自动组合；下面的组合结果就是实际会发的文本。';
+
+  @override
+  String get newsPromptModeAdvancedHint =>
+      '直接编辑总 prompt。固定引用协议段仍会附加在末尾，且必访站缺失会被提示。';
+
+  @override
+  String get newsPromptTaskField => '任务说明';
+
+  @override
+  String get newsPromptSpecField => '输出规范';
+
+  @override
+  String get newsPromptAdvancedField => '总 prompt（高级覆盖）';
+
+  @override
+  String get newsPromptCitationFixed => '固定输出协议（不可删除，保存时始终附加）';
+
+  @override
+  String get newsPromptRestoreDefaults => '恢复默认模板';
+
+  @override
+  String get newsPromptRestored => '已恢复内置模板（尚未保存）。';
+
+  @override
+  String get newsPromptSaveVersion => '保存为新版本';
+
+  @override
+  String newsPromptVersionSaved(int version) {
+    return '已保存为版本 $version。';
+  }
+
+  @override
+  String newsPromptSaveFailed(String reason) {
+    return '保存失败：$reason';
+  }
+
+  @override
+  String get newsPromptVersionsTitle => '版本（可回退）';
+
+  @override
+  String get newsPromptVersionNone => '还没有保存过版本；当前使用内置模板。';
+
+  @override
+  String newsPromptVersionItem(int version, String mode) {
+    return '版本 $version · $mode';
+  }
+
+  @override
+  String get newsPromptVersionUse => '载入这一版';
+
+  @override
+  String newsPromptVersionLoaded(int version) {
+    return '已载入版本 $version；保存后才会成为当前配置。';
+  }
+
+  @override
+  String get newsPromptVersionDelete => '删除这一版';
+
+  @override
+  String get newsPromptDiffTitle => '必访任务缺失提示';
+
+  @override
+  String newsPromptDiffMissing(String sites) {
+    return '当前总 prompt 里没有出现这些必访网站：$sites。它们仍然被列为必访任务，任务执行时会逐站获取；请确认这是你要的。';
+  }
+
+  @override
+  String get newsPromptDiffCitationMissing =>
+      '当前总 prompt 里没有出现引用标记（形如 [sourceId]）；固定协议段仍会在发送时附加，但建议保留你自己的引用要求。';
+
+  @override
+  String get newsPromptPreviewTitle => '实际会发送的 prompt';
+
+  @override
+  String get newsPromptPreviewHint => '下面是组合或覆盖后的完整文本（含固定协议段）。复制它可核对实际请求内容。';
+
+  @override
+  String get newsEffectiveQueriesTitle => '实际会发送的查询（已应用禁词）';
+
+  @override
+  String get newsEffectiveQueriesEmpty => '当前没有可发送的查询（关键词为空或被禁词全部挡住）。';
+
+  @override
+  String get newsPlannedNotice =>
+      '今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。';
 }

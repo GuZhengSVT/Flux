@@ -71,6 +71,7 @@ class FeedRecord {
     this.sourceName,
     this.groupId,
     this.refreshIntervalMinutes,
+    this.newsEnabled,
     this.lastCheckedAt,
     this.lastRefreshResult,
     this.lastRefreshErrorKind,
@@ -101,6 +102,15 @@ class FeedRecord {
 
   /// 是否参与自动刷新（SET-022）。
   final bool enabled;
+
+  /// 是否参与每日新闻选材（SET-050 的逐源开关，T036）。
+  ///
+  /// **null 表示「跟随 [enabled]」**（架构口径：已启用订阅默认开，与加精无关）。用户可
+  /// 单独把某个源排除在新闻之外、同时保留它的订阅刷新；也可以只让少数源进新闻。
+  ///
+  /// 用 null 而不是一个布尔默认值：把「用户从未做过这个选择」与「用户显式选了参与」压成
+  /// 同一个 true 之后，界面上那个开关就无法如实反映状态（架构第 8 节禁止用假象代替状态）。
+  final bool? newsEnabled;
 
   /// 刷新间隔覆盖（分钟）；null 表示继承全局（SET-020）。
   final int? refreshIntervalMinutes;
@@ -139,6 +149,8 @@ class FeedRecord {
     bool clearGroup = false,
     bool? favorite,
     bool? enabled,
+    bool? newsEnabled,
+    bool clearNewsEnabled = false,
     int? refreshIntervalMinutes,
     bool clearRefreshInterval = false,
     int? sortOrder,
@@ -151,6 +163,7 @@ class FeedRecord {
     groupId: clearGroup ? null : (groupId ?? this.groupId),
     favorite: favorite ?? this.favorite,
     enabled: enabled ?? this.enabled,
+    newsEnabled: clearNewsEnabled ? null : (newsEnabled ?? this.newsEnabled),
     refreshIntervalMinutes: clearRefreshInterval
         ? null
         : (refreshIntervalMinutes ?? this.refreshIntervalMinutes),
@@ -265,6 +278,15 @@ abstract interface class FeedCatalogStore {
   Future<Result<void>> setFeedEnabled({
     required int feedId,
     required bool enabled,
+  });
+
+  /// 改订阅的新闻选材开关（SET-050 的逐源开关，T036）。
+  ///
+  /// [newsEnabled] 传 null 表示**恢复为「跟随订阅启用状态」**，而不是传一个布尔值：三态
+  /// （参与 / 不参与 / 跟随）必须都能表达，否则用户无法退回默认。
+  Future<Result<void>> setFeedNewsEnabled({
+    required int feedId,
+    required bool? newsEnabled,
   });
 
   /// 改订阅加精（SET-023：只影响显示）。

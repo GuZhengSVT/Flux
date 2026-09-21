@@ -2342,4 +2342,216 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readingTranslateInterrupted =>
       'The previous translation did not finish (the process was interrupted). Finished paragraphs are kept; you can retry the failures.';
+
+  @override
+  String get newsSettingsEntryTitle => 'News generation';
+
+  @override
+  String get newsSettingsEntrySubtitle =>
+      'Source selection, required sites, keywords and the overall prompt (SET-050–055); the daily-news pipeline itself comes with T037–T040.';
+
+  @override
+  String get newsPageTitle => 'News sources and prompt';
+
+  @override
+  String newsLoadingFailed(String reason) {
+    return 'Failed to load configuration: $reason; what follows is this run\'s initial value, not your saved configuration.';
+  }
+
+  @override
+  String get newsGlobalSwitchLabel =>
+      'Let RSS subscriptions feed the news selection';
+
+  @override
+  String get newsGlobalSwitchHint =>
+      'When off, no subscription content is used at all; the per-source switches only affect a single source and are unrelated to starring.';
+
+  @override
+  String get newsFeedSectionTitle => 'Per-source switches (SET-050)';
+
+  @override
+  String get newsFeedSectionHint =>
+      '\"Follow\" defers to the source\'s subscription refresh state; you can exclude a source from the news while keeping its refresh.';
+
+  @override
+  String get newsFeedFollow => 'Follow subscription';
+
+  @override
+  String get newsFeedInclude => 'Include in news';
+
+  @override
+  String get newsFeedExclude => 'Exclude from news';
+
+  @override
+  String get newsFeedDisabledHint => ' (subscription refresh is off)';
+
+  @override
+  String get newsFeedEmpty =>
+      'No subscriptions yet; add one and you can configure it per source here.';
+
+  @override
+  String get newsRequiredSectionTitle => 'Required sites (SET-051)';
+
+  @override
+  String get newsRequiredSectionHint =>
+      'Each site is fetched individually during the task and written into the overall prompt one by one; disabled sites stay out of the prompt.';
+
+  @override
+  String get newsRequiredEmpty => 'No required sites configured yet.';
+
+  @override
+  String get newsRequiredAdd => 'Add site';
+
+  @override
+  String get newsRequiredNameField => 'Site name';
+
+  @override
+  String get newsRequiredUrlField => 'Site URL';
+
+  @override
+  String get newsRequiredSaved => 'Required sites saved.';
+
+  @override
+  String newsRequiredSaveFailed(String reason) {
+    return 'Save failed: $reason';
+  }
+
+  @override
+  String get newsListKeywordsTitle => 'Search keywords (SET-052)';
+
+  @override
+  String get newsListKeywordsHint =>
+      'With an empty list and no RSS material, the task reports missing input instead of inventing news.';
+
+  @override
+  String get newsListBlockedTitle => 'Blocked query terms (SET-053)';
+
+  @override
+  String get newsListBlockedHint =>
+      'Queries containing these terms are never sent to search services (substring match); this does not affect which topics are excluded.';
+
+  @override
+  String get newsListTopicsTitle => 'Excluded topics (SET-053)';
+
+  @override
+  String get newsListTopicsHint =>
+      'These topics are kept out of the result; this is a separate list from the blocked query terms above.';
+
+  @override
+  String get newsListEmpty => 'The list is empty.';
+
+  @override
+  String get newsListAddHint => 'Type and press Enter to add';
+
+  @override
+  String get newsListSaved => 'List saved.';
+
+  @override
+  String newsListSaveFailed(String reason) {
+    return 'Save failed: $reason';
+  }
+
+  @override
+  String get newsPromptModeTitle => 'Overall prompt mode (SET-055)';
+
+  @override
+  String get newsPromptModeComposed => 'Composed';
+
+  @override
+  String get newsPromptModeAdvanced => 'Advanced override';
+
+  @override
+  String get newsPromptModeComposedHint =>
+      'Composed from task + sources + spec + fixed protocol; the preview below is exactly what will be sent.';
+
+  @override
+  String get newsPromptModeAdvancedHint =>
+      'Edit the overall prompt directly. The fixed citation protocol is still appended, and missing required sites are reported.';
+
+  @override
+  String get newsPromptTaskField => 'Task instruction';
+
+  @override
+  String get newsPromptSpecField => 'Output spec';
+
+  @override
+  String get newsPromptAdvancedField => 'Overall prompt (advanced override)';
+
+  @override
+  String get newsPromptCitationFixed =>
+      'Fixed output protocol (cannot be removed; always appended)';
+
+  @override
+  String get newsPromptRestoreDefaults => 'Restore default template';
+
+  @override
+  String get newsPromptRestored =>
+      'Built-in template restored (not saved yet).';
+
+  @override
+  String get newsPromptSaveVersion => 'Save as new version';
+
+  @override
+  String newsPromptVersionSaved(int version) {
+    return 'Saved as version $version.';
+  }
+
+  @override
+  String newsPromptSaveFailed(String reason) {
+    return 'Save failed: $reason';
+  }
+
+  @override
+  String get newsPromptVersionsTitle => 'Versions (roll back any time)';
+
+  @override
+  String get newsPromptVersionNone =>
+      'No saved versions yet; the built-in template is in use.';
+
+  @override
+  String newsPromptVersionItem(int version, String mode) {
+    return 'Version $version · $mode';
+  }
+
+  @override
+  String get newsPromptVersionUse => 'Load this version';
+
+  @override
+  String newsPromptVersionLoaded(int version) {
+    return 'Version $version loaded; save it to make it current.';
+  }
+
+  @override
+  String get newsPromptVersionDelete => 'Delete this version';
+
+  @override
+  String get newsPromptDiffTitle => 'Missing required-site tasks';
+
+  @override
+  String newsPromptDiffMissing(String sites) {
+    return 'These required sites do not appear in your overall prompt: $sites. They are still listed as required tasks and will be fetched one by one; confirm that is what you want.';
+  }
+
+  @override
+  String get newsPromptDiffCitationMissing =>
+      'Your overall prompt has no citation marker (like [sourceId]); the fixed protocol is still appended when sending, but keeping your own citation requirement is recommended.';
+
+  @override
+  String get newsPromptPreviewTitle => 'Prompt that will actually be sent';
+
+  @override
+  String get newsPromptPreviewHint =>
+      'Below is the full composed or overridden text (including the fixed protocol). Copy it to verify what will actually be requested.';
+
+  @override
+  String get newsEffectiveQueriesTitle =>
+      'Queries that will actually be sent (blocked terms applied)';
+
+  @override
+  String get newsEffectiveQueriesEmpty =>
+      'There are no sendable queries right now (keywords are empty or all blocked).';
+
+  @override
+  String get newsPlannedNotice =>
+      'Daily-news retrieval orchestration and drafting (T037), source verification (T038) and scheduling (T040) come later; this page only covers the SET-050–055 configuration.';
 }
