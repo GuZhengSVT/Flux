@@ -105,7 +105,7 @@ void main() {
       );
     });
 
-    testWidgets('协议下拉把未实现的协议标注为待实现', (WidgetTester tester) async {
+    testWidgets('协议下拉列出三个协议，T027 之后不再有「待实现」标记', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap();
       addTearDown(bootstrap.dispose);
 
@@ -121,11 +121,15 @@ void main() {
 
       await tester.tap(find.byType(DropdownButtonFormField<AiProtocol>));
       await tester.pumpAndSettle();
+      // 三个协议的适配器都已落地，因此下拉里不应再出现「（适配器待实现）」。
       expect(
         find.textContaining('适配器待实现'),
-        findsWidgets,
-        reason: '「列出这个选项」不等于「真的能用」，必须在选项里就说清',
+        findsNothing,
+        reason: 'T026/T027 之后三个协议都已有适配器',
       );
+      for (final AiProtocol protocol in AiProtocol.values) {
+        expect(find.text(protocol.label), findsWidgets, reason: '下拉应列出每个协议');
+      }
     });
 
     testWidgets('空别名不提交：对话框保持打开、给出提示、不落库', (WidgetTester tester) async {

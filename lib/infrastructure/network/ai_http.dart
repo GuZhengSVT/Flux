@@ -19,6 +19,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:flux/features/ai/domain/ai_message.dart';
+import 'package:flux/features/ai/domain/ai_errors.dart';
+import 'package:flux/core/core.dart';
 
 export 'ai_stream_guard.dart';
 export 'sse.dart';
@@ -138,6 +140,214 @@ AiUsage? parseResponsesUsage(Object? raw) {
     inputTokens: input ?? 0,
     outputTokens: output ?? 0,
     totalTokens: _asInt(raw['total_tokens']),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Anthropic Messages（T027）
+// ---------------------------------------------------------------------------
+//
+// 与两个 OpenAI 协议一样，下面这些是**协议事实**（必需头、必需参数、内容块形状、
+// 错误类型到状态码的语义），因此与请求体构造、usage 解析放在同一层：共用层必须比
+// 适配器更下层，否则会形成「适配器 A import 适配器 B」的怪关系。适配器只负责
+// 「哪个事件对应哪个统一事件」。
+
+/// Anthropic 必需的版本头值（anthropic-version）。
+///
+/// 缺这个头服务商返回 400，**不会**回退到某个默认版本——因此它不是可选元数据，
+/// 而是协议的一部分（与 OpenAI 的 Authorization 一样属于「不发就必然失败」）。
+const String anthropicVersion = '2023-06-01';
+
+/// Anthropic 特有的「服务过载」状态码。
+///
+/// 429 表示「你发得太快」（RateLimitError，服从 Retry-After），529 表示「我们这边
+/// 过载」。若让 529 落进通用的 5xx 分类，它会变成一个**不可重试**的错误，而它恰恰
+/// 是应当稍后重试的一类（重试策略属 T029）。
+const int anthropicOverloadedStatus = 529;
+
+/// 过载错误的稳定类别标识（写进 ProviderError.kind，不靠文案匹配）。
+const String anthropicOverloadedKind = 'overloaded';
+
+/// Anthropic 的 max_tokens 是**必填**参数（两个 OpenAI 协议都可以省略）。
+///
+/// 适配器无法从请求之外知道模型的真实输出预算，因此未指定时退回 SET-033 的保守输出
+/// 预算（2048），而不是猜一个更大的数字——猜大会真实产生费用与超长报错。有用例断言
+/// 这个常量与 ModelCapability.conservativeOutputBudget 保持一致。
+const int anthropicDefaultMaxTokens = 2048;
+
+/// 构造 Anthropic Messages 的请求体。
+///
+/// 与两个 OpenAI 协议的**结构差异**（不是改字段名）：
+///   - 认证走头（x-api-key + anthropic-version），请求体里没有认证字段；
+///   - 系统指令是**顶层 system**，不是 messages 里的一条 role=system——把 system
+///     留在 messages 里会被服务商直接拒绝；
+///   - max_tokens **必填**；
+///   - 每条消息的 content 是**分量数组**（文本块 / 图片块），而不是字符串。
+Map<String, Object?> anthropicMessagesRequestBody(
+  AiRequest request,
+  String modelId,
+) {
+  final StringBuffer system = StringBuffer();
+  final List<Map<String, Object?>> messages = <Map<String, Object?>>[];
+  for (final AiMessage message in request.messages) {
+    if (message.role == AiRole.system) {
+      if (system.isNotEmpty) {
+        system.write('\n\n');
+      }
+      system.write(message.content);
+      continue;
+    }
+    messages.add(<String, Object?>{
+      'role': anthropicRoleOf(message.role),
+      'content': <Map<String, Object?>>[anthropicTextBlock(message.content)],
+    });
+  }
+  return <String, Object?>{
+    'model': modelId,
+    'max_tokens': request.maxTokens ?? anthropicDefaultMaxTokens,
+    'messages': messages,
+    if (system.isNotEmpty) 'system': system.toString(),
+    if (request.temperature != null) 'temperature': request.temperature,
+    'stream': true,
+    if (request.tools.isNotEmpty)
+      'tools': <Map<String, Object?>>[
+        for (final AiToolDeclaration tool in request.tools)
+          <String, Object?>{
+            'name': tool.name,
+            'description': tool.description,
+            // 与 OpenAI 的 parameters 不同：Anthropic 的字段名是 input_schema，
+            // 且没有 {type: "function", function: {...}} 这层包装。
+            'input_schema': tool.parameters,
+          },
+      ],
+  };
+}
+
+/// Anthropic 的角色取值域只有 user / assistant（没有 system / tool）。
+String anthropicRoleOf(AiRole role) => switch (role) {
+  AiRole.system => 'user',
+  AiRole.user => 'user',
+  AiRole.assistant => 'assistant',
+  // 规范的 tool_result 是 user 消息里的一个内容块，且必须带 tool_use_id；
+  // AiMessage 目前不承载这个 id（消息模型的多模态/工具扩展属 T032/T033），
+  // 因此先把工具结果作为文本交回。静默丢弃它会让多轮工具对话丢失上下文，
+  // 而「丢一半上下文」比「多带一段文本」危险得多。
+  AiRole.tool => 'user',
+};
+
+/// 一个文本内容块。
+Map<String, Object?> anthropicTextBlock(String text) => <String, Object?>{
+  'type': 'text',
+  'text': text,
+};
+
+/// 一个图片内容块。
+///
+/// **图片是 base64 源，不是 URL**：协议不接受让服务商去远端取图（那会把一次请求变成
+/// 一次不可控的出网），因此这里显式拼 source.type = "base64"。T027 只用它固化形状
+/// 并测试；真正把图片接进请求属 T033 的多模态消息模型。
+Map<String, Object?> anthropicImageBlock({
+  required String mediaType,
+  required String base64Data,
+}) => <String, Object?>{
+  'type': 'image',
+  'source': <String, Object?>{
+    'type': 'base64',
+    'media_type': mediaType,
+    'data': base64Data,
+  },
+};
+
+/// 解析 Anthropic 的 usage（input_tokens/output_tokens）。
+///
+/// 协议**不给** total_tokens（与两个 OpenAI 协议不同），因此不在这里拼一个假的总量：
+/// 交给 AiUsage.effectiveTotal 标为本地合计。
+AiUsage? parseAnthropicUsage(Object? raw) {
+  if (raw is! Map<Object?, Object?>) {
+    return null;
+  }
+  final int? input = _asInt(raw['input_tokens']);
+  final int? output = _asInt(raw['output_tokens']);
+  if (input == null && output == null) {
+    return null;
+  }
+  return AiUsage(inputTokens: input ?? 0, outputTokens: output ?? 0);
+}
+
+/// 把 Anthropic 的**错误类型**映射到状态码语义。
+///
+/// 为什么需要它：Anthropic 可以在 **HTTP 200 的事件流里**发一个 type = "error"
+/// 事件。此时没有状态码可用，而共用的分类器只认状态码；若不留这一层，一个
+/// 「限流」或「认证失败」会被归成一个 200 的 NetworkError，上层既不知道该等
+/// 还是该去改 Key。映射只使用结构化的类型名，不做文案匹配。
+int anthropicStatusForErrorType(String? errorType, int fallback) {
+  if (errorType == null) {
+    return fallback;
+  }
+  return switch (errorType.trim().toLowerCase()) {
+    'authentication_error' => 401,
+    'permission_error' => 403,
+    'not_found_error' => 404,
+    'request_too_large' => 413,
+    'rate_limit_error' => 429,
+    'api_error' => 500,
+    'overloaded_error' => anthropicOverloadedStatus,
+    'invalid_request_error' => 400,
+    _ => fallback,
+  };
+}
+
+/// 判断一个 Anthropic 错误是否是过载（状态码 529 或事件里的 overloaded 类型）。
+bool isAnthropicOverload({required int statusCode, String? errorType}) {
+  if (statusCode == anthropicOverloadedStatus) {
+    return true;
+  }
+  return errorType != null && errorType.toLowerCase().contains('overload');
+}
+
+/// 把一个 Anthropic 错误翻译成类型化错误（Anthropic 专属口径）。
+///
+/// 两处与两个 OpenAI 协议不同，因此不能直接复用 mapAiHttpError：
+///   1) **错误类型可能出现在事件流里**（HTTP 200 + type = "error"），此时没有状态码；
+///      因此先用 anthropicStatusForErrorType 把类型名换成语义等价的状态码，再交给
+///      共用的分类器。若直接用一个 200 兜底，限流与认证失败都会被归成网络错误。
+///   2) **529（overloaded）是一个可重试的「稍后再试」**，而通用 5xx 分支把它变成
+///      不可重试的 NetworkError。这里显式映射为带 kind 的 ProviderError，并标
+///      isRetryable，让 T029 的退避策略能识别它。
+///
+/// 参数里的 detail 只放结构性字段（错误类型 / 服务商错误码），不放响应体文案。
+AppError mapAnthropicError({
+  required String provider,
+  required Uri endpoint,
+  required int statusCode,
+  String? errorType,
+  String? errorCode,
+  Duration? retryAfter,
+  Object? cause,
+  StackTrace? stackTrace,
+}) {
+  final int effective = anthropicStatusForErrorType(errorType, statusCode);
+  if (isAnthropicOverload(statusCode: effective, errorType: errorType)) {
+    return ProviderError(
+      provider: provider,
+      kind: anthropicOverloadedKind,
+      statusCode: effective,
+      detail: describeErrorMarkers(errorType, errorCode),
+      cause: cause,
+      stackTrace: stackTrace,
+      // 过载是暂时性的，重试可能成功——这正是它与 401/400 的根本区别。
+      isRetryable: true,
+    );
+  }
+  return mapAiHttpError(
+    provider: provider,
+    endpoint: endpoint,
+    statusCode: effective,
+    errorType: errorType,
+    errorCode: errorCode,
+    retryAfter: retryAfter,
+    cause: cause,
+    stackTrace: stackTrace,
   );
 }
 

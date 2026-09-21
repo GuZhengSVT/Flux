@@ -19,6 +19,7 @@ import 'package:flux/features/ai/domain/ai_protocol.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
 
 import 'ai_http.dart';
+import 'anthropic_messages_adapter.dart';
 import 'chat_completions_adapter.dart';
 import 'responses_adapter.dart';
 
@@ -108,12 +109,14 @@ final class OpenAiProviderFactory implements AiProviderFactory {
           timeouts: timeouts,
         ),
       ),
-      // 协议枚举里存在但适配器未实现的（Anthropic，T027）。
-      AiProtocol.anthropicMessages => Err<AiProvider>(
-        ModelConfigurationError(
+      AiProtocol.anthropicMessages => Ok<AiProvider>(
+        AnthropicMessagesAdapter(
           alias: alias,
-          reason: 'adapterMissing',
-          detail: protocol.missingAdapterReason,
+          baseUrl: baseUrl,
+          modelId: modelId,
+          apiKey: apiKey,
+          client: client,
+          timeouts: timeouts,
         ),
       ),
     };

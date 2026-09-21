@@ -36,7 +36,7 @@ AppError mapAiHttpError({
   Object? cause,
   StackTrace? stackTrace,
 }) {
-  final String? detail = _describe(errorType, errorCode);
+  final String? detail = describeErrorMarkers(errorType, errorCode);
   if (statusCode == 429) {
     return RateLimitError(
       provider: provider,
@@ -108,7 +108,13 @@ Duration? parseRetryAfterHeader(String? raw) {
   return Duration(seconds: seconds);
 }
 
-String? _describe(String? errorType, String? errorCode) {
+/// 把错误的结构性标记拼成一段**可安全写入日志**的说明。
+///
+/// 只允许 errorType / errorCode 这类协议字段：响应体原文可能回显请求内容
+/// （架构第 8 节），因此这里不接受任意文本。
+/// 公开（而非私有）是因为 Anthropic 的映射住在 infrastructure/network/ai_http.dart，
+/// 两处必须使用同一份格式，否则日志里同一件事会有两种写法。
+String? describeErrorMarkers(String? errorType, String? errorCode) {
   final List<String> parts = <String>[
     if (errorType != null && errorType.isNotEmpty) 'type=$errorType',
     if (errorCode != null && errorCode.isNotEmpty) 'code=$errorCode',

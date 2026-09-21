@@ -1,0 +1,4 @@
+data: {"type":"message_start","message":{"id":"msg-fixture-3","usage":{"input_tokens":5,"output_tokens":0}}}
+
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"半句"}}
+

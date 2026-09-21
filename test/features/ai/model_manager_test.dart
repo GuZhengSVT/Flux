@@ -512,7 +512,10 @@ void main() {
       expect(factory.createdCount, 0);
     });
 
-    test('协议没有适配器时明确拒绝（T025 期间的 Anthropic）', () async {
+    test('Anthropic Messages 在 T027 之后不再被适配器检查拒绝', () async {
+      // T025 期间这条记录会以 adapterMissing 被拒（那时适配器还没实现）。
+      // T027 落地后它应当走通到工厂：这里用假工厂，因此断言的是「检查放行了」，
+      // 而不是「真发了一次请求」。
       final AiModel saved = (await manager.saveModel(
         testModel(protocol: AiProtocol.anthropicMessages),
       )).unwrap();
@@ -521,12 +524,13 @@ void main() {
         saved,
         confirmation: _confirmation,
       );
-      expect(result.isErr, isTrue);
+      expect(result.isOk, isTrue, reason: result.errorOrNull?.message);
+      expect(factory.createdCount, 1);
       expect(
-        (result.errorOrNull! as ModelConfigurationError).reason,
-        'adapterMissing',
+        factory.lastProtocolId,
+        AiProtocol.anthropicMessages.id,
+        reason: '协议标识必须原样传给工厂（由工厂决定用哪个适配器）',
       );
-      expect(factory.createdCount, 0, reason: '未实现的协议不得发起真实调用');
     });
 
     test('工厂未接线时同样报 adapterMissing 而不是崩溃', () async {

@@ -117,14 +117,18 @@ void main() {
       expect(AiProtocol.openAiChatCompletions.id, 'openai.chat_completions');
     });
 
-    test('T025 期间只有两个 OpenAI 协议的适配器已实现', () {
+    test('三个协议的适配器在 T027 之后都已实现', () {
       expect(AiProtocol.openAiChatCompletions.hasAdapter, isTrue);
       expect(AiProtocol.openAiResponses.hasAdapter, isTrue);
       expect(
         AiProtocol.anthropicMessages.hasAdapter,
-        isFalse,
-        reason: '适配器属 T027；「列出这个选项」不等于「真的能用」',
+        isTrue,
+        reason: 'T027 落地了 Anthropic Messages 适配器',
       );
+      // hasAdapter 由枚举里的数据字段（adapterImplemented）决定，而不是一个写死
+      // 协议名的判断：将来新增「先登记协议、适配器留给后续任务」的条目时，UI 与
+      // ModelManager 不需要改动就会把它标成「待实现」。
+      expect(AiProtocol.anthropicMessages.adapterImplemented, isTrue);
     });
 
     test('由标识还原协议；未知标识返回 null', () {

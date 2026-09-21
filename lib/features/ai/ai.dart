@@ -13,8 +13,12 @@
 //   application/model_manager_controller.dart 页面状态与失败分类
 //   presentation/ai_services_page.dart + ai_model_form.dart
 //
-// TODO(T026): OpenAI Chat Completions / Responses 适配器（实现 AiProviderFactory）。
-// TODO(T027): Anthropic Messages 适配器。
+// T026 已落地：infrastructure/network/{sse,ai_stream_guard,ai_http}.dart、
+//   chat_completions_adapter.dart、responses_adapter.dart、ai_provider_factory.dart
+//   （三个协议各一个适配器，工厂是唯一装配点）。
+// T027 已落地：anthropic_messages_adapter.dart（x-api-key + anthropic-version、
+//   顶层 system、必填 max_tokens、content 分量数组、带 type 的事件流、usage 拼合、
+//   529 → 可重试的 overloaded）。
 // TODO(T029): 有预算的队列与故障转移（五次无响应、跨模型重试）。
 // TODO(T032): search/fetchPage/inspectImage 受控工具。
 library;
