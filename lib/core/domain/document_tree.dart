@@ -12,8 +12,14 @@
 // 与 T003 原型的关系（docs/Flux_项目架构说明书.md 的选型前提）：
 //   原型验证过「受控文档树」这条路线可行，本文件按同样的思路**独立实现**：节点种类、
 //   字段名与语义对齐（标题层级/段落/引用/列表/代码块/表格/图片/行内强调与链接），
-//   但不复刻原型代码，也不引入原型里的公式与 Markdown 专用节点——那些属于 T004 的
-//   Markdown 渲染路径（T019/T020），本任务只处理 HTML 正文。
+//   但不复刻原型代码。
+//
+// T019 补充（Markdown 正文路径，架构 4.2「数学首发验收」）：
+//   Markdown 解析会产出 HTML 路径产不出（或名称不同）的构造：行内/独占公式、
+//   删除线、任务列表勾选状态、表格列对齐、标题锚点、以及「解析器不认识的东西」
+//   （[DocRawFallback] / [DocUnsupportedInline] / [DocUnsupportedMath]）。它们被加进
+//   同一棵树而不是另建一套：渲染层因此只需要认识**一种**文档模型，而「公式用哪种
+//   语法写进源里」不会变成渲染层的分支。
 //
 // 两条不可妥协的规则：
 //   1) 未知/不受支持的构造**必须保留可见**（成为 [DocRejectedUrl] 或原样文本），
@@ -131,6 +137,69 @@ final class DocCodeSpan extends DocInline {
   String toString() => 'DocCodeSpan("$code")';
 }
 
+/// 删除线（Markdown `~~...~~`、GFM 扩展）。
+///
+/// HTML 正文路径不会产出它（`del`/`s` 不在清洗白名单里），但 Markdown 的
+/// `ExtensionSet.gitHubFlavored` 会——因此它必须是一个显式节点，而不是被静默降级成
+/// 普通文字：读者应当能看出原文划掉了什么。
+final class DocStrikethrough extends DocInline {
+  /// 构造删除线。
+  const DocStrikethrough(this.children);
+
+  /// 子行内节点。
+  final List<DocInline> children;
+
+  @override
+  String toString() => 'DocStrikethrough($children)';
+}
+
+/// 行内公式（Markdown `$...$`；架构 4.2）。
+///
+/// [tex] 是**原始 TeX 字节**：数学段落必须在 Markdown 解析之前被摘出来，否则 TeX 里
+/// 的 `_`、`^`、`{}` 会被 CommonMark 当成标记改写（`$a_i + b_j$` 的两个下划线会被读
+/// 成一个强调对，`\frac{a}{b}` 会丢掉花括号）。摘出来之后渲染层拿到的是作者写的原样。
+final class DocMathInline extends DocInline {
+  /// 构造行内公式。
+  const DocMathInline(this.tex);
+
+  /// 原始 TeX 正文。
+  final String tex;
+
+  @override
+  String toString() => 'DocMathInline("$tex")';
+}
+
+/// 渲染不了的公式：原式与原因都留在树里（架构 4.2：不支持命令显示原式与提示，
+/// 不能空白或冒充成功）。
+final class DocUnsupportedMath extends DocInline {
+  /// 构造无法渲染的公式。
+  const DocUnsupportedMath({required this.raw, required this.reason});
+
+  /// 原始写法（含定界符）。
+  final String raw;
+
+  /// 人类可读的原因（结构性描述，供测试与提示使用）。
+  final String reason;
+
+  @override
+  String toString() => 'DocUnsupportedMath("$raw")';
+}
+
+/// 映射不出来的行内构造：保留文字并附上原因，而不是丢掉。
+final class DocUnsupportedInline extends DocInline {
+  /// 构造未映射的行内节点。
+  const DocUnsupportedInline({required this.text, required this.reason});
+
+  /// 原文。
+  final String text;
+
+  /// 原因。
+  final String reason;
+
+  @override
+  String toString() => 'DocUnsupportedInline("$text", $reason)';
+}
+
 /// 链接。
 final class DocLinkInline extends DocInline {
   /// 构造链接。
@@ -246,13 +315,20 @@ final class DocBlockQuote extends DocNode {
 /// 列表项。
 final class DocListItem {
   /// 构造列表项。
-  const DocListItem({required this.children});
+  const DocListItem({required this.children, this.checked});
 
   /// 项内的块级内容（通常是段落）。
   final List<DocNode> children;
 
+  /// 任务列表勾选状态：null 表示普通项，true/false 表示已勾选/未勾选。
+  ///
+  /// 为什么放在列表项上而不是一个独立的「复选框」行内节点：勾选语义属于**整个项**，
+  /// 而 Markdown 里的 input-checkbox 只是它的呈现形式。放进行内节点会让渲染层需要在
+  /// 一个文本 run 里画勾选框，并让「哪一项被勾了」变得难以查询。
+  final bool? checked;
+
   @override
-  String toString() => 'DocListItem($children)';
+  String toString() => 'DocListItem(checked=$checked, $children)';
 }
 
 /// 列表（有序/无序）。
@@ -312,10 +388,46 @@ final class DocThematicBreak extends DocNode {
   String toString() => 'DocThematicBreak()';
 }
 
+/// 独占一段的公式（Markdown `$$...$$`）。
+final class DocMathBlock extends DocNode {
+  /// 构造块级公式。
+  const DocMathBlock(this.tex);
+
+  /// 原始 TeX 正文（多行时保留换行，供矩阵/对齐环境使用）。
+  final String tex;
+
+  @override
+  String toString() => 'DocMathBlock("$tex")';
+}
+
+/// 解析器无法归类的块：保留原文与原因，而不是丢掉整块。
+///
+/// 为什么这一类比「未知 HTML 标签」更需要一个显式节点：Markdown 的扩展语法很多
+/// （脚注定义、告示框、自定义容器），而我们的解析器只映射了一部分。把这类内容静默
+/// 丢掉会让读者以为原文里没有那段；因此它以「未能解析的内容（已按原文显示）」的形式
+/// 出现在阅读页上。
+final class DocRawFallback extends DocNode {
+  /// 构造未解析块。
+  const DocRawFallback(this.text, {required this.reason});
+
+  /// 原文。
+  final String text;
+
+  /// 原因。
+  final String reason;
+
+  @override
+  String toString() => 'DocRawFallback("$text")';
+}
+
 /// 表格。
 final class DocTable extends DocNode {
   /// 构造表格。
-  const DocTable({required this.header, required this.rows});
+  const DocTable({
+    required this.header,
+    required this.rows,
+    this.alignments = const <String?>[],
+  });
 
   /// 表头单元格（每格是一段行内内容）。
   final List<List<DocInline>> header;
@@ -323,8 +435,16 @@ final class DocTable extends DocNode {
   /// 数据行。
   final List<List<List<DocInline>>> rows;
 
+  /// 每列对齐（left / center / right / null）。
+  ///
+  /// 来自 Markdown 表格的分隔行（|:---:|）。HTML 正文路径不产出它（那里没有列对齐的
+  /// 语义来源），因此默认空列表——渲染层按下标取值，越界即按起始对齐处理。
+  final List<String?> alignments;
+
   @override
-  String toString() => 'DocTable(header=${header.length}, rows=${rows.length})';
+  String toString() =>
+      'DocTable(header=${header.length}, rows=${rows.length}, '
+      'align=${alignments.length})';
 }
 
 /// 一个受控文档。
@@ -357,6 +477,8 @@ List<DocInline> collectDocInlines(DocDocument document) {
           addInlines(children);
         case DocStrong(:final List<DocInline> children):
           addInlines(children);
+        case DocStrikethrough(:final List<DocInline> children):
+          addInlines(children);
         case DocLinkInline(:final List<DocInline> children):
           addInlines(children);
         case DocText():
@@ -365,6 +487,9 @@ List<DocInline> collectDocInlines(DocDocument document) {
         case DocSoftBreak():
         case DocHardBreak():
         case DocRejectedUrl():
+        case DocMathInline():
+        case DocUnsupportedMath():
+        case DocUnsupportedInline():
           break;
       }
     }
@@ -395,6 +520,8 @@ List<DocInline> collectDocInlines(DocDocument document) {
         case DocCodeBlock():
         case DocImageBlock():
         case DocThematicBreak():
+        case DocMathBlock():
+        case DocRawFallback():
           break;
       }
     }
@@ -415,6 +542,8 @@ String docInlinePlainText(List<DocInline> nodes) {
         buffer.write(docInlinePlainText(children));
       case DocStrong(:final List<DocInline> children):
         buffer.write(docInlinePlainText(children));
+      case DocStrikethrough(:final List<DocInline> children):
+        buffer.write(docInlinePlainText(children));
       case DocCodeSpan(:final String code):
         buffer.write(code);
       case DocLinkInline(:final List<DocInline> children):
@@ -428,6 +557,14 @@ String docInlinePlainText(List<DocInline> nodes) {
       case DocRejectedUrl(:final String label, :final String url):
         // 文字优先：链接文字通常比 URL 更有信息量；没有文字时才退到 URL。
         buffer.write(label.isEmpty ? url : label);
+      case DocMathInline(:final String tex):
+        // 公式压平为它的 TeX 正文：纯文本导出（检索、摘要回退）里保留那几个字符，
+        // 比丢掉整段公式更接近原文。
+        buffer.write(tex);
+      case DocUnsupportedMath(:final String raw):
+        buffer.write(raw);
+      case DocUnsupportedInline(:final String text):
+        buffer.write(text);
     }
   }
   return buffer.toString();
@@ -452,6 +589,11 @@ String docDocumentPlainText(List<DocNode> nodes) {
         buffer.writeln(code);
       case DocImageBlock(:final String alt):
         buffer.writeln(alt);
+      case DocMathBlock(:final String tex):
+        buffer.writeln(tex);
+      case DocRawFallback(:final String text):
+        // 未解析块在纯文本里保留原文：否则「检索不到那段」与「原文没有那段」无法区分。
+        buffer.writeln(text);
       case DocThematicBreak():
         buffer.writeln('---');
       case DocTable(:final header, :final rows):

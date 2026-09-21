@@ -1186,4 +1186,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readingRichBodyUnavailable =>
       'This body can only be shown as plain text (no renderable controlled document structure).';
+
+  @override
+  String readingRichBodyBlockReason(String reason) {
+    return 'Could not parse this block; showing the source text: $reason';
+  }
+
+  @override
+  String readingByAuthor(String author, String feed) {
+    return '$author · $feed';
+  }
+
+  @override
+  String readingFindScopeNote(String query) {
+    return 'Matches for \"$query\" are highlighted; the outline and previous/next still work.';
+  }
+
+  @override
+  String get readingBackToList => 'Back to list';
 }

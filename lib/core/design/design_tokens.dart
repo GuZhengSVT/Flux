@@ -207,6 +207,18 @@ abstract final class FluxTypography {
 
   /// 卡片标题字号（手机）。
   static const double cardTitleMobile = 18;
+
+  /// 代码字号（T019 正文渲染；架构第 7 节把代码列为独立于正文的排版口径）。
+  ///
+  /// 比正文小：等宽字形的 x-height 在同样字号下看起来更大，与 18 的正文并排时会显得
+  /// 突兀；14 是两者视觉重量相当的值。
+  static const double codeFontSize = 14;
+
+  /// 代码块折叠阈值（行数）。超过这个行数的围栏代码块默认折叠。
+  ///
+  /// 为什么要有阈值而不是全部展开：一段几百行的日志会把正文挤到很远的下方，读者想接着
+  /// 读正文却必须先滚过它。折叠保留了「这里有一段长代码」这个信息，同时让正文保持连续。
+  static const int codeCollapseThresholdLines = 20;
 }
 
 /// 动效时长（架构第 7 节：动效 120–200ms）。

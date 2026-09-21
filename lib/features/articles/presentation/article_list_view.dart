@@ -13,7 +13,9 @@ import 'package:flux/features/feeds/presentation/feed_manager_controller.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
+import '../application/reader_outline.dart';
 import 'article_detail_page.dart';
+import 'reader/reader_chrome.dart';
 import 'article_list_controller.dart';
 import 'article_list_pager.dart';
 import 'reading_page.dart';
@@ -211,10 +213,21 @@ class _ArticleCard extends ConsumerWidget {
       ref.read(articleListControllerProvider.notifier).toggleSelected(entry.id);
       return;
     }
+    // 把「进入时的筛选/排序快照」带进详情页：上下篇依据它，而不是在详情页按当前筛选
+    // 现算（现算会让「下一篇」落到一篇与用户进来时无关的文章上，架构 4.1）。
+    final ReaderSnapshot? snapshot = await ref
+        .read(articleListControllerProvider.notifier)
+        .snapshotFor(entry.id);
+    if (!context.mounted) {
+      return;
+    }
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) =>
-            ArticleDetailPage(articleId: entry.id, initialTitle: entry.title),
+        builder: (BuildContext context) => ArticleDetailPage(
+          articleId: entry.id,
+          initialTitle: entry.title,
+          snapshot: snapshot,
+        ),
       ),
     );
   }

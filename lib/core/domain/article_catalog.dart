@@ -20,6 +20,7 @@ library;
 import '../result.dart';
 import '../error/app_error.dart';
 
+import 'article_identity.dart';
 import 'reading_state.dart';
 
 /// 列表筛选。
@@ -54,6 +55,7 @@ class ArticleListEntry {
     this.author,
     this.feedTitle,
     this.feedUrl,
+    this.bodyCompleteness = BodyCompleteness.unknown,
   });
 
   /// 本机自增 id（列表操作与分页游标都以它为准）。
@@ -80,6 +82,11 @@ class ArticleListEntry {
 
   /// 是否已脱离源（删除订阅时保留下来的收藏）。
   bool get detachedFromFeed => feedId == null;
+
+  /// 正文完整性四态（架构 4.2）。详情页据此显示「来源全文 / 仅摘要 / 本机提取 /
+  /// 完整性未知」——**不在这一层做判断**，因为「源内的 content 字段就是全文吗」这个
+  /// 问题只有导入路径知道（它看得到源里的字段结构）。界面只负责如实显示判定结果。
+  final BodyCompleteness bodyCompleteness;
 
   /// 标题（导入时保证非空）。
   final String title;

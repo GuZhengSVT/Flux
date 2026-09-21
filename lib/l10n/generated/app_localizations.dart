@@ -2082,6 +2082,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。'**
   String get readingRichBodyUnavailable;
+
+  /// 未解析块的提示前缀；原因由解析层给出
+  ///
+  /// In zh, this message translates to:
+  /// **'未能解析的内容（已按原文显示）：{reason}'**
+  String readingRichBodyBlockReason(String reason);
+
+  /// 详情页元信息：作者与来源
+  ///
+  /// In zh, this message translates to:
+  /// **'{author} · {feed}'**
+  String readingByAuthor(String author, String feed);
+
+  /// 页内查找的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已高亮「{query}」的匹配位置；目录与上下篇仍可用。'**
+  String readingFindScopeNote(String query);
+
+  /// 详情页返回按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'返回列表'**
+  String get readingBackToList;
 }
 
 class _AppLocalizationsDelegate

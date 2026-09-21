@@ -25,6 +25,7 @@ import '../application/article_list_state.dart';
 import '../application/article_ports.dart';
 import '../application/article_state.dart';
 import '../application/batch_article_actions.dart';
+import '../application/reader_outline.dart';
 import '../application/undo_batch_action.dart';
 
 /// 来源筛选下拉用的一个选项。
@@ -456,6 +457,36 @@ final class ArticleListController extends AsyncNotifier<ArticleListPageState> {
       return;
     }
     state = AsyncData<ArticleListPageState>(current.copyWith(clearUndo: true));
+  }
+
+  /// 为详情页构造「进入时的筛选/排序快照」（T019；架构 4.1 的上下篇规则）。
+  ///
+  /// 为什么上下篇用**完整筛选结果**的顺序而不是「当前这一页」：用户读到第 20 篇时，
+  /// 他心里的「下一篇」是筛选结果里的下一篇，而不是本页的第 21 行（可能不存在）。
+  /// 因此这里按当前筛选与来源取**全部 id**，再定位当前文章。
+  ///
+  /// 取不到时返回 null，而不是回退成「只有当前这一篇」的快照：一个长度 1 的快照会让
+  /// 界面显示「已是第一篇／已是最后一篇」，而实际上只是读取失败了——那是两个不同的
+  /// 事实，界面不该把它们画成同一个。
+  Future<ReaderSnapshot?> snapshotFor(int articleId) async {
+    final ArticleListPageState? current = state.value;
+    if (current == null) {
+      return null;
+    }
+    final Result<List<int>> ids = await _store.listArticleIds(
+      filter: current.page.filter,
+      feedId: current.page.feedId,
+    );
+    if (ids.isErr) {
+      return null;
+    }
+    final List<int> ordered = ids.unwrap();
+    return ReaderSnapshot(
+      orderedIds: ordered,
+      index: ordered.indexOf(articleId),
+      filter: current.page.filter,
+      feedId: current.page.feedId,
+    );
   }
 
   /// 阅读状态的操作名（撤销提示条文案用）。

@@ -91,6 +91,7 @@ void main() {
     String? body,
     int minutesAgo = 0,
     bool noPublishedAt = false,
+    BodyCompleteness completeness = BodyCompleteness.unknown,
   }) => db
       .into(db.articles)
       .insert(
@@ -122,6 +123,7 @@ void main() {
           ),
           readingState: Value<ReadingState>(state),
           favorite: Value<bool>(favorite),
+          bodyCompleteness: Value<BodyCompleteness>(completeness),
         ),
       );
 
@@ -357,16 +359,22 @@ void main() {
     });
   });
 
-  group('详情页占位与 SET-010', () {
-    testWidgets('打开正文占位显示标题与纯文本正文，并说明属 T019', (WidgetTester tester) async {
-      await seedArticle('可读文章', body: '这是正文纯文本。');
+  group('详情页（T019 产品化）与 SET-010', () {
+    testWidgets('打开正文渲染受控文档：标题、正文与完整性徽标都在', (WidgetTester tester) async {
+      await seedArticle(
+        '可读文章',
+        body: '这是正文纯文本。',
+        completeness: BodyCompleteness.sourceBody,
+      );
       await pump(tester);
 
       await tester.tap(find.text('可读文章'));
       await settleIo(tester);
 
+      // 正文经 Markdown → 受控文档树渲染（T019）；页面不再有「属 T019」的占位说明，
+      // 因为它已经是一个真正的阅读器。
       expect(find.textContaining('这是正文纯文本。'), findsOneWidget);
-      expect(find.textContaining('属 T019'), findsOneWidget);
+      expect(find.text('来源全文'), findsOneWidget, reason: '完整性徽标');
     });
 
     testWidgets('未读打开后自动标已读，返回时该行从「未读」筛选里消失', (WidgetTester tester) async {
@@ -381,10 +389,11 @@ void main() {
       await tester.tap(find.text('未读待读'));
       await settleIo(tester);
       expect((await read(id)).readingState, ReadingState.read);
-      expect(find.textContaining('属 T019'), findsOneWidget);
 
-      // 关闭详情页：列表已重读，该行不再出现在未读筛选里。
-      await tester.tap(find.byIcon(Icons.close));
+      // 返回列表：列表已重读，该行不再出现在未读筛选里。
+      // 用 AppBar 的返回按钮（带「返回列表」提示）而不是 byIcon：底部的上下篇导航条
+      // 也有一个 arrow_back 图标，按图标找会命中两个。
+      await tester.tap(find.byTooltip('返回列表'));
       await settleIo(tester);
       expect(find.text('未读待读'), findsNothing);
       expect(find.text('所有文章已读'), findsOneWidget);

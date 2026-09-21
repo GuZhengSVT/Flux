@@ -627,5 +627,9 @@
   "readingLinkCopy": "Copy link",
   "readingLinkCopied": "Link copied",
   "readingLinkOpenHint": "Opening links in the browser ships in T020; you can copy the address now.",
-  "readingRichBodyUnavailable": "This body can only be shown as plain text (no renderable controlled document structure)."
+  "readingRichBodyUnavailable": "This body can only be shown as plain text (no renderable controlled document structure).",
+  "readingRichBodyBlockReason": "Could not parse this block; showing the source text: {reason}",
+  "readingByAuthor": "{author} · {feed}",
+  "readingFindScopeNote": "Matches for \"{query}\" are highlighted; the outline and previous/next still work.",
+  "readingBackToList": "Back to list"
 }

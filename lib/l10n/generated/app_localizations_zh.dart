@@ -1132,4 +1132,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingRichBodyUnavailable => '这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。';
+
+  @override
+  String readingRichBodyBlockReason(String reason) {
+    return '未能解析的内容（已按原文显示）：$reason';
+  }
+
+  @override
+  String readingByAuthor(String author, String feed) {
+    return '$author · $feed';
+  }
+
+  @override
+  String readingFindScopeNote(String query) {
+    return '已高亮「$query」的匹配位置；目录与上下篇仍可用。';
+  }
+
+  @override
+  String get readingBackToList => '返回列表';
 }
