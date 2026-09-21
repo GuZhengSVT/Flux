@@ -1278,6 +1278,24 @@
   "@readingNextPage": {
     "description": "下一页按钮"
   },
+  "readingLoadedCount": "已加载 {loaded} / {total} 篇",
+  "@readingLoadedCount": {
+    "description": "列表分批加载的进度说明（已加载条数与筛选结果总数）",
+    "placeholders": {
+      "loaded": {
+        "type": "int",
+        "example": "100"
+      },
+      "total": {
+        "type": "int",
+        "example": "10000"
+      }
+    }
+  },
+  "readingLoadMore": "加载更多",
+  "@readingLoadMore": {
+    "description": "列表分批加载：继续加载下一批"
+  },
   "readingPublishedUnknown": "时间未知（按抓取时间排序）",
   "@readingPublishedUnknown": {
     "description": "发布时间缺失时的注明"

@@ -21,12 +21,14 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/features/settings/application/settings_store.dart';
 
+import '../application/article_card_view.dart';
 import '../application/article_list_state.dart';
 import '../application/article_ports.dart';
 import '../application/article_state.dart';
 import '../application/batch_article_actions.dart';
 import '../application/reader_outline.dart';
 import '../application/undo_batch_action.dart';
+import 'article_list_scroll.dart';
 
 /// 来源筛选下拉用的一个选项。
 class FeedFilterOption {
@@ -139,6 +141,37 @@ final FutureProvider<bool> autoMarkReadProvider = FutureProvider<bool>((
   return raw is bool ? raw : definition?.defaultValue == true;
 });
 
+/// SET-008 的列表视图模式（紧凑/正常/宽松）。
+///
+/// 与 [autoMarkReadProvider] 同一口径：单独一个 provider，而不是让每个列表各自读一遍
+/// 设置——两处各读一次会让「卡片形态不一致」成为可能（一处读到了新值、一处还是旧值）。
+///
+/// 读不到时回退到设置注册表里 SET-008 的默认值（normal），而不是硬编码一个枚举：注册表
+/// 是默认值的唯一来源，在界面层再写一份会让「改文档没改代码」变成一次静默的漂移。
+final FutureProvider<ArticleCardViewMode>
+cardViewModeProvider = FutureProvider<ArticleCardViewMode>((Ref ref) async {
+  final SettingsStore settings = ref.watch(settingsStoreProvider);
+  final SettingDefinition? definition = SettingRegistry.findById(
+    SettingId.set008,
+  );
+  final Object? fallback = definition?.defaultValue is Map<String, Object?>
+      ? (definition!.defaultValue! as Map<String, Object?>)['listView']
+      : null;
+  final Result<Object?> value = await settings.readSetting(SettingId.set008);
+  if (value.isErr) {
+    return ArticleCardViewMode.fromStorage(
+      fallback is String ? fallback : null,
+    );
+  }
+  final Object? raw = value.valueOrNull;
+  // SET-008 是复合设置，listView 是它的一个分量。整项读不到分量时（旧库、
+  // 手工写入的坏值）同样回退到注册表默认值，而不是把列表整页报错。
+  final Object? component = raw is Map ? raw['listView'] : null;
+  return ArticleCardViewMode.fromStorage(
+    component is String ? component : (fallback is String ? fallback : null),
+  );
+});
+
 /// 文章列表控制器。
 final class ArticleListController extends AsyncNotifier<ArticleListPageState> {
   /// 文章端口。
@@ -212,6 +245,10 @@ final class ArticleListController extends AsyncNotifier<ArticleListPageState> {
   Future<void> setFilter(ArticleFilter filter) async {
     final ArticleListPageState current = state.value ?? await future;
     _currentScope = null;
+    // 内容换了，锚点必须回到顶部（SET-009 的「返回位置」说的是同一批内容的返回，
+    // 不是换筛选后的返回）：停在原来的像素高度上会落到一批与用户选中无关的文章上。
+    ref.read(articleListScrollAnchorProvider).offset = 0;
+    _pendingScrollReset = true;
     state = AsyncData<ArticleListPageState>(
       (await _read(current.page.withFilter(filter))).copyWith(clearScope: true),
     );
@@ -221,9 +258,27 @@ final class ArticleListController extends AsyncNotifier<ArticleListPageState> {
   Future<void> setFeedFilter(int? feedId) async {
     final ArticleListPageState current = state.value ?? await future;
     _currentScope = null;
+    ref.read(articleListScrollAnchorProvider).offset = 0;
+    _pendingScrollReset = true;
     state = AsyncData<ArticleListPageState>(
       (await _read(current.page.withFeed(feedId))).copyWith(clearScope: true),
     );
+  }
+
+  /// 是否需要在下一帧把列表滚回顶部（换筛选/来源时置位）。
+  ///
+  /// 用一次性标志而不是直接在 setFilter 里 jumpTo：切换处并不持有 ScrollController 的
+  /// 有效位置（列表可能正在重建），而 jumpTo 在没有 client 时是空操作。由列表在
+  /// 布局完成后消费这个标志，才能真正落到新的那批内容上。
+  bool _pendingScrollReset = false;
+
+  /// 取出并清除「需要滚回顶部」标志。
+  bool consumeScrollReset() {
+    if (!_pendingScrollReset) {
+      return false;
+    }
+    _pendingScrollReset = false;
+    return true;
   }
 
   /// 选择批量范围（用户显式指定作用范围）。
@@ -238,13 +293,20 @@ final class ArticleListController extends AsyncNotifier<ArticleListPageState> {
     );
   }
 
-  /// 翻页。
-  Future<void> goToPage(int page) async {
+  /// 多加载一批（滚动到底或点「加载更多」）。
+  ///
+  /// 没有更多时**什么都不做**：递增批数会发起一次返回空列表的查询，而调用方（滚动
+  /// 监听）会在到底之后反复触发——那会变成一个空转的查询循环。
+  Future<void> loadMoreBatch() async {
     final ArticleListPageState current = state.value ?? await future;
+    if (!current.page.hasMore(current.total)) {
+      return;
+    }
     state = AsyncData<ArticleListPageState>(
       await _read(
-        current.page.atPage(page, total: current.total),
+        current.page.loadMoreBatch(),
         selectedIds: current.selectedIds,
+        batchMode: current.batchMode,
       ),
     );
   }

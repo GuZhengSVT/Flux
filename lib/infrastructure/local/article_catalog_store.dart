@@ -422,6 +422,7 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
       summary: row.summary,
       sourceUrl: row.sourceUrl,
       author: row.author,
+      imageUrl: row.imageUrl,
     );
   }
 

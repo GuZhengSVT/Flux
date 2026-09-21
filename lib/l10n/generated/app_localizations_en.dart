@@ -877,6 +877,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingNextPage => 'Next page';
 
   @override
+  String readingLoadedCount(int loaded, int total) {
+    return '$loaded of $total loaded';
+  }
+
+  @override
+  String get readingLoadMore => 'Load more';
+
+  @override
   String get readingPublishedUnknown => 'Date unknown (sorted by fetch time)';
 
   @override

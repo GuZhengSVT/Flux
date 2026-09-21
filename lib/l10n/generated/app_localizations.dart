@@ -1580,6 +1580,18 @@ abstract class AppLocalizations {
   /// **'下一页'**
   String get readingNextPage;
 
+  /// 列表分批加载的进度说明（已加载条数与筛选结果总数）
+  ///
+  /// In zh, this message translates to:
+  /// **'已加载 {loaded} / {total} 篇'**
+  String readingLoadedCount(int loaded, int total);
+
+  /// 列表分批加载：继续加载下一批
+  ///
+  /// In zh, this message translates to:
+  /// **'加载更多'**
+  String get readingLoadMore;
+
   /// 发布时间缺失时的注明
   ///
   /// In zh, this message translates to:

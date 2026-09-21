@@ -1,4 +1,4 @@
-// 分页条与批量操作栏（T017）。
+// 列表底栏与批量操作栏（T017；底栏在 T019+ 改为分批加载指示）。
 //
 // 与列表分开的理由：批量操作栏承载着本任务最容易写错的三条规则（范围语义、
 // 收藏只在显式操作里改变、空范围不谎报成功），把它们隔离在一个 200 行的文件里
@@ -15,9 +15,16 @@ import 'package:flux/l10n/l10n.dart';
 import '../application/batch_article_actions.dart';
 import 'article_list_controller.dart';
 
-/// 底部分页条。
+/// 列表底部状态条：说明当前已加载多少、还有没有更多。
+///
+/// T019+ 之后列表是**连续滚动 + 分批加载**（架构 4.1「列表分页/虚拟化」在滚动阅读下
+/// 的形态），因此这里不再有「上一页/下一页」：用户滚到底就是下一页，而「上一页」在
+/// 一个连续列表里没有对应的动作。保留的是一条状态说明，让用户知道「下面还有没有」。
+///
+/// 「加载更多」按钮同时保留：只靠滚动的话，键盘用户与使用读屏的用户没有可靠的
+/// 「滚到底」动作。
 class ArticlePager extends ConsumerWidget {
-  /// 构造分页条。
+  /// 构造底栏。
   const ArticlePager({required this.state, super.key});
 
   /// 页面状态。
@@ -26,10 +33,7 @@ class ArticlePager extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ArticleListController controller = ref.read(
-      articleListControllerProvider.notifier,
-    );
-    final int pages = state.page.pageCount(state.total);
+    final bool more = state.page.hasMore(state.total);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: FluxSpacing.md,
@@ -45,26 +49,17 @@ class ArticlePager extends ConsumerWidget {
         children: <Widget>[
           Expanded(
             child: Text(
-              l10n.readingPageIndicator(
-                state.page.page + 1,
-                pages,
-                state.total,
-              ),
+              l10n.readingLoadedCount(state.entries.length, state.total),
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ),
-          TextButton(
-            onPressed: state.page.hasPrevious
-                ? () => controller.goToPage(state.page.page - 1)
-                : null,
-            child: Text(l10n.readingPreviousPage),
-          ),
-          TextButton(
-            onPressed: state.page.hasNext(state.total)
-                ? () => controller.goToPage(state.page.page + 1)
-                : null,
-            child: Text(l10n.readingNextPage),
-          ),
+          if (more)
+            TextButton(
+              onPressed: () => ref
+                  .read(articleListControllerProvider.notifier)
+                  .loadMoreBatch(),
+              child: Text(l10n.readingLoadMore),
+            ),
         ],
       ),
     );

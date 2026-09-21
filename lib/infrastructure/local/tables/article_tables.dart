@@ -129,6 +129,17 @@ class Articles extends Table {
 
   TextColumn get summary => text().nullable()();
 
+  /// 卡片图片地址（schema v6）。
+  ///
+  /// 来源是源内 enclosure 或正文首图，在导入期已通过 isSafeDocUrl 判定，因此这里
+  /// 存的一定是 http/https 绝对地址或 null。列表用它画封面（架构第 7 节的三种卡片
+  /// 形态），详情页与查看器也从同一列取地址——两处读同一份，不会出现「卡片有图、
+  /// 点进去没有」的错位。
+  ///
+  /// 可空且**不回填**：历史行并没有「这张图的地址」这个事实，用正文里可能存在的
+  /// 首图回填需要重新解析全部正文，属 T021 缓存任务的范围。
+  TextColumn get imageUrl => text().nullable()();
+
   /// 单一阅读状态枚举，带数据库 CHECK 约束；默认 unread。
   ///
   /// 这里用 customConstraint 手写 CHECK：枚举取值域必须固化在 DDL 里才能被

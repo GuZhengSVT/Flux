@@ -31,6 +31,7 @@ class ArticleImport {
     this.bodyCompleteness = BodyCompleteness.unknown,
     this.bodyHash,
     this.summary,
+    this.imageUrl,
   });
 
   /// 目标订阅的本机 id。
@@ -81,6 +82,14 @@ class ArticleImport {
   /// 源内摘要。
   final String? summary;
 
+  /// 卡片/封面的图片地址（源内 enclosure 或正文首图）。
+  ///
+  /// 为什么单独一列而不是让列表去正则正文：列表一次读 100 行，为每行解析正文
+  /// 找首图会把「滚动」变成「解析 100 篇文章」。地址在导入期就用
+  /// [isSafeDocUrl] 判定过（解析层负责），因此这一列里**只会**出现
+  /// http/https 的绝对地址，或 null（源没给图）。
+  final String? imageUrl;
+
   /// 换一个目标订阅返回新的导入项。
   ///
   /// 用途：「添加订阅」是一条**先建订阅行、再写文章**的流程，而文章的身份派生值
@@ -106,6 +115,7 @@ class ArticleImport {
     bodyCompleteness: bodyCompleteness,
     bodyHash: bodyHash,
     summary: summary,
+    imageUrl: imageUrl,
   );
 }
 

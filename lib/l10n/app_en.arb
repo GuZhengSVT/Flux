@@ -545,6 +545,8 @@
   "readingPageIndicator": "Page {page} of {pages} ({total} articles)",
   "readingPreviousPage": "Previous page",
   "readingNextPage": "Next page",
+  "readingLoadedCount": "{loaded} of {total} loaded",
+  "readingLoadMore": "Load more",
   "readingPublishedUnknown": "Date unknown (sorted by fetch time)",
   "readingBatchEnter": "Select",
   "readingBatchExit": "Exit selection",

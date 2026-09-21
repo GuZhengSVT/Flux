@@ -299,6 +299,57 @@ void main() {
           'last_refresh_error_kind',
         ]),
       );
+
+      // v6 快照是 T019+ 的真实增量迁移基线（文章表补卡片图片地址）。必须在版本
+      // 提升后立刻导出，否则无法用 drift 校验 v5→v6 的迁移正确性。
+      final File v6Snapshot = File('drift_schemas/drift_schema_v6.json');
+      expect(
+        v6Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v6 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v6Decoded =
+          jsonDecode(v6Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v6Entities =
+          (v6Decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Set<String> v6Names = v6Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      // v6 只加列、不增删表：实体集合（含索引）应与 v5 完全一致。用 v5 快照比而不是
+      // v4：v4 还没有 deletion_events 表与它的两个索引，拿它做基线会把 v5 的合法新增
+      // 误判成 v6 的问题。
+      final Map<String, dynamic> v5Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v5.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v5Names = (v5Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v6Names,
+        v5Names,
+        reason: 'v6 只给 articles 加 image_url，不得新增或删除实体或索引',
+      );
+
+      final Map<String, dynamic> v6ArticlesEntity = v6Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'articles',
+      );
+      final Set<String> v6ArticleColumns =
+          ((v6ArticlesEntity['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(v6ArticleColumns, contains('image_url'));
+      // v6 必须保留 v5 已有的来源快照两列：只加列不等于可以丢列。
+      expect(v6ArticleColumns, containsAll(<String>['feed_title', 'feed_url']));
     });
   });
 }

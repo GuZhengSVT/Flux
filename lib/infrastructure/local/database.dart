@@ -68,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -157,6 +157,13 @@ class AppDatabase extends _$AppDatabase {
             newColumns: <GeneratedColumn<Object>>[
               articles.feedTitle,
               articles.feedUrl,
+              // imageUrl 是 v6 才出现的新列，但**必须**在这里一起声明：
+              // alterTable 的搬数据语句是按**当前**表定义生成列清单的——它会遍历
+              // articles 的全部列并逐列 SELECT。若这里不声明，这一步就会对还不存在
+              // 这一列的旧库执行一次带 image_url 的 SELECT，直接把 v4→v5 的升级打崩
+              // （实测报 "no such column: image_url"）。声明为 newColumn 之后，它在
+              // v5 阶段被跳过（取默认值 null），随后由下面的 v6 步骤补上。
+              articles.imageUrl,
             ],
           ),
         );
@@ -165,11 +172,34 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixDeletionEventsDeletedAt);
       }
 
+      if (from < 6) {
+        // v5 → v6：文章表补卡片图片地址（T019+ 的三种卡片形态）。
+        //
+        // 只加一条可空列，**不回填**：历史行并没有「这张图的地址」这个事实。用正文
+        // 里可能存在的首图回填需要把全部正文重新解析一遍（那是 T021 媒体任务的
+        // 范围），而在这条迁移里做这件事会让一次升级变成一次全库解析。
+        //
+        // 默认 null 的直接后果是：升级后旧文章的卡片回到「缺图不占位」的形态
+        // （架构第 7 节），而**不是**显示一个空图框——缺失与空是两件事。
+        //
+        // 为什么要先判存在：上面 v4→v5 那一步的 alterTable 是**按当前表定义**重建
+        // articles 的（drift 的 12 步重建流程会逐列生成搬数据语句），因此当一次
+        // 升级直接从 v4 及更早走到 v6 时，重建出来的表**已经带上** image_url——
+        // 再执行一次 ADD COLUMN 会报 duplicate column name（v1 快照升级的用例就是
+        // 这么炸的）。对**已经在 v5** 的库则反过来：它的 articles 是按 v5 快照建的，
+        // 没有这一列，必须真的加上。
+        //
+        // 两种情形都要能升上来，所以这里按事实判断，而不是按 from 猜。
+        if (!await _columnExists('articles', 'image_url')) {
+          await m.addColumn(articles, articles.imageUrl);
+        }
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 5;
+      const int highestImplemented = 6;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',
@@ -199,6 +229,18 @@ class AppDatabase extends _$AppDatabase {
       ),
       mode: InsertMode.insertOrIgnore,
     );
+  }
+
+  /// 表 [table] 上是否已有列 [column]。
+  ///
+  /// 迁移步骤需要它，而不是靠版本号推断：drift 的 `alterTable` 重建是按**当前**
+  /// 表定义生成语句的，因此「同一条迁移链」在不同起点下到达某一步时的实际结构可能
+  /// 已经包含了更晚版本才声明的列（见 v6 步骤的说明）。用 PRAGMA 问库，是唯一能
+  /// 区分这两种情形的做法。
+  Future<bool> _columnExists(String table, String column) async {
+    final List<QueryRow> rows = await customSelect('PRAGMA table_info($table)')
+        .get();
+    return rows.any((QueryRow row) => row.read<String>('name') == column);
   }
 }
 

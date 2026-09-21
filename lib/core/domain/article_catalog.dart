@@ -55,6 +55,7 @@ class ArticleListEntry {
     this.author,
     this.feedTitle,
     this.feedUrl,
+    this.imageUrl,
     this.bodyCompleteness = BodyCompleteness.unknown,
   });
 
@@ -112,11 +113,21 @@ class ArticleListEntry {
   /// 作者。
   final String? author;
 
+  /// 卡片图片地址（源内 enclosure 或正文首图）；null 表示这篇文章没有图。
+  ///
+  /// 与详情页的正文图片一样，这里的地址在**导入期**就已通过 [isSafeDocUrl]：
+  /// 列表层只负责决定「画不画」，不重复做安全判定（重复判定会让两条路径对同一个
+  /// 地址给出不同结论）。
+  final String? imageUrl;
+
   /// 排序与展示使用的有效时间：发布时间优先，缺失时用抓取时间。
   DateTime get effectiveTime => publishedAt ?? fetchedAt;
 
   /// 发布时间是否缺失（界面据此注明「按抓取时间排序」）。
   bool get publishedAtMissing => publishedAt == null;
+
+  /// 卡片是否有可展示的图（架构第 7 节：缺图不占位）。
+  bool get hasImage => imageUrl != null && imageUrl!.isNotEmpty;
 }
 
 /// 一页文章。

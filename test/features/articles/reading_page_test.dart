@@ -230,21 +230,14 @@ void main() {
       expect(find.text('所有文章已读'), findsOneWidget);
     });
 
-    testWidgets('分页指示与按钮：第二页可回第一页', (WidgetTester tester) async {
+    testWidgets('分批加载：内容不足一批时不显示「加载更多」，底栏给出总数', (WidgetTester tester) async {
       for (int i = 0; i < 3; i++) {
         await seedArticle('文章$i', minutesAgo: i);
       }
       await pump(tester);
-      // 每页 50 篇，3 篇只有一页：上一页/下一页都应禁用。
-      expect(find.textContaining('第 1 / 1 页'), findsOneWidget);
-      final TextButton previous = tester.widget<TextButton>(
-        find.widgetWithText(TextButton, '上一页'),
-      );
-      expect(previous.onPressed, isNull);
-      final TextButton next = tester.widget<TextButton>(
-        find.widgetWithText(TextButton, '下一页'),
-      );
-      expect(next.onPressed, isNull);
+      // 每批 100 篇，3 篇一次就加载完：没有「加载更多」可点。
+      expect(find.textContaining('已加载 3 / 3 篇'), findsWidgets);
+      expect(find.text('加载更多'), findsNothing);
     });
   });
 

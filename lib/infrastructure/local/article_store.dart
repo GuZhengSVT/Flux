@@ -64,6 +64,11 @@ extension ArticleStore on AppDatabase {
               incoming.fetchedAt ?? DateTime.now().toUtc(),
             ),
             summary: Value<String?>(incoming.summary),
+            // 图片地址补齐空缺但不覆盖已有值：与 normalizedLink 同一口径。源后来
+            // 撤销了 enclosure 时**不**把卡片图片抹掉——那会让一份已经显示过的封面
+            // 在下次刷新后无故消失，而用户没有任何办法找回来（T021 的缓存才是它的
+            // 归属地）。
+            imageUrl: Value<String?>(existing.imageUrl ?? incoming.imageUrl),
             bodyCompleteness: Value<BodyCompleteness>(
               incoming.bodyCompleteness,
             ),
@@ -191,6 +196,9 @@ extension ArticleStore on AppDatabase {
         incoming.fingerprintReliability != null) {
       return true;
     }
+    if (existing.imageUrl == null && incoming.imageUrl != null) {
+      return true;
+    }
 
     return false;
   }
@@ -270,6 +278,7 @@ extension ArticleStore on AppDatabase {
       bodyCompleteness: Value<BodyCompleteness>(incoming.bodyCompleteness),
       bodyHash: Value<String?>(incoming.bodyHash),
       summary: Value<String?>(incoming.summary),
+      imageUrl: Value<String?>(incoming.imageUrl),
       readingState: const Value<ReadingState>(ReadingState.unread),
     );
   }

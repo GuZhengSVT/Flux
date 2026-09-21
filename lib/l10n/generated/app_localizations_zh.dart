@@ -837,6 +837,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingNextPage => '下一页';
 
   @override
+  String readingLoadedCount(int loaded, int total) {
+    return '已加载 $loaded / $total 篇';
+  }
+
+  @override
+  String get readingLoadMore => '加载更多';
+
+  @override
   String get readingPublishedUnknown => '时间未知（按抓取时间排序）';
 
   @override

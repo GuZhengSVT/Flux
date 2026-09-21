@@ -1825,6 +1825,17 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<ReadingState, String>
   readingState = GeneratedColumn<String>(
@@ -1896,6 +1907,7 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     bodyCompleteness,
     bodyHash,
     summary,
+    imageUrl,
     readingState,
     favorite,
     createdAt,
@@ -2020,6 +2032,12 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
         summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
       );
     }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
     if (data.containsKey('favorite')) {
       context.handle(
         _favoriteMeta,
@@ -2129,6 +2147,10 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       summary: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}summary'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
       ),
       readingState: $ArticlesTable.$converterreadingState.fromSql(
         attachedDatabase.typeMapping.read(
@@ -2253,6 +2275,17 @@ class Article extends DataClass implements Insertable<Article> {
   final String? bodyHash;
   final String? summary;
 
+  /// 卡片图片地址（schema v6）。
+  ///
+  /// 来源是源内 enclosure 或正文首图，在导入期已通过 isSafeDocUrl 判定，因此这里
+  /// 存的一定是 http/https 绝对地址或 null。列表用它画封面（架构第 7 节的三种卡片
+  /// 形态），详情页与查看器也从同一列取地址——两处读同一份，不会出现「卡片有图、
+  /// 点进去没有」的错位。
+  ///
+  /// 可空且**不回填**：历史行并没有「这张图的地址」这个事实，用正文里可能存在的
+  /// 首图回填需要重新解析全部正文，属 T021 缓存任务的范围。
+  final String? imageUrl;
+
   /// 单一阅读状态枚举，带数据库 CHECK 约束；默认 unread。
   ///
   /// 这里用 customConstraint 手写 CHECK：枚举取值域必须固化在 DDL 里才能被
@@ -2288,6 +2321,7 @@ class Article extends DataClass implements Insertable<Article> {
     required this.bodyCompleteness,
     this.bodyHash,
     this.summary,
+    this.imageUrl,
     required this.readingState,
     required this.favorite,
     required this.createdAt,
@@ -2353,6 +2387,9 @@ class Article extends DataClass implements Insertable<Article> {
     if (!nullToAbsent || summary != null) {
       map['summary'] = Variable<String>(summary);
     }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
     {
       map['reading_state'] = Variable<String>(
         $ArticlesTable.$converterreadingState.toSql(readingState),
@@ -2407,6 +2444,9 @@ class Article extends DataClass implements Insertable<Article> {
       summary: summary == null && nullToAbsent
           ? const Value.absent()
           : Value(summary),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
       readingState: Value(readingState),
       favorite: Value(favorite),
       createdAt: Value(createdAt),
@@ -2448,6 +2488,7 @@ class Article extends DataClass implements Insertable<Article> {
       ),
       bodyHash: serializer.fromJson<String?>(json['bodyHash']),
       summary: serializer.fromJson<String?>(json['summary']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
       readingState: $ArticlesTable.$converterreadingState.fromJson(
         serializer.fromJson<String>(json['readingState']),
       ),
@@ -2487,6 +2528,7 @@ class Article extends DataClass implements Insertable<Article> {
       ),
       'bodyHash': serializer.toJson<String?>(bodyHash),
       'summary': serializer.toJson<String?>(summary),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
       'readingState': serializer.toJson<String>(
         $ArticlesTable.$converterreadingState.toJson(readingState),
       ),
@@ -2517,6 +2559,7 @@ class Article extends DataClass implements Insertable<Article> {
     BodyCompleteness? bodyCompleteness,
     Value<String?> bodyHash = const Value.absent(),
     Value<String?> summary = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
     ReadingState? readingState,
     bool? favorite,
     DateTime? createdAt,
@@ -2547,6 +2590,7 @@ class Article extends DataClass implements Insertable<Article> {
     bodyCompleteness: bodyCompleteness ?? this.bodyCompleteness,
     bodyHash: bodyHash.present ? bodyHash.value : this.bodyHash,
     summary: summary.present ? summary.value : this.summary,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
     readingState: readingState ?? this.readingState,
     favorite: favorite ?? this.favorite,
     createdAt: createdAt ?? this.createdAt,
@@ -2587,6 +2631,7 @@ class Article extends DataClass implements Insertable<Article> {
           : this.bodyCompleteness,
       bodyHash: data.bodyHash.present ? data.bodyHash.value : this.bodyHash,
       summary: data.summary.present ? data.summary.value : this.summary,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
       readingState: data.readingState.present
           ? data.readingState.value
           : this.readingState,
@@ -2618,6 +2663,7 @@ class Article extends DataClass implements Insertable<Article> {
           ..write('bodyCompleteness: $bodyCompleteness, ')
           ..write('bodyHash: $bodyHash, ')
           ..write('summary: $summary, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
           ..write('createdAt: $createdAt, ')
@@ -2647,6 +2693,7 @@ class Article extends DataClass implements Insertable<Article> {
     bodyCompleteness,
     bodyHash,
     summary,
+    imageUrl,
     readingState,
     favorite,
     createdAt,
@@ -2675,6 +2722,7 @@ class Article extends DataClass implements Insertable<Article> {
           other.bodyCompleteness == this.bodyCompleteness &&
           other.bodyHash == this.bodyHash &&
           other.summary == this.summary &&
+          other.imageUrl == this.imageUrl &&
           other.readingState == this.readingState &&
           other.favorite == this.favorite &&
           other.createdAt == this.createdAt &&
@@ -2701,6 +2749,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   final Value<BodyCompleteness> bodyCompleteness;
   final Value<String?> bodyHash;
   final Value<String?> summary;
+  final Value<String?> imageUrl;
   final Value<ReadingState> readingState;
   final Value<bool> favorite;
   final Value<DateTime> createdAt;
@@ -2725,6 +2774,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.bodyCompleteness = const Value.absent(),
     this.bodyHash = const Value.absent(),
     this.summary = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2750,6 +2800,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.bodyCompleteness = const Value.absent(),
     this.bodyHash = const Value.absent(),
     this.summary = const Value.absent(),
+    this.imageUrl = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2776,6 +2827,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Expression<String>? bodyCompleteness,
     Expression<String>? bodyHash,
     Expression<String>? summary,
+    Expression<String>? imageUrl,
     Expression<String>? readingState,
     Expression<bool>? favorite,
     Expression<DateTime>? createdAt,
@@ -2803,6 +2855,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       if (bodyCompleteness != null) 'body_completeness': bodyCompleteness,
       if (bodyHash != null) 'body_hash': bodyHash,
       if (summary != null) 'summary': summary,
+      if (imageUrl != null) 'image_url': imageUrl,
       if (readingState != null) 'reading_state': readingState,
       if (favorite != null) 'favorite': favorite,
       if (createdAt != null) 'created_at': createdAt,
@@ -2830,6 +2883,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Value<BodyCompleteness>? bodyCompleteness,
     Value<String?>? bodyHash,
     Value<String?>? summary,
+    Value<String?>? imageUrl,
     Value<ReadingState>? readingState,
     Value<bool>? favorite,
     Value<DateTime>? createdAt,
@@ -2856,6 +2910,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       bodyCompleteness: bodyCompleteness ?? this.bodyCompleteness,
       bodyHash: bodyHash ?? this.bodyHash,
       summary: summary ?? this.summary,
+      imageUrl: imageUrl ?? this.imageUrl,
       readingState: readingState ?? this.readingState,
       favorite: favorite ?? this.favorite,
       createdAt: createdAt ?? this.createdAt,
@@ -2931,6 +2986,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     if (summary.present) {
       map['summary'] = Variable<String>(summary.value);
     }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
     if (readingState.present) {
       map['reading_state'] = Variable<String>(
         $ArticlesTable.$converterreadingState.toSql(readingState.value),
@@ -2970,6 +3028,7 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
           ..write('bodyCompleteness: $bodyCompleteness, ')
           ..write('bodyHash: $bodyHash, ')
           ..write('summary: $summary, ')
+          ..write('imageUrl: $imageUrl, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
           ..write('createdAt: $createdAt, ')
@@ -6821,6 +6880,7 @@ typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
   Value<BodyCompleteness> bodyCompleteness,
   Value<String?> bodyHash,
   Value<String?> summary,
+  Value<String?> imageUrl,
   Value<ReadingState> readingState,
   Value<bool> favorite,
   Value<DateTime> createdAt,
@@ -6846,6 +6906,7 @@ typedef $$ArticlesTableUpdateCompanionBuilder = ArticlesCompanion Function({
   Value<BodyCompleteness> bodyCompleteness,
   Value<String?> bodyHash,
   Value<String?> summary,
+  Value<String?> imageUrl,
   Value<ReadingState> readingState,
   Value<bool> favorite,
   Value<DateTime> createdAt,
@@ -7015,6 +7076,11 @@ class $$ArticlesTableFilterComposer
 
   ColumnFilters<String> get summary => $composableBuilder(
     column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7212,6 +7278,11 @@ class $$ArticlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get readingState => $composableBuilder(
     column: $table.readingState,
     builder: (column) => ColumnOrderings(column),
@@ -7335,6 +7406,9 @@ class $$ArticlesTableAnnotationComposer
 
   GeneratedColumn<String> get summary =>
       $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<ReadingState, String> get readingState =>
       $composableBuilder(
@@ -7477,6 +7551,7 @@ class $$ArticlesTableTableManager
                 Value<BodyCompleteness> bodyCompleteness = const Value.absent(),
                 Value<String?> bodyHash = const Value.absent(),
                 Value<String?> summary = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7501,6 +7576,7 @@ class $$ArticlesTableTableManager
                 bodyCompleteness: bodyCompleteness,
                 bodyHash: bodyHash,
                 summary: summary,
+                imageUrl: imageUrl,
                 readingState: readingState,
                 favorite: favorite,
                 createdAt: createdAt,
@@ -7528,6 +7604,7 @@ class $$ArticlesTableTableManager
                 Value<BodyCompleteness> bodyCompleteness = const Value.absent(),
                 Value<String?> bodyHash = const Value.absent(),
                 Value<String?> summary = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7552,6 +7629,7 @@ class $$ArticlesTableTableManager
                 bodyCompleteness: bodyCompleteness,
                 bodyHash: bodyHash,
                 summary: summary,
+                imageUrl: imageUrl,
                 readingState: readingState,
                 favorite: favorite,
                 createdAt: createdAt,

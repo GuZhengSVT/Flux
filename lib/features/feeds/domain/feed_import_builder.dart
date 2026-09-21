@@ -127,7 +127,34 @@ ArticleImport toArticleImport({
     bodyCompleteness: completeness,
     bodyHash: hasSourceBody ? bodyHashOf(body) : null,
     summary: feedEntrySummary(raw),
+    imageUrl: feedEntryImageUrl(raw, report.document),
   );
+}
+
+/// 卡片的图片地址：优先源内 enclosure，其次正文里的第一张图。
+///
+/// 两个来源的顺序不是随意的：enclosure 是源**显式**声明的封面，而正文首图可能只是
+/// 文章里的一张配图（甚至是一张表格截图）。有声明过的封面时用封面。
+///
+/// **两种来源都必须通过 [isSafeDocUrl]**：解析层虽然已经对正文里的图片跑过一次
+/// 判定，但 enclosure 来自源文件里的另一个属性路径（见 feed_parser 的
+/// _rssEnclosureImage），走过去的是另一段代码。在这里再判一次是**收口**：这一列
+/// 之后会被卡片直接交给图片加载器，因此允许进入这一列的地址只认一种判定，那就是
+/// 渲染层信任的同一个函数。
+///
+/// 返回 null 表示「这篇文章没有图」——架构第 7 节要求缺图不占位，因此 null 与
+/// 「有图」是两种不同的卡片形态，不能用空串或占位地址代替。
+String? feedEntryImageUrl(ParsedFeedEntry entry, DocDocument document) {
+  final String? enclosure = entry.enclosureImageUrl;
+  if (enclosure != null && isSafeDocUrl(enclosure)) {
+    return enclosure;
+  }
+  for (final DocInline node in collectDocInlines(document)) {
+    if (node is DocImageInline && isSafeDocUrl(node.url)) {
+      return node.url;
+    }
+  }
+  return null;
 }
 
 /// 无标题条目的兜底标题：用链接或日期构造，绝不留空。

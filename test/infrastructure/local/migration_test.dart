@@ -1,5 +1,5 @@
 // T009（T010 改为 v2 基线，T013 改为 v3 基线，T014 改为 v4 基线，
-// T018 改为 v5 基线）：迁移安全。
+// T018 改为 v5 基线，T019+ 改为 v6 基线）：迁移安全。
 //
 // 三条硬要求（架构 5.3「旧版本不能写较新 schema」、手册 6.3「恢复」）：
 //   1) 正常按当前 schemaVersion 建库成功；
@@ -8,10 +8,11 @@
 //
 // T010 把 schemaVersion 提到 2（新增 settings 表）、T013 提到 3（订阅表补抓取
 // 诊断列）、T014 提到 4（订阅表补启用列）、T018 提到 5（文章表支持收藏脱离源 +
-// 删除事件表）后，本文件里的「当前版本」相应改为 5，而「代码比库新但迁移写坏」的
-// 场景用**比当前版本再高一级**的坏实现模拟（现为 v6）；真正的增量迁移正确性由
-// migration_v1_to_v2_test.dart、migration_v2_to_current_test.dart 与
-// migration_v4_to_v5_test.dart 用 drift 快照校验。
+// 删除事件表）、T019+ 提到 6（文章表补卡片图片地址）后，本文件里的「当前版本」
+// 相应改为 6，而「代码比库新但迁移写坏」的场景用**比当前版本再高一级**的坏实现
+// 模拟（现为 v7）；真正的增量迁移正确性由 migration_v1_to_v2_test.dart、
+// migration_v2_to_current_test.dart、migration_v4_to_v5_test.dart 与
+// migration_v5_to_v6_test.dart 用 drift 快照校验。
 //
 // 测试策略：优先使用内存库与共享的原始 sqlite3 句柄，避免磁盘残留；
 // 另有一条真实文件用例，用于直接证明“磁盘上的文件在失败后未被改动”。
@@ -36,7 +37,7 @@ class _FailingUpgradeDatabase extends AppDatabase {
   _FailingUpgradeDatabase(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   drift.MigrationStrategy get migration => drift.MigrationStrategy(
@@ -106,7 +107,7 @@ void main() {
       await second.close();
 
       expect(_rowCount(raw, 'groups'), 1);
-      expect(_userVersion(raw), 5);
+      expect(_userVersion(raw), 6);
     });
   });
 
@@ -222,9 +223,9 @@ void main() {
             ),
           );
       await before.close();
-      expect(_userVersion(raw), 5);
+      expect(_userVersion(raw), 6);
 
-      // 用“代码已是 v5 但迁移写坏”的版本打开同一库。
+      // 用“代码已是 v6 但迁移写坏”的版本打开同一库。
       final _FailingUpgradeDatabase broken = _FailingUpgradeDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
       );
@@ -233,8 +234,8 @@ void main() {
         throwsA(isA<StorageError>()),
       );
 
-      // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成 v6。
-      expect(_userVersion(raw), 5, reason: '迁移失败不得推进版本号');
+      // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成 v7。
+      expect(_userVersion(raw), 6, reason: '迁移失败不得推进版本号');
       expect(
         raw.select('SELECT name FROM feeds').single['name'],
         '升级前就有的源',
