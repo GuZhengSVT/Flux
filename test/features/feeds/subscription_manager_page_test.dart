@@ -540,7 +540,9 @@ void main() {
       expect(feeds.single.groupId, (await uncategorized()).id);
     });
 
-    testWidgets('删除分组（删除订阅分支）：界面如实说明「没有删除任何数据」', (WidgetTester tester) async {
+    testWidgets('删除分组（删除订阅分支）：真的删除，并在回执里给出清理与保留的篇数', (
+      WidgetTester tester,
+    ) async {
       // sortOrder 显式设为 1：保留组「未分类」是 0，若不指定则两者同权重，
       // 列表会退到按名称排序（'技术' 的码点小于 '未分类'），于是「技术」跑到最前，
       // 菜单索引的断言就会指错对象。这里把顺序钉死，让测试断言的是行为而不是巧合。
@@ -559,15 +561,21 @@ void main() {
       await tester.tap(find.text('删除其中的订阅'));
       await tester.pumpAndSettle();
 
-      expect(
-        find.textContaining('本期没有删除任何数据'),
-        findsOneWidget,
-        reason: '预留分支必须在界面上如实说明，不能让用户以为删掉了',
-      );
+      // T018 起这个分支**真的**删除（不再只是记录）。回执必须给出具体数字，
+      // 而不是一句「已删除」——用户需要知道清掉了几篇、留下了几篇。
+      expect(find.textContaining('已删除分组「技术」'), findsOneWidget);
+      expect(find.textContaining('清理'), findsOneWidget);
 
-      // 数据必须还在。
-      expect((await catalog.listGroups()).unwrap(), hasLength(2));
-      expect((await catalog.listFeeds()).unwrap(), hasLength(1));
+      expect(
+        (await catalog.listGroups()).unwrap(),
+        hasLength(1),
+        reason: '只剩保留组',
+      );
+      expect(
+        (await catalog.listFeeds()).unwrap(),
+        isEmpty,
+        reason: '组内订阅被真正删除',
+      );
     });
   });
 

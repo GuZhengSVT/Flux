@@ -15,7 +15,6 @@ import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/add_feed.dart';
-import '../application/manage_groups.dart';
 import '../domain/feed_parser.dart';
 
 /// 对话框宽度上限（桌面）；窄窗时自动收窄。
@@ -518,74 +517,149 @@ class _NameDialogState extends State<_NameDialog> {
 /// 删除分组对话框的结果。
 class DeleteGroupChoice {
   /// 构造选择。
-  const DeleteGroupChoice(this.mode);
+  const DeleteGroupChoice(this.mode, {this.keepFavorites = true});
 
   /// 用户选择的处理方式。
   final GroupDeletionMode mode;
+
+  /// 「删除其中订阅」时是否保留收藏（T018；SET-081 默认保留）。
+  ///
+  /// 移动分支下这个值不被使用：那一条路径不删任何文章，收藏自然都还在。
+  final bool keepFavorites;
 }
 
 /// 打开删除分组确认框；返回 null 表示取消。
+///
+/// [preview] 是「删除其中订阅」分支的影响范围（T018）。为 null 表示尚未读到，此时
+/// 仍然**显示**这个分支但把它的影响标注为「读取中/不可用」，并且**禁用**它——架构 4.1
+/// 要求清理范围在操作之前可见，一个说不出影响范围的破坏性选项不该能按下去。
+///
+/// [onKeepFavoritesChanged] 让对话框内的复选框把选择回传给调用方持有的状态；对话框
+/// 自己不持久化任何东西（取消时不留痕迹）。
 Future<DeleteGroupChoice?> showDeleteGroupDialog({
   required BuildContext context,
   required String groupName,
-  required int feedCount,
+  GroupDeletionPreview? preview,
+  bool keepFavoritesDefault = true,
+  ValueChanged<bool>? onKeepFavoritesChanged,
 }) {
   return showDialog<DeleteGroupChoice>(
     context: context,
-    builder: (BuildContext context) {
-      final AppLocalizations l10n = AppLocalizations.of(context);
-      final ThemeData theme = Theme.of(context);
-      return AlertDialog(
-        title: Text(l10n.subscriptionGroupDeleteTitle(groupName)),
-        content: SizedBox(
-          width: dialogMaxWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(l10n.subscriptionGroupDeleteBody(feedCount)),
-              const SizedBox(height: FluxSpacing.sm),
-              _DeleteOption(
-                icon: Icons.drive_file_move_outline,
-                title: l10n.subscriptionGroupDeleteMoveOption,
-                hint: l10n.subscriptionGroupDeleteMoveHint,
-                onTap: () => Navigator.of(context).pop(
-                  const DeleteGroupChoice(
-                    GroupDeletionMode.moveToUncategorized,
-                  ),
+    builder: (BuildContext context) => _DeleteGroupDialogBody(
+      groupName: groupName,
+      preview: preview,
+      keepFavoritesDefault: keepFavoritesDefault,
+      onKeepFavoritesChanged: onKeepFavoritesChanged,
+    ),
+  );
+}
+
+/// 删除分组对话框的内容（StatefulWidget：需要记住复选框的当前值）。
+class _DeleteGroupDialogBody extends StatefulWidget {
+  const _DeleteGroupDialogBody({
+    required this.groupName,
+    required this.preview,
+    required this.keepFavoritesDefault,
+    required this.onKeepFavoritesChanged,
+  });
+
+  final String groupName;
+  final GroupDeletionPreview? preview;
+  final bool keepFavoritesDefault;
+  final ValueChanged<bool>? onKeepFavoritesChanged;
+
+  @override
+  State<_DeleteGroupDialogBody> createState() => _DeleteGroupDialogBodyState();
+}
+
+class _DeleteGroupDialogBodyState extends State<_DeleteGroupDialogBody> {
+  late bool _keepFavorites = widget.keepFavoritesDefault;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final GroupDeletionPreview? preview = widget.preview;
+    return AlertDialog(
+      title: Text(l10n.subscriptionGroupDeleteTitle(widget.groupName)),
+      content: SizedBox(
+        width: dialogMaxWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              preview == null
+                  ? l10n.subscriptionGroupDeleteBody(0)
+                  : preview.feedCount == 0
+                  ? l10n.deleteGroupDialogNoFeeds
+                  : l10n.deleteGroupDialogImpact(
+                      preview.feedCount,
+                      preview.totalCount,
+                      preview.favoriteCount,
+                      preview.laterCount,
+                    ),
+            ),
+            const SizedBox(height: FluxSpacing.sm),
+            _DeleteOption(
+              icon: Icons.drive_file_move_outline,
+              title: l10n.subscriptionGroupDeleteMoveOption,
+              hint: l10n.subscriptionGroupDeleteMoveHint,
+              onTap: () => Navigator.of(context).pop(
+                const DeleteGroupChoice(GroupDeletionMode.moveToUncategorized),
+              ),
+            ),
+            const SizedBox(height: FluxSpacing.xs),
+            // 第二个分支的影响范围**先说出来**（架构 4.1、D-11）。读不到影响范围时
+            // 这个选项被禁用：一个说不清要删多少的破坏性按钮不该能按下去。
+            _DeleteOption(
+              icon: Icons.delete_outline,
+              title: l10n.subscriptionGroupDeleteFeedsOption,
+              hint: preview == null
+                  ? l10n.deleteGroupDialogNoFeeds
+                  : l10n.subscriptionGroupDeleteFeedsHint,
+              destructive: true,
+              enabled: preview != null,
+              onTap: () => Navigator.of(context).pop(
+                DeleteGroupChoice(
+                  GroupDeletionMode.deleteFeeds,
+                  keepFavorites: _keepFavorites,
                 ),
               ),
+            ),
+            if (preview != null && preview.favoriteCount > 0) ...<Widget>[
               const SizedBox(height: FluxSpacing.xs),
-              // 第二个分支**如实标注**本期不删除：一个看起来能删、实际只记录
-              // 的选项必须在按下之前就说清楚，而不是在结果里才告知。
-              _DeleteOption(
-                icon: Icons.delete_outline,
-                title: l10n.subscriptionGroupDeleteFeedsOption,
-                hint: l10n.subscriptionGroupDeleteFeedsHint,
-                destructive: true,
-                onTap: () => Navigator.of(
-                  context,
-                ).pop(const DeleteGroupChoice(GroupDeletionMode.deleteFeeds)),
-              ),
-              const SizedBox(height: FluxSpacing.sm),
-              Text(
-                l10n.subscriptionManagerNotice,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+              CheckboxListTile(
+                value: _keepFavorites,
+                onChanged: (bool? value) {
+                  final bool next = value ?? false;
+                  setState(() => _keepFavorites = next);
+                  widget.onKeepFavoritesChanged?.call(next);
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.deleteGroupKeepFavoritesOption),
               ),
             ],
-          ),
+            const SizedBox(height: FluxSpacing.sm),
+            Text(
+              l10n.subscriptionManagerNotice,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.subscriptionCancel),
-          ),
-        ],
-      );
-    },
-  );
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.subscriptionCancel),
+        ),
+      ],
+    );
+  }
 }
 
 /// 删除分组对话框里的一个分支选项。
@@ -596,6 +670,7 @@ class _DeleteOption extends StatelessWidget {
     required this.hint,
     required this.onTap,
     this.destructive = false,
+    this.enabled = true,
   });
 
   final IconData icon;
@@ -604,16 +679,22 @@ class _DeleteOption extends StatelessWidget {
   final VoidCallback onTap;
   final bool destructive;
 
+  /// 是否可用。影响范围读不到时置为 false：一个说不出要删多少的破坏性选项不该
+  /// 能按下去（架构 4.1 要求清理范围在操作之前可见）。
+  final bool enabled;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color accent = destructive
+    final Color accent = !enabled
+        ? theme.colorScheme.onSurfaceVariant
+        : destructive
         ? theme.colorScheme.error
         : theme.colorScheme.primary;
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         borderRadius: BorderRadius.circular(FluxRadius.card),
         child: Container(
           padding: const EdgeInsets.all(FluxSpacing.sm),
@@ -690,4 +771,181 @@ Future<MoveFeedChoice?> showMoveFeedDialog({
       );
     },
   );
+}
+
+/// 删除订阅确认框的结果。
+class DeleteFeedChoice {
+  /// 构造选择。
+  const DeleteFeedChoice({required this.keepFavorites});
+
+  /// 用户当次选择的「保留收藏」。
+  ///
+  /// 这是**当次**的选择，不是设置值：SET-081 的默认值只决定复选框的初始状态
+  /// （见 [showDeleteFeedDialog] 的默认参数）。
+  final bool keepFavorites;
+}
+
+/// 打开删除订阅确认框；返回 null 表示取消。
+///
+/// 架构 4.1 与 D-11 要求删除订阅时先展示「收藏与其他文章（含 later）」的数量，并让
+/// 用户选择是否保留收藏。因此这里：
+///   - 三个数字分开显示（收藏 / 其他 / 其中 later），不用一个总数糊过去；
+///   - 复选框默认**勾选**（SET-081 的 defaultChoice = keep）；
+///   - [preview] 为 null 时不提供确认按钮：读不到影响范围就无法满足「范围在操作前
+///     可见」，此时宁可让用户取消重试，也不给一个看不见后果的删除按钮。
+Future<DeleteFeedChoice?> showDeleteFeedDialog({
+  required BuildContext context,
+  required FeedDeletionPreview preview,
+  bool keepFavoritesDefault = true,
+}) {
+  return showDialog<DeleteFeedChoice>(
+    context: context,
+    builder: (BuildContext context) => _DeleteFeedDialogBody(
+      preview: preview,
+      keepFavoritesDefault: keepFavoritesDefault,
+    ),
+  );
+}
+
+class _DeleteFeedDialogBody extends StatefulWidget {
+  const _DeleteFeedDialogBody({
+    required this.preview,
+    required this.keepFavoritesDefault,
+  });
+
+  final FeedDeletionPreview preview;
+  final bool keepFavoritesDefault;
+
+  @override
+  State<_DeleteFeedDialogBody> createState() => _DeleteFeedDialogBodyState();
+}
+
+class _DeleteFeedDialogBodyState extends State<_DeleteFeedDialogBody> {
+  late bool _keepFavorites = widget.keepFavoritesDefault;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final FeedDeletionPreview preview = widget.preview;
+    return AlertDialog(
+      title: Text(l10n.deleteFeedDialogTitle(preview.feedName)),
+      content: SizedBox(
+        width: dialogMaxWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (preview.hasNoArticles)
+              Text(l10n.deleteFeedDialogNoArticles)
+            else ...<Widget>[
+              Text(l10n.deleteFeedDialogIntro(preview.totalCount)),
+              const SizedBox(height: FluxSpacing.xs),
+              _ImpactLine(
+                icon: Icons.star_outline,
+                text: l10n.deleteFeedDialogFavoriteLine(preview.favoriteCount),
+                hint: l10n.deleteFeedDialogFavoriteHint,
+                emphasis: true,
+              ),
+              const SizedBox(height: FluxSpacing.xs),
+              _ImpactLine(
+                icon: Icons.delete_outline,
+                text: l10n.deleteFeedDialogOtherLine(
+                  preview.otherCount,
+                  preview.laterCount,
+                ),
+                hint: l10n.deleteFeedDialogOtherHint,
+                destructive: true,
+              ),
+              const SizedBox(height: FluxSpacing.sm),
+              CheckboxListTile(
+                value: _keepFavorites,
+                onChanged: (bool? value) =>
+                    setState(() => _keepFavorites = value ?? false),
+                controlAffinity: ListTileControlAffinity.leading,
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.deleteFeedKeepFavoritesOption),
+                subtitle: Text(
+                  l10n.deleteFeedKeepFavoritesHint,
+                  style: theme.textTheme.labelSmall,
+                ),
+              ),
+              if (!_keepFavorites)
+                // 取消勾选是一个破坏性更强的选择（收藏也会没），因此这里用一句
+                // 明确的提示把后果写出来，而不是只靠复选框的状态色。
+                Text(
+                  l10n.deleteFeedDialogOtherHint,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.subscriptionCancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+            foregroundColor: theme.colorScheme.onError,
+          ),
+          onPressed: () =>
+              Navigator.of(context)
+                  .pop(DeleteFeedChoice(keepFavorites: _keepFavorites)),
+          child: Text(l10n.deleteFeedConfirm),
+        ),
+      ],
+    );
+  }
+}
+
+/// 影响范围里的一行。
+class _ImpactLine extends StatelessWidget {
+  const _ImpactLine({
+    required this.icon,
+    required this.text,
+    required this.hint,
+    this.destructive = false,
+    this.emphasis = false,
+  });
+
+  final IconData icon;
+  final String text;
+  final String hint;
+  final bool destructive;
+  final bool emphasis;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color color = destructive
+        ? theme.colorScheme.error
+        : emphasis
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurface;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: FluxSpacing.xs),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                text,
+                style: theme.textTheme.bodyMedium?.copyWith(color: color),
+              ),
+              Text(hint, style: theme.textTheme.labelSmall),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

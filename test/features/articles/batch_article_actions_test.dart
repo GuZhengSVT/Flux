@@ -62,7 +62,7 @@ void main() {
       .into(db.articles)
       .insert(
         ArticlesCompanion.insert(
-          feedId: feedId ?? feedA,
+          feedId: Value<int?>(feedId ?? feedA),
           title: title,
           identityBasis: IdentityBasis.guid,
           guid: Value<String?>('guid-$title'),
@@ -368,7 +368,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedA,
+              feedId: Value<int?>(feedA),
               title: '有正文',
               identityBasis: IdentityBasis.guid,
               guid: const Value<String?>('guid-body'),
@@ -487,7 +487,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedA,
+              feedId: Value<int?>(feedA),
               title: '原标题',
               identityBasis: IdentityBasis.guid,
               guid: const Value<String?>('guid-undo'),

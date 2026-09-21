@@ -20,6 +20,7 @@ import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/features/settings/application/settings_store.dart';
 
 import '../application/add_feed.dart';
+import '../application/delete_feed.dart';
 import '../application/edit_feed.dart';
 import '../application/feed_manager_state.dart';
 import '../application/feed_overview.dart';
@@ -242,16 +243,25 @@ final class FeedManagerController extends AsyncNotifier<FeedManagerState> {
     return result;
   }
 
-  /// 删除分组。
+  /// 读取删除分组时「删除其中订阅」分支的影响范围（T018；只读）。
+  Future<Result<GroupDeletionPreview>> previewGroupDeletion({
+    required int groupId,
+    required String groupName,
+  }) =>
+      DeleteGroupUseCase(catalog: ref.read(feedCatalogProvider))
+          .preview(groupId: groupId, groupName: groupName);
+
+  /// 删除分组（T018：两个分支都由用例经存储层在单个事务内完成）。
   Future<Result<GroupDeletionReport>> deleteGroup({
     required int groupId,
     required String groupName,
     GroupDeletionMode mode = GroupDeletionMode.moveToUncategorized,
+    bool keepFavorites = true,
   }) async {
-    final Result<GroupDeletionOutcome> result = await _groups.delete(
-      groupId,
-      mode: mode,
-    );
+    final Result<GroupDeletionOutcome> result = await DeleteGroupUseCase(
+      catalog: ref.read(feedCatalogProvider),
+      diagnostics: ref.read(diagnosticSinkProvider),
+    ).confirm(groupId: groupId, mode: mode, keepFavorites: keepFavorites);
     if (result.isErr) {
       return Err<GroupDeletionReport>(result.errorOrNull!);
     }
@@ -259,6 +269,30 @@ final class FeedManagerController extends AsyncNotifier<FeedManagerState> {
     return Ok<GroupDeletionReport>(
       GroupDeletionReport(outcome: result.unwrap(), groupName: groupName),
     );
+  }
+
+  // ---------------------------------------------------------------------
+  // 删除订阅（T018）
+  // ---------------------------------------------------------------------
+
+  /// 读取一次删除订阅的影响范围（只读，不改写任何数据）。
+  Future<Result<FeedDeletionPreview>> previewFeedDeletion(int feedId) =>
+      DeleteFeedUseCase(catalog: ref.read(feedCatalogProvider)).preview(feedId);
+
+  /// 执行删除订阅。
+  Future<Result<FeedDeletionOutcome>> deleteFeed({
+    required int feedId,
+    required bool keepFavorites,
+  }) async {
+    final Result<FeedDeletionOutcome> result = await DeleteFeedUseCase(
+      catalog: ref.read(feedCatalogProvider),
+      diagnostics: ref.read(diagnosticSinkProvider),
+    ).confirm(feedId: feedId, keepFavorites: keepFavorites);
+    if (result.isErr) {
+      return Err<FeedDeletionOutcome>(result.errorOrNull!);
+    }
+    await reload();
+    return result;
   }
 
   /// 整段重排分组。

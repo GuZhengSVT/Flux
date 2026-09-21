@@ -196,6 +196,11 @@ class _ArticleCard extends ConsumerWidget {
     final String time = entry.publishedAtMissing
         ? l10n.readingPublishedUnknown
         : formatLocalTime(entry.effectiveTime);
+    // 已脱离源（来源订阅已被删除）的收藏：来源名来自删除那一刻的快照，因此这里
+    // 明确标注「已脱离订阅」，让用户看出它不再由任何源更新（架构 4.1）。
+    if (entry.detachedFromFeed) {
+      return '${entry.feedName}（${l10n.detachedFeedLabel}） · $time';
+    }
     return '${entry.feedName} · $time';
   }
 

@@ -68,7 +68,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedId,
+              feedId: Value<int?>(feedId),
               title: title,
               identityBasis: IdentityBasis.guid,
               guid: Value<String?>('guid-$title'),

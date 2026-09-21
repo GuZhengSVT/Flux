@@ -47,7 +47,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedId,
+              feedId: Value<int?>(feedId),
               title: '时间往返',
               identityBasis: IdentityBasis.guid,
               publishedAt: Value<DateTime?>(original),
@@ -64,7 +64,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedId,
+              feedId: Value<int?>(feedId),
               title: '文本存储',
               identityBasis: IdentityBasis.guid,
               publishedAt: Value<DateTime?>(DateTime.utc(2026, 9, 21, 1, 2, 3)),
@@ -92,7 +92,7 @@ void main() {
             .into(db.articles)
             .insert(
               ArticlesCompanion.insert(
-                feedId: feedId,
+                feedId: Value<int?>(feedId),
                 title: t.toIso8601String(),
                 identityBasis: IdentityBasis.guid,
                 publishedAt: Value<DateTime?>(t),
@@ -121,7 +121,7 @@ void main() {
           .into(db.articles)
           .insert(
             ArticlesCompanion.insert(
-              feedId: feedId,
+              feedId: Value<int?>(feedId),
               title: '会话',
               identityBasis: IdentityBasis.guid,
             ),

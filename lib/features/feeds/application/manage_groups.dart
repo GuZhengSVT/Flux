@@ -15,40 +15,10 @@ library;
 
 import 'package:flux/core/core.dart';
 
-/// 删除分组时对其订阅的处理方式（架构 4.1 的两种分支）。
-enum GroupDeletionMode {
-  /// 把订阅移动到保留组「未分类」（本期实现的唯一分支）。
-  moveToUncategorized,
-
-  /// 删除其中全部订阅。
-  ///
-  /// 本期**不真正删除**：它复用 T018 的「保留收藏」规则，因此这里调用订阅删除的
-  /// 预留接口（[FeedCatalogStore.markFeedDeleted]）并在结果里如实报告「尚未删除」，
-  /// 而不是静默当作已完成。
-  deleteFeeds,
-}
-
-/// 一次分组删除的结果。
-class GroupDeletionOutcome {
-  /// 构造结果。
-  const GroupDeletionOutcome({
-    required this.mode,
-    required this.movedFeedCount,
-    required this.pendingFeedDeletionCount,
-  });
-
-  /// 实际采用的处理方式。
-  final GroupDeletionMode mode;
-
-  /// 被移动到未分类的订阅数。
-  final int movedFeedCount;
-
-  /// 因 T018 未实现而**尚未真正删除**的订阅数。
-  ///
-  /// 非零时界面必须明确说明（「保留收藏在 T018 生效」），否则用户会以为自己
-  /// 已经删掉了那些订阅。
-  final int pendingFeedDeletionCount;
-}
+// [GroupDeletionMode] 与 [GroupDeletionOutcome] 自 T018 起定义在
+// lib/core/domain/feed_deletion.dart：删除的数据形状同时被用例层、存储层与界面引用，
+// 而 features 不得 import infrastructure，因此它必须住在 core。这里不再重复声明，
+// 避免出现两份形状接近的定义。
 
 /// 分组管理用例。
 class ManageGroupsUseCase {
@@ -203,6 +173,7 @@ class ManageGroupsUseCase {
   Future<Result<GroupDeletionOutcome>> delete(
     int groupId, {
     GroupDeletionMode mode = GroupDeletionMode.moveToUncategorized,
+    bool keepFavorites = true,
   }) async {
     final Result<GroupRecord> loaded = await _requireGroup(groupId);
     if (loaded.isErr) {
@@ -215,62 +186,24 @@ class ManageGroupsUseCase {
       );
     }
 
-    final Result<List<FeedRecord>> feeds = await catalog.listFeeds();
-    if (feeds.isErr) {
-      return Err<GroupDeletionOutcome>(feeds.errorOrNull!);
+    // 「移动到未分类」分支需要一个真实存在的目标组，因此**先确认它存在**再进存储
+    // 层：缺失意味着库被破坏，此时应当立刻报错，而不是让事务跑一半再回滚。
+    // （删除订阅的分支不需要目标组。）
+    if (mode == GroupDeletionMode.moveToUncategorized) {
+      final Result<GroupRecord> reserved = await _requireReservedGroup();
+      if (reserved.isErr) {
+        return Err<GroupDeletionOutcome>(reserved.errorOrNull!);
+      }
     }
-    final List<FeedRecord> members = feeds.valueOrNull!
-        .where((FeedRecord feed) => feed.groupId == group.id)
-        .toList(growable: false);
 
-    switch (mode) {
-      case GroupDeletionMode.moveToUncategorized:
-        final Result<GroupRecord> reserved = await _requireReservedGroup();
-        if (reserved.isErr) {
-          return Err<GroupDeletionOutcome>(reserved.errorOrNull!);
-        }
-        if (members.isNotEmpty) {
-          final Result<int> moved = await catalog.moveAllFeedsToGroup(
-            fromGroupId: group.id,
-            targetGroupId: reserved.unwrap().id,
-          );
-          if (moved.isErr) {
-            return Err<GroupDeletionOutcome>(moved.errorOrNull!);
-          }
-        }
-        // 先移动订阅、再删除分组行：反过来的话，外键仍指向已删分组的那一瞬是
-        // 一个**已经违反**「订阅必须有归属」的中间状态。
-        final Result<void> removed = await catalog.deleteGroup(group.id);
-        if (removed.isErr) {
-          return Err<GroupDeletionOutcome>(removed.errorOrNull!);
-        }
-        return Ok<GroupDeletionOutcome>(
-          GroupDeletionOutcome(
-            mode: mode,
-            movedFeedCount: members.length,
-            pendingFeedDeletionCount: 0,
-          ),
-        );
-
-      case GroupDeletionMode.deleteFeeds:
-        // 本期**不删除**：按架构 4.1 与 D-11，「删除订阅」必须先让用户看见影响
-        // 范围（收藏 vs 其他、含 later）并选择是否保留收藏。因此这里逐个调用预留
-        // 接口把它们标记为「待 T018 处理」，并**保留分组与订阅本身**——一个此刻
-        // 就真删数据、却声称遵守保留规则的实现，比不实现更糟。
-        for (final FeedRecord feed in members) {
-          final Result<void> marked = await catalog.markFeedDeleted(feed.id);
-          if (marked.isErr) {
-            return Err<GroupDeletionOutcome>(marked.errorOrNull!);
-          }
-        }
-        return Ok<GroupDeletionOutcome>(
-          GroupDeletionOutcome(
-            mode: mode,
-            movedFeedCount: 0,
-            pendingFeedDeletionCount: members.length,
-          ),
-        );
-    }
+    // 两个分支都交给存储层在**同一个事务**内完成（架构第 8 节：不允许部分成功）。
+    // 用例层不再自己「先移动、再删组」地拼两步：那两步之间失败会留下一个已经动过
+    // 订阅、却没删掉分组的状态，而用户只看到「删除分组失败」。
+    return catalog.deleteGroupWithFeeds(
+      groupId: group.id,
+      mode: mode,
+      keepFavorites: keepFavorites,
+    );
   }
 
   /// 读取一个必须存在的分组。

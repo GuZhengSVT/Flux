@@ -1635,12 +1635,34 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   late final GeneratedColumn<int> feedId = GeneratedColumn<int>(
     'feed_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES feeds (id)',
     ),
+  );
+  static const VerificationMeta _feedTitleMeta = const VerificationMeta(
+    'feedTitle',
+  );
+  @override
+  late final GeneratedColumn<String> feedTitle = GeneratedColumn<String>(
+    'feed_title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _feedUrlMeta = const VerificationMeta(
+    'feedUrl',
+  );
+  @override
+  late final GeneratedColumn<String> feedUrl = GeneratedColumn<String>(
+    'feed_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
@@ -1857,6 +1879,8 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
   List<GeneratedColumn> get $columns => [
     id,
     feedId,
+    feedTitle,
+    feedUrl,
     guid,
     guidPresent,
     normalizedLink,
@@ -1897,8 +1921,18 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
         _feedIdMeta,
         feedId.isAcceptableOrUnknown(data['feed_id']!, _feedIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_feedIdMeta);
+    }
+    if (data.containsKey('feed_title')) {
+      context.handle(
+        _feedTitleMeta,
+        feedTitle.isAcceptableOrUnknown(data['feed_title']!, _feedTitleMeta),
+      );
+    }
+    if (data.containsKey('feed_url')) {
+      context.handle(
+        _feedUrlMeta,
+        feedUrl.isAcceptableOrUnknown(data['feed_url']!, _feedUrlMeta),
+      );
     }
     if (data.containsKey('guid')) {
       context.handle(
@@ -2020,7 +2054,15 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       feedId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}feed_id'],
-      )!,
+      ),
+      feedTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feed_title'],
+      ),
+      feedUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feed_url'],
+      ),
       guid: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}guid'],
@@ -2140,9 +2182,31 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
 class Article extends DataClass implements Insertable<Article> {
   final int id;
 
-  /// 所属订阅。删除订阅由用例层显式处理（保留收藏、预览影响范围），
-  /// 因此这里**不**用级联删除，避免绕过确认直接清空文章。
-  final int feedId;
+  /// 所属订阅；**可为空**（schema v5 起）。
+  ///
+  /// 为什么允许为空：架构 4.1 规定删除订阅时「保留收藏从源中脱离，带来源快照进入
+  /// 资料库」。收藏文章必须能在源被删除后继续存在，因此它的 feed_id 会变成 NULL，
+  /// 由 [feedTitle] / [feedUrl] 两份快照继续说明「它来自哪里」。
+  ///
+  /// 仍然**不**用级联删除：删除订阅由用例层显式处理（保留收藏、预览影响范围），
+  /// 级联会绕过确认直接清空文章。
+  final int? feedId;
+
+  /// 来源快照：删除订阅时冻结的显示名（schema v5）。
+  ///
+  /// 为什么需要快照而不是「留着 feed_id 在别处查名字」：源那一行在删除后就不存在了，
+  /// 而保留下来的收藏文章仍然要显示「来自哪个源」。快照在**删除那一刻**冻结，因此
+  /// 之后源被重新添加、改名或再次删除都不会改写这条历史。
+  ///
+  /// 未脱离源的文章该列为 null（列表仍按 feed_id 现查显示名，改名即时生效）。
+  final String? feedTitle;
+
+  /// 来源快照：删除订阅时冻结的地址（schema v5）。
+  ///
+  /// 存规范化地址（`Feeds.normalizedUrl`）而不是请求用的原始地址：库里本来就只有
+  /// 规范地址这一份——带凭据的原始地址以 credentialRef 引用保存在 Keychain，
+  /// 快照不得把它复制进普通列（架构第 8 节）。
+  final String? feedUrl;
 
   /// 源内 GUID。可能是 null（源未提供）或空串（源提供了空值），
   /// 后者由 [guidPresent] 区分。
@@ -2206,7 +2270,9 @@ class Article extends DataClass implements Insertable<Article> {
   final DateTime updatedAt;
   const Article({
     required this.id,
-    required this.feedId,
+    this.feedId,
+    this.feedTitle,
+    this.feedUrl,
     this.guid,
     required this.guidPresent,
     this.normalizedLink,
@@ -2231,7 +2297,15 @@ class Article extends DataClass implements Insertable<Article> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['feed_id'] = Variable<int>(feedId);
+    if (!nullToAbsent || feedId != null) {
+      map['feed_id'] = Variable<int>(feedId);
+    }
+    if (!nullToAbsent || feedTitle != null) {
+      map['feed_title'] = Variable<String>(feedTitle);
+    }
+    if (!nullToAbsent || feedUrl != null) {
+      map['feed_url'] = Variable<String>(feedUrl);
+    }
     if (!nullToAbsent || guid != null) {
       map['guid'] = Variable<String>(guid);
     }
@@ -2293,7 +2367,15 @@ class Article extends DataClass implements Insertable<Article> {
   ArticlesCompanion toCompanion(bool nullToAbsent) {
     return ArticlesCompanion(
       id: Value(id),
-      feedId: Value(feedId),
+      feedId: feedId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedId),
+      feedTitle: feedTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedTitle),
+      feedUrl: feedUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedUrl),
       guid: guid == null && nullToAbsent ? const Value.absent() : Value(guid),
       guidPresent: Value(guidPresent),
       normalizedLink: normalizedLink == null && nullToAbsent
@@ -2339,7 +2421,9 @@ class Article extends DataClass implements Insertable<Article> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Article(
       id: serializer.fromJson<int>(json['id']),
-      feedId: serializer.fromJson<int>(json['feedId']),
+      feedId: serializer.fromJson<int?>(json['feedId']),
+      feedTitle: serializer.fromJson<String?>(json['feedTitle']),
+      feedUrl: serializer.fromJson<String?>(json['feedUrl']),
       guid: serializer.fromJson<String?>(json['guid']),
       guidPresent: serializer.fromJson<bool>(json['guidPresent']),
       normalizedLink: serializer.fromJson<String?>(json['normalizedLink']),
@@ -2377,7 +2461,9 @@ class Article extends DataClass implements Insertable<Article> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'feedId': serializer.toJson<int>(feedId),
+      'feedId': serializer.toJson<int?>(feedId),
+      'feedTitle': serializer.toJson<String?>(feedTitle),
+      'feedUrl': serializer.toJson<String?>(feedUrl),
       'guid': serializer.toJson<String?>(guid),
       'guidPresent': serializer.toJson<bool>(guidPresent),
       'normalizedLink': serializer.toJson<String?>(normalizedLink),
@@ -2412,7 +2498,9 @@ class Article extends DataClass implements Insertable<Article> {
 
   Article copyWith({
     int? id,
-    int? feedId,
+    Value<int?> feedId = const Value.absent(),
+    Value<String?> feedTitle = const Value.absent(),
+    Value<String?> feedUrl = const Value.absent(),
     Value<String?> guid = const Value.absent(),
     bool? guidPresent,
     Value<String?> normalizedLink = const Value.absent(),
@@ -2435,7 +2523,9 @@ class Article extends DataClass implements Insertable<Article> {
     DateTime? updatedAt,
   }) => Article(
     id: id ?? this.id,
-    feedId: feedId ?? this.feedId,
+    feedId: feedId.present ? feedId.value : this.feedId,
+    feedTitle: feedTitle.present ? feedTitle.value : this.feedTitle,
+    feedUrl: feedUrl.present ? feedUrl.value : this.feedUrl,
     guid: guid.present ? guid.value : this.guid,
     guidPresent: guidPresent ?? this.guidPresent,
     normalizedLink: normalizedLink.present
@@ -2466,6 +2556,8 @@ class Article extends DataClass implements Insertable<Article> {
     return Article(
       id: data.id.present ? data.id.value : this.id,
       feedId: data.feedId.present ? data.feedId.value : this.feedId,
+      feedTitle: data.feedTitle.present ? data.feedTitle.value : this.feedTitle,
+      feedUrl: data.feedUrl.present ? data.feedUrl.value : this.feedUrl,
       guid: data.guid.present ? data.guid.value : this.guid,
       guidPresent: data.guidPresent.present
           ? data.guidPresent.value
@@ -2509,6 +2601,8 @@ class Article extends DataClass implements Insertable<Article> {
     return (StringBuffer('Article(')
           ..write('id: $id, ')
           ..write('feedId: $feedId, ')
+          ..write('feedTitle: $feedTitle, ')
+          ..write('feedUrl: $feedUrl, ')
           ..write('guid: $guid, ')
           ..write('guidPresent: $guidPresent, ')
           ..write('normalizedLink: $normalizedLink, ')
@@ -2536,6 +2630,8 @@ class Article extends DataClass implements Insertable<Article> {
   int get hashCode => Object.hashAll([
     id,
     feedId,
+    feedTitle,
+    feedUrl,
     guid,
     guidPresent,
     normalizedLink,
@@ -2562,6 +2658,8 @@ class Article extends DataClass implements Insertable<Article> {
       (other is Article &&
           other.id == this.id &&
           other.feedId == this.feedId &&
+          other.feedTitle == this.feedTitle &&
+          other.feedUrl == this.feedUrl &&
           other.guid == this.guid &&
           other.guidPresent == this.guidPresent &&
           other.normalizedLink == this.normalizedLink &&
@@ -2585,7 +2683,9 @@ class Article extends DataClass implements Insertable<Article> {
 
 class ArticlesCompanion extends UpdateCompanion<Article> {
   final Value<int> id;
-  final Value<int> feedId;
+  final Value<int?> feedId;
+  final Value<String?> feedTitle;
+  final Value<String?> feedUrl;
   final Value<String?> guid;
   final Value<bool> guidPresent;
   final Value<String?> normalizedLink;
@@ -2608,6 +2708,8 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   const ArticlesCompanion({
     this.id = const Value.absent(),
     this.feedId = const Value.absent(),
+    this.feedTitle = const Value.absent(),
+    this.feedUrl = const Value.absent(),
     this.guid = const Value.absent(),
     this.guidPresent = const Value.absent(),
     this.normalizedLink = const Value.absent(),
@@ -2630,7 +2732,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   });
   ArticlesCompanion.insert({
     this.id = const Value.absent(),
-    required int feedId,
+    this.feedId = const Value.absent(),
+    this.feedTitle = const Value.absent(),
+    this.feedUrl = const Value.absent(),
     this.guid = const Value.absent(),
     this.guidPresent = const Value.absent(),
     this.normalizedLink = const Value.absent(),
@@ -2650,12 +2754,13 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.favorite = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : feedId = Value(feedId),
-       identityBasis = Value(identityBasis),
+  }) : identityBasis = Value(identityBasis),
        title = Value(title);
   static Insertable<Article> custom({
     Expression<int>? id,
     Expression<int>? feedId,
+    Expression<String>? feedTitle,
+    Expression<String>? feedUrl,
     Expression<String>? guid,
     Expression<bool>? guidPresent,
     Expression<String>? normalizedLink,
@@ -2679,6 +2784,8 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (feedId != null) 'feed_id': feedId,
+      if (feedTitle != null) 'feed_title': feedTitle,
+      if (feedUrl != null) 'feed_url': feedUrl,
       if (guid != null) 'guid': guid,
       if (guidPresent != null) 'guid_present': guidPresent,
       if (normalizedLink != null) 'normalized_link': normalizedLink,
@@ -2705,7 +2812,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
 
   ArticlesCompanion copyWith({
     Value<int>? id,
-    Value<int>? feedId,
+    Value<int?>? feedId,
+    Value<String?>? feedTitle,
+    Value<String?>? feedUrl,
     Value<String?>? guid,
     Value<bool>? guidPresent,
     Value<String?>? normalizedLink,
@@ -2729,6 +2838,8 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     return ArticlesCompanion(
       id: id ?? this.id,
       feedId: feedId ?? this.feedId,
+      feedTitle: feedTitle ?? this.feedTitle,
+      feedUrl: feedUrl ?? this.feedUrl,
       guid: guid ?? this.guid,
       guidPresent: guidPresent ?? this.guidPresent,
       normalizedLink: normalizedLink ?? this.normalizedLink,
@@ -2760,6 +2871,12 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     }
     if (feedId.present) {
       map['feed_id'] = Variable<int>(feedId.value);
+    }
+    if (feedTitle.present) {
+      map['feed_title'] = Variable<String>(feedTitle.value);
+    }
+    if (feedUrl.present) {
+      map['feed_url'] = Variable<String>(feedUrl.value);
     }
     if (guid.present) {
       map['guid'] = Variable<String>(guid.value);
@@ -2836,6 +2953,8 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     return (StringBuffer('ArticlesCompanion(')
           ..write('id: $id, ')
           ..write('feedId: $feedId, ')
+          ..write('feedTitle: $feedTitle, ')
+          ..write('feedUrl: $feedUrl, ')
           ..write('guid: $guid, ')
           ..write('guidPresent: $guidPresent, ')
           ..write('normalizedLink: $normalizedLink, ')
@@ -2855,6 +2974,558 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
           ..write('favorite: $favorite, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DeletionEventsTable extends DeletionEvents
+    with TableInfo<$DeletionEventsTable, DeletionEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeletionEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+    'sync_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keepFavoritesMeta = const VerificationMeta(
+    'keepFavorites',
+  );
+  @override
+  late final GeneratedColumn<bool> keepFavorites = GeneratedColumn<bool>(
+    'keep_favorites',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("keep_favorites" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _deletedArticleCountMeta =
+      const VerificationMeta('deletedArticleCount');
+  @override
+  late final GeneratedColumn<int> deletedArticleCount = GeneratedColumn<int>(
+    'deleted_article_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _keptFavoriteCountMeta = const VerificationMeta(
+    'keptFavoriteCount',
+  );
+  @override
+  late final GeneratedColumn<int> keptFavoriteCount = GeneratedColumn<int>(
+    'kept_favorite_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    entityType,
+    syncId,
+    displayName,
+    keepFavorites,
+    deletedArticleCount,
+    keptFavoriteCount,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'deletion_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DeletionEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('sync_id')) {
+      context.handle(
+        _syncIdMeta,
+        syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('keep_favorites')) {
+      context.handle(
+        _keepFavoritesMeta,
+        keepFavorites.isAcceptableOrUnknown(
+          data['keep_favorites']!,
+          _keepFavoritesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('deleted_article_count')) {
+      context.handle(
+        _deletedArticleCountMeta,
+        deletedArticleCount.isAcceptableOrUnknown(
+          data['deleted_article_count']!,
+          _deletedArticleCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('kept_favorite_count')) {
+      context.handle(
+        _keptFavoriteCountMeta,
+        keptFavoriteCount.isAcceptableOrUnknown(
+          data['kept_favorite_count']!,
+          _keptFavoriteCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deletedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeletionEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeletionEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      syncId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_id'],
+      )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      )!,
+      keepFavorites: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}keep_favorites'],
+      ),
+      deletedArticleCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_article_count'],
+      )!,
+      keptFavoriteCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}kept_favorite_count'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DeletionEventsTable createAlias(String alias) {
+    return $DeletionEventsTable(attachedDatabase, alias);
+  }
+}
+
+class DeletionEvent extends DataClass implements Insertable<DeletionEvent> {
+  final int id;
+
+  /// 实体类型（feed / group）。
+  ///
+  /// 用文本列而不是 CHECK 约束：与 `feeds.lastRefreshResult` 同一条理由——这是
+  /// 运行期记录而非用户数据本体，未来若新增一类可删除实体，加 CHECK 会让旧值在
+  /// 新代码下变成非法值而需要迁移；读取侧的未知值回退已能安全处理。
+  final String entityType;
+
+  /// 被删除实体的**跨设备稳定标识**（`Feeds.syncId` / `Groups.syncId`）。
+  ///
+  /// 存 syncId 而不是本机自增 id：墓碑的意义在于跨设备与跨导入批次可对齐，
+  /// 而本机 id 在另一台设备上必然指向别的行（架构 5.2）。
+  final String syncId;
+
+  /// 删除时的显示名（让用户与诊断能认出删的是哪一个）。
+  final String displayName;
+
+  /// 删除时是否选择了「保留收藏」。
+  ///
+  /// 这是架构 5.2「删除订阅的保留收藏选择进入同步操作元数据」在本机的落点：
+  /// 别的设备应用这次删除前必须能知道本机当时选了哪一档，否则它会按自己的默认值
+  /// 静默清掉一批用户本意要保留的收藏。为空表示该事件不涉及这个选择（例如分组
+  /// 移动分支）。
+  final bool? keepFavorites;
+
+  /// 本次删除清理掉的文章数。
+  final int deletedArticleCount;
+
+  /// 本次删除保留下来的收藏数（脱离源进入资料库）。
+  final int keptFavoriteCount;
+
+  /// 删除发生的时间（UTC 存储）。
+  final DateTime deletedAt;
+  const DeletionEvent({
+    required this.id,
+    required this.entityType,
+    required this.syncId,
+    required this.displayName,
+    this.keepFavorites,
+    required this.deletedArticleCount,
+    required this.keptFavoriteCount,
+    required this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['entity_type'] = Variable<String>(entityType);
+    map['sync_id'] = Variable<String>(syncId);
+    map['display_name'] = Variable<String>(displayName);
+    if (!nullToAbsent || keepFavorites != null) {
+      map['keep_favorites'] = Variable<bool>(keepFavorites);
+    }
+    map['deleted_article_count'] = Variable<int>(deletedArticleCount);
+    map['kept_favorite_count'] = Variable<int>(keptFavoriteCount);
+    map['deleted_at'] = Variable<DateTime>(deletedAt);
+    return map;
+  }
+
+  DeletionEventsCompanion toCompanion(bool nullToAbsent) {
+    return DeletionEventsCompanion(
+      id: Value(id),
+      entityType: Value(entityType),
+      syncId: Value(syncId),
+      displayName: Value(displayName),
+      keepFavorites: keepFavorites == null && nullToAbsent
+          ? const Value.absent()
+          : Value(keepFavorites),
+      deletedArticleCount: Value(deletedArticleCount),
+      keptFavoriteCount: Value(keptFavoriteCount),
+      deletedAt: Value(deletedAt),
+    );
+  }
+
+  factory DeletionEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeletionEvent(
+      id: serializer.fromJson<int>(json['id']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      syncId: serializer.fromJson<String>(json['syncId']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      keepFavorites: serializer.fromJson<bool?>(json['keepFavorites']),
+      deletedArticleCount: serializer.fromJson<int>(
+        json['deletedArticleCount'],
+      ),
+      keptFavoriteCount: serializer.fromJson<int>(json['keptFavoriteCount']),
+      deletedAt: serializer.fromJson<DateTime>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'entityType': serializer.toJson<String>(entityType),
+      'syncId': serializer.toJson<String>(syncId),
+      'displayName': serializer.toJson<String>(displayName),
+      'keepFavorites': serializer.toJson<bool?>(keepFavorites),
+      'deletedArticleCount': serializer.toJson<int>(deletedArticleCount),
+      'keptFavoriteCount': serializer.toJson<int>(keptFavoriteCount),
+      'deletedAt': serializer.toJson<DateTime>(deletedAt),
+    };
+  }
+
+  DeletionEvent copyWith({
+    int? id,
+    String? entityType,
+    String? syncId,
+    String? displayName,
+    Value<bool?> keepFavorites = const Value.absent(),
+    int? deletedArticleCount,
+    int? keptFavoriteCount,
+    DateTime? deletedAt,
+  }) => DeletionEvent(
+    id: id ?? this.id,
+    entityType: entityType ?? this.entityType,
+    syncId: syncId ?? this.syncId,
+    displayName: displayName ?? this.displayName,
+    keepFavorites: keepFavorites.present
+        ? keepFavorites.value
+        : this.keepFavorites,
+    deletedArticleCount: deletedArticleCount ?? this.deletedArticleCount,
+    keptFavoriteCount: keptFavoriteCount ?? this.keptFavoriteCount,
+    deletedAt: deletedAt ?? this.deletedAt,
+  );
+  DeletionEvent copyWithCompanion(DeletionEventsCompanion data) {
+    return DeletionEvent(
+      id: data.id.present ? data.id.value : this.id,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      keepFavorites: data.keepFavorites.present
+          ? data.keepFavorites.value
+          : this.keepFavorites,
+      deletedArticleCount: data.deletedArticleCount.present
+          ? data.deletedArticleCount.value
+          : this.deletedArticleCount,
+      keptFavoriteCount: data.keptFavoriteCount.present
+          ? data.keptFavoriteCount.value
+          : this.keptFavoriteCount,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeletionEvent(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('syncId: $syncId, ')
+          ..write('displayName: $displayName, ')
+          ..write('keepFavorites: $keepFavorites, ')
+          ..write('deletedArticleCount: $deletedArticleCount, ')
+          ..write('keptFavoriteCount: $keptFavoriteCount, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    entityType,
+    syncId,
+    displayName,
+    keepFavorites,
+    deletedArticleCount,
+    keptFavoriteCount,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeletionEvent &&
+          other.id == this.id &&
+          other.entityType == this.entityType &&
+          other.syncId == this.syncId &&
+          other.displayName == this.displayName &&
+          other.keepFavorites == this.keepFavorites &&
+          other.deletedArticleCount == this.deletedArticleCount &&
+          other.keptFavoriteCount == this.keptFavoriteCount &&
+          other.deletedAt == this.deletedAt);
+}
+
+class DeletionEventsCompanion extends UpdateCompanion<DeletionEvent> {
+  final Value<int> id;
+  final Value<String> entityType;
+  final Value<String> syncId;
+  final Value<String> displayName;
+  final Value<bool?> keepFavorites;
+  final Value<int> deletedArticleCount;
+  final Value<int> keptFavoriteCount;
+  final Value<DateTime> deletedAt;
+  const DeletionEventsCompanion({
+    this.id = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.syncId = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.keepFavorites = const Value.absent(),
+    this.deletedArticleCount = const Value.absent(),
+    this.keptFavoriteCount = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+  });
+  DeletionEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required String entityType,
+    required String syncId,
+    required String displayName,
+    this.keepFavorites = const Value.absent(),
+    this.deletedArticleCount = const Value.absent(),
+    this.keptFavoriteCount = const Value.absent(),
+    required DateTime deletedAt,
+  }) : entityType = Value(entityType),
+       syncId = Value(syncId),
+       displayName = Value(displayName),
+       deletedAt = Value(deletedAt);
+  static Insertable<DeletionEvent> custom({
+    Expression<int>? id,
+    Expression<String>? entityType,
+    Expression<String>? syncId,
+    Expression<String>? displayName,
+    Expression<bool>? keepFavorites,
+    Expression<int>? deletedArticleCount,
+    Expression<int>? keptFavoriteCount,
+    Expression<DateTime>? deletedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (entityType != null) 'entity_type': entityType,
+      if (syncId != null) 'sync_id': syncId,
+      if (displayName != null) 'display_name': displayName,
+      if (keepFavorites != null) 'keep_favorites': keepFavorites,
+      if (deletedArticleCount != null)
+        'deleted_article_count': deletedArticleCount,
+      if (keptFavoriteCount != null) 'kept_favorite_count': keptFavoriteCount,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+    });
+  }
+
+  DeletionEventsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? entityType,
+    Value<String>? syncId,
+    Value<String>? displayName,
+    Value<bool?>? keepFavorites,
+    Value<int>? deletedArticleCount,
+    Value<int>? keptFavoriteCount,
+    Value<DateTime>? deletedAt,
+  }) {
+    return DeletionEventsCompanion(
+      id: id ?? this.id,
+      entityType: entityType ?? this.entityType,
+      syncId: syncId ?? this.syncId,
+      displayName: displayName ?? this.displayName,
+      keepFavorites: keepFavorites ?? this.keepFavorites,
+      deletedArticleCount: deletedArticleCount ?? this.deletedArticleCount,
+      keptFavoriteCount: keptFavoriteCount ?? this.keptFavoriteCount,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (keepFavorites.present) {
+      map['keep_favorites'] = Variable<bool>(keepFavorites.value);
+    }
+    if (deletedArticleCount.present) {
+      map['deleted_article_count'] = Variable<int>(deletedArticleCount.value);
+    }
+    if (keptFavoriteCount.present) {
+      map['kept_favorite_count'] = Variable<int>(keptFavoriteCount.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeletionEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('entityType: $entityType, ')
+          ..write('syncId: $syncId, ')
+          ..write('displayName: $displayName, ')
+          ..write('keepFavorites: $keepFavorites, ')
+          ..write('deletedArticleCount: $deletedArticleCount, ')
+          ..write('keptFavoriteCount: $keptFavoriteCount, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -5000,6 +5671,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GroupsTable groups = $GroupsTable(this);
   late final $FeedsTable feeds = $FeedsTable(this);
   late final $ArticlesTable articles = $ArticlesTable(this);
+  late final $DeletionEventsTable deletionEvents = $DeletionEventsTable(this);
   late final $ReadingSessionsTable readingSessions = $ReadingSessionsTable(
     this,
   );
@@ -5052,6 +5724,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_articles_body_hash',
     'CREATE INDEX ix_articles_body_hash ON articles (body_hash)',
   );
+  late final Index ixDeletionEventsSyncId = Index(
+    'ix_deletion_events_sync_id',
+    'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
+  );
+  late final Index ixDeletionEventsDeletedAt = Index(
+    'ix_deletion_events_deleted_at',
+    'CREATE INDEX ix_deletion_events_deleted_at ON deletion_events (deleted_at)',
+  );
   late final Index ixReadingSessionsArticleStart = Index(
     'ix_reading_sessions_article_start',
     'CREATE INDEX ix_reading_sessions_article_start ON reading_sessions (article_id, started_at)',
@@ -5084,6 +5764,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     groups,
     feeds,
     articles,
+    deletionEvents,
     readingSessions,
     summaryVersions,
     citations,
@@ -5099,6 +5780,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixArticlesReadingState,
     ixArticlesFavorite,
     ixArticlesBodyHash,
+    ixDeletionEventsSyncId,
+    ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
     ixReadingSessionsStarted,
     ixSummaryVersionsLocalDate,
@@ -6120,7 +6803,9 @@ typedef $$FeedsTableProcessedTableManager =
     >;
 typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
   Value<int> id,
-  required int feedId,
+  Value<int?> feedId,
+  Value<String?> feedTitle,
+  Value<String?> feedUrl,
   Value<String?> guid,
   Value<bool> guidPresent,
   Value<String?> normalizedLink,
@@ -6143,7 +6828,9 @@ typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
 });
 typedef $$ArticlesTableUpdateCompanionBuilder = ArticlesCompanion Function({
   Value<int> id,
-  Value<int> feedId,
+  Value<int?> feedId,
+  Value<String?> feedTitle,
+  Value<String?> feedUrl,
   Value<String?> guid,
   Value<bool> guidPresent,
   Value<String?> normalizedLink,
@@ -6172,9 +6859,9 @@ final class $$ArticlesTableReferences
   static $FeedsTable _feedIdTable(_$AppDatabase db) =>
       db.feeds.createAlias('articles__feed_id__feeds__id');
 
-  $$FeedsTableProcessedTableManager get feedId {
-    final $_column = $_itemColumn<int>('feed_id')!;
-
+  $$FeedsTableProcessedTableManager? get feedId {
+    final $_column = $_itemColumn<int>('feed_id');
+    if ($_column == null) return null;
     final manager = $$FeedsTableTableManager(
       $_db,
       $_db.feeds,
@@ -6236,6 +6923,16 @@ class $$ArticlesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get feedTitle => $composableBuilder(
+    column: $table.feedTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get feedUrl => $composableBuilder(
+    column: $table.feedUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6430,6 +7127,16 @@ class $$ArticlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get feedTitle => $composableBuilder(
+    column: $table.feedTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get feedUrl => $composableBuilder(
+    column: $table.feedUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get guid => $composableBuilder(
     column: $table.guid,
     builder: (column) => ColumnOrderings(column),
@@ -6560,6 +7267,12 @@ class $$ArticlesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get feedTitle =>
+      $composableBuilder(column: $table.feedTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get feedUrl =>
+      $composableBuilder(column: $table.feedUrl, builder: (column) => column);
 
   GeneratedColumn<String> get guid =>
       $composableBuilder(column: $table.guid, builder: (column) => column);
@@ -6745,7 +7458,9 @@ class $$ArticlesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> feedId = const Value.absent(),
+                Value<int?> feedId = const Value.absent(),
+                Value<String?> feedTitle = const Value.absent(),
+                Value<String?> feedUrl = const Value.absent(),
                 Value<String?> guid = const Value.absent(),
                 Value<bool> guidPresent = const Value.absent(),
                 Value<String?> normalizedLink = const Value.absent(),
@@ -6769,6 +7484,8 @@ class $$ArticlesTableTableManager
               }) => ArticlesCompanion(
                 id: id,
                 feedId: feedId,
+                feedTitle: feedTitle,
+                feedUrl: feedUrl,
                 guid: guid,
                 guidPresent: guidPresent,
                 normalizedLink: normalizedLink,
@@ -6792,7 +7509,9 @@ class $$ArticlesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int feedId,
+                Value<int?> feedId = const Value.absent(),
+                Value<String?> feedTitle = const Value.absent(),
+                Value<String?> feedUrl = const Value.absent(),
                 Value<String?> guid = const Value.absent(),
                 Value<bool> guidPresent = const Value.absent(),
                 Value<String?> normalizedLink = const Value.absent(),
@@ -6816,6 +7535,8 @@ class $$ArticlesTableTableManager
               }) => ArticlesCompanion.insert(
                 id: id,
                 feedId: feedId,
+                feedTitle: feedTitle,
+                feedUrl: feedUrl,
                 guid: guid,
                 guidPresent: guidPresent,
                 normalizedLink: normalizedLink,
@@ -6955,6 +7676,278 @@ typedef $$ArticlesTableProcessedTableManager =
         bool readingSessionsRefs,
         bool citationsRefs,
       })
+    >;
+typedef $$DeletionEventsTableCreateCompanionBuilder =
+    DeletionEventsCompanion Function({
+      Value<int> id,
+      required String entityType,
+      required String syncId,
+      required String displayName,
+      Value<bool?> keepFavorites,
+      Value<int> deletedArticleCount,
+      Value<int> keptFavoriteCount,
+      required DateTime deletedAt,
+    });
+typedef $$DeletionEventsTableUpdateCompanionBuilder =
+    DeletionEventsCompanion Function({
+      Value<int> id,
+      Value<String> entityType,
+      Value<String> syncId,
+      Value<String> displayName,
+      Value<bool?> keepFavorites,
+      Value<int> deletedArticleCount,
+      Value<int> keptFavoriteCount,
+      Value<DateTime> deletedAt,
+    });
+
+class $$DeletionEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $DeletionEventsTable> {
+  $$DeletionEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncId => $composableBuilder(
+    column: $table.syncId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get keepFavorites => $composableBuilder(
+    column: $table.keepFavorites,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedArticleCount => $composableBuilder(
+    column: $table.deletedArticleCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get keptFavoriteCount => $composableBuilder(
+    column: $table.keptFavoriteCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DeletionEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeletionEventsTable> {
+  $$DeletionEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncId => $composableBuilder(
+    column: $table.syncId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get keepFavorites => $composableBuilder(
+    column: $table.keepFavorites,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedArticleCount => $composableBuilder(
+    column: $table.deletedArticleCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get keptFavoriteCount => $composableBuilder(
+    column: $table.keptFavoriteCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DeletionEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeletionEventsTable> {
+  $$DeletionEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get keepFavorites => $composableBuilder(
+    column: $table.keepFavorites,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deletedArticleCount => $composableBuilder(
+    column: $table.deletedArticleCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get keptFavoriteCount => $composableBuilder(
+    column: $table.keptFavoriteCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$DeletionEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeletionEventsTable,
+          DeletionEvent,
+          $$DeletionEventsTableFilterComposer,
+          $$DeletionEventsTableOrderingComposer,
+          $$DeletionEventsTableAnnotationComposer,
+          $$DeletionEventsTableCreateCompanionBuilder,
+          $$DeletionEventsTableUpdateCompanionBuilder,
+          (
+            DeletionEvent,
+            BaseReferences<_$AppDatabase, $DeletionEventsTable, DeletionEvent>,
+          ),
+          DeletionEvent,
+          PrefetchHooks Function()
+        > {
+  $$DeletionEventsTableTableManager(
+    _$AppDatabase db,
+    $DeletionEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeletionEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeletionEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DeletionEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<String> syncId = const Value.absent(),
+                Value<String> displayName = const Value.absent(),
+                Value<bool?> keepFavorites = const Value.absent(),
+                Value<int> deletedArticleCount = const Value.absent(),
+                Value<int> keptFavoriteCount = const Value.absent(),
+                Value<DateTime> deletedAt = const Value.absent(),
+              }) => DeletionEventsCompanion(
+                id: id,
+                entityType: entityType,
+                syncId: syncId,
+                displayName: displayName,
+                keepFavorites: keepFavorites,
+                deletedArticleCount: deletedArticleCount,
+                keptFavoriteCount: keptFavoriteCount,
+                deletedAt: deletedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String entityType,
+                required String syncId,
+                required String displayName,
+                Value<bool?> keepFavorites = const Value.absent(),
+                Value<int> deletedArticleCount = const Value.absent(),
+                Value<int> keptFavoriteCount = const Value.absent(),
+                required DateTime deletedAt,
+              }) => DeletionEventsCompanion.insert(
+                id: id,
+                entityType: entityType,
+                syncId: syncId,
+                displayName: displayName,
+                keepFavorites: keepFavorites,
+                deletedArticleCount: deletedArticleCount,
+                keptFavoriteCount: keptFavoriteCount,
+                deletedAt: deletedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$DeletionEventsTable, DeletionEvent>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $DeletionEventsTable,
+                    DeletionEvent
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DeletionEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeletionEventsTable,
+      DeletionEvent,
+      $$DeletionEventsTableFilterComposer,
+      $$DeletionEventsTableOrderingComposer,
+      $$DeletionEventsTableAnnotationComposer,
+      $$DeletionEventsTableCreateCompanionBuilder,
+      $$DeletionEventsTableUpdateCompanionBuilder,
+      (
+        DeletionEvent,
+        BaseReferences<_$AppDatabase, $DeletionEventsTable, DeletionEvent>,
+      ),
+      DeletionEvent,
+      PrefetchHooks Function()
     >;
 typedef $$ReadingSessionsTableCreateCompanionBuilder =
     ReadingSessionsCompanion Function({
@@ -8434,6 +9427,8 @@ class $AppDatabaseManager {
       $$FeedsTableTableManager(_db, _db.feeds);
   $$ArticlesTableTableManager get articles =>
       $$ArticlesTableTableManager(_db, _db.articles);
+  $$DeletionEventsTableTableManager get deletionEvents =>
+      $$DeletionEventsTableTableManager(_db, _db.deletionEvents);
   $$ReadingSessionsTableTableManager get readingSessions =>
       $$ReadingSessionsTableTableManager(_db, _db.readingSessions);
   $$SummaryVersionsTableTableManager get summaryVersions =>

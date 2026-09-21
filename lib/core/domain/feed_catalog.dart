@@ -12,6 +12,7 @@ library;
 
 import '../result.dart';
 
+import 'feed_deletion.dart';
 import 'feed_fetch.dart';
 
 /// 一个订阅分组（架构 5.1 的 Folder）。
@@ -296,4 +297,38 @@ abstract interface class FeedCatalogStore {
   /// D-11，彻底删除需要用户对「保留收藏」的显式选择与影响预览。一个在 T014 就
   /// 真删数据、却声称遵守保留规则的实现，比不实现更糟。
   Future<Result<void>> markFeedDeleted(int feedId);
+
+  /// 统计一次删除订阅的影响范围（架构 4.1、D-11：清理范围必须在操作**之前**可见）。
+  ///
+  /// 返回收藏数与其他文章数（**含 later**）。分开计数而不是只给一个总数：用户要
+  /// 回答的问题是「我要不要保留收藏」，因此他必须同时看到「保留会留下几篇」与
+  /// 「其余有多少会被清掉」。
+  ///
+  /// 这是**只读**操作：预览本身不得改写任何数据，否则「先看看影响」就成了第一次
+  /// 删除。
+  Future<Result<FeedDeletionPreview>> previewFeedDeletion(int feedId);
+
+  /// 在一个事务内删除订阅并按 [keepFavorites] 处理它的文章（T018）。
+  ///
+  /// 事务边界是硬要求：删除到一半失败必须整批回滚。部分删除（源没了、文章还在，
+  /// 或收藏脱离了、非收藏没删干净）会留下一个用户无法理解也无法修复的状态，比
+  /// 整批失败更糟。
+  ///
+  /// [keepFavorites] 为真时：非收藏文章（**含 later**）全部删除，收藏文章保留并
+  /// 脱离源（feed_id 置空 + 冻结来源快照）；为假时全部删除。两种分支都留下墓碑事件。
+  Future<Result<FeedDeletionOutcome>> deleteFeed({
+    required int feedId,
+    required bool keepFavorites,
+  });
+
+  /// 删除一个分组并按 [mode] 处理其中的订阅（T018）。
+  ///
+  /// [GroupDeletionMode.deleteFeeds] 分支复用 [deleteFeed] 的**同一套**保留收藏规则：
+  /// 两条路径各写一份「什么该删、什么该留」的实现迟早会漂移，而漂移的表现是用户
+  /// 删除分组时收藏被清掉了、删除单个源时又留下来了。
+  Future<Result<GroupDeletionOutcome>> deleteGroupWithFeeds({
+    required int groupId,
+    required GroupDeletionMode mode,
+    required bool keepFavorites,
+  });
 }

@@ -1453,5 +1453,263 @@
         "example": "存储失败"
       }
     }
+  },
+  "deleteFeedMenuEntry": "删除订阅…",
+  "@deleteFeedMenuEntry": {
+    "description": "订阅行菜单里的删除入口；省略号表示会先弹出确认（架构 4.1 要求删除前展示影响范围）"
+  },
+  "deleteFeedDialogTitle": "删除订阅「{name}」",
+  "@deleteFeedDialogTitle": {
+    "description": "删除订阅确认框标题",
+    "placeholders": {
+      "name": { "type": "String", "example": "Example Blog" }
+    }
+  },
+  "deleteFeedDialogIntro": "这个订阅下有 {total} 篇文章，其中：",
+  "@deleteFeedDialogIntro": {
+    "description": "影响范围引导语",
+    "placeholders": {
+      "total": { "type": "int", "example": "128" }
+    }
+  },
+  "deleteFeedDialogFavoriteLine": "收藏 {count} 篇",
+  "@deleteFeedDialogFavoriteLine": {
+    "description": "影响预览：收藏数（勾选保留时会留下来并脱离源）",
+    "placeholders": {
+      "count": { "type": "int", "example": "12" }
+    }
+  },
+  "deleteFeedDialogFavoriteHint": "勾选后这些文章会脱离订阅，留在资料库里继续可读",
+  "@deleteFeedDialogFavoriteHint": {
+    "description": "收藏那一行的说明"
+  },
+  "deleteFeedDialogOtherLine": "其他 {count} 篇（含稍后再读 {later} 篇）",
+  "@deleteFeedDialogOtherLine": {
+    "description": "影响预览：其余文章数与其中 later 的数量；架构 4.1 明写 later 属于清理范围",
+    "placeholders": {
+      "count": { "type": "int", "example": "116" },
+      "later": { "type": "int", "example": "3" }
+    }
+  },
+  "deleteFeedDialogOtherHint": "无论是否保留收藏，这些文章都会被清理（稍后再读不会例外）",
+  "@deleteFeedDialogOtherHint": {
+    "description": "其余文章那一行的说明"
+  },
+  "deleteFeedDialogNoArticles": "这个订阅还没有文章，删除后不会清理任何内容。",
+  "@deleteFeedDialogNoArticles": {
+    "description": "空源的影响说明"
+  },
+  "deleteFeedKeepFavoritesOption": "保留收藏文章",
+  "@deleteFeedKeepFavoritesOption": {
+    "description": "复选框标题（SET-081 默认选保留）"
+  },
+  "deleteFeedKeepFavoritesHint": "收藏会脱离订阅并保存来源快照；其余文章会被清理",
+  "@deleteFeedKeepFavoritesHint": {
+    "description": "复选框说明"
+  },
+  "deleteFeedConfirm": "删除",
+  "@deleteFeedConfirm": {
+    "description": "删除订阅确认按钮"
+  },
+  "deleteFeedDone": "已删除订阅「{name}」：清理 {deleted} 篇，保留收藏 {kept} 篇",
+  "@deleteFeedDone": {
+    "description": "删除完成回执",
+    "placeholders": {
+      "name": { "type": "String" },
+      "deleted": { "type": "int" },
+      "kept": { "type": "int" }
+    }
+  },
+  "deleteFeedDoneNoArticles": "已删除订阅「{name}」",
+  "@deleteFeedDoneNoArticles": {
+    "description": "空源删除完成回执（不显示无意义的 0 篇）",
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "deleteFeedPreviewFailed": "无法读取「{name}」的影响范围：{reason}",
+  "@deleteFeedPreviewFailed": {
+    "description": "影响预览读取失败；此时不提供删除按钮，因为它无法满足「先展示影响范围」的要求",
+    "placeholders": {
+      "name": { "type": "String" },
+      "reason": { "type": "String" }
+    }
+  },
+  "deleteGroupDialogImpact": "该分组下有 {feeds} 个订阅、{articles} 篇文章（收藏 {favorites} 篇、含稍后再读 {later} 篇）。",
+  "@deleteGroupDialogImpact": {
+    "description": "删除分组的第二个分支（删除其中订阅）的影响范围",
+    "placeholders": {
+      "feeds": { "type": "int" },
+      "articles": { "type": "int" },
+      "favorites": { "type": "int" },
+      "later": { "type": "int" }
+    }
+  },
+  "deleteGroupDialogNoFeeds": "该分组下还没有订阅。",
+  "@deleteGroupDialogNoFeeds": {
+    "description": "空分组的影响说明"
+  },
+  "deleteGroupKeepFavoritesOption": "保留这些订阅中的收藏文章",
+  "@deleteGroupKeepFavoritesOption": {
+    "description": "删除分组内订阅时的保留收藏开关"
+  },
+  "deleteGroupDoneDeleted": "已删除分组「{name}」及其 {feeds} 个订阅：清理 {deleted} 篇，保留收藏 {kept} 篇",
+  "@deleteGroupDoneDeleted": {
+    "description": "删除分组并删除其中订阅后的回执",
+    "placeholders": {
+      "name": { "type": "String" },
+      "feeds": { "type": "int" },
+      "deleted": { "type": "int" },
+      "kept": { "type": "int" }
+    }
+  },
+  "detachedFeedLabel": "已脱离订阅",
+  "@detachedFeedLabel": {
+    "description": "文章列表里来源一栏的标注：这条收藏的来源订阅已被删除，名字来自快照"
+  },
+  "readingCompletenessSourceBody": "来源全文",
+  "@readingCompletenessSourceBody": {
+    "description": "正文完整性四态之一（架构 4.2）"
+  },
+  "readingCompletenessSummaryOnly": "仅摘要",
+  "@readingCompletenessSummaryOnly": {
+    "description": "正文完整性：源只提供了摘要，不能当作全文"
+  },
+  "readingCompletenessExtracted": "本机提取",
+  "@readingCompletenessExtracted": {
+    "description": "正文完整性：本机通过静态提取得到的正文"
+  },
+  "readingCompletenessUnknown": "完整性未知",
+  "@readingCompletenessUnknown": {
+    "description": "正文完整性：尚未判定"
+  },
+  "readingCompletenessSummaryOnlyNotice": "来源只提供了摘要，这不是全文。",
+  "@readingCompletenessSummaryOnlyNotice": {
+    "description": "仅摘要时的显式说明（架构 4.2：不把源内 content 绝对当全文）"
+  },
+  "readingTocTitle": "目录",
+  "@readingTocTitle": {
+    "description": "详情页目录标题（h1–h3 提取）"
+  },
+  "readingTocEmpty": "这篇文章没有小节标题",
+  "@readingTocEmpty": {
+    "description": "目录空态"
+  },
+  "readingPrevArticle": "上一篇",
+  "@readingPrevArticle": {
+    "description": "上下篇：上一篇"
+  },
+  "readingNextArticle": "下一篇",
+  "@readingNextArticle": {
+    "description": "上下篇：下一篇"
+  },
+  "readingNoPrev": "已是筛选结果的第一篇",
+  "@readingNoPrev": {
+    "description": "上下篇边界说明（首篇）"
+  },
+  "readingNoNext": "已是筛选结果的最后一篇",
+  "@readingNoNext": {
+    "description": "上下篇边界说明（末篇）"
+  },
+  "readingNeighborOrderNote": "上一篇／下一篇按进入时的筛选与排序快照",
+  "@readingNeighborOrderNote": {
+    "description": "说明上下篇的依据（架构 4.1：基于进入详情时的筛选/排序快照）"
+  },
+  "readingFindOpen": "页内查找",
+  "@readingFindOpen": {
+    "description": "打开查找栏"
+  },
+  "readingFindHint": "在本文中查找",
+  "@readingFindHint": {
+    "description": "页内查找输入框提示"
+  },
+  "readingFindClose": "关闭查找",
+  "@readingFindClose": {
+    "description": "关闭查找栏"
+  },
+  "readingFindNoMatch": "没有匹配",
+  "@readingFindNoMatch": {
+    "description": "页内查找无结果"
+  },
+  "readingFindMatchCount": "第 {index} / {total} 个匹配",
+  "@readingFindMatchCount": {
+    "description": "页内查找的匹配计数",
+    "placeholders": {
+      "index": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "readingFindNext": "下一个匹配",
+  "@readingFindNext": {
+    "description": "跳到下一个匹配"
+  },
+  "readingFindPrevious": "上一个匹配",
+  "@readingFindPrevious": {
+    "description": "跳到上一个匹配"
+  },
+  "readingCodeCopy": "复制代码",
+  "@readingCodeCopy": {
+    "description": "代码块复制按钮"
+  },
+  "readingCodeCopied": "代码已复制",
+  "@readingCodeCopied": {
+    "description": "代码复制完成提示"
+  },
+  "readingCodePlainText": "纯文本",
+  "@readingCodePlainText": {
+    "description": "代码块语言未知时的标注（未知语言按纯文本显示）"
+  },
+  "readingCodeCollapse": "折叠",
+  "@readingCodeCollapse": {
+    "description": "折叠长代码块"
+  },
+  "readingCodeExpand": "展开（共 {lines} 行）",
+  "@readingCodeExpand": {
+    "description": "展开被折叠的代码块",
+    "placeholders": {
+      "lines": { "type": "int" }
+    }
+  },
+  "readingMathUnsupported": "公式无法渲染，已显示原式",
+  "@readingMathUnsupported": {
+    "description": "不支持的 LaTeX 命令：显示原式与提示，不留空白（架构 4.2）"
+  },
+  "readingMathUnsupportedReason": "原因：{reason}",
+  "@readingMathUnsupportedReason": {
+    "description": "公式渲染失败的原因说明",
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "readingImagePlaceholder": "图片占位",
+  "@readingImagePlaceholder": {
+    "description": "图片占位框；远程图片缓存属 T021，本期不加载"
+  },
+  "readingImageNotice": "远程图片加载与缓存属 T021，当前仅显示占位框。",
+  "@readingImageNotice": {
+    "description": "图片占位的范围说明"
+  },
+  "readingLinkBlocked": "已拦截：{reason}",
+  "@readingLinkBlocked": {
+    "description": "危险协议链接在正文里的可见标注（不静默丢弃）",
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "readingLinkCopy": "复制链接",
+  "@readingLinkCopy": {
+    "description": "外链的复制按钮（外开属 T020）"
+  },
+  "readingLinkCopied": "链接已复制",
+  "@readingLinkCopied": {
+    "description": "链接复制完成提示"
+  },
+  "readingLinkOpenHint": "外链打开属 T020，当前可复制地址。",
+  "@readingLinkOpenHint": {
+    "description": "链接外开的范围说明"
+  },
+  "readingRichBodyUnavailable": "这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。",
+  "@readingRichBodyUnavailable": {
+    "description": "没有可渲染文档结构时的说明（原文不丢）"
   }
 }

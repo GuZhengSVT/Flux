@@ -889,10 +889,17 @@ class _GroupMenu extends ConsumerWidget {
     FeedManagerController controller,
     GroupRecord group,
   ) async {
+    // 先读「删除其中订阅」分支的影响范围（只读）。读不到时对话框仍然显示，但那个
+    // 破坏性分支会被禁用——一个说不出要删多少的按钮不该能按下去（架构 4.1）。
+    final Result<GroupDeletionPreview> preview = await controller
+        .previewGroupDeletion(groupId: group.id, groupName: group.name);
+    if (!context.mounted) {
+      return;
+    }
     final DeleteGroupChoice? choice = await showDeleteGroupDialog(
       context: context,
       groupName: group.name,
-      feedCount: 0,
+      preview: preview.valueOrNull,
     );
     if (choice == null) {
       return;
@@ -901,18 +908,21 @@ class _GroupMenu extends ConsumerWidget {
       groupId: group.id,
       groupName: group.name,
       mode: choice.mode,
+      keepFavorites: choice.keepFavorites,
     );
     if (result.isErr) {
       notifyError(messenger, result.errorOrNull);
       return;
     }
     final GroupDeletionReport report = result.unwrap();
-    if (report.outcome.pendingFeedDeletionCount > 0) {
-      // 预留分支：如实说明「没有删除任何数据」，而不是显示「已删除」。
+    if (report.outcome.mode == GroupDeletionMode.deleteFeeds) {
       notify(
         messenger,
-        l10n.subscriptionGroupDeleteFeedsPending(
-          report.outcome.pendingFeedDeletionCount,
+        l10n.deleteGroupDoneDeleted(
+          report.groupName,
+          report.outcome.deletedFeedCount,
+          report.outcome.deletedArticles,
+          report.outcome.keptFavorites,
         ),
       );
       return;
@@ -1016,6 +1026,8 @@ class _FeedMenu extends ConsumerWidget {
             await _moveFeedBy(ref, -1);
           case _FeedAction.moveDown:
             await _moveFeedBy(ref, 1);
+          case _FeedAction.delete:
+            await _deleteFeed(context, messenger, l10n, controller, feed);
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<_FeedAction>>[
@@ -1057,7 +1069,66 @@ class _FeedMenu extends ConsumerWidget {
           enabled: index < total - 1,
           child: Text(l10n.subscriptionMoveDown),
         ),
+        // 删除订阅（T018）。放在最末并与其他项之间留一条分隔线：它不可撤销，且
+        // 是这一列里唯一会清数据的动作。
+        const PopupMenuDivider(),
+        PopupMenuItem<_FeedAction>(
+          value: _FeedAction.delete,
+          child: Text(
+            l10n.deleteFeedMenuEntry,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
       ],
+    );
+  }
+
+  /// 删除订阅：先读影响范围、让用户在确认框里当次决定是否保留收藏，再执行。
+  ///
+  /// 影响范围读不到时**不弹出确认框**：那个框的核心作用就是让用户看见要删多少，
+  /// 读不到就退化成「一个只有确定/取消的破坏性弹窗」，而架构 4.1 要求范围在操作
+  /// 之前可见。此时如实报错并让用户重试，比给一个看不见后果的删除按钮更好。
+  static Future<void> _deleteFeed(
+    BuildContext context,
+    ScaffoldMessengerState messenger,
+    AppLocalizations l10n,
+    FeedManagerController controller,
+    FeedRecord feed,
+  ) async {
+    final Result<FeedDeletionPreview> preview = await controller
+        .previewFeedDeletion(feed.id);
+    if (preview.isErr) {
+      notifyError(messenger, preview.errorOrNull);
+      return;
+    }
+    if (!context.mounted) {
+      return;
+    }
+    final DeleteFeedChoice? choice = await showDeleteFeedDialog(
+      context: context,
+      preview: preview.unwrap(),
+    );
+    if (choice == null) {
+      return;
+    }
+    final Result<FeedDeletionOutcome> result = await controller.deleteFeed(
+      feedId: feed.id,
+      keepFavorites: choice.keepFavorites,
+    );
+    if (result.isErr) {
+      notifyError(messenger, result.errorOrNull);
+      return;
+    }
+    final FeedDeletionOutcome outcome = result.unwrap();
+    notify(
+      messenger,
+      outcome.deletedArticles == 0 && outcome.keptFavorites == 0
+          ? l10n.deleteFeedDoneNoArticles(outcome.feedName)
+          : l10n.deleteFeedDone(
+              outcome.feedName,
+              outcome.deletedArticles,
+              outcome.keptFavorites,
+            ),
     );
   }
 
@@ -1154,6 +1225,7 @@ enum _FeedAction {
   interval,
   moveUp,
   moveDown,
+  delete,
 }
 
 /// 显示一条短提示（供异步写入完成后使用）。

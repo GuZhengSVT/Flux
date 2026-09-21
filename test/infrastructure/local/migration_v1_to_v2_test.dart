@@ -21,14 +21,14 @@ import 'package:flux/infrastructure/local/tables/enums.dart';
 
 import '../../generated/schema.dart';
 import '../../generated/schema_v1.dart' as v1;
-import '../../generated/schema_v4.dart' as v4;
+import '../../generated/schema_v5.dart' as v5;
 
 /// 当前 schema 版本（与应用代码一致）。
 ///
 /// 不写死数字：T013 把版本从 2 提到 3、T014 从 3 提到 4 之后，硬编码旧版本的迁移
 /// 测试就不再验证真实路径（它会停在旧版本，而应用实际会继续往上迁），看起来还在
 /// 跑、实际已经失去意义。**只改数字而不改代码**，因此它总会跟着 schemaVersion 走。
-const int currentSchemaVersion = 4;
+const int currentSchemaVersion = 5;
 
 void main() {
   drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -140,7 +140,7 @@ void main() {
       schema.close();
     });
 
-    test('迁移后 settings 结构可由当前版本生成类读取（v4 未改该表）', () async {
+    test('迁移后 settings 结构可由当前版本生成类读取（v5 未改该表）', () async {
       final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
       final InitializedSchema schema = await verifier.schemaAt(1);
 
@@ -149,19 +149,19 @@ void main() {
       await migrated.close();
 
       // 用**当前版本**的生成类连接同一份 schema，确认列定义与迁移结果一致。
-      // 用 v4 而不是更低的版本：迁移终点是 v4，用 v2/v3 生成类打开 v4 库会因为
-      // 版本不符失败；而 settings 表在 v2→v3→v4 里都没有变化，用 v4 类验证同样
+      // 用 v5 而不是更低的版本：迁移终点是 v5，用 v2/v3/v4 生成类打开 v5 库会因为
+      // 版本不符失败；而 settings 表在 v2→v3→v4→v5 里都没有变化，用 v5 类验证同样
       // 覆盖它的列定义。
-      final v4.DatabaseAtV4 check = v4.DatabaseAtV4(schema.newConnection());
+      final v5.DatabaseAtV5 check = v5.DatabaseAtV5(schema.newConnection());
       await check
           .into(check.settings)
           .insert(
-            v4.SettingsCompanion.insert(
+            v5.SettingsCompanion.insert(
               key: 'SET-082',
               value: '{"level":"error"}',
             ),
           );
-      final v4.SettingsData row = await check
+      final v5.SettingsData row = await check
           .select(check.settings)
           .getSingle();
       expect(row.key, 'SET-082');

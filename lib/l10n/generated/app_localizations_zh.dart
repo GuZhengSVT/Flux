@@ -945,4 +945,191 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingActionUnfavorite => '取消收藏';
+
+  @override
+  String get deleteFeedMenuEntry => '删除订阅…';
+
+  @override
+  String deleteFeedDialogTitle(String name) {
+    return '删除订阅「$name」';
+  }
+
+  @override
+  String deleteFeedDialogIntro(int total) {
+    return '这个订阅下有 $total 篇文章，其中：';
+  }
+
+  @override
+  String deleteFeedDialogFavoriteLine(int count) {
+    return '收藏 $count 篇';
+  }
+
+  @override
+  String get deleteFeedDialogFavoriteHint => '勾选后这些文章会脱离订阅，留在资料库里继续可读';
+
+  @override
+  String deleteFeedDialogOtherLine(int count, int later) {
+    return '其他 $count 篇（含稍后再读 $later 篇）';
+  }
+
+  @override
+  String get deleteFeedDialogOtherHint => '无论是否保留收藏，这些文章都会被清理（稍后再读不会例外）';
+
+  @override
+  String get deleteFeedDialogNoArticles => '这个订阅还没有文章，删除后不会清理任何内容。';
+
+  @override
+  String get deleteFeedKeepFavoritesOption => '保留收藏文章';
+
+  @override
+  String get deleteFeedKeepFavoritesHint => '收藏会脱离订阅并保存来源快照；其余文章会被清理';
+
+  @override
+  String get deleteFeedConfirm => '删除';
+
+  @override
+  String deleteFeedDone(String name, int deleted, int kept) {
+    return '已删除订阅「$name」：清理 $deleted 篇，保留收藏 $kept 篇';
+  }
+
+  @override
+  String deleteFeedDoneNoArticles(String name) {
+    return '已删除订阅「$name」';
+  }
+
+  @override
+  String deleteFeedPreviewFailed(String name, String reason) {
+    return '无法读取「$name」的影响范围：$reason';
+  }
+
+  @override
+  String deleteGroupDialogImpact(
+    int feeds,
+    int articles,
+    int favorites,
+    int later,
+  ) {
+    return '该分组下有 $feeds 个订阅、$articles 篇文章（收藏 $favorites 篇、含稍后再读 $later 篇）。';
+  }
+
+  @override
+  String get deleteGroupDialogNoFeeds => '该分组下还没有订阅。';
+
+  @override
+  String get deleteGroupKeepFavoritesOption => '保留这些订阅中的收藏文章';
+
+  @override
+  String deleteGroupDoneDeleted(String name, int feeds, int deleted, int kept) {
+    return '已删除分组「$name」及其 $feeds 个订阅：清理 $deleted 篇，保留收藏 $kept 篇';
+  }
+
+  @override
+  String get detachedFeedLabel => '已脱离订阅';
+
+  @override
+  String get readingCompletenessSourceBody => '来源全文';
+
+  @override
+  String get readingCompletenessSummaryOnly => '仅摘要';
+
+  @override
+  String get readingCompletenessExtracted => '本机提取';
+
+  @override
+  String get readingCompletenessUnknown => '完整性未知';
+
+  @override
+  String get readingCompletenessSummaryOnlyNotice => '来源只提供了摘要，这不是全文。';
+
+  @override
+  String get readingTocTitle => '目录';
+
+  @override
+  String get readingTocEmpty => '这篇文章没有小节标题';
+
+  @override
+  String get readingPrevArticle => '上一篇';
+
+  @override
+  String get readingNextArticle => '下一篇';
+
+  @override
+  String get readingNoPrev => '已是筛选结果的第一篇';
+
+  @override
+  String get readingNoNext => '已是筛选结果的最后一篇';
+
+  @override
+  String get readingNeighborOrderNote => '上一篇／下一篇按进入时的筛选与排序快照';
+
+  @override
+  String get readingFindOpen => '页内查找';
+
+  @override
+  String get readingFindHint => '在本文中查找';
+
+  @override
+  String get readingFindClose => '关闭查找';
+
+  @override
+  String get readingFindNoMatch => '没有匹配';
+
+  @override
+  String readingFindMatchCount(int index, int total) {
+    return '第 $index / $total 个匹配';
+  }
+
+  @override
+  String get readingFindNext => '下一个匹配';
+
+  @override
+  String get readingFindPrevious => '上一个匹配';
+
+  @override
+  String get readingCodeCopy => '复制代码';
+
+  @override
+  String get readingCodeCopied => '代码已复制';
+
+  @override
+  String get readingCodePlainText => '纯文本';
+
+  @override
+  String get readingCodeCollapse => '折叠';
+
+  @override
+  String readingCodeExpand(int lines) {
+    return '展开（共 $lines 行）';
+  }
+
+  @override
+  String get readingMathUnsupported => '公式无法渲染，已显示原式';
+
+  @override
+  String readingMathUnsupportedReason(String reason) {
+    return '原因：$reason';
+  }
+
+  @override
+  String get readingImagePlaceholder => '图片占位';
+
+  @override
+  String get readingImageNotice => '远程图片加载与缓存属 T021，当前仅显示占位框。';
+
+  @override
+  String readingLinkBlocked(String reason) {
+    return '已拦截：$reason';
+  }
+
+  @override
+  String get readingLinkCopy => '复制链接';
+
+  @override
+  String get readingLinkCopied => '链接已复制';
+
+  @override
+  String get readingLinkOpenHint => '外链打开属 T020，当前可复制地址。';
+
+  @override
+  String get readingRichBodyUnavailable => '这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。';
 }

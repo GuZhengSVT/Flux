@@ -52,16 +52,34 @@ class ArticleListEntry {
     this.summary,
     this.sourceUrl,
     this.author,
+    this.feedTitle,
+    this.feedUrl,
   });
 
   /// 本机自增 id（列表操作与分页游标都以它为准）。
   final int id;
 
-  /// 所属订阅。
-  final int feedId;
+  /// 所属订阅；**null 表示已脱离源**（删除订阅时保留下来的收藏，架构 4.1）。
+  ///
+  /// 为什么不用一个哨兵 id 表示「没有源」：脱离源是一条真实且用户可见的状态
+  /// （来源一栏显示的是冻结的快照，而不是某个现存的订阅）。用 null 表达它，界面就
+  /// 无法在「忘了填 id」时静默退化成一个指向不存在订阅的整数。
+  final int? feedId;
 
   /// 来源显示名（订阅的显示名，不是源自带名）。
+  ///
+  /// 已脱离源的文章由存储层填入 [feedTitle] 快照，因此界面读这一个字段就够，
+  /// 不需要在每个调用点各判断一次「源还在不在」。
   final String feedName;
+
+  /// 来源快照：脱离源时冻结的源显示名；未脱离源为 null。
+  final String? feedTitle;
+
+  /// 来源快照：脱离源时冻结的规范化地址；未脱离源为 null。
+  final String? feedUrl;
+
+  /// 是否已脱离源（删除订阅时保留下来的收藏）。
+  bool get detachedFromFeed => feedId == null;
 
   /// 标题（导入时保证非空）。
   final String title;

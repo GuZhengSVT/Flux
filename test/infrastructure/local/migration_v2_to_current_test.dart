@@ -26,7 +26,7 @@ import '../../generated/schema.dart';
 import '../../generated/schema_v2.dart' as v2;
 
 /// 当前 schema 版本（与应用代码一致）。见本文件顶部关于「不写死终点版本」的说明。
-const int currentSchemaVersion = 4;
+const int currentSchemaVersion = 5;
 
 void main() {
   drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;

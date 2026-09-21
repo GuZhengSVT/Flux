@@ -11,6 +11,7 @@ export 'article_import.dart';
 export 'citation_access.dart';
 export 'document_tree.dart';
 export 'feed_catalog.dart';
+export 'feed_deletion.dart';
 export 'feed_fetch.dart';
 export 'feed_groups.dart';
 export 'feed_store_port.dart';

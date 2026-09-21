@@ -19,6 +19,7 @@ import 'tables/article_tables.dart';
 // 伴随类与表访问器引用，因此必须在这里直接可见。T012 起这些枚举由
 // package:flux/core/core.dart 的 domain 转出口提供（见 tables/enums.dart 的说明）。
 import 'tables/feed_tables.dart';
+import 'tables/deletion_tables.dart';
 import 'tables/reading_tables.dart';
 import 'tables/settings_tables.dart';
 import 'tables/summary_tables.dart';
@@ -37,6 +38,7 @@ part 'database.g.dart';
     Groups,
     Feeds,
     Articles,
+    DeletionEvents,
     ReadingSessions,
     SummaryVersions,
     Citations,
@@ -66,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -130,11 +132,44 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(feeds, feeds.enabled);
       }
 
+      if (from < 5) {
+        // v4 → v5：文章表支持「收藏脱离源」（T018）。
+        //
+        // 两件事，缺一不可：
+        //
+        //   1) **feed_id 改为可空**。架构 4.1 要求删除订阅时保留的收藏「从源中
+        //      脱离，带来源快照进入资料库」，因此这些行的 feed_id 必须能变成 NULL。
+        //      sqlite 改不了单列的 NOT NULL，只能用 drift 的 alterTable（它执行
+        //      sqlite 官方推荐的 12 步重建流程：建临时表→搬数据→删旧表→改名→
+        //      重建索引）。**不用**「先 DROP TABLE 再 CREATE」的做法：那会丢掉全部
+        //      历史文章与阅读状态（架构 5.3 禁止迁移消费用户数据）。
+        //      搬数据靠 columnTransformer——这里刻意一个都不写：不写的列按同名列
+        //      原样复制，因此 id / guid / 正文 / readingState / favorite 全部原值
+        //      保留，只有新列取默认值。
+        //
+        //   2) 新增两列来源快照（feed_title / feed_url）与一张删除事件表。
+        //      快照列可空且**不回填**：历史行并没有「源已被删除」这个事实，给它们
+        //      填上当前源名等于伪造一份快照，还会让 T047 的清理预览把没脱离源的文章
+        //      也算成「已脱离」。
+        await m.alterTable(
+          TableMigration(
+            articles,
+            newColumns: <GeneratedColumn<Object>>[
+              articles.feedTitle,
+              articles.feedUrl,
+            ],
+          ),
+        );
+        await m.createTable(deletionEvents);
+        await m.createIndex(ixDeletionEventsSyncId);
+        await m.createIndex(ixDeletionEventsDeletedAt);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 4;
+      const int highestImplemented = 5;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

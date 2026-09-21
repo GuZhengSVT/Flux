@@ -249,7 +249,10 @@ extension ArticleStore on AppDatabase {
   /// 构造新增行；阅读状态与收藏使用默认值（unread / false）。
   ArticlesCompanion _toCompanion(ArticleImport incoming) {
     return ArticlesCompanion.insert(
-      feedId: incoming.feedId,
+      // feedId 在 schema v5 起可空（删除订阅时保留下来的收藏会脱离源）。导入路径
+      // 永远写一个真实存在的 id，因此这里包一层 Value 只是匹配生成的签名；刻意不写
+      // Value.absent：那会落成一条没有归属的孤儿文章。
+      feedId: Value<int?>(incoming.feedId),
       title: incoming.title,
       identityBasis: incoming.identityBasis,
       guid: Value<String?>(incoming.guid),

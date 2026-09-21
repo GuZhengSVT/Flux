@@ -1765,6 +1765,323 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'取消收藏'**
   String get readingActionUnfavorite;
+
+  /// 订阅行菜单里的删除入口；省略号表示会先弹出确认（架构 4.1 要求删除前展示影响范围）
+  ///
+  /// In zh, this message translates to:
+  /// **'删除订阅…'**
+  String get deleteFeedMenuEntry;
+
+  /// 删除订阅确认框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除订阅「{name}」'**
+  String deleteFeedDialogTitle(String name);
+
+  /// 影响范围引导语
+  ///
+  /// In zh, this message translates to:
+  /// **'这个订阅下有 {total} 篇文章，其中：'**
+  String deleteFeedDialogIntro(int total);
+
+  /// 影响预览：收藏数（勾选保留时会留下来并脱离源）
+  ///
+  /// In zh, this message translates to:
+  /// **'收藏 {count} 篇'**
+  String deleteFeedDialogFavoriteLine(int count);
+
+  /// 收藏那一行的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'勾选后这些文章会脱离订阅，留在资料库里继续可读'**
+  String get deleteFeedDialogFavoriteHint;
+
+  /// 影响预览：其余文章数与其中 later 的数量；架构 4.1 明写 later 属于清理范围
+  ///
+  /// In zh, this message translates to:
+  /// **'其他 {count} 篇（含稍后再读 {later} 篇）'**
+  String deleteFeedDialogOtherLine(int count, int later);
+
+  /// 其余文章那一行的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'无论是否保留收藏，这些文章都会被清理（稍后再读不会例外）'**
+  String get deleteFeedDialogOtherHint;
+
+  /// 空源的影响说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这个订阅还没有文章，删除后不会清理任何内容。'**
+  String get deleteFeedDialogNoArticles;
+
+  /// 复选框标题（SET-081 默认选保留）
+  ///
+  /// In zh, this message translates to:
+  /// **'保留收藏文章'**
+  String get deleteFeedKeepFavoritesOption;
+
+  /// 复选框说明
+  ///
+  /// In zh, this message translates to:
+  /// **'收藏会脱离订阅并保存来源快照；其余文章会被清理'**
+  String get deleteFeedKeepFavoritesHint;
+
+  /// 删除订阅确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get deleteFeedConfirm;
+
+  /// 删除完成回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除订阅「{name}」：清理 {deleted} 篇，保留收藏 {kept} 篇'**
+  String deleteFeedDone(String name, int deleted, int kept);
+
+  /// 空源删除完成回执（不显示无意义的 0 篇）
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除订阅「{name}」'**
+  String deleteFeedDoneNoArticles(String name);
+
+  /// 影响预览读取失败；此时不提供删除按钮，因为它无法满足「先展示影响范围」的要求
+  ///
+  /// In zh, this message translates to:
+  /// **'无法读取「{name}」的影响范围：{reason}'**
+  String deleteFeedPreviewFailed(String name, String reason);
+
+  /// 删除分组的第二个分支（删除其中订阅）的影响范围
+  ///
+  /// In zh, this message translates to:
+  /// **'该分组下有 {feeds} 个订阅、{articles} 篇文章（收藏 {favorites} 篇、含稍后再读 {later} 篇）。'**
+  String deleteGroupDialogImpact(
+    int feeds,
+    int articles,
+    int favorites,
+    int later,
+  );
+
+  /// 空分组的影响说明
+  ///
+  /// In zh, this message translates to:
+  /// **'该分组下还没有订阅。'**
+  String get deleteGroupDialogNoFeeds;
+
+  /// 删除分组内订阅时的保留收藏开关
+  ///
+  /// In zh, this message translates to:
+  /// **'保留这些订阅中的收藏文章'**
+  String get deleteGroupKeepFavoritesOption;
+
+  /// 删除分组并删除其中订阅后的回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除分组「{name}」及其 {feeds} 个订阅：清理 {deleted} 篇，保留收藏 {kept} 篇'**
+  String deleteGroupDoneDeleted(String name, int feeds, int deleted, int kept);
+
+  /// 文章列表里来源一栏的标注：这条收藏的来源订阅已被删除，名字来自快照
+  ///
+  /// In zh, this message translates to:
+  /// **'已脱离订阅'**
+  String get detachedFeedLabel;
+
+  /// 正文完整性四态之一（架构 4.2）
+  ///
+  /// In zh, this message translates to:
+  /// **'来源全文'**
+  String get readingCompletenessSourceBody;
+
+  /// 正文完整性：源只提供了摘要，不能当作全文
+  ///
+  /// In zh, this message translates to:
+  /// **'仅摘要'**
+  String get readingCompletenessSummaryOnly;
+
+  /// 正文完整性：本机通过静态提取得到的正文
+  ///
+  /// In zh, this message translates to:
+  /// **'本机提取'**
+  String get readingCompletenessExtracted;
+
+  /// 正文完整性：尚未判定
+  ///
+  /// In zh, this message translates to:
+  /// **'完整性未知'**
+  String get readingCompletenessUnknown;
+
+  /// 仅摘要时的显式说明（架构 4.2：不把源内 content 绝对当全文）
+  ///
+  /// In zh, this message translates to:
+  /// **'来源只提供了摘要，这不是全文。'**
+  String get readingCompletenessSummaryOnlyNotice;
+
+  /// 详情页目录标题（h1–h3 提取）
+  ///
+  /// In zh, this message translates to:
+  /// **'目录'**
+  String get readingTocTitle;
+
+  /// 目录空态
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有小节标题'**
+  String get readingTocEmpty;
+
+  /// 上下篇：上一篇
+  ///
+  /// In zh, this message translates to:
+  /// **'上一篇'**
+  String get readingPrevArticle;
+
+  /// 上下篇：下一篇
+  ///
+  /// In zh, this message translates to:
+  /// **'下一篇'**
+  String get readingNextArticle;
+
+  /// 上下篇边界说明（首篇）
+  ///
+  /// In zh, this message translates to:
+  /// **'已是筛选结果的第一篇'**
+  String get readingNoPrev;
+
+  /// 上下篇边界说明（末篇）
+  ///
+  /// In zh, this message translates to:
+  /// **'已是筛选结果的最后一篇'**
+  String get readingNoNext;
+
+  /// 说明上下篇的依据（架构 4.1：基于进入详情时的筛选/排序快照）
+  ///
+  /// In zh, this message translates to:
+  /// **'上一篇／下一篇按进入时的筛选与排序快照'**
+  String get readingNeighborOrderNote;
+
+  /// 打开查找栏
+  ///
+  /// In zh, this message translates to:
+  /// **'页内查找'**
+  String get readingFindOpen;
+
+  /// 页内查找输入框提示
+  ///
+  /// In zh, this message translates to:
+  /// **'在本文中查找'**
+  String get readingFindHint;
+
+  /// 关闭查找栏
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭查找'**
+  String get readingFindClose;
+
+  /// 页内查找无结果
+  ///
+  /// In zh, this message translates to:
+  /// **'没有匹配'**
+  String get readingFindNoMatch;
+
+  /// 页内查找的匹配计数
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {index} / {total} 个匹配'**
+  String readingFindMatchCount(int index, int total);
+
+  /// 跳到下一个匹配
+  ///
+  /// In zh, this message translates to:
+  /// **'下一个匹配'**
+  String get readingFindNext;
+
+  /// 跳到上一个匹配
+  ///
+  /// In zh, this message translates to:
+  /// **'上一个匹配'**
+  String get readingFindPrevious;
+
+  /// 代码块复制按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'复制代码'**
+  String get readingCodeCopy;
+
+  /// 代码复制完成提示
+  ///
+  /// In zh, this message translates to:
+  /// **'代码已复制'**
+  String get readingCodeCopied;
+
+  /// 代码块语言未知时的标注（未知语言按纯文本显示）
+  ///
+  /// In zh, this message translates to:
+  /// **'纯文本'**
+  String get readingCodePlainText;
+
+  /// 折叠长代码块
+  ///
+  /// In zh, this message translates to:
+  /// **'折叠'**
+  String get readingCodeCollapse;
+
+  /// 展开被折叠的代码块
+  ///
+  /// In zh, this message translates to:
+  /// **'展开（共 {lines} 行）'**
+  String readingCodeExpand(int lines);
+
+  /// 不支持的 LaTeX 命令：显示原式与提示，不留空白（架构 4.2）
+  ///
+  /// In zh, this message translates to:
+  /// **'公式无法渲染，已显示原式'**
+  String get readingMathUnsupported;
+
+  /// 公式渲染失败的原因说明
+  ///
+  /// In zh, this message translates to:
+  /// **'原因：{reason}'**
+  String readingMathUnsupportedReason(String reason);
+
+  /// 图片占位框；远程图片缓存属 T021，本期不加载
+  ///
+  /// In zh, this message translates to:
+  /// **'图片占位'**
+  String get readingImagePlaceholder;
+
+  /// 图片占位的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'远程图片加载与缓存属 T021，当前仅显示占位框。'**
+  String get readingImageNotice;
+
+  /// 危险协议链接在正文里的可见标注（不静默丢弃）
+  ///
+  /// In zh, this message translates to:
+  /// **'已拦截：{reason}'**
+  String readingLinkBlocked(String reason);
+
+  /// 外链的复制按钮（外开属 T020）
+  ///
+  /// In zh, this message translates to:
+  /// **'复制链接'**
+  String get readingLinkCopy;
+
+  /// 链接复制完成提示
+  ///
+  /// In zh, this message translates to:
+  /// **'链接已复制'**
+  String get readingLinkCopied;
+
+  /// 链接外开的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'外链打开属 T020，当前可复制地址。'**
+  String get readingLinkOpenHint;
+
+  /// 没有可渲染文档结构时的说明（原文不丢）
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。'**
+  String get readingRichBodyUnavailable;
 }
 
 class _AppLocalizationsDelegate

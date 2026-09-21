@@ -758,7 +758,8 @@ void main() {
 
       final GroupDeletionOutcome outcome = result.unwrap();
       expect(outcome.movedFeedCount, 1);
-      expect(outcome.pendingFeedDeletionCount, 0);
+      expect(outcome.deletedFeedCount, 0);
+      expect(outcome.deletedArticles, 0, reason: '移动分支不删任何文章');
 
       final List<GroupRecord> remaining = (await catalog.listGroups()).unwrap();
       expect(remaining, hasLength(1), reason: '只剩保留组');
@@ -770,7 +771,7 @@ void main() {
       expect(await db.select(db.articles).get(), hasLength(1), reason: '文章不动');
     });
 
-    test('删除分组（删除订阅分支）：本期只记录，数据必须全部还在', () async {
+    test('删除分组（删除订阅分支）：T018 起真正删除，且保留收藏的规则生效', () async {
       final Result<GroupRecord> tech = await groups.create(name: '技术');
       final Result<FeedRecord> feed = await catalog.createFeed(
         FeedInsert(
@@ -780,6 +781,35 @@ void main() {
           groupId: tech.unwrap().id,
         ),
       );
+      // 两条文章：一条收藏、一条稍后再读。删除分支必须「收藏留下、later 清掉」。
+      await articles.upsertArticles(<ArticleImport>[
+        ArticleImport(
+          feedId: feed.unwrap().id,
+          title: '收藏的文章',
+          identityBasis: IdentityBasis.guid,
+          guid: 'keep-me',
+          guidPresent: true,
+        ),
+        ArticleImport(
+          feedId: feed.unwrap().id,
+          title: '稍后再读的文章',
+          identityBasis: IdentityBasis.guid,
+          guid: 'later-one',
+          guidPresent: true,
+        ),
+      ]);
+      final List<Article> seeded = await db.select(db.articles).get();
+      await (db.update(db.articles)
+            ..where((Articles t) => t.guid.equals('keep-me')))
+          .write(const ArticlesCompanion(favorite: Value<bool>(true)));
+      await (db.update(
+        db.articles,
+      )..where((Articles t) => t.guid.equals('later-one'))).write(
+        const ArticlesCompanion(
+          readingState: Value<ReadingState>(ReadingState.later),
+        ),
+      );
+      expect(seeded, hasLength(2));
 
       final Result<GroupDeletionOutcome> result = await groups.delete(
         tech.unwrap().id,
@@ -788,16 +818,25 @@ void main() {
 
       final GroupDeletionOutcome outcome = result.unwrap();
       expect(outcome.mode, GroupDeletionMode.deleteFeeds);
-      expect(outcome.pendingFeedDeletionCount, 1);
+      expect(outcome.deletedFeedCount, 1);
       expect(outcome.movedFeedCount, 0);
+      expect(outcome.keptFavorites, 1, reason: '收藏留下并脱离源');
+      expect(outcome.deletedArticles, 1, reason: '含 later 的非收藏被清理');
 
-      // 关键：**没有删除任何数据**。T014 的预留接口不得真删（保留收藏规则属 T018）。
+      // 分组与订阅都真的没了（T018 起「删除其中订阅」不再只是记录）。
       final List<GroupRecord> allGroups = (await catalog.listGroups()).unwrap();
-      expect(allGroups, hasLength(2), reason: '分组必须还在');
+      expect(allGroups, hasLength(1), reason: '只剩保留组');
       final List<FeedRecord> allFeeds = (await catalog.listFeeds()).unwrap();
-      expect(allFeeds, hasLength(1), reason: '订阅必须还在');
-      expect(allFeeds.single.id, feed.unwrap().id);
-      expect(allFeeds.single.groupId, tech.unwrap().id, reason: '归属也不变');
+      expect(allFeeds, isEmpty, reason: '组内订阅被真正删除');
+
+      // 收藏那条留下、脱离源并带上来源快照；later 那条被清理。
+      final List<Article> remaining = await db.select(db.articles).get();
+      expect(remaining, hasLength(1));
+      expect(remaining.single.title, '收藏的文章');
+      expect(remaining.single.feedId, isNull, reason: '已脱离源');
+      expect(remaining.single.feedTitle, '技术源二', reason: '来源快照冻结');
+      expect(remaining.single.feedUrl, 'https://feeds.example.com/tech2.xml');
+      expect(remaining.single.favorite, isTrue);
     });
 
     test('操作不存在的分组：类型化错误', () async {

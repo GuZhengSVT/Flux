@@ -986,4 +986,204 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingActionUnfavorite => 'remove from favorites';
+
+  @override
+  String get deleteFeedMenuEntry => 'Delete feed…';
+
+  @override
+  String deleteFeedDialogTitle(String name) {
+    return 'Delete feed \"$name\"';
+  }
+
+  @override
+  String deleteFeedDialogIntro(int total) {
+    return 'This feed has $total articles:';
+  }
+
+  @override
+  String deleteFeedDialogFavoriteLine(int count) {
+    return '$count in favorites';
+  }
+
+  @override
+  String get deleteFeedDialogFavoriteHint =>
+      'If you keep favorites, these articles leave the feed and stay in your library';
+
+  @override
+  String deleteFeedDialogOtherLine(int count, int later) {
+    return '$count others (including $later marked read later)';
+  }
+
+  @override
+  String get deleteFeedDialogOtherHint =>
+      'These are cleared whether or not you keep favorites (read later is no exception)';
+
+  @override
+  String get deleteFeedDialogNoArticles =>
+      'This feed has no articles yet, so nothing will be cleared.';
+
+  @override
+  String get deleteFeedKeepFavoritesOption => 'Keep favorite articles';
+
+  @override
+  String get deleteFeedKeepFavoritesHint =>
+      'Favorites leave the feed with a source snapshot; the remaining articles are cleared';
+
+  @override
+  String get deleteFeedConfirm => 'Delete';
+
+  @override
+  String deleteFeedDone(String name, int deleted, int kept) {
+    return 'Deleted feed \"$name\": cleared $deleted, kept $kept favorites';
+  }
+
+  @override
+  String deleteFeedDoneNoArticles(String name) {
+    return 'Deleted feed \"$name\"';
+  }
+
+  @override
+  String deleteFeedPreviewFailed(String name, String reason) {
+    return 'Could not read what deleting \"$name\" would affect: $reason';
+  }
+
+  @override
+  String deleteGroupDialogImpact(
+    int feeds,
+    int articles,
+    int favorites,
+    int later,
+  ) {
+    return 'This group has $feeds feeds and $articles articles ($favorites in favorites, $later marked read later).';
+  }
+
+  @override
+  String get deleteGroupDialogNoFeeds => 'This group has no feeds yet.';
+
+  @override
+  String get deleteGroupKeepFavoritesOption =>
+      'Keep favorite articles in these feeds';
+
+  @override
+  String deleteGroupDoneDeleted(String name, int feeds, int deleted, int kept) {
+    return 'Deleted group \"$name\" and its $feeds feeds: cleared $deleted, kept $kept favorites';
+  }
+
+  @override
+  String get detachedFeedLabel => 'feed removed';
+
+  @override
+  String get readingCompletenessSourceBody => 'Feed body';
+
+  @override
+  String get readingCompletenessSummaryOnly => 'Summary only';
+
+  @override
+  String get readingCompletenessExtracted => 'Extracted locally';
+
+  @override
+  String get readingCompletenessUnknown => 'Completeness unknown';
+
+  @override
+  String get readingCompletenessSummaryOnlyNotice =>
+      'The feed only provided a summary; this is not the full article.';
+
+  @override
+  String get readingTocTitle => 'Contents';
+
+  @override
+  String get readingTocEmpty => 'This article has no section headings';
+
+  @override
+  String get readingPrevArticle => 'Previous';
+
+  @override
+  String get readingNextArticle => 'Next';
+
+  @override
+  String get readingNoPrev =>
+      'This is the first article in the filtered results';
+
+  @override
+  String get readingNoNext =>
+      'This is the last article in the filtered results';
+
+  @override
+  String get readingNeighborOrderNote =>
+      'Previous/next follow the filter and sort snapshot taken when you opened this article';
+
+  @override
+  String get readingFindOpen => 'Find in article';
+
+  @override
+  String get readingFindHint => 'Find in this article';
+
+  @override
+  String get readingFindClose => 'Close find';
+
+  @override
+  String get readingFindNoMatch => 'No matches';
+
+  @override
+  String readingFindMatchCount(int index, int total) {
+    return 'Match $index of $total';
+  }
+
+  @override
+  String get readingFindNext => 'Next match';
+
+  @override
+  String get readingFindPrevious => 'Previous match';
+
+  @override
+  String get readingCodeCopy => 'Copy code';
+
+  @override
+  String get readingCodeCopied => 'Code copied';
+
+  @override
+  String get readingCodePlainText => 'plain text';
+
+  @override
+  String get readingCodeCollapse => 'Collapse';
+
+  @override
+  String readingCodeExpand(int lines) {
+    return 'Expand ($lines lines)';
+  }
+
+  @override
+  String get readingMathUnsupported =>
+      'This formula could not be rendered; the source is shown instead';
+
+  @override
+  String readingMathUnsupportedReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get readingImagePlaceholder => 'Image placeholder';
+
+  @override
+  String get readingImageNotice =>
+      'Remote image loading and caching ship in T021; only a placeholder box is shown for now.';
+
+  @override
+  String readingLinkBlocked(String reason) {
+    return 'Blocked: $reason';
+  }
+
+  @override
+  String get readingLinkCopy => 'Copy link';
+
+  @override
+  String get readingLinkCopied => 'Link copied';
+
+  @override
+  String get readingLinkOpenHint =>
+      'Opening links in the browser ships in T020; you can copy the address now.';
+
+  @override
+  String get readingRichBodyUnavailable =>
+      'This body can only be shown as plain text (no renderable controlled document structure).';
 }

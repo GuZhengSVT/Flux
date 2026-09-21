@@ -50,9 +50,31 @@ import 'feed_tables.dart';
 class Articles extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  /// 所属订阅。删除订阅由用例层显式处理（保留收藏、预览影响范围），
-  /// 因此这里**不**用级联删除，避免绕过确认直接清空文章。
-  IntColumn get feedId => integer().references(Feeds, #id)();
+  /// 所属订阅；**可为空**（schema v5 起）。
+  ///
+  /// 为什么允许为空：架构 4.1 规定删除订阅时「保留收藏从源中脱离，带来源快照进入
+  /// 资料库」。收藏文章必须能在源被删除后继续存在，因此它的 feed_id 会变成 NULL，
+  /// 由 [feedTitle] / [feedUrl] 两份快照继续说明「它来自哪里」。
+  ///
+  /// 仍然**不**用级联删除：删除订阅由用例层显式处理（保留收藏、预览影响范围），
+  /// 级联会绕过确认直接清空文章。
+  IntColumn get feedId => integer().nullable().references(Feeds, #id)();
+
+  /// 来源快照：删除订阅时冻结的显示名（schema v5）。
+  ///
+  /// 为什么需要快照而不是「留着 feed_id 在别处查名字」：源那一行在删除后就不存在了，
+  /// 而保留下来的收藏文章仍然要显示「来自哪个源」。快照在**删除那一刻**冻结，因此
+  /// 之后源被重新添加、改名或再次删除都不会改写这条历史。
+  ///
+  /// 未脱离源的文章该列为 null（列表仍按 feed_id 现查显示名，改名即时生效）。
+  TextColumn get feedTitle => text().nullable()();
+
+  /// 来源快照：删除订阅时冻结的地址（schema v5）。
+  ///
+  /// 存规范化地址（`Feeds.normalizedUrl`）而不是请求用的原始地址：库里本来就只有
+  /// 规范地址这一份——带凭据的原始地址以 credentialRef 引用保存在 Keychain，
+  /// 快照不得把它复制进普通列（架构第 8 节）。
+  TextColumn get feedUrl => text().nullable()();
 
   /// 源内 GUID。可能是 null（源未提供）或空串（源提供了空值），
   /// 后者由 [guidPresent] 区分。

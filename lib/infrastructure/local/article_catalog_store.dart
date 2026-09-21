@@ -28,6 +28,22 @@ import 'package:flux/core/core.dart';
 import 'database.dart';
 import 'tables/article_tables.dart';
 
+/// 一条订阅在列表渲染时需要的两个字段。
+///
+/// 打包成一个私有值类型而不是 `Map<int, String>`：列表要显示来源名，而外开链接与
+/// 详情页要显示地址，一次查询同时取回比让调用方为地址再查一次更省往返；用记录类型
+/// 明确写出字段名，也避免「第二个 String 是什么」在调用点变成猜测。
+final class FeedSnapshot {
+  /// 构造快照。
+  const FeedSnapshot({required this.name, required this.url});
+
+  /// 订阅显示名（用户可改，因此这是**当前**值）。
+  final String name;
+
+  /// 规范化地址。
+  final String url;
+}
+
 /// 文章阅读数据层。
 final class DriftArticleCatalogStore implements ArticleCatalogStore {
   /// 绑定一个已打开的数据库。
@@ -65,12 +81,11 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
       _applyFilterSimple(select, filter: query.filter, feedId: query.feedId);
 
       final List<Article> rows = await select.get();
-      final Map<int, String> feedNames = await _feedNames(
-        rows.map((Article a) => a.feedId).toSet(),
+      final Map<int, FeedSnapshot> feedNames = await _feedSnapshots(
+        rows.map((Article a) => a.feedId).whereType<int>().toSet(),
       );
       final List<ArticleListEntry> entries = <ArticleListEntry>[
-        for (final Article row in rows)
-          _toEntry(row, feedName: feedNames[row.feedId] ?? ''),
+        for (final Article row in rows) _toEntry(row, feedNames: feedNames),
       ];
       return Ok<ArticlePage>(
         ArticlePage(entries: entries, total: total, offset: query.offset),
@@ -103,10 +118,11 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
       if (row == null) {
         return const Ok<ArticleListEntry?>(null);
       }
-      final Map<int, String> names = await _feedNames(<int>{row.feedId});
-      return Ok<ArticleListEntry?>(
-        _toEntry(row, feedName: names[row.feedId] ?? ''),
+      final int? feedIdOfRow = row.feedId;
+      final Map<int, FeedSnapshot> names = await _feedSnapshots(
+        feedIdOfRow == null ? const <int>{} : <int>{feedIdOfRow},
       );
+      return Ok<ArticleListEntry?>(_toEntry(row, feedNames: names));
     } on Exception catch (error, stackTrace) {
       return Err<ArticleListEntry?>(_storage('findArticle', error, stackTrace));
     }
@@ -128,12 +144,11 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
                   ($ArticlesTable t) => OrderingTerm.desc(t.id),
                 ]))
               .get();
-      final Map<int, String> names = await _feedNames(
-        rows.map((Article a) => a.feedId).toSet(),
+      final Map<int, FeedSnapshot> names = await _feedSnapshots(
+        rows.map((Article a) => a.feedId).whereType<int>().toSet(),
       );
       return Ok<List<ArticleListEntry>>(<ArticleListEntry>[
-        for (final Article row in rows)
-          _toEntry(row, feedName: names[row.feedId] ?? ''),
+        for (final Article row in rows) _toEntry(row, feedNames: names),
       ]);
     } on Exception catch (error, stackTrace) {
       return Err<List<ArticleListEntry>>(
@@ -331,17 +346,21 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
   ///
   /// 用一次 IN 查询而不是在循环里逐行 findFeedById：列表一页 50 行时那是 50 次
   /// 往返。返回 Map 而不是列表，是因为调用方按 feedId 取值，顺序无意义。
-  Future<Map<int, String>> _feedNames(Set<int> feedIds) async {
+  ///
+  /// 已脱离源的收藏**不在**这个查询里：它们的 feed_id 为 NULL，取不到也就不该取
+  /// ——它们的来源由行上的快照列回答（见 [_toEntry]）。
+  Future<Map<int, FeedSnapshot>> _feedSnapshots(Set<int> feedIds) async {
     if (feedIds.isEmpty) {
-      return const <int, String>{};
+      return const <int, FeedSnapshot>{};
     }
     final List<Feed> rows = await (_db.select(
       _db.feeds,
     )..where(($FeedsTable t) => t.id.isIn(feedIds))).get();
-    return <int, String>{for (final Feed row in rows) row.id: row.name};
+    return <int, FeedSnapshot>{
+      for (final Feed row in rows)
+        row.id: FeedSnapshot(name: row.name, url: row.normalizedUrl),
+    };
   }
-
-  /// 已完成：见文件头的三条实现选择说明。
 
   /// 构造筛选条件；无条件时返回 null。
   Expression<bool>? _predicate({
@@ -375,20 +394,35 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
   }
 
   /// 行 → 读取模型。
-  static ArticleListEntry _toEntry(Article row, {required String feedName}) =>
-      ArticleListEntry(
-        id: row.id,
-        feedId: row.feedId,
-        feedName: feedName,
-        title: row.title,
-        readingState: row.readingState,
-        favorite: row.favorite,
-        publishedAt: row.publishedAt,
-        fetchedAt: row.fetchedAt,
-        summary: row.summary,
-        sourceUrl: row.sourceUrl,
-        author: row.author,
-      );
+  ///
+  /// 来源显示名按两种来源取值，优先级明确：
+  ///   1) 未脱离源（feed_id 非空）→ 现查订阅表的名字，用户改名后立即生效；
+  ///   2) 已脱离源（feed_id 为空）→ 行上的 [Articles.feedTitle] 快照。这是
+  ///      **冻结值**，源被重新添加或再次删除都不改写它（架构 4.1 的「来源快照」）。
+  /// 两种都取不到时返回空串而不是编一个名字：界面会因此显示一个可辨认的空来源，
+  /// 而不会假装这篇文章来自某个源。
+  static ArticleListEntry _toEntry(
+    Article row, {
+    required Map<int, FeedSnapshot> feedNames,
+  }) {
+    final int? feedId = row.feedId;
+    final FeedSnapshot? live = feedId == null ? null : feedNames[feedId];
+    return ArticleListEntry(
+      id: row.id,
+      feedId: feedId,
+      feedName: live?.name ?? row.feedTitle ?? '',
+      feedTitle: row.feedTitle,
+      feedUrl: row.feedUrl,
+      title: row.title,
+      readingState: row.readingState,
+      favorite: row.favorite,
+      publishedAt: row.publishedAt,
+      fetchedAt: row.fetchedAt,
+      summary: row.summary,
+      sourceUrl: row.sourceUrl,
+      author: row.author,
+    );
+  }
 
   static StorageError _storage(
     String operation,

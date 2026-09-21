@@ -17,7 +17,9 @@ import 'package:drift/drift.dart';
 import 'package:flux/core/core.dart';
 
 import 'database.dart';
+import 'tables/article_tables.dart';
 import 'tables/feed_tables.dart';
+import 'tables/reading_tables.dart';
 
 /// 订阅与分组的 drift 存储。
 final class DriftFeedCatalogStore implements FeedCatalogStore {
@@ -316,12 +318,10 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
 
   @override
   Future<Result<void>> markFeedDeleted(int feedId) async {
-    // T014 **有意不实现删除**（架构 4.1、D-11：默认保留收藏、其余清理，且清理范围
-    // 必须在操作前可见）。这里只做两件不破坏数据的事：
-    //   1) 确认这个 feed 真的存在（让调用方的错误处理有意义，而不是对着不存在的
-    //      行报「成功」）；
-    //   2) 留一条诊断痕迹，使「界面上点了删除」与「数据真的删了」在排查时可区分。
-    // 真正的实现（含保留收藏、来源快照、墓碑事件）属 T018。
+    // T014 的预留接口在 T018 保持「不删数据」的形状：真正的删除只能经 [deleteFeed]
+    // 发生，因为它要求调用方先给出「保留收藏」这一次选择（架构 4.1、D-11）。这里
+    // 继续只确认存在性，使「谁在删、有没有经过确认」在排查时可分辨——若把它改成
+    // 真删，任何拿着这条旧签名的调用点都会绕过确认页。
     try {
       final Feed? row =
           await (_db.select(_db.feeds)
@@ -340,6 +340,370 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
       return okUnit();
     } on Exception catch (error, stackTrace) {
       return Err<void>(_storage('markFeedDeleted', error, stackTrace));
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // T018：删除订阅/分组与保留收藏
+  // -------------------------------------------------------------------
+
+  @override
+  Future<Result<FeedDeletionPreview>> previewFeedDeletion(int feedId) async {
+    try {
+      final Feed? feed =
+          await (_db.select(_db.feeds)
+                ..where((Feeds t) => t.id.equals(feedId))
+                ..limit(1))
+              .getSingleOrNull();
+      if (feed == null) {
+        return Err<FeedDeletionPreview>(
+          StorageError(
+            operation: 'previewFeedDeletion',
+            detail: 'feed $feedId 不存在',
+            isMissing: true,
+          ),
+        );
+      }
+      return Ok<FeedDeletionPreview>(
+        FeedDeletionPreview(
+          feedId: feed.id,
+          feedSyncId: feed.syncId,
+          feedName: feed.name,
+          favoriteCount: await _countArticles(feedId: feedId, favorites: true),
+          otherCount: await _countArticles(feedId: feedId, favorites: false),
+          laterCount: await _countArticles(
+            feedId: feedId,
+            favorites: false,
+            laterOnly: true,
+          ),
+        ),
+      );
+    } on Exception catch (error, stackTrace) {
+      return Err<FeedDeletionPreview>(
+        _storage('previewFeedDeletion', error, stackTrace),
+      );
+    }
+  }
+
+  @override
+  Future<Result<FeedDeletionOutcome>> deleteFeed({
+    required int feedId,
+    required bool keepFavorites,
+  }) => _translate(
+    'deleteFeed',
+    () => _db.transaction<FeedDeletionOutcome>(
+      () => _deleteFeedWithinTransaction(
+        feedId: feedId,
+        keepFavorites: keepFavorites,
+      ),
+    ),
+  );
+
+  @override
+  Future<Result<GroupDeletionOutcome>> deleteGroupWithFeeds({
+    required int groupId,
+    required GroupDeletionMode mode,
+    required bool keepFavorites,
+  }) => _translate(
+    'deleteGroupWithFeeds',
+    () => _db.transaction<GroupDeletionOutcome>(
+      () => _deleteGroupWithinTransaction(
+        groupId: groupId,
+        mode: mode,
+        keepFavorites: keepFavorites,
+      ),
+    ),
+  );
+
+  /// 事务内删除一个分组。
+  ///
+  /// 两个分支都**先处理订阅、再删分组行**：反过来的话，「分组已删但订阅仍指向它」
+  /// 的那一瞬是一个已经违反「订阅必须有归属」的中间状态（外键会直接拒绝，而若关了
+  /// 外键则留下悬空引用）。
+  Future<GroupDeletionOutcome> _deleteGroupWithinTransaction({
+    required int groupId,
+    required GroupDeletionMode mode,
+    required bool keepFavorites,
+  }) async {
+    final Group? group =
+        await (_db.select(_db.groups)
+              ..where((Groups t) => t.id.equals(groupId))
+              ..limit(1))
+            .getSingleOrNull();
+    if (group == null) {
+      throw StorageError(
+        operation: 'deleteGroupWithFeeds',
+        detail: 'group $groupId 不存在',
+        isMissing: true,
+      );
+    }
+    // 保留组不可删除：它是「订阅总有归属」的唯一保证，也是移动分支的目标。用例层
+    // 已经拒绝过一次，这里再拒一次——存储层是最后一道，不能假设所有调用方都记得。
+    if (group.isReserved || group.syncId == groupUncategorizedSyncId) {
+      throw StorageError(
+        operation: 'deleteGroupWithFeeds',
+        detail: '「${group.name}」是保留分组，不能删除',
+      );
+    }
+
+    final List<Feed> members = await (_db.select(
+      _db.feeds,
+    )..where((Feeds t) => t.groupId.equals(groupId))).get();
+
+    switch (mode) {
+      case GroupDeletionMode.moveToUncategorized:
+        final int? reservedId = await _reservedGroupId();
+        if (reservedId == null) {
+          throw StorageError(
+            operation: 'deleteGroupWithFeeds',
+            detail: '保留组「未分类」不存在',
+            isMissing: true,
+          );
+        }
+        for (final Feed member in members) {
+          await (_db.update(
+            _db.feeds,
+          )..where((Feeds t) => t.id.equals(member.id))).write(
+            FeedsCompanion(
+              groupId: Value<int?>(reservedId),
+              updatedAt: Value<DateTime>(DateTime.now().toUtc()),
+            ),
+          );
+        }
+        await (_db.delete(
+          _db.groups,
+        )..where((Groups t) => t.id.equals(groupId))).go();
+        await _insertDeletionEvent(
+          entityType: 'group',
+          syncId: group.syncId,
+          displayName: group.name,
+          keepFavorites: null,
+          deletedArticles: 0,
+          keptFavorites: 0,
+        );
+        return GroupDeletionOutcome(
+          mode: mode,
+          movedFeedCount: members.length,
+          deletedFeedCount: 0,
+          deletedArticles: 0,
+          keptFavorites: 0,
+        );
+
+      case GroupDeletionMode.deleteFeeds:
+        // 复用删除订阅的**同一段**实现（含保留收藏、来源快照、逐条墓碑）。
+        int deletedArticles = 0;
+        int keptFavorites = 0;
+        for (final Feed member in members) {
+          final FeedDeletionOutcome perFeed =
+              await _deleteFeedWithinTransaction(
+                feedId: member.id,
+                keepFavorites: keepFavorites,
+              );
+          deletedArticles += perFeed.deletedArticles;
+          keptFavorites += perFeed.keptFavorites;
+        }
+        await (_db.delete(
+          _db.groups,
+        )..where((Groups t) => t.id.equals(groupId))).go();
+        await _insertDeletionEvent(
+          entityType: 'group',
+          syncId: group.syncId,
+          displayName: group.name,
+          keepFavorites: keepFavorites,
+          deletedArticles: deletedArticles,
+          keptFavorites: keptFavorites,
+        );
+        return GroupDeletionOutcome(
+          mode: mode,
+          movedFeedCount: 0,
+          deletedFeedCount: members.length,
+          deletedArticles: deletedArticles,
+          keptFavorites: keptFavorites,
+        );
+    }
+  }
+
+  /// 事务内删除一条订阅。
+  ///
+  /// 抛出的错误由调用方翻译成 [Result]；在事务内抛出会让 drift **回滚整个事务**，
+  /// 这正是「部分删除不允许存在」所需要的——一个「源没了但文章还在」或「收藏脱离了
+  /// 但非收藏没删干净」的状态，用户既无法理解也无法修复，比整批失败更糟。
+  Future<FeedDeletionOutcome> _deleteFeedWithinTransaction({
+    required int feedId,
+    required bool keepFavorites,
+  }) async {
+    final Feed? feed =
+        await (_db.select(_db.feeds)
+              ..where((Feeds t) => t.id.equals(feedId))
+              ..limit(1))
+            .getSingleOrNull();
+    if (feed == null) {
+      throw StorageError(
+        operation: 'deleteFeed',
+        detail: 'feed $feedId 不存在',
+        isMissing: true,
+      );
+    }
+
+    int keptFavorites = 0;
+    if (keepFavorites) {
+      // 收藏文章：脱离源 + 冻结来源快照（架构 4.1）。
+      //
+      // 快照用**规范化地址**而不是请求地址：库里本来就只有规范地址这一列，带凭据的
+      // 原始地址以 credentialRef 引用存在 Keychain。快照不得把凭据复制进普通列——
+      // 那是架构第 8 节禁止的第二条泄露路径，而且这份快照将来会随同步包离开本机。
+      keptFavorites =
+          await (_db.update(_db.articles)..where(
+                (Articles t) =>
+                    t.feedId.equals(feedId) & t.favorite.equals(true),
+              ))
+              .write(
+                ArticlesCompanion(
+                  feedId: const Value<int?>(null),
+                  feedTitle: Value<String?>(feed.name),
+                  feedUrl: Value<String?>(feed.normalizedUrl),
+                  // readingState 与 favorite 有意不出现：脱离源不改变用户的阅读状态，
+                  // 也不改变收藏值（它本来就是靠 favorite 才被留下来的）。
+                  updatedAt: Value<DateTime>(DateTime.now().toUtc()),
+                ),
+              );
+    }
+
+    // 其余文章（**含 later**）一律清理。条件是「仍属于该源」而不是「非收藏」：保留
+    // 分支上一步已把保留的收藏置空 feed_id，用归属作条件能保证不漏删——即使某行是
+    // 收藏但上一步没覆盖到（例如并发新增），它也会落进这里被删掉，而不会成为一条
+    // 「源已不存在却仍指向它」的悬空行。
+    final int deletedArticles = await _deleteArticlesOfFeed(feedId);
+
+    await (_db.delete(_db.feeds)..where((Feeds t) => t.id.equals(feedId))).go();
+
+    await _insertDeletionEvent(
+      entityType: 'feed',
+      syncId: feed.syncId,
+      displayName: feed.name,
+      keepFavorites: keepFavorites,
+      deletedArticles: deletedArticles,
+      keptFavorites: keptFavorites,
+    );
+
+    return FeedDeletionOutcome(
+      feedId: feed.id,
+      feedSyncId: feed.syncId,
+      feedName: feed.name,
+      keepFavorites: keepFavorites,
+      deletedArticles: deletedArticles,
+      keptFavorites: keptFavorites,
+    );
+  }
+
+  /// 删除某源的全部剩余文章，并清掉它们的本机会话行。
+  ///
+  /// 为什么顺带删会话：`reading_sessions.article_id` 是指向文章的外键且没有级联动作，
+  /// 文章被删后这些行要么让删除**直接失败**（外键拒绝），要么成为指向不存在文章的
+  /// 悬空统计（架构 5.3：不能留下隐藏副本）。「这篇文章被读了多久」在文章不存在时
+  /// 没有任何意义，因此随文章一起清理。
+  ///
+  /// 引用（Citations）**不删**：它的外键是 SET NULL，且架构 4.4 明确要求引用保留
+  /// 标题/URL/摘录等最小快照——删掉它会让历史总结的出处凭空消失。
+  Future<int> _deleteArticlesOfFeed(int feedId) async {
+    // read() 的静态返回类型是可空的（drift 没法从表达式的类型推出列的非空约束），
+    // 因此用 whereType 过滤而不是写成 `!`：id 是主键、不可能为空，whereType 把同一个
+    // 事实表达在类型层面，也不依赖一个会在运行时才炸的断言。
+    final List<int> ids =
+        (await (_db.selectOnly(_db.articles)
+                  ..addColumns(<Expression<Object>>[_db.articles.id])
+                  ..where(_db.articles.feedId.equals(feedId)))
+                .map((TypedResult row) => row.read(_db.articles.id))
+                .get())
+            .whereType<int>()
+            .toList(growable: false);
+    if (ids.isEmpty) {
+      return 0;
+    }
+    await (_db.delete(
+      _db.readingSessions,
+    )..where((ReadingSessions t) => t.articleId.isIn(ids))).go();
+    return (_db.delete(
+      _db.articles,
+    )..where((Articles t) => t.feedId.equals(feedId))).go();
+  }
+
+  /// 统计某源下的文章数。
+  ///
+  /// [favorites] 选收藏或非收藏；[laterOnly] 进一步限定阅读状态为 later。三个数字
+  /// （收藏 / 其余 / 其余中的 later）必须分开取，因为用户要回答的是「保留会留下几篇、
+  /// 其余有多少会被清掉，我的稍后再读在不在里面」（架构 4.1 明写 later 属于清理范围）。
+  Future<int> _countArticles({
+    required int feedId,
+    required bool favorites,
+    bool laterOnly = false,
+  }) async {
+    final JoinedSelectStatement<$ArticlesTable, Article> select =
+        _db.selectOnly(_db.articles)
+          ..addColumns(<Expression<Object>>[countAll()])
+          ..where(_db.articles.feedId.equals(feedId))
+          ..where(_db.articles.favorite.equals(favorites));
+    if (laterOnly) {
+      select.where(_db.articles.readingState.equalsValue(ReadingState.later));
+    }
+    final TypedResult row = await select.getSingle();
+    return row.read(countAll()) ?? 0;
+  }
+
+  /// 保留组「未分类」的本机 id；缺失时为 null（调用方报错，不静默新建）。
+  Future<int?> _reservedGroupId() async {
+    final Group? row =
+        await (_db.select(_db.groups)
+              ..where((Groups t) => t.syncId.equals(groupUncategorizedSyncId))
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.id;
+  }
+
+  /// 写一条墓碑事件（架构 5.2「删除使用墓碑，首发不自动清除」）。
+  Future<void> _insertDeletionEvent({
+    required String entityType,
+    required String syncId,
+    required String displayName,
+    required bool? keepFavorites,
+    required int deletedArticles,
+    required int keptFavorites,
+  }) async {
+    await _db
+        .into(_db.deletionEvents)
+        .insert(
+          DeletionEventsCompanion.insert(
+            entityType: entityType,
+            syncId: syncId,
+            displayName: displayName,
+            keepFavorites: Value<bool?>(keepFavorites),
+            deletedArticleCount: Value<int>(deletedArticles),
+            keptFavoriteCount: Value<int>(keptFavorites),
+            deletedAt: DateTime.now().toUtc(),
+          ),
+        );
+  }
+
+  /// 把一次可能抛异常的存储操作翻译成 [Result]。
+  static Future<Result<T>> _translate<T>(
+    String operation,
+    Future<T> Function() action,
+  ) async {
+    try {
+      return Ok<T>(await action());
+    } on AppError catch (error, stackTrace) {
+      return Err<T>(
+        error is StorageError
+            ? error
+            : StorageError(
+                operation: operation,
+                detail: error.message,
+                cause: error,
+                stackTrace: stackTrace,
+              ),
+      );
+    } on Exception catch (error, stackTrace) {
+      return Err<T>(_storage(operation, error, stackTrace));
     }
   }
 
@@ -523,6 +887,23 @@ final class DegradedFeedCatalogStore implements FeedCatalogStore {
   @override
   Future<Result<void>> markFeedDeleted(int feedId) async =>
       Err<void>(_degraded('markFeedDeleted'));
+
+  @override
+  Future<Result<FeedDeletionPreview>> previewFeedDeletion(int feedId) async =>
+      Err<FeedDeletionPreview>(_degraded('previewFeedDeletion'));
+
+  @override
+  Future<Result<FeedDeletionOutcome>> deleteFeed({
+    required int feedId,
+    required bool keepFavorites,
+  }) async => Err<FeedDeletionOutcome>(_degraded('deleteFeed'));
+
+  @override
+  Future<Result<GroupDeletionOutcome>> deleteGroupWithFeeds({
+    required int groupId,
+    required GroupDeletionMode mode,
+    required bool keepFavorites,
+  }) async => Err<GroupDeletionOutcome>(_degraded('deleteGroupWithFeeds'));
 
   static StorageError _degraded(String operation) =>
       StorageError(operation: operation, detail: '本次运行数据库不可用，订阅与分组不会保存');
