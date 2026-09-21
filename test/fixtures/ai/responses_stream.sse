@@ -1,0 +1,16 @@
+event: response.created
+data: {"type":"response.created","response":{"id":"resp-fixture","object":"response","status":"in_progress","model":"gpt-fixture"}}
+
+data: {"type":"response.in_progress","response":{"id":"resp-fixture","status":"in_progress"}}
+
+data: {"type":"response.output_item.added","output_index":0,"item":{"id":"msg-fixture","type":"message","role":"assistant"}}
+
+data: {"type":"response.output_text.delta","item_id":"msg-fixture","output_index":0,"content_index":0,"delta":"连接"}
+
+data: {"type":"response.output_text.delta","item_id":"msg-fixture","output_index":0,"content_index":0,"delta":"正常"}
+
+data: {"type":"response.output_text.done","item_id":"msg-fixture","output_index":0,"content_index":0,"text":"连接正常"}
+
+data: {"type":"response.completed","response":{"id":"resp-fixture","object":"response","status":"completed","model":"gpt-fixture","usage":{"input_tokens":18,"output_tokens":6,"total_tokens":24,"input_tokens_details":{"cached_tokens":0},"output_tokens_details":{"reasoning_tokens":0}}}}
+
+

@@ -1,0 +1,15 @@
+: ping
+
+data: {"type":"response.created","response":{"id":"resp-fixture","status":"in_progress"}}
+
+data: {"type":"response.queued","response":{"id":"resp-fixture","status":"queued"}}
+
+data: {"type":"response.output_text.delta","delta":"甲"}
+
+data: {"type":"response.some_future_event_type","unexpected":{"nested":true}}
+
+data: {"type":"response.output_text.delta","delta":"乙"}
+
+data: {"type":"response.incomplete","response":{"id":"resp-fixture","status":"incomplete","incomplete_details":{"reason":"max_output_tokens"},"usage":{"input_tokens":9,"output_tokens":4}}}
+
+

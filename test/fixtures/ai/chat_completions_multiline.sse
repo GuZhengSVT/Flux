@@ -1,0 +1,17 @@
+: keep-alive
+
+data: {"choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":{"content":"第一段"},"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":null,"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":{"content":"第二"},"finish_reason":null}]}
+
+data: {"choices":[{"index":0,"delta":{"content":"段"},"finish_reason":"stop"}]}
+
+data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":8}}
+
+data: [DONE]
+
+

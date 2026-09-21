@@ -50,6 +50,7 @@ import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
+import 'package:flux/infrastructure/network/ai_provider_factory.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
@@ -176,7 +177,11 @@ List<Override> bootstrapOverrides(
     aiSettingsReaderProvider.overrideWithValue(
       SettingsStoreReader(result.settingsStore),
     ),
-    aiProviderFactoryProvider.overrideWithValue(aiProviderFactory),
+    // T026：生产默认使用真实的 OpenAI 双协议适配器工厂；测试可注入替身
+    // （参数化而不是在 ProviderScope 里再覆盖一次，理由同上面几个端口）。
+    aiProviderFactoryProvider.overrideWithValue(
+      aiProviderFactory ?? const OpenAiProviderFactory(),
+    ),
     if (result.database case final AppDatabase database)
       databaseProvider.overrideWithValue(database),
     // ---- T014：订阅管理相关的端口 -------------------------------------------

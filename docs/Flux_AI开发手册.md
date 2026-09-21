@@ -46,7 +46,7 @@
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：**M1 已完成**（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024），M1 里程碑出口达成。下一任务 T025（统一 AIProvider 能力契约/模型管理），属 M2 起点，前置 T010/T007 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）与 T026（OpenAI 双协议适配器），见 R025/R026。下一任务 T027（Anthropic Messages 适配器），前置 T025 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -61,7 +61,7 @@
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | DOING（**T019 交付正文阅读器**：受控文档树渲染（标题/段落/强调/删除线/引用/列表含任务勾选/链接/图片占位/表格含列对齐/行内代码/围栏代码块+静态高亮+折叠+复制）、LaTeX 单双美元号用 flutter_math_fork 纯自绘（不支持命令显示原式与原因，不留空白）、美元货币转义、正文完整性四态行、目录 h1–h3 侧栏（宽窗）、上下篇按进入时快照（首/尾边界禁用并说明）、页内查找高亮与计数；**T020 交付选区/复制/图片/链接**：SelectionArea 单块选区与自定义选区菜单、复制全文（纯文本重拼）、选词解释入口（未配置提示 + 跳设置，调用属 T034）、图片查看器（全屏/缩放/Esc/保存/分享，SET-012 关闭时占位+点选下载）、外链面板（完整地址 + 复制/打开，危险协议拒绝）、系统分享走 NSSharingServicePicker 且不可用时回退复制；**图片缓存/可控 MIME 与解码限额属 T021、跨块选择属后续（D-15）、卡片三形态与列表虚拟化已由 T019+ 补齐（R019a）、瀑布流与三栏列表面板仍属后续、专注模式属 T051**）|
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**T023 交付阅读统计**：会话追踪（前台可见且交互未超阈才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台立即暂停、关闭开关完全不记录）、按会话时区跨午夜拆分并按本地日期键落库、周期 flush + 结束收尾、写入失败不重复写；年度热力图（周一为列、0 值与年外占位格可辨、5 档图例、逐格日期+分钟提示）、近七日柱状图（柱顶文字分钟数）、年份选择器来自真实数据、清空统计走确认且只清会话表） |
 | 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
-| AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | TODO |
+| AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**仍未实现**：Anthropic 适配器（T027）、预设验证矩阵（T028）、有预算的队列与五次无响应/跨模型故障转移与 120s/10min 时限（T029）、结果缓存与中断恢复（T030）、视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入） |
 | 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | TODO |
 | 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | TODO |
 | 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | TODO |
@@ -130,8 +130,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 
 | ID | 前置 | 任务与范围 | 交付与验收条件 | 状态 |
 | --- | --- | --- | --- | --- |
-| T025 | T010、T007 | 统一 AIProvider 能力契约/模型管理 | 文本/视觉/流式/结构化/工具能力独立；模型列表失败可手填，设置验证/删除引用不悬空，最小生成测试先告知 | TODO |
-| T026 | T025 | OpenAI Responses 与 Chat Completions 兼容适配器 | 读取官方协议并记录日期；各自请求、事件、错误、取消、usage、工具参数 fixture；不能只替换路径；最小授权真实调用记录 | TODO |
+| T025 | T010、T007 | 统一 AIProvider 能力契约/模型管理 | 文本/视觉/流式/结构化/工具能力独立；模型列表失败可手填，设置验证/删除引用不悬空，最小生成测试先告知 | DONE（缺失 REVIEW）：能力是**五项独立布尔值**，不是等级也不是按模型名推断；未声明的上下文/输出按 SET-033 保守值 8192/2048 使用，并在界面上标出「这是保守预算，不是真实能力扩容」。模型记录落 SQLite 新表 `ai_model_records`（schema **v8 → v9**，只建表加索引、不回填任何数据），表里**没有任何凭据列**（SET-031 只住 Keychain，凭据以「提供商别名」为标识，同别名共用一份）。删除是两段式：先算引用（本机任务默认标记 / SET-034 专用视觉模型 / SET-035 故障转移允许列表）并展示，用户确认后带 `force` 才删；**设置读不出来时不放行删除**（「读不到」不等于「没有引用」，且诊断里写明「未检查」而不是伪装成「检查过且为空」）。最小生成测试把「这次会花钱」做成前置参数：没有 `CostConfirmation` 时 `runMinimalGeneration` 直接拒绝，因此「忘了弹费用确认」在类型上不可能；输出上限再夹到 `minimalTestMaxTokens=64`（用户配得更小则取用户值，不抬高）。诊断只记「别名 + 结构事实（耗时/token/字符数）」，有用例断言导出文本里**既无 Key 也无模型输出正文**。设置 → AI 服务页提供列表（按故障转移顺序、可上移下移）、启用/停用（停用不是删除）、任务默认（唯一，由存储层在一个事务里保证）、Key 遮盖（固定长度掩码，不泄漏真实长度）、能力勾选、增删改；Anthropic Messages**已登记但标注「适配器待实现」**，用户可以提前配置，但不会在点测试时才发现。新增 75 条中英文案 |
+| T026 | T025 | OpenAI Responses 与 Chat Completions 兼容适配器 | 读取官方协议并记录日期；各自请求、事件、错误、取消、usage、工具参数 fixture；不能只替换路径；最小授权真实调用记录 | DONE（缺失 REVIEW）：两个适配器**分开建模**，夹具与期望文件各自独立（有用例断言两份正常流夹具的形状确实不同，且两种 usage 的字段名不能互相解析——把 Responses 的 usage 喂给 CC 的解析器得到 null）。请求体各自构造：Chat Completions 用 `messages` + `stream_options.include_usage`；Responses 用 `input` 分量数组 + 顶层 `instructions` + `max_output_tokens`（**不是**把 system 塞进 input，也不是改个字段名）。SSE 层共用，但**按字节切行、再解码整行**——这是本轮实测抓到的真缺陷：按收到的块逐块 `utf8.decode` 会把被 TCP 分段切开的中文解成替换字符（「连接」变成带 U+FFFD 的串），中文输出下几乎必然触发；同时显式处理 CRLF 行尾、SSE 注释心跳、多行 data 拼接、单事件与整条流的字节上限。usage 事件在 done **之前**发出（计费记账不能晚于结束）。错误按状态码统一映射：429 → `RateLimitError`（服从 Retry-After；日期形式不猜秒数，交 T029 的退避策略）、401/402/403 → 不可重试的 `AuthError`、400 + **结构化**内容拒绝标记 → 不可重试的 `ContentFilteredError`（架构 4.5 明确不得跨服务商重试规避）、其余 → `NetworkError`；判定只用 error.type/error.code，不做文案匹配——否则会把普通 400 误判成内容拒绝，白白阻止一次本来能成功的重试。取消优先于超时，且**已取消的信号在发出任何字节之前就被拒绝**（不主动制造可能计费的废请求）；首响应 45s / 停滞 30s 用「每次有字节到达就重置」的计时器（用总时长会误杀长输出）。断流（既无 `[DONE]`/`response.completed` 也无结束原因）明确报错并不静默结束——静默结束会把半句话存成完整答案。真实调用 1 次，见 R026 |
 | T027 | T025 | Anthropic Messages 适配器 | 官方认证/版本头、流事件、工具与图片格式分别验证；无模型列表时手填；重试和脱敏行为一致 | TODO |
 | T028 | T026、T027 | 主流预设验证矩阵 | OpenAI/Anthropic/DeepSeek/Qwen/MiMo/OpenCode 逐个明确端点、协议、能力和真实测试状态；OpenCode 明确 API 服务产品，不拿 CLI 充当 provider；缺凭据不伪称支持 | TODO |
 | T029 | T025–T028 | 有预算的队列、五次无响应和跨模型故障转移 | 假时钟覆盖 5 次计数/重置/下一模型、45s 首响应/30s 停滞/120s 单次/10min 总限时、并发 2、429、认证失败、内容拒绝及取消；不拼流、不重复无限收费 | TODO |
@@ -2019,7 +2019,255 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       凭据/费用授权范围
 
 
-实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
+
+### 7.1.19 轮次记录 R025（T025）
+
+    轮次/日期：R025 / 2026-09-22
+    任务 ID 与状态变化：T025 TODO → DONE（M2 第一项；**缺失 REVIEW**，理由：本轮新增 schema 版本
+      （v9）与「凭据只进 Keychain」这条安全边界的落点，属复核适用范围）
+    相关决策/功能/SET 项：架构 4.3（AI 供应商按能力路由、不凭模型名猜能力；三种协议独立适配器）、
+      架构 4.5（认证失败不可重试、内容拒绝不得跨服务商规避）、架构 5.1（AIProvider/Model 实体、
+      「数据库不含秘密」）、架构 2.2（features 不得 import infrastructure）、第 8 节（凭据不进
+      日志/备份）、SET-030/031/032/033/042、SET-034/035（引用检查的对象）
+
+    **本轮最关键的边界：让「配置好了」这件事可核对，而不是让界面看起来能用**
+
+      这一轮交付的是 AI 能力的**配置地基**，因此它最大的风险不是「功能少了」，而是「看起来做了」。
+      三个落点：
+
+        | 风险 | 本轮的处理 |
+        | --- | --- |
+        | 用等级/模型名推断能力（架构 4.3 明确禁止） | 五项能力各自独立为布尔值；未声明的上限按 SET-033 保守值使用，并在界面写明「这是保守预算，不是真实能力扩容」 |
+        | 凭据被顺手写进数据库或日志 | 模型表**没有凭据列**（凭据以别名住在 Keychain）；诊断只插值「别名 + 结构事实」；有用例断言导出文本里既无 Key 也无模型输出正文 |
+        | 删除模型让配置悬空 | 删除两段式：先算引用（任务默认 / SET-034 / SET-035）并展示，确认后带 force 才删 |
+
+      **「忘了弹费用确认」被做成类型上不可能**：最小生成测试的第一个参数是
+      `CostConfirmation`（一个命名类型，而不是 `bool confirmed`）。没有它
+      `runMinimalGeneration` 直接返回配置错误、一个请求都不发。调用点写成
+      `test(model, true)` 时读者无从知道 true 表示什么，这类重构事故因此被消掉。
+
+      **引用检查里最容易被写错的一条**：设置读不出来时不能当成「没有引用」。静默返回空列表会把
+      「没检查」伪装成「检查过且为空」，从而放行一次会让 SET-034/035 悬空的删除。本轮的处理是
+      读取失败即拒绝删除；连「设置端口未接线」这种情形也在诊断里写明「SET-034/035 引用未检查」。
+
+    修改文件与主要行为：
+      - 新增 features/ai/domain/：ai_protocol.dart（三个协议 + `hasAdapter` + `missingAdapterReason`）、
+        ai_message.dart（AiRequest/AiMessage/AiToolDeclaration 与 sealed AiEvent：AiDelta/AiUsage/AiDone；
+        AiCancellation 幂等且「登记即在已取消时立即回调」）、model_capability.dart（五项独立能力 + 保守预算 +
+        `validateCapability`）、ai_model.dart（记录与 SET-030/032/033 的取值域校验、`aiEndpointFor`）、
+        ai_provider.dart（AiProvider 与 AiProviderFactory 契约）、ai_credential_store.dart（凭据端口）、
+        ai_model_store.dart（持久化端口）、ai_model_references.dart（引用判定的纯函数）；
+      - 新增 features/ai/application/model_manager.dart：saveModel（先校验再规范化再落库）、
+        describeReferencesTo、deleteModel（force 语义）、reorder（拒绝重复 id）、setDefaultForTasks、
+        凭据读写；runMinimalGeneration 的前置检查全部在**发请求之前**完成并给出「用户能据此行动」的原因
+        （disabled / adapterMissing / credentialMissing），输出上限夹到 64；
+      - 新增 features/ai/application/model_manager_controller.dart（页面状态 + AiFailureReason 分类）、
+        features/ai/application/ai_ports.dart（端口 Provider，默认抛错以防漏接线）；
+      - 新增 features/ai/presentation/：ai_services_page.dart（列表/启停/默认/排序/删除确认）、
+        ai_model_form.dart（协议下拉标注未实现的选项、Key 只显示「已配置/尚未配置」且输入框始终遮蔽、
+        能力勾选、测试按钮先弹费用确认）、ai_failure_text.dart（12 类失败文案，不显示底层错误原文）；
+      - 新增 infrastructure/local/tables/ai_tables.dart（表 `ai_model_records`，**无凭据列**，
+        两个索引）、ai_model_store.dart（drift 实现；别名冲突翻译为 SET-030.alias 的校验错误，
+        排序与「唯一默认」都在事务里写）、degraded_ai_model_store.dart（降级读空、写失败）；
+      - 修改 infrastructure/local/database.dart：schema **v8 → v9**（只建表 + createIndex，
+        不回填任何数据；`highestImplemented` 同步到 9）；
+      - 新增 infrastructure/platform/ai_credential_adapter.dart（把 T010 的 CredentialStore
+        接到 features 侧端口，infrastructure → features 的既有方向）；
+      - 修改 lib/core/error/app_error.dart：新增 `RateLimitError` / `AuthError` /
+        `ContentFilteredError` / `ModelInUseError` / `ModelConfigurationError`。
+        **为什么必须放在 core 而不是 features/ai**：`AppError` 是 `sealed` 类型，闭包里的子类
+        必须与它同库，否则 sealed 的穷尽匹配能力就失去意义（编译期再也无法保证 switch 覆盖全部错误类别）；
+      - 修改 features/settings/presentation/settings_page.dart：新增「AI 服务」入口（从占位列表移除）；
+      - 修改 lib/app/app_providers.dart 与 test/app/test_harness.dart：AI 端口接线，
+        模型存储与适配器工厂参数化（Riverpod 禁止重复覆盖）；
+      - 新增 l10n：75 条中英 AI 服务文案；
+      - 新增测试：test/features/ai/ai_contract_test.dart（36 条：取消信号四条边界、事件与 usage 语义、
+        协议登记与「T025 期间只有两个 OpenAI 协议有适配器」、能力五项独立与保守回退、模型记录取值域、
+        端点拼接保留路径前缀、HTTP 错误映射（含「普通 400 不得误判为内容拒绝」）、Retry-After 解析）、
+        model_manager_test.dart（39 条：CRUD 与别名冲突不覆盖、能力落库、停用≠删除、排序与唯一默认的
+        事务语义、引用检查四种引用与「读不出来不放行删除」、凭据写入/删除/状态与**日志脱敏**、
+        最小生成测试的费用前置与五类拒绝都不发请求、适配器异常翻译、诊断只记结构事实）、
+        ai_services_page_test.dart（13 条组件：入口跳转、空态、保存落库、协议待实现标注、非法输入不落库、
+        Key 遮蔽、启停、删除确认的取消/确认、排序落库、费用确认的取消不请求/确认只请求一次/缺 Key 不发请求）；
+      - 修改 test/core/app_error_test.dart（穷尽 switch 覆盖新增五个子类）、test/app/l10n_test.dart
+        （426 → 501 条）、migration 与 schema 快照测试（当前版本 8 → 9，并新增 v9 快照断言）。
+
+    **开发中由测试抓到的真实问题**：
+      1) **drift 的 `AppError` 无法在 features 里继承**（sealed 跨库）——最初把五个错误子类放在
+        features/ai/domain，编译期即失败；改为放进 core 后，穷尽 switch 的编译期保证得以保留（并同步
+        更新了 app_error_test 的 switch 用例，让它继续覆盖全部子类）；
+      2) **别名唯一冲突最初被翻译成「存储失败」而不是「换一个别名」**：命中条件原本写的是表名
+        `ai_models`，而实际表名由类名 `AiModelRecords` 派生为 `ai_model_records`。测试抓到
+        后改为同时认表名与索引名（`ux_ai_models_alias`）以及 `alias`，让用户始终看到可执行的建议；
+      3) **「对不存在的 id 设默认」会把原有的默认清掉**：先清全部再设目标，目标不存在时抛错，
+        但事务外的部分已经提交，留下一个「谁都不是默认」的库。用例抓到后把抛出放进事务内，
+        让「清默认」一起回滚；
+      4) **通用类型名冲突**：表类最初叫 `AiModels`，drift 会生成同名数据类 `AiModel`，与本工程领域
+        类型撞名。改为 `AiModelRecords`（表名 `ai_model_records`）后，每个使用点都不必加前缀。
+
+    数据迁移/删除/依赖变化：schema **v8 → v9**（新增 ai_model_records 表与两个索引；不回填）；
+      无删除；**无新增第三方依赖**（凭据走既有 Keychain 通道，JSON 用 dart:convert）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | 无依赖变化
+      dart run build_runner build | 0 | PASS | 无告警
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS |
+        新增 drift_schema_v9.json
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 |
+        PASS | 生成 test/generated/schema_v9.dart（既有迁移测试的当前版本常数 8 → 9）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1187 通过 / 2 跳过 / 0 失败（相对 T024 的 1098 新增 89 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    性能烟测：无（本轮无索引/查询计划改动；模型表规模是「用户手配的几条」量级）
+    费用与秘密：**未发起任何真实 AI/搜索调用，无费用**（本任务只到「配置 + 最小生成测试的入口」，
+      真实调用属 T026）；未写入任何真实凭据，凭据用例只用内存实现与形如 `sk-test` 的假值；
+      Unicode 断言里出现的 `sk-1234567890abcdefghijklmnop` 只用于「日志脱敏」负例，不是任何真实 Key
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增 schema 版本与凭据边界，属复核适用范围，但本轮未拿到维护者结论，
+         因此如实写「DONE（缺失 REVIEW）」；
+      2) **故障转移与五次无响应规则未实现**（属 T029）：本轮只交付「依排序的候选列表」与启停，
+         页面底部明确标注 SET-035 的五次规则与 SET-037 的自动摘要开关属后续任务，
+         **没有放一个无效开关**；
+      3) **模型列表接口（GET /models）未接**：架构与 SET-032 允许「列表失败可手填」，本轮只做手填，
+         不伪造一个「自动发现」的路径；
+      4) **视觉路由未实现**（属 T033）：能力声明已可落库，但「专用视觉 → 有视觉能力主模型 → 跳过」
+         这条链路属 T033；本轮只保证删除时会提示 SET-034 的引用；
+      5) **同步未接**（属 T041）：模型记录目前在共通设置之外单独存表，是否纳入同步与如何排除凭据
+         由 T041 决定；
+      6) **Anthropic 协议只有登记**：`hasAdapter` 为 false，界面在选择项即标注「适配器待实现」，
+         点测试会明确报 adapterMissing（有用例钉住）；
+      7) Android 工程仍未初始化；8) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T025 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与本轮记录。五项能力「独立、不按模型名猜」、保守预算
+      8192/2048、Keychain 与「数据库不含秘密」三条均为既定产品边界，本轮未改动任何一条。
+    提交/差异范围：提交 "T025: unified AIProvider contract, model manager and keychain-backed
+      credentials"（99b42ba）；基线为 ecc66e6（T024 文档提交）。未 push
+    下一可执行任务及前置条件：T026（OpenAI 双协议适配器），前置 T025 已 DONE；
+      需按授权范围做**一次**最小真实调用并记录脱敏检查结果
+
+### 7.1.20 轮次记录 R026（T026）
+
+    轮次/日期：R026 / 2026-09-22
+    任务 ID 与状态变化：T026 TODO → DONE（M2 第二项；**缺失 REVIEW**，理由同前几轮：本轮新增一条
+      面向真实服务商的出网路径（带流式解析），并有一次真实计费调用）
+    相关决策/功能/SET 项：架构 4.3（三种独立适配器、不能只改 URL、流式/工具参数/图片编码分别验证）、
+      架构 4.5（429 服从 Retry-After；认证失败不重试；内容拒绝不得跨服务商规避；首响应 45s / 停滞 30s）、
+      SET-036（默认值来源）、第 8 节（Key 不进日志、不可信输入边界）
+
+    **本轮最关键的边界：两个协议必须分开建模，而共用层只共用真正相同的部分**
+
+      「不能只替换路径」在这里是三件**具体**的形状差异，每一件都有独立夹具与期望：
+
+        | 维度 | Chat Completions | Responses |
+        | --- | --- | --- |
+        | 请求体 | `messages[{role,content}]` + `stream_options.include_usage` | `input[{role,content:[{type,text}]}]` + 顶层 `instructions` + `max_output_tokens` |
+        | 输出事件 | chunk 里的 `choices[].delta` + `finish_reason` | 带 `type` 的事件对象（`response.output_text.delta` 等） |
+        | usage | `prompt_tokens`/`completion_tokens`（常在最后一个 `choices:[]` 的 chunk 里） | `input_tokens`/`output_tokens`（在 `response.completed` 的 `response.usage` 里） |
+        | 终止 | `data: [DONE]` | `response.completed` / `response.failed` / `error` |
+
+      共用的是**传输层语法**（SSE 行切分、CRLF、注释心跳、多行 data、字节上限）与**状态码语义**
+      （429/401/403/400 的分类），而不是负载。为了让「独立建模」不只停留在注释里，
+      有一条用例断言「把 Responses 的 usage 喂给 Chat Completions 的解析器会得到 null」——
+      这正是「只改 URL」时会静默出错的地方。
+
+      **开发中由测试抓到的真缺陷（本任务最有价值的一条）**：SSE 解析最初对每个收到的字节块
+      单独做 `utf8.decode`，然后把解出的字符串拼起来切行。用例按 1 字节切块后，「连接」
+      变成了带 U+FFFD 的串——因为一个 UTF-8 汉字是 3 个字节，被切开后每一段单独解码都是非法的。
+      中文输出下这条**几乎必然触发**，而英文夹具完全看不出来。修正为「按字节切行、再对**整行**
+      解码」，未闭合的尾部字节保留到下一块；同时新增一条英文无法覆盖的回归用例（按 1 字节切块断言
+      中文完整）。
+
+      **另一条容易漏的边界**：断流。既没有 `[DONE]` 也没有 `finish_reason`（或没有
+      `response.completed`）时，最初的做法是「安静结束」。那会让上层把半句话当成完整答案保存。
+      现在明确抛 `NetworkError` 并写清缺的是哪一个终止标记。
+
+    修改文件与主要行为：
+      - 新增 infrastructure/network/sse.dart：`sseEventPayloads`（字节级切行 → 整行解码 → 组装事件）、
+        单事件与整条流上限；显式忽略 `event:`/`id:`/`retry:` 与注释行；
+      - 新增 infrastructure/network/ai_stream_guard.dart：`AiStreamTimeouts`（SET-036 默认 45s/30s）与
+        `guardAiByteStream`（首响应计时 + 每次有字节就重置的停滞计时 + 取消；正常结束时清掉定时器，
+        避免测试里留下 pending timer）。**取消优先于超时**；取消走订阅的 cancel，因此底层连接真的被关掉；
+      - 新增 infrastructure/network/ai_http.dart：请求体构造（两个协议各一个函数）、usage 解析
+        （两个协议各一个，字段名不同）、错误体的**有界**读取（64 KiB 上限，读不出来就返回 null，
+        让状态码继续决定分类）、端点拼接；
+      - 新增 infrastructure/network/chat_completions_adapter.dart：SSE + include_usage + `[DONE]` 终止 +
+        finish_reason/usage 提取 + 200 流内嵌 `{"error":...}` 的处理 + 断流判定；
+      - 新增 infrastructure/network/responses_adapter.dart：type 事件流（created / output_text.delta /
+        completed / failed / error / incomplete）、usage 映射、`response.status` 作为结束原因、
+        **未知事件类型被忽略**（协议会继续加类型）；
+      - 新增 infrastructure/network/ai_provider_factory.dart：协议标识 → 适配器；未实现/未知协议/空 Key/
+        非法 Base URL 都返回类型化错误（不抛异常，不让一次点击打掉整页）；
+      - 修改 lib/app/app_providers.dart：生产默认装配 `OpenAiProviderFactory`；
+      - 新增 test/fixtures/ai/（README + 8 份夹具：两个协议各 2 份正常流 + 各 1 份断流 + 各 1 份错误体，
+        **不共用任何文件**）与 test/fixtures/ 的完整性覆盖；
+      - 新增测试：chat_completions_adapter_test.dart（23 条：请求形状、正常流、CRLF/心跳/多行/空 delta、
+        跨块切行、非 JSON 行跳过、断流、内嵌错误、四类状态码映射、错误消息不含 Key、取消两条路径、
+        停滞与首响应超时）、responses_adapter_test.dart（19 条：input items 结构与 instructions、
+        type 事件解析、未知事件忽略、incomplete、无 usage 不编造、failed/error 内嵌错误、断流、
+        完全无事件、错误映射、取消与超时）、adapter_support_test.dart（22 条：SSE 十条边界含中文按字节切开的
+        回归、夹具独立性与「两种 usage 不可互相解析」、夹具无真实凭据、工厂五类拒绝）、
+        tool/live_ai_verification_test.dart（1 条真实调用探针，默认不跑）。
+
+    **真实验证（唯一一次授权调用）**：
+      路径：ModelManager → 真实凭据端口 → `OpenAiProviderFactory` → `ChatCompletionsAdapter` →
+      `https://api.deepseek.com/chat/completions`（model=`deepseek-chat`，输出上限由
+      `minimalTestMaxTokens` 夹到 64，远低于授权的 200）。
+      命令：`FLUX_TEST_DSK=<key> flutter test tool/live_ai_verification_test.dart --reporter expanded`
+      （Key 从手册 T003 证据文件里的记录方式取得，仅经进程环境变量进内存，不落盘、不回显）。
+      结果：**成功**。`LIVE_RESULT=OK ... elapsedMs=709 inTokens=20 outTokens=2 totalTokens=22
+      chars=4 finish=stop`（即服务商返回「连接正常」四个字）。
+      脱敏检查（用例内的断言，与调用成败无关都会跑）：诊断导出文本**不含 Key**、不含 `Bearer`、
+      不含任何认证头形态；错误对象（若失败）同样断言不含 Key。
+      调用次数：**总计 1 次**，未重试。未发生超预算的情况（T003 曾超支 1 次，本轮严格在授权内）。
+
+    数据迁移/删除/依赖变化：无 schema 变化（T026 不改本地库）；无删除；**无新增第三方依赖**
+      （SSE 与 JSON 都用 dart:convert/dart:async；HTTP 用既有 http 1.6.0）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      dart format lib test tool | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1248 通过 / 2 跳过 / 0 失败（相对 T025 的 1187 新增 61 条）
+      flutter test tool/live_ai_verification_test.dart（带 FLUX_TEST_DSK） | 0 | PASS | 1 次真实调用，
+        709 ms / 20 in / 2 out token / finish=stop；脱敏断言通过
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    性能烟测：无（本轮无索引/查询计划改动；流式解析的复杂度与响应大小线性，且两道字节上限显式）
+    费用与秘密：**1 次真实生成调用**（DeepSeek `deepseek-chat`，64 token 输出上限），
+      实测 20 输入 / 2 输出 token；Key 仅在内存里经环境变量传入，未写入任何文件、日志、夹具或提交；
+      夹具里只有形如 `sk-fixture-...` 的假值，并有用例断言夹具中不出现其他形态的 Key
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增面向真实服务商的出网路径（含流式解析）与一次真实计费调用，
+         属复核适用范围，但本轮未拿到维护者结论，因此如实写「DONE（缺失 REVIEW）」；
+      2) **Responses 协议未做真实调用**：本轮授权的真实调用只有 1 次，用于 Chat Completions 路径。
+         Responses 的适配器只有 fixture 级证据（形状、事件、usage、错误、取消、超时俱全），
+         **7.3 的矩阵里如实写 NOT_RUN，不伪称已支持**；
+      3) **工具调用（tool_calls）只解析不执行**：Chat Completions 的 `tool_calls` 增量与 Responses 的
+         `output_item` 事件在本轮被有意跳过（不解析工具参数），工具声明可随请求发出；
+         执行器与安全边界属 T032。跳过时**不丢弃同一 chunk 里可能存在的正文**；
+      4) **图片输入未实现**（属 T033）：Responses 的 `input_image` 分量在本轮不构造；
+         Chat Completions 的图片消息同样属 T033；
+      5) **重试与退避未实现**（属 T029）：本轮只把 429 的 Retry-After 解析出来放进错误对象，
+         **不做自动重试**（架构 4.5 的 2/4/8/16 秒退避、五次无响应计数、跨模型故障转移都在 T029）；
+        120 秒单次硬时限与 10 分钟总时限也属 T029（本层只做「首响应 + 停滞」这两个流内时限）；
+      6) **SET-036 的设置值未接线**：适配器默认使用 SET-036 的默认值（45s/30s），但尚未从设置存储
+         读取用户改过的值——读设置并把「并发/首响应/停滞」三项传下来属 T029 的队列层；
+      7) **未做「恰好计费一次」的任何承诺**：协议不支持幂等键，因此取消/重试都可能已经计费；
+         本轮能做的是**不主动制造废请求**（已取消的信号在发字节前就被拒绝，有用例钉住）；
+      8) **SSE 只按 \n 切行、未处理孤立的 \r 作为行分隔符**（SSE 规范里 CR 单独出现也算换行）。
+         两个目标协议与本轮实测的服务商都发 \n 与 \r\n，因此未实现；若将来遇到只发 CR 的中间代理，
+         需要补这一条（本轮明确记为已知限制，而不是「已支持」）；
+      9) **中间代理的字节上限是 16 MiB 的固定常数**，不是产品设置项（按架构第 8 节属实现防线）；
+         若将来有合法场景需要更大的单次流，需连同「谁来决定上限」一起设计；
+      10) Android 工程仍未初始化；11) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T026 → DONE，标注
+      缺失 REVIEW）、状态摘要、7.3 提供商矩阵与本轮记录。三条既定产品边界未被改动：
+      内容拒绝不得跨服务商重试规避、429 服从 Retry-After、认证失败直接标配置错误（不重试）。
+    提交/差异范围：提交 "T026: OpenAI Chat Completions and Responses adapters with SSE, usage and
+      cancellation"；基线为 99b42ba（T025）。未 push
+    下一可执行任务及前置条件：T027（Anthropic Messages 适配器），前置 T025 已 DONE；
+      需要 Anthropic 的凭据与端点才能做真实调用，否则只能交付 fixture 级证据并在 7.3 如实标 NOT_RUN
+
+
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
 
 | 项目 | 锁定值 | 实测日期/证据 |
@@ -2056,6 +2304,7 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | 图片解码限额 | presentation/reader/article_image_view.dart | Flutter 自带 ResizeImage(allowUpscaling: false) 加 50 MP 像素上限；**未引入**图像处理库（不需要 image 包） |
 | 全文检索 tokenizer | infrastructure/local/tables/article_search.drift（tokenize='trigram'） | 用 SQLite **内置**的 trigram tokenizer（3.34+；本机运行时 3.53.4 实测可用）。**未引入**第三方分词库（jieba 等），符合任务给定的选型顺序 a 方案 |
 | fts5 的 SQL 分析支持 | build.yaml 的 sql.options.modules: [fts5] | 让 drift 分析器认识 USING fts5(...)。不声明它会让该表落到「快照里没有、运行时有」的漂移上（实测报 Unknown module 且不生成表元素） |
+| AI 适配器的传输层（T026） | infrastructure/network/sse.dart、ai_stream_guard.dart、ai_http.dart | **无第三方依赖**：SSE 切分与整行解码、首响应/停滞计时与取消、错误体的有界读取全部用 dart:async / dart:convert / dart:typed_data；HTTP 用既有 http 1.6.0。**未引入**任何 SSE 或流式解析库——本工程只需要「按行取 data 负载」这一件事，而现成库会带来它自己的一套重连与 Last-Event-ID 语义，与本项目的取消模型冲突 |
 
 FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，完整表见 R022）：
 
@@ -2069,11 +2318,16 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
 
 ### 7.3 提供商验证矩阵（实现前不得写“已支持”）
 
+协议事实（请求体、事件流、usage 字段名、错误体）的来源：**主代理提供，检索于 2026-09-22**。
+本工程的适配器与夹具按该口径编写；本轮未另行联网检索官方文档（本子代理被明确禁止使用网络检索
+工具，真实 API 调用除外）。「已声明支持」一列只写**本轮有证据**的范围，且 fixture 级证据与
+真实调用证据分开表述。
+
 | 目标 | 协议/产品映射 | fixture | 真实测试 | 已声明支持 |
 | --- | --- | --- | --- | --- |
-| OpenAI | Responses / Chat Completions 分开验证 | TODO | NOT_RUN | 否 |
+| OpenAI | Responses / Chat Completions **分开建模**（同一域名下两条路径；请求体、事件流与 usage 字段名都不同，不能只改 URL） | `test/fixtures/ai/` 下 `responses_*.sse` 与 `chat_completions_*.sse` 各 4 份，两份正常流夹具形状互不相同且有用例断言两种 usage 不可互相解析。协议事实来源：**主代理提供，检索于 2026-09-22** | **Chat Completions 路径：PASS**（DeepSeek 兼容端点 1 次真实调用，见 R026）。**Responses：NOT_RUN**（无该协议的可用凭据/端点，未伪造） | **仅 Chat Completions 兼容路径**，且仅就本轮实测的那个端点 |
 | Anthropic | Messages | TODO | NOT_RUN | 否 |
-| DeepSeek | 按公开 API 核实兼容协议 | TODO | NOT_RUN | 否 |
+| DeepSeek | OpenAI Chat Completions 兼容；端点 `https://api.deepseek.com`（协议路径由适配器拼 `/chat/completions`）。协议事实来源：**主代理提供，检索于 2026-09-22** | 与 OpenAI 共用同一套 Chat Completions 夹具（协议相同），即 `chat_completions_*.sse` | **PASS**：`deepseek-chat`，1 次最小生成（709 ms / 20 输入 / 2 输出 token / finish=stop），链路为 ModelManager → OpenAiProviderFactory → ChatCompletionsAdapter，见 R026 | **是**，但仅限本轮实测的 `deepseek-chat` 与该协议；同账号其他模型未测 |
 | 千问/Qwen | 以所选地域/公开端点为准 | TODO | NOT_RUN | 否 |
 | MiMo | 以公开端点与模型能力为准 | TODO | NOT_RUN | 否 |
 | OpenCode | 确认公开 API 产品（如 Zen），不等同编码 CLI | TODO | NOT_RUN | 否 |
@@ -2093,3 +2347,4 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
     本轮只执行指定任务，不重写无关代码，不对旧项目做未获授权的删除/远端动作。
     使用既定 Flutter 路线和全部产品约束；遇到不一致先指出，不能用 mock 代替正式功能。
     修改后按手册完成验证、更新任务与功能账本，给出真实证据和下一步。
+实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
