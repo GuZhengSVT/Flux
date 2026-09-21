@@ -589,6 +589,21 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _refreshIntervalMinutesMeta =
       const VerificationMeta('refreshIntervalMinutes');
   @override
@@ -712,6 +727,7 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
     sourceName,
     groupId,
     favorite,
+    enabled,
     refreshIntervalMinutes,
     sortOrder,
     httpEtag,
@@ -781,6 +797,12 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
       context.handle(
         _favoriteMeta,
         favorite.isAcceptableOrUnknown(data['favorite']!, _favoriteMeta),
+      );
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
       );
     }
     if (data.containsKey('refresh_interval_minutes')) {
@@ -898,6 +920,10 @@ class $FeedsTable extends Feeds with TableInfo<$FeedsTable, Feed> {
         DriftSqlType.bool,
         data['${effectivePrefix}favorite'],
       )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
       refreshIntervalMinutes: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}refresh_interval_minutes'],
@@ -969,7 +995,21 @@ class Feed extends DataClass implements Insertable<Feed> {
   /// 加精：只影响显示与强调，不参与新闻选材（架构 4.1）。
   final bool favorite;
 
+  /// 是否参与自动刷新（SET-022 的「启用」；T014，schema v4）。
+  ///
+  /// 为什么不复用 [refreshIntervalMinutes] 的空值或 0 来表达「禁用」：
+  /// SET-022 把「启用」与「刷新间隔」列为**两个独立**的可配置项，语义也不同——
+  /// 禁用是「这个源我现在不想看它联网」，间隔是「多久检查一次」。用同一个字段
+  /// 表达两者会让「禁用期间保留的间隔设置」无处存放：用户重新启用后，之前设的
+  /// 30 分钟会被抹成默认值。因此单列一个布尔列。
+  ///
+  /// 默认 true：升级前就存在的订阅在用户显式关闭之前照常刷新，不因迁移静默改变行为。
+  final bool enabled;
+
   /// 刷新间隔覆盖（分钟）；null 表示跟随全局默认（SET-020 区域）。
+  ///
+  /// 0 表示「手动」：该源不参与定时刷新（SET-022 的 refreshInterval 取值之一），
+  /// 与 [enabled] 的区别是——禁用同时挡住手动刷新入口，手动只是不自动跑。
   final int? refreshIntervalMinutes;
 
   /// 组内排序权重（架构 5.1：Feed 含「分组、排序」）。置顶是分组属性，
@@ -1022,6 +1062,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     this.sourceName,
     this.groupId,
     required this.favorite,
+    required this.enabled,
     this.refreshIntervalMinutes,
     required this.sortOrder,
     this.httpEtag,
@@ -1047,6 +1088,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       map['group_id'] = Variable<int>(groupId);
     }
     map['favorite'] = Variable<bool>(favorite);
+    map['enabled'] = Variable<bool>(enabled);
     if (!nullToAbsent || refreshIntervalMinutes != null) {
       map['refresh_interval_minutes'] = Variable<int>(refreshIntervalMinutes);
     }
@@ -1087,6 +1129,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           ? const Value.absent()
           : Value(groupId),
       favorite: Value(favorite),
+      enabled: Value(enabled),
       refreshIntervalMinutes: refreshIntervalMinutes == null && nullToAbsent
           ? const Value.absent()
           : Value(refreshIntervalMinutes),
@@ -1127,6 +1170,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       sourceName: serializer.fromJson<String?>(json['sourceName']),
       groupId: serializer.fromJson<int?>(json['groupId']),
       favorite: serializer.fromJson<bool>(json['favorite']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
       refreshIntervalMinutes: serializer.fromJson<int?>(
         json['refreshIntervalMinutes'],
       ),
@@ -1156,6 +1200,7 @@ class Feed extends DataClass implements Insertable<Feed> {
       'sourceName': serializer.toJson<String?>(sourceName),
       'groupId': serializer.toJson<int?>(groupId),
       'favorite': serializer.toJson<bool>(favorite),
+      'enabled': serializer.toJson<bool>(enabled),
       'refreshIntervalMinutes': serializer.toJson<int?>(refreshIntervalMinutes),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'httpEtag': serializer.toJson<String?>(httpEtag),
@@ -1177,6 +1222,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     Value<String?> sourceName = const Value.absent(),
     Value<int?> groupId = const Value.absent(),
     bool? favorite,
+    bool? enabled,
     Value<int?> refreshIntervalMinutes = const Value.absent(),
     int? sortOrder,
     Value<String?> httpEtag = const Value.absent(),
@@ -1195,6 +1241,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     sourceName: sourceName.present ? sourceName.value : this.sourceName,
     groupId: groupId.present ? groupId.value : this.groupId,
     favorite: favorite ?? this.favorite,
+    enabled: enabled ?? this.enabled,
     refreshIntervalMinutes: refreshIntervalMinutes.present
         ? refreshIntervalMinutes.value
         : this.refreshIntervalMinutes,
@@ -1231,6 +1278,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           : this.sourceName,
       groupId: data.groupId.present ? data.groupId.value : this.groupId,
       favorite: data.favorite.present ? data.favorite.value : this.favorite,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
       refreshIntervalMinutes: data.refreshIntervalMinutes.present
           ? data.refreshIntervalMinutes.value
           : this.refreshIntervalMinutes,
@@ -1266,6 +1314,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           ..write('sourceName: $sourceName, ')
           ..write('groupId: $groupId, ')
           ..write('favorite: $favorite, ')
+          ..write('enabled: $enabled, ')
           ..write('refreshIntervalMinutes: $refreshIntervalMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('httpEtag: $httpEtag, ')
@@ -1289,6 +1338,7 @@ class Feed extends DataClass implements Insertable<Feed> {
     sourceName,
     groupId,
     favorite,
+    enabled,
     refreshIntervalMinutes,
     sortOrder,
     httpEtag,
@@ -1311,6 +1361,7 @@ class Feed extends DataClass implements Insertable<Feed> {
           other.sourceName == this.sourceName &&
           other.groupId == this.groupId &&
           other.favorite == this.favorite &&
+          other.enabled == this.enabled &&
           other.refreshIntervalMinutes == this.refreshIntervalMinutes &&
           other.sortOrder == this.sortOrder &&
           other.httpEtag == this.httpEtag &&
@@ -1331,6 +1382,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
   final Value<String?> sourceName;
   final Value<int?> groupId;
   final Value<bool> favorite;
+  final Value<bool> enabled;
   final Value<int?> refreshIntervalMinutes;
   final Value<int> sortOrder;
   final Value<String?> httpEtag;
@@ -1349,6 +1401,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.sourceName = const Value.absent(),
     this.groupId = const Value.absent(),
     this.favorite = const Value.absent(),
+    this.enabled = const Value.absent(),
     this.refreshIntervalMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.httpEtag = const Value.absent(),
@@ -1368,6 +1421,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     this.sourceName = const Value.absent(),
     this.groupId = const Value.absent(),
     this.favorite = const Value.absent(),
+    this.enabled = const Value.absent(),
     this.refreshIntervalMinutes = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.httpEtag = const Value.absent(),
@@ -1389,6 +1443,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Expression<String>? sourceName,
     Expression<int>? groupId,
     Expression<bool>? favorite,
+    Expression<bool>? enabled,
     Expression<int>? refreshIntervalMinutes,
     Expression<int>? sortOrder,
     Expression<String>? httpEtag,
@@ -1408,6 +1463,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       if (sourceName != null) 'source_name': sourceName,
       if (groupId != null) 'group_id': groupId,
       if (favorite != null) 'favorite': favorite,
+      if (enabled != null) 'enabled': enabled,
       if (refreshIntervalMinutes != null)
         'refresh_interval_minutes': refreshIntervalMinutes,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -1431,6 +1487,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     Value<String?>? sourceName,
     Value<int?>? groupId,
     Value<bool>? favorite,
+    Value<bool>? enabled,
     Value<int?>? refreshIntervalMinutes,
     Value<int>? sortOrder,
     Value<String?>? httpEtag,
@@ -1450,6 +1507,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
       sourceName: sourceName ?? this.sourceName,
       groupId: groupId ?? this.groupId,
       favorite: favorite ?? this.favorite,
+      enabled: enabled ?? this.enabled,
       refreshIntervalMinutes:
           refreshIntervalMinutes ?? this.refreshIntervalMinutes,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -1487,6 +1545,9 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
     }
     if (favorite.present) {
       map['favorite'] = Variable<bool>(favorite.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
     }
     if (refreshIntervalMinutes.present) {
       map['refresh_interval_minutes'] = Variable<int>(
@@ -1535,6 +1596,7 @@ class FeedsCompanion extends UpdateCompanion<Feed> {
           ..write('sourceName: $sourceName, ')
           ..write('groupId: $groupId, ')
           ..write('favorite: $favorite, ')
+          ..write('enabled: $enabled, ')
           ..write('refreshIntervalMinutes: $refreshIntervalMinutes, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('httpEtag: $httpEtag, ')
@@ -5413,6 +5475,7 @@ typedef $$FeedsTableCreateCompanionBuilder = FeedsCompanion Function({
   Value<String?> sourceName,
   Value<int?> groupId,
   Value<bool> favorite,
+  Value<bool> enabled,
   Value<int?> refreshIntervalMinutes,
   Value<int> sortOrder,
   Value<String?> httpEtag,
@@ -5432,6 +5495,7 @@ typedef $$FeedsTableUpdateCompanionBuilder = FeedsCompanion Function({
   Value<String?> sourceName,
   Value<int?> groupId,
   Value<bool> favorite,
+  Value<bool> enabled,
   Value<int?> refreshIntervalMinutes,
   Value<int> sortOrder,
   Value<String?> httpEtag,
@@ -5520,6 +5584,11 @@ class $$FeedsTableFilterComposer extends Composer<_$AppDatabase, $FeedsTable> {
 
   ColumnFilters<bool> get favorite => $composableBuilder(
     column: $table.favorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5661,6 +5730,11 @@ class $$FeedsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get refreshIntervalMinutes => $composableBuilder(
     column: $table.refreshIntervalMinutes,
     builder: (column) => ColumnOrderings(column),
@@ -5765,6 +5839,9 @@ class $$FeedsTableAnnotationComposer
 
   GeneratedColumn<bool> get favorite =>
       $composableBuilder(column: $table.favorite, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
 
   GeneratedColumn<int> get refreshIntervalMinutes => $composableBuilder(
     column: $table.refreshIntervalMinutes,
@@ -5892,6 +5969,7 @@ class $$FeedsTableTableManager
                 Value<String?> sourceName = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
                 Value<int?> refreshIntervalMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> httpEtag = const Value.absent(),
@@ -5910,6 +5988,7 @@ class $$FeedsTableTableManager
                 sourceName: sourceName,
                 groupId: groupId,
                 favorite: favorite,
+                enabled: enabled,
                 refreshIntervalMinutes: refreshIntervalMinutes,
                 sortOrder: sortOrder,
                 httpEtag: httpEtag,
@@ -5930,6 +6009,7 @@ class $$FeedsTableTableManager
                 Value<String?> sourceName = const Value.absent(),
                 Value<int?> groupId = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
                 Value<int?> refreshIntervalMinutes = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> httpEtag = const Value.absent(),
@@ -5948,6 +6028,7 @@ class $$FeedsTableTableManager
                 sourceName: sourceName,
                 groupId: groupId,
                 favorite: favorite,
+                enabled: enabled,
                 refreshIntervalMinutes: refreshIntervalMinutes,
                 sortOrder: sortOrder,
                 httpEtag: httpEtag,

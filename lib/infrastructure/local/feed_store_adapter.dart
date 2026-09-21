@@ -104,3 +104,35 @@ final class DiagnosticLogSink implements DiagnosticSink {
         DiagnosticSeverity.info => DiagnosticLevel.info,
       };
 }
+
+/// 数据库不可用时的文章写入端口（T014 的降级启动路径）。
+///
+/// 两个方法都返回类型化存储错误：**没有内容可以假装写成功**。若这里返回 Ok，
+/// 「添加订阅」在降级模式下会创建一个内存里的订阅并报告「已导入 N 篇」，
+/// 重启后全都不见——这正是架构第 8 节禁止的「用假象代替状态」。
+final class DegradedFeedArticleStore implements FeedArticleStore {
+  /// 构造降级实现。
+  const DegradedFeedArticleStore();
+
+  @override
+  Future<Result<ArticleImportOutcome>> upsertArticles(
+    List<ArticleImport> imports,
+  ) async => Err<ArticleImportOutcome>(
+    StorageError(operation: 'upsertArticles', detail: '本次运行数据库不可用，文章不会保存'),
+  );
+
+  @override
+  Future<Result<void>> recordRefreshOutcome({
+    required int feedId,
+    required FeedRefreshOutcome outcome,
+    required DateTime checkedAt,
+    String? errorKind,
+    String? etag,
+    String? lastModified,
+  }) async => Err<void>(
+    StorageError(
+      operation: 'recordRefreshOutcome',
+      detail: '本次运行数据库不可用，抓取结果不会记录',
+    ),
+  );
+}

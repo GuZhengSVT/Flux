@@ -80,6 +80,33 @@ class ArticleImport {
 
   /// 源内摘要。
   final String? summary;
+
+  /// 换一个目标订阅返回新的导入项。
+  ///
+  /// 用途：「添加订阅」是一条**先建订阅行、再写文章**的流程，而文章的身份派生值
+  /// （指纹）在解析阶段就已经算好，此时还不知道数据库分配的 feed id。与其把
+  /// 指纹重算一遍（那会引入第二份身份规则），不如让调用方在拿到 id 后重新绑定。
+  ///
+  /// 注意：只有 [feedId] 被替换，其余字段（含指纹与正文哈希）原样保留——它们都
+  /// 是由**源标识**与内容决定的，与目标行的 id 无关。
+  ArticleImport withFeedId(int feedId) => ArticleImport(
+    feedId: feedId,
+    title: title,
+    identityBasis: identityBasis,
+    guid: guid,
+    guidPresent: guidPresent,
+    normalizedLink: normalizedLink,
+    sourceUrl: sourceUrl,
+    fallbackFingerprint: fallbackFingerprint,
+    fingerprintReliability: fingerprintReliability,
+    author: author,
+    publishedAt: publishedAt,
+    fetchedAt: fetchedAt,
+    body: body,
+    bodyCompleteness: bodyCompleteness,
+    bodyHash: bodyHash,
+    summary: summary,
+  );
 }
 
 /// 一次批量导入的结果计数（用于导入预览与诊断，不用于 UI 文案）。

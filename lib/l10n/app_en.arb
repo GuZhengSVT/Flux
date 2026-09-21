@@ -150,5 +150,224 @@
   "controlLoadingLabel": "Loading",
   "controlSuccessLabel": "Done",
   "controlErrorLabel": "Failed",
-  "controlDisabledLabelSuffix": "unavailable"
+  "controlDisabledLabelSuffix": "unavailable",
+
+  "subscriptionManagerTitle": "Subscriptions",
+  "subscriptionManagerNotice": "This page manages feeds and groups; the article list and batch state actions ship in T017-T019.",
+  "subscriptionGroupsSection": "Groups and feeds",
+  "subscriptionAddFeed": "Add feed",
+  "subscriptionAddFeedTitle": "Add a feed",
+  "subscriptionFeedUrlLabel": "Feed address",
+  "subscriptionFeedUrlHint": "A full http/https address, for example https://example.com/feed.xml",
+  "subscriptionPreviewAction": "Preview",
+  "subscriptionPreviewTitle": "Preview",
+  "subscriptionPreviewFormat": "Format",
+  "subscriptionPreviewEntries": "{count} articles",
+  "@subscriptionPreviewEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "subscriptionPreviewRejected": "{count} entries skipped",
+  "@subscriptionPreviewRejected": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "subscriptionPreviewNormalized": "Normalised address",
+  "subscriptionPreviewDuplicateTitle": "This address is already subscribed",
+  "subscriptionPreviewDuplicateBody": "A subscription to this address already exists (\"{name}\"). Its group, featured flag and refresh settings are unchanged.",
+  "@subscriptionPreviewDuplicateBody": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example Blog"
+      }
+    }
+  },
+  "subscriptionConfirmAdd": "Add",
+  "subscriptionCancel": "Cancel",
+  "subscriptionSave": "Save",
+  "subscriptionClose": "Close",
+  "subscriptionFeedNameLabel": "Display name",
+  "subscriptionFeedGroupLabel": "Group",
+  "subscriptionAddSuccess": "Added \"{name}\" with {count} articles",
+  "@subscriptionAddSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example Blog"
+      },
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "subscriptionAddSuccessEmpty": "Added \"{name}\"; the feed has no articles to import right now",
+  "@subscriptionAddSuccessEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example Blog"
+      }
+    }
+  },
+  "subscriptionErrorInvalidUrl": "Invalid address: enter a full http/https feed URL",
+  "subscriptionErrorNetwork": "Fetch failed: check the network and try again",
+  "subscriptionErrorParse": "Parse failed: this address does not serve RSS/Atom",
+  "subscriptionErrorStorage": "Local storage failed; nothing was saved",
+  "subscriptionNewGroup": "New group",
+  "subscriptionGroupNameLabel": "Group name",
+  "subscriptionGroupRename": "Rename",
+  "subscriptionGroupDelete": "Delete group",
+  "subscriptionGroupPin": "Pin group",
+  "subscriptionGroupUnpin": "Unpin",
+  "subscriptionPinnedBadge": "Pinned",
+  "subscriptionReservedGroupNote": "Reserved group: it cannot be deleted or renamed, but its feeds can be moved",
+  "subscriptionGroupDeleteTitle": "Delete group \"{name}\"",
+  "@subscriptionGroupDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tech"
+      }
+    }
+  },
+  "subscriptionGroupDeleteBody": "This group holds {count} feeds. Choose what happens to them:",
+  "@subscriptionGroupDeleteBody": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionGroupDeleteMoveOption": "Move to Uncategorized",
+  "subscriptionGroupDeleteMoveHint": "Feeds and articles are kept; only the group changes",
+  "subscriptionGroupDeleteFeedsOption": "Delete the feeds",
+  "subscriptionGroupDeleteFeedsHint": "Keeping favourites takes effect in T018; for now this is recorded only and nothing is deleted",
+  "subscriptionGroupDeleteFeedsPending": "Recorded {count} feeds as pending; the keep-favourites rule lands in T018 and nothing was deleted here",
+  "@subscriptionGroupDeleteFeedsPending": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionGroupDeleted": "Deleted group \"{name}\"; {count} feeds moved to Uncategorized",
+  "@subscriptionGroupDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tech"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionFeedMenu": "Feed actions",
+  "subscriptionGroupMenu": "Group actions",
+  "subscriptionFeedRename": "Rename feed",
+  "subscriptionFeedEdit": "Edit feed",
+  "subscriptionFeedMove": "Move to group",
+  "subscriptionFeedEnable": "Enable automatic refresh",
+  "subscriptionFeedDisable": "Pause automatic refresh",
+  "subscriptionFeedDisabledBadge": "Paused",
+  "subscriptionFeedFavorite": "Mark as featured",
+  "subscriptionFeedUnfavorite": "Remove featured mark",
+  "subscriptionUnreadCount": "{count} unread",
+  "@subscriptionUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionEmptyTitle": "No subscriptions yet",
+  "subscriptionEmptyBody": "Use Add feed to enter an RSS/Atom address; OPML import and export ship in T015.",
+  "subscriptionRefreshPolicyTitle": "Refresh policy",
+  "subscriptionRefreshPolicyNote": "These are saved settings only; background scheduling lands in T016, so nothing goes online from this page yet.",
+  "subscriptionGlobalRefreshLabel": "Global automatic refresh",
+  "subscriptionGlobalIntervalLabel": "Refresh interval",
+  "subscriptionStartupRefreshLabel": "Refresh on launch",
+  "subscriptionIntervalInherit": "Use global",
+  "subscriptionIntervalManual": "Manual",
+  "subscriptionIntervalMinutes": "{minutes} minutes",
+  "@subscriptionIntervalMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String",
+        "example": "60"
+      }
+    }
+  },
+  "subscriptionFeedIntervalLabel": "Interval for this feed",
+  "subscriptionMoveToGroupTitle": "Move \"{name}\" to a group",
+  "@subscriptionMoveToGroupTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example Blog"
+      }
+    }
+  },
+  "subscriptionReorderHint": "Drag the handle to reorder; with the handle focused the arrow keys work too",
+  "subscriptionCollapsedCount": "{count} feeds (collapsed)",
+  "@subscriptionCollapsedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionGroupHeaderLabel": "{name}, {count} feeds",
+  "@subscriptionGroupHeaderLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tech"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionFeedRowLabel": "{name}, {count} unread",
+  "@subscriptionFeedRowLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Example Blog"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionEnabledNote": "Paused: automatic refresh skips this feed (SET-022)",
+  "subscriptionFavoriteNote": "Featured only affects display and never changes news selection (SET-023)",
+  "subscriptionDragHandleLabel": "Drag or press the arrow keys to reorder",
+  "subscriptionMoveUp": "Move up",
+  "subscriptionMoveDown": "Move down",
+  "subscriptionFeedRenameTitle": "Rename feed",
+  "subscriptionGroupRenameTitle": "Rename group",
+  "subscriptionNewGroupTitle": "New group",
+  "subscriptionInvalidGroupName": "Group name cannot be empty",
+  "subscriptionInvalidFeedName": "Feed name cannot be empty",
+  "subscriptionUngrouped": "No group",
+  "subscriptionReservedGroupName": "Uncategorized"
 }

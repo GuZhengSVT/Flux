@@ -66,7 +66,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -118,9 +118,23 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(feeds, feeds.lastRefreshErrorKind);
       }
 
+      if (from < 4) {
+        // v3 → v4：订阅表补「启用」列（T014，SET-022 的逐源启用开关）。
+        //
+        // 只加列并保留默认值 true：**升级前就存在的订阅必须继续刷新**。若默认值
+        // 取 false，用户升级后会静默失去所有订阅的自动刷新，而且界面上只是「关」
+        // 而已，没有任何线索指向这次迁移——那正是架构 5.3 禁止的「迁移消费用户数据」。
+        //
+        // 布尔列自带 CHECK (enabled IN (0, 1))：这是 drift 对布尔列的既有处理
+        // （与 favorite 一致），不是本任务额外加的约束；addColumn 连带写出。
+        await m.addColumn(feeds, feeds.enabled);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
-      const int highestImplemented = 3;
+      // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
+      // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
+      const int highestImplemented = 4;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

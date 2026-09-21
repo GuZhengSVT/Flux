@@ -15,10 +15,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Override 类型在 riverpod 3 的 misc 入口（flutter_riverpod.dart 不再导出它）。
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import 'package:flux/core/core.dart';
+import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
+import 'package:flux/infrastructure/local/feed_catalog_store.dart';
+import 'package:flux/infrastructure/local/feed_store_adapter.dart';
+import 'package:flux/infrastructure/local/group_collapse_repository.dart';
+import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 
 import 'app_bootstrap.dart';
@@ -72,7 +78,15 @@ final Provider<AppBootstrapStatus> appBootstrapStatusProvider =
 ///
 /// 这是唯一的装配点：main.dart 调用它，测试也用同一函数（换成内存数据库或替身），
 /// 因此测试走的就是生产注入路径，不会出现「测试里能过、真实启动漏接线」。
-List<Override> bootstrapOverrides(AppBootstrapResult result) {
+/// [feedFetcher] 只给测试注入替身用：生产不传，默认就是真实的 HTTP 抓取器。
+///
+/// 为什么参数化而不是让测试自己 override：Riverpod 不允许在同一容器里覆盖同一个
+/// Provider 两次，因此「测试再覆盖一次」会在运行时断言失败；而把抓取端口从这里
+/// 放出去，测试覆盖的是**接线本身**（拿到的就是生产装配路径上的那一个位置）。
+List<Override> bootstrapOverrides(
+  AppBootstrapResult result, {
+  FeedFetcher? feedFetcher,
+}) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
       AppBootstrapStatus(
@@ -84,7 +98,37 @@ List<Override> bootstrapOverrides(AppBootstrapResult result) {
     onboardingStoreProvider.overrideWithValue(result.onboardingStore),
     credentialStoreProvider.overrideWithValue(result.credentialStore),
     diagnosticLogProvider.overrideWithValue(result.diagnosticLog),
+    // 诊断端口是**派生**端口：它没有第二条实现（诊断永远走 DiagnosticLog，
+    // 脱敏由日志层负责），因此在这里一次性接好，不需要调用方各自组装适配器。
+    diagnosticSinkProvider.overrideWithValue(
+      DiagnosticLogSink(result.diagnosticLog),
+    ),
     if (result.database case final AppDatabase database)
       databaseProvider.overrideWithValue(database),
+    // ---- T014：订阅管理相关的端口 -------------------------------------------
+    // 抓取端口与数据库无关（它只需要 HTTP），因此两种启动状态下都给真实实现：
+    // 降级模式下「预览」仍然可用，只有「确认入库」会因存储失败而明确报错，
+    // 这比让整个页面不可用更符合实际（用户至少能看到地址是否可解析）。
+    feedFetcherProvider.overrideWithValue(feedFetcher ?? HttpFeedFetcher()),
+    if (result.database case final AppDatabase catalogDatabase) ...<Override>[
+      feedCatalogProvider.overrideWithValue(
+        DriftFeedCatalogStore(catalogDatabase),
+      ),
+      feedArticleStoreProvider.overrideWithValue(
+        DriftFeedArticleStore(catalogDatabase),
+      ),
+      groupCollapseStoreProvider.overrideWithValue(
+        GroupCollapseRepository(catalogDatabase),
+      ),
+    ] else ...<Override>[
+      feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
+      feedArticleStoreProvider.overrideWithValue(
+        const DegradedFeedArticleStore(),
+      ),
+      // 折叠状态在降级模式下退到会话内存：记不住不算错误（见端口说明）。
+      groupCollapseStoreProvider.overrideWithValue(
+        InMemoryGroupCollapseStore(),
+      ),
+    ],
   ];
 }

@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/app_metadata.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/settings_controller.dart';
@@ -101,6 +102,18 @@ class _SettingsBody extends ConsumerWidget {
           },
           onChanged: (String value) =>
               ref.read(settingsControllerProvider.notifier).setTheme(value),
+        ),
+        _SectionHeader(title: l10n.subscriptionManagerTitle),
+        _NavigationRow(
+          title: l10n.subscriptionManagerTitle,
+          subtitle: l10n.subscriptionManagerNotice,
+          icon: Icons.rss_feed,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) =>
+                  const SubscriptionManagerPage(),
+            ),
+          ),
         ),
         _SectionHeader(title: l10n.settingsSectionAppearancePlanned),
         Padding(
@@ -532,6 +545,72 @@ class _AboutRow extends StatelessWidget {
             Text(note!, style: theme.textTheme.labelSmall),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// 一个可导航的设置入口行（T014：订阅管理）。
+///
+/// 与 _ChoiceRow 分开：那是「就地改值」的控件，这是「进入另一个页面」。两者混用
+/// 会让用户无法判断点下去会发生什么。
+class _NavigationRow extends StatelessWidget {
+  const _NavigationRow({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colors = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: FluxSpacing.md,
+        vertical: FluxSpacing.xxs,
+      ),
+      child: Material(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(FluxRadius.card),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(FluxRadius.card),
+          child: Container(
+            padding: const EdgeInsets.all(FluxSpacing.sm),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(FluxRadius.card),
+              border: Border.all(color: colors.outline),
+            ),
+            child: Row(
+              children: <Widget>[
+                Icon(icon, size: 20, color: colors.primary),
+                const SizedBox(width: FluxSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(title, style: theme.textTheme.bodyMedium),
+                      const SizedBox(height: FluxSpacing.xxs),
+                      Text(subtitle, style: theme.textTheme.labelSmall),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: colors.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

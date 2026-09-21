@@ -343,4 +343,282 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get controlDisabledLabelSuffix => '不可用';
+
+  @override
+  String get subscriptionManagerTitle => '订阅管理';
+
+  @override
+  String get subscriptionManagerNotice => '本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。';
+
+  @override
+  String get subscriptionGroupsSection => '分组与订阅';
+
+  @override
+  String get subscriptionAddFeed => '添加订阅';
+
+  @override
+  String get subscriptionAddFeedTitle => '添加订阅';
+
+  @override
+  String get subscriptionFeedUrlLabel => '订阅地址';
+
+  @override
+  String get subscriptionFeedUrlHint =>
+      '完整的 http/https 地址，例如 https://example.com/feed.xml';
+
+  @override
+  String get subscriptionPreviewAction => '预览';
+
+  @override
+  String get subscriptionPreviewTitle => '预览结果';
+
+  @override
+  String get subscriptionPreviewFormat => '格式';
+
+  @override
+  String subscriptionPreviewEntries(int count) {
+    return '$count 篇文章';
+  }
+
+  @override
+  String subscriptionPreviewRejected(int count) {
+    return '$count 条被跳过';
+  }
+
+  @override
+  String get subscriptionPreviewNormalized => '规范化地址';
+
+  @override
+  String get subscriptionPreviewDuplicateTitle => '该地址已订阅';
+
+  @override
+  String subscriptionPreviewDuplicateBody(String name) {
+    return '已存在该地址的订阅「$name」。原有的分组、加精与刷新设置都保留，没有做任何改动。';
+  }
+
+  @override
+  String get subscriptionConfirmAdd => '确认添加';
+
+  @override
+  String get subscriptionCancel => '取消';
+
+  @override
+  String get subscriptionSave => '保存';
+
+  @override
+  String get subscriptionClose => '关闭';
+
+  @override
+  String get subscriptionFeedNameLabel => '显示名称';
+
+  @override
+  String get subscriptionFeedGroupLabel => '归属分组';
+
+  @override
+  String subscriptionAddSuccess(String name, int count) {
+    return '已添加「$name」，导入 $count 篇文章';
+  }
+
+  @override
+  String subscriptionAddSuccessEmpty(String name) {
+    return '已添加「$name」，源里暂时没有可导入的文章';
+  }
+
+  @override
+  String get subscriptionErrorInvalidUrl => '地址不合法：请输入完整的 http/https 订阅地址';
+
+  @override
+  String get subscriptionErrorNetwork => '抓取失败：请检查网络后重试';
+
+  @override
+  String get subscriptionErrorParse => '解析失败：该地址的内容不是可解析的 RSS/Atom';
+
+  @override
+  String get subscriptionErrorStorage => '本地存储失败，本次改动没有保存';
+
+  @override
+  String get subscriptionNewGroup => '新建分组';
+
+  @override
+  String get subscriptionGroupNameLabel => '分组名称';
+
+  @override
+  String get subscriptionGroupRename => '重命名';
+
+  @override
+  String get subscriptionGroupDelete => '删除分组';
+
+  @override
+  String get subscriptionGroupPin => '置顶分组';
+
+  @override
+  String get subscriptionGroupUnpin => '取消置顶';
+
+  @override
+  String get subscriptionPinnedBadge => '置顶';
+
+  @override
+  String get subscriptionReservedGroupNote => '保留分组：不能删除或改名，其中订阅可移动';
+
+  @override
+  String subscriptionGroupDeleteTitle(String name) {
+    return '删除分组「$name」';
+  }
+
+  @override
+  String subscriptionGroupDeleteBody(int count) {
+    return '该分组下有 $count 个订阅。请选择处理方式：';
+  }
+
+  @override
+  String get subscriptionGroupDeleteMoveOption => '移动到未分类';
+
+  @override
+  String get subscriptionGroupDeleteMoveHint => '订阅与文章都保留，只改归属';
+
+  @override
+  String get subscriptionGroupDeleteFeedsOption => '删除其中的订阅';
+
+  @override
+  String get subscriptionGroupDeleteFeedsHint => '保留收藏选项在 T018 生效；本期只记录，不会真正删除';
+
+  @override
+  String subscriptionGroupDeleteFeedsPending(int count) {
+    return '已记录 $count 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据';
+  }
+
+  @override
+  String subscriptionGroupDeleted(String name, int count) {
+    return '已删除分组「$name」，$count 个订阅已移动到未分类';
+  }
+
+  @override
+  String get subscriptionFeedMenu => '订阅操作';
+
+  @override
+  String get subscriptionGroupMenu => '分组操作';
+
+  @override
+  String get subscriptionFeedRename => '重命名订阅';
+
+  @override
+  String get subscriptionFeedEdit => '编辑订阅';
+
+  @override
+  String get subscriptionFeedMove => '移动到分组';
+
+  @override
+  String get subscriptionFeedEnable => '启用自动刷新';
+
+  @override
+  String get subscriptionFeedDisable => '停用自动刷新';
+
+  @override
+  String get subscriptionFeedDisabledBadge => '已停用';
+
+  @override
+  String get subscriptionFeedFavorite => '加精';
+
+  @override
+  String get subscriptionFeedUnfavorite => '取消加精';
+
+  @override
+  String subscriptionUnreadCount(int count) {
+    return '$count 未读';
+  }
+
+  @override
+  String get subscriptionEmptyTitle => '还没有订阅';
+
+  @override
+  String get subscriptionEmptyBody => '点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。';
+
+  @override
+  String get subscriptionRefreshPolicyTitle => '刷新策略';
+
+  @override
+  String get subscriptionRefreshPolicyNote =>
+      '这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。';
+
+  @override
+  String get subscriptionGlobalRefreshLabel => '全局自动刷新';
+
+  @override
+  String get subscriptionGlobalIntervalLabel => '刷新间隔';
+
+  @override
+  String get subscriptionStartupRefreshLabel => '启动时刷新';
+
+  @override
+  String get subscriptionIntervalInherit => '继承全局';
+
+  @override
+  String get subscriptionIntervalManual => '手动';
+
+  @override
+  String subscriptionIntervalMinutes(String minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String get subscriptionFeedIntervalLabel => '该源刷新间隔';
+
+  @override
+  String subscriptionMoveToGroupTitle(String name) {
+    return '把「$name」移动到分组';
+  }
+
+  @override
+  String get subscriptionReorderHint => '拖动把手排序；聚焦把手后用上下方向键也能移动';
+
+  @override
+  String subscriptionCollapsedCount(int count) {
+    return '$count 个订阅（已折叠）';
+  }
+
+  @override
+  String subscriptionGroupHeaderLabel(String name, int count) {
+    return '$name，$count 个订阅';
+  }
+
+  @override
+  String subscriptionFeedRowLabel(String name, int count) {
+    return '$name，$count 未读';
+  }
+
+  @override
+  String get subscriptionEnabledNote => '已停用：自动刷新会跳过该源（SET-022）';
+
+  @override
+  String get subscriptionFavoriteNote => '加精只影响显示，不参与新闻选材（SET-023）';
+
+  @override
+  String get subscriptionDragHandleLabel => '拖动或按上下方向键调整顺序';
+
+  @override
+  String get subscriptionMoveUp => '上移';
+
+  @override
+  String get subscriptionMoveDown => '下移';
+
+  @override
+  String get subscriptionFeedRenameTitle => '重命名订阅';
+
+  @override
+  String get subscriptionGroupRenameTitle => '重命名分组';
+
+  @override
+  String get subscriptionNewGroupTitle => '新建分组';
+
+  @override
+  String get subscriptionInvalidGroupName => '分组名称不能为空';
+
+  @override
+  String get subscriptionInvalidFeedName => '订阅名称不能为空';
+
+  @override
+  String get subscriptionUngrouped => '未分组';
+
+  @override
+  String get subscriptionReservedGroupName => '未分类';
 }

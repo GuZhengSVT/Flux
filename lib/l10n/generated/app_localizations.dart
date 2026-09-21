@@ -727,6 +727,498 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'不可用'**
   String get controlDisabledLabelSuffix;
+
+  /// 订阅管理页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅管理'**
+  String get subscriptionManagerTitle;
+
+  /// 订阅管理页的范围说明，避免被当成已交付文章列表
+  ///
+  /// In zh, this message translates to:
+  /// **'本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。'**
+  String get subscriptionManagerNotice;
+
+  /// 分组列表小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'分组与订阅'**
+  String get subscriptionGroupsSection;
+
+  /// 添加单个订阅的入口
+  ///
+  /// In zh, this message translates to:
+  /// **'添加订阅'**
+  String get subscriptionAddFeed;
+
+  /// 添加订阅对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'添加订阅'**
+  String get subscriptionAddFeedTitle;
+
+  /// 订阅地址输入框标签
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅地址'**
+  String get subscriptionFeedUrlLabel;
+
+  /// 订阅地址输入提示
+  ///
+  /// In zh, this message translates to:
+  /// **'完整的 http/https 地址，例如 https://example.com/feed.xml'**
+  String get subscriptionFeedUrlHint;
+
+  /// 抓取并解析地址，展示预览
+  ///
+  /// In zh, this message translates to:
+  /// **'预览'**
+  String get subscriptionPreviewAction;
+
+  /// 预览结果区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'预览结果'**
+  String get subscriptionPreviewTitle;
+
+  /// 预览项：源格式
+  ///
+  /// In zh, this message translates to:
+  /// **'格式'**
+  String get subscriptionPreviewFormat;
+
+  /// 预览项：解析出的文章数
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 篇文章'**
+  String subscriptionPreviewEntries(int count);
+
+  /// 预览项：因缺少必需字段被跳过的条目数
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 条被跳过'**
+  String subscriptionPreviewRejected(int count);
+
+  /// 预览项：用于匹配与去重的规范化地址
+  ///
+  /// In zh, this message translates to:
+  /// **'规范化地址'**
+  String get subscriptionPreviewNormalized;
+
+  /// 重复添加时的预览标题
+  ///
+  /// In zh, this message translates to:
+  /// **'该地址已订阅'**
+  String get subscriptionPreviewDuplicateTitle;
+
+  /// 重复添加的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已存在该地址的订阅「{name}」。原有的分组、加精与刷新设置都保留，没有做任何改动。'**
+  String subscriptionPreviewDuplicateBody(String name);
+
+  /// 确认入库
+  ///
+  /// In zh, this message translates to:
+  /// **'确认添加'**
+  String get subscriptionConfirmAdd;
+
+  /// 取消对话框
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get subscriptionCancel;
+
+  /// 保存名称类对话框（改名/新建分组）
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get subscriptionSave;
+
+  /// 关闭对话框
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get subscriptionClose;
+
+  /// 订阅显示名称输入标签
+  ///
+  /// In zh, this message translates to:
+  /// **'显示名称'**
+  String get subscriptionFeedNameLabel;
+
+  /// 订阅归属分组选择标签
+  ///
+  /// In zh, this message translates to:
+  /// **'归属分组'**
+  String get subscriptionFeedGroupLabel;
+
+  /// 添加订阅成功后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已添加「{name}」，导入 {count} 篇文章'**
+  String subscriptionAddSuccess(String name, int count);
+
+  /// 添加成功但源里没有条目时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已添加「{name}」，源里暂时没有可导入的文章'**
+  String subscriptionAddSuccessEmpty(String name);
+
+  /// 添加订阅失败：地址非法
+  ///
+  /// In zh, this message translates to:
+  /// **'地址不合法：请输入完整的 http/https 订阅地址'**
+  String get subscriptionErrorInvalidUrl;
+
+  /// 添加订阅失败：网络
+  ///
+  /// In zh, this message translates to:
+  /// **'抓取失败：请检查网络后重试'**
+  String get subscriptionErrorNetwork;
+
+  /// 添加订阅失败：解析
+  ///
+  /// In zh, this message translates to:
+  /// **'解析失败：该地址的内容不是可解析的 RSS/Atom'**
+  String get subscriptionErrorParse;
+
+  /// 添加订阅失败：存储
+  ///
+  /// In zh, this message translates to:
+  /// **'本地存储失败，本次改动没有保存'**
+  String get subscriptionErrorStorage;
+
+  /// 新建分组入口
+  ///
+  /// In zh, this message translates to:
+  /// **'新建分组'**
+  String get subscriptionNewGroup;
+
+  /// 分组名称输入标签
+  ///
+  /// In zh, this message translates to:
+  /// **'分组名称'**
+  String get subscriptionGroupNameLabel;
+
+  /// 重命名分组菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名'**
+  String get subscriptionGroupRename;
+
+  /// 删除分组菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'删除分组'**
+  String get subscriptionGroupDelete;
+
+  /// 置顶分组菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'置顶分组'**
+  String get subscriptionGroupPin;
+
+  /// 取消置顶菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'取消置顶'**
+  String get subscriptionGroupUnpin;
+
+  /// 置顶徽标
+  ///
+  /// In zh, this message translates to:
+  /// **'置顶'**
+  String get subscriptionPinnedBadge;
+
+  /// 未分类保留组的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'保留分组：不能删除或改名，其中订阅可移动'**
+  String get subscriptionReservedGroupNote;
+
+  /// 删除分组确认框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除分组「{name}」'**
+  String subscriptionGroupDeleteTitle(String name);
+
+  /// 删除分组确认框正文
+  ///
+  /// In zh, this message translates to:
+  /// **'该分组下有 {count} 个订阅。请选择处理方式：'**
+  String subscriptionGroupDeleteBody(int count);
+
+  /// 删除分组分支：移动订阅
+  ///
+  /// In zh, this message translates to:
+  /// **'移动到未分类'**
+  String get subscriptionGroupDeleteMoveOption;
+
+  /// 移动分支说明
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅与文章都保留，只改归属'**
+  String get subscriptionGroupDeleteMoveHint;
+
+  /// 删除分组分支：删除订阅
+  ///
+  /// In zh, this message translates to:
+  /// **'删除其中的订阅'**
+  String get subscriptionGroupDeleteFeedsOption;
+
+  /// 删除订阅分支说明（本期为预留）
+  ///
+  /// In zh, this message translates to:
+  /// **'保留收藏选项在 T018 生效；本期只记录，不会真正删除'**
+  String get subscriptionGroupDeleteFeedsHint;
+
+  /// 预留分支的结果说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已记录 {count} 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据'**
+  String subscriptionGroupDeleteFeedsPending(int count);
+
+  /// 删除分组成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除分组「{name}」，{count} 个订阅已移动到未分类'**
+  String subscriptionGroupDeleted(String name, int count);
+
+  /// 订阅行菜单的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅操作'**
+  String get subscriptionFeedMenu;
+
+  /// 分组行菜单的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'分组操作'**
+  String get subscriptionGroupMenu;
+
+  /// 重命名订阅菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名订阅'**
+  String get subscriptionFeedRename;
+
+  /// 编辑订阅菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑订阅'**
+  String get subscriptionFeedEdit;
+
+  /// 移动订阅菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'移动到分组'**
+  String get subscriptionFeedMove;
+
+  /// 启用订阅自动刷新（SET-022）
+  ///
+  /// In zh, this message translates to:
+  /// **'启用自动刷新'**
+  String get subscriptionFeedEnable;
+
+  /// 停用订阅自动刷新（SET-022）
+  ///
+  /// In zh, this message translates to:
+  /// **'停用自动刷新'**
+  String get subscriptionFeedDisable;
+
+  /// 停用徽标
+  ///
+  /// In zh, this message translates to:
+  /// **'已停用'**
+  String get subscriptionFeedDisabledBadge;
+
+  /// 加精菜单项（SET-023）
+  ///
+  /// In zh, this message translates to:
+  /// **'加精'**
+  String get subscriptionFeedFavorite;
+
+  /// 取消加精菜单项
+  ///
+  /// In zh, this message translates to:
+  /// **'取消加精'**
+  String get subscriptionFeedUnfavorite;
+
+  /// 订阅行未读数
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 未读'**
+  String subscriptionUnreadCount(int count);
+
+  /// 订阅管理页空态标题
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有订阅'**
+  String get subscriptionEmptyTitle;
+
+  /// 订阅管理页空态正文
+  ///
+  /// In zh, this message translates to:
+  /// **'点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。'**
+  String get subscriptionEmptyBody;
+
+  /// 刷新策略区标题（SET-020/021）
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新策略'**
+  String get subscriptionRefreshPolicyTitle;
+
+  /// 刷新策略范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。'**
+  String get subscriptionRefreshPolicyNote;
+
+  /// SET-020 开关标签
+  ///
+  /// In zh, this message translates to:
+  /// **'全局自动刷新'**
+  String get subscriptionGlobalRefreshLabel;
+
+  /// SET-020 间隔标签
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新间隔'**
+  String get subscriptionGlobalIntervalLabel;
+
+  /// SET-021 开关标签
+  ///
+  /// In zh, this message translates to:
+  /// **'启动时刷新'**
+  String get subscriptionStartupRefreshLabel;
+
+  /// 单源刷新间隔：跟随全局
+  ///
+  /// In zh, this message translates to:
+  /// **'继承全局'**
+  String get subscriptionIntervalInherit;
+
+  /// 刷新间隔：手动（SET-020 取值）
+  ///
+  /// In zh, this message translates to:
+  /// **'手动'**
+  String get subscriptionIntervalManual;
+
+  /// 刷新间隔的分钟文案
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes} 分钟'**
+  String subscriptionIntervalMinutes(String minutes);
+
+  /// SET-022 单源刷新间隔标签
+  ///
+  /// In zh, this message translates to:
+  /// **'该源刷新间隔'**
+  String get subscriptionFeedIntervalLabel;
+
+  /// 移动订阅对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'把「{name}」移动到分组'**
+  String subscriptionMoveToGroupTitle(String name);
+
+  /// 排序的可达性提示（拖动 + 键盘）
+  ///
+  /// In zh, this message translates to:
+  /// **'拖动把手排序；聚焦把手后用上下方向键也能移动'**
+  String get subscriptionReorderHint;
+
+  /// 折叠状态下的订阅数
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 个订阅（已折叠）'**
+  String subscriptionCollapsedCount(int count);
+
+  /// 分组头部的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}，{count} 个订阅'**
+  String subscriptionGroupHeaderLabel(String name, int count);
+
+  /// 订阅行的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'{name}，{count} 未读'**
+  String subscriptionFeedRowLabel(String name, int count);
+
+  /// 停用订阅的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已停用：自动刷新会跳过该源（SET-022）'**
+  String get subscriptionEnabledNote;
+
+  /// 加精的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'加精只影响显示，不参与新闻选材（SET-023）'**
+  String get subscriptionFavoriteNote;
+
+  /// 排序把手的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'拖动或按上下方向键调整顺序'**
+  String get subscriptionDragHandleLabel;
+
+  /// 把当前项上移一位
+  ///
+  /// In zh, this message translates to:
+  /// **'上移'**
+  String get subscriptionMoveUp;
+
+  /// 把当前项下移一位
+  ///
+  /// In zh, this message translates to:
+  /// **'下移'**
+  String get subscriptionMoveDown;
+
+  /// 重命名订阅对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名订阅'**
+  String get subscriptionFeedRenameTitle;
+
+  /// 重命名分组对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'重命名分组'**
+  String get subscriptionGroupRenameTitle;
+
+  /// 新建分组对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'新建分组'**
+  String get subscriptionNewGroupTitle;
+
+  /// 分组名校验失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'分组名称不能为空'**
+  String get subscriptionInvalidGroupName;
+
+  /// 订阅名校验失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅名称不能为空'**
+  String get subscriptionInvalidFeedName;
+
+  /// 移动到分组对话框里「不归入任何分组」的选项
+  ///
+  /// In zh, this message translates to:
+  /// **'未分组'**
+  String get subscriptionUngrouped;
+
+  /// 保留组的显示名；保留组不可改名，因此显示名来自资源而不是数据库
+  ///
+  /// In zh, this message translates to:
+  /// **'未分类'**
+  String get subscriptionReservedGroupName;
 }
 
 class _AppLocalizationsDelegate

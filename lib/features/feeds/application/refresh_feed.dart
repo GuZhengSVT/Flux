@@ -22,6 +22,7 @@ import 'package:flux/core/core.dart';
 
 import '../domain/article_identity.dart';
 import '../domain/content_sanitizer.dart';
+import '../domain/feed_import_builder.dart';
 import '../domain/feed_parser.dart';
 
 /// 刷新一个源所需的一切外部依赖（显式传入，便于测试替换）。
@@ -215,36 +216,23 @@ class RefreshFeedUseCase {
     final ParsedFeed feed = parsed.unwrap();
 
     // ---- 4. 规范化身份 + 清洗正文 -------------------------------------------
+    // 组装规则集中在 feed_import_builder.dart：「添加订阅」的预览→确认（T014）与
+    // OPML 批量导入（T015）必须走**同一条**身份/清洗路径，否则同一篇文章经不同入口
+    // 进来会算出不同的指纹。
     final String feedIdentity =
         normalizeLink(request.url.toString()) ?? request.url.toString();
-    final List<NormalizedEntry> normalized = normalizeEntries(
-      entries: feed.entries,
+    final FeedImportBatch batch = buildFeedImportBatch(
+      feedId: request.feedId,
+      feed: feed,
       feedIdentity: feedIdentity,
+      fetchedAt: now,
+      sanitizerLimits: sanitizerLimits,
     );
-
-    final List<ArticleImport> imports = <ArticleImport>[];
-    int sanitizerLosses = 0;
-    for (final NormalizedEntry entry in normalized) {
-      final SanitizerReport report = sanitizeHtmlToDocument(
-        entry.entry.contentHtml,
-        limits: sanitizerLimits,
-      );
-      if (report.isLossy) {
-        sanitizerLosses++;
-      }
-      imports.add(
-        _toImport(
-          feedId: request.feedId,
-          entry: entry,
-          report: report,
-          fetchedAt: now,
-        ),
-      );
-    }
-    if (sanitizerLosses > 0) {
+    final List<ArticleImport> imports = batch.imports;
+    if (batch.sanitizerLosses > 0) {
       // 记录数量而不是内容：正文属于用户数据，日志只留可核对的计数。
       diagnostics.warning(
-        '正文清洗丢弃了部分内容：${_describe(request)} — $sanitizerLosses 条',
+        '正文清洗丢弃了部分内容：${_describe(request)} — ${batch.sanitizerLosses} 条',
         tag: 'feed.sanitize',
       );
     }
@@ -312,75 +300,6 @@ class RefreshFeedUseCase {
       rejectedEntries: feed.rejectedEntries,
       finalUri: response.finalUri,
     );
-  }
-
-  /// 把规范化条目 + 清洗结果组装成待入库项。
-  ArticleImport _toImport({
-    required int feedId,
-    required NormalizedEntry entry,
-    required SanitizerReport report,
-    required DateTime fetchedAt,
-  }) {
-    final ParsedFeedEntry raw = entry.entry;
-    // 正文 = 清洗后的受控文档的纯文本导出。用纯文本而不是 HTML 落库的原因：
-    //   1) 「正文哈希变化 → 更新正文」需要一个**稳定**的修订判据，而未清洗的 HTML 里
-    //      标签属性/空白/跟踪参数的微小变化会产生大量假修订；
-    //   2) 受控文档树由渲染层按节点重建，落库只需要文本内容；
-    //   3) 清洗已经把受控节点白名单化，不存在把原始 HTML 当权威的问题。
-    final String? body = report.document.isEmpty
-        ? null
-        : docDocumentPlainText(report.document.children).trim();
-
-    final bool hasSourceBody = body != null && body.isNotEmpty;
-    // 完整性判定：有正文按「来源正文」，只有摘要按「摘要」。unknown 留给提取失败等
-    // 尚未判定的情况（T024 的静态提取会产出 extracted）。
-    final BodyCompleteness completeness = hasSourceBody
-        ? BodyCompleteness.sourceBody
-        : BodyCompleteness.summaryOnly;
-
-    return ArticleImport(
-      feedId: feedId,
-      title: raw.title.isEmpty ? _fallbackTitle(raw) : raw.title,
-      identityBasis: entry.identityBasis,
-      guid: entry.guid,
-      guidPresent: entry.guidPresent,
-      normalizedLink: entry.normalizedLink,
-      sourceUrl: entry.sourceUrl,
-      fallbackFingerprint: entry.fallbackFingerprint,
-      fingerprintReliability: entry.fingerprintReliability,
-      author: raw.author,
-      // 无日期用抓取时间：架构 4.1 要求「发布时间未知则使用抓取时间排序并注明」。
-      // 注明的方式是把 publishedAt 置为 null、由界面对比 fetchedAt 判断，因此这里
-      // **不**伪造 publishedAt——那会让「未知」变成「源声明的时刻」。
-      publishedAt: raw.publishedAt,
-      fetchedAt: fetchedAt,
-      body: hasSourceBody ? body : null,
-      bodyCompleteness: completeness,
-      bodyHash: hasSourceBody ? bodyHashOf(body) : null,
-      summary: _summaryOf(raw),
-    );
-  }
-
-  /// 无标题条目的兜底标题：用链接或日期构造，绝不留空。
-  ///
-  /// 空标题在列表里会变成一行空白，用户无法判断那是什么；用链接至少可以识别。
-  static String _fallbackTitle(ParsedFeedEntry entry) {
-    final String? link = entry.link ?? entry.guid;
-    if (link != null && link.isNotEmpty) {
-      return link;
-    }
-    return '(无标题)';
-  }
-
-  /// 摘要：优先源内摘要，缺失时截取正文（架构 4.1：摘要优先源内摘要）。
-  static String? _summaryOf(ParsedFeedEntry entry) {
-    final String? summary = entry.summary;
-    if (summary == null || summary.isEmpty) {
-      return null;
-    }
-    // 源内摘要可能是 HTML：清洗成纯文本，避免列表里出现尖括号标签。
-    final String plain = sanitizeHtmlToPlainText(summary);
-    return plain.isEmpty ? null : plain;
   }
 
   /// 记录抓取结果（诊断列 + 条件请求缓存）。

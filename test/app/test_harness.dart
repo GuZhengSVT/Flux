@@ -82,7 +82,12 @@ final class TestBootstrap {
   /// 与生产**共用** [bootstrapOverrides] 的字段清单，但这里直接构造
   /// AppBootstrapResult：测试需要显式控制「降级」与「数据库可用」两种启动结果，
   /// 而不必真的制造一个磁盘错误。
-  List<Override> overrides() {
+  /// 生成组合根 overrides。
+  ///
+  /// [feedFetcher] 让订阅管理相关的测试注入固定的抓取响应（不联网）；为空时用
+  /// 生产实现。放在这里而不是让测试各自 override：Riverpod 不允许同一容器内
+  /// 重复覆盖一个 Provider，而这里正是生产装配路径上的那个位置。
+  List<Override> overrides({FeedFetcher? feedFetcher}) {
     return bootstrapOverrides(
       AppBootstrapResult(
         database: degraded ? null : database,
@@ -101,6 +106,7 @@ final class TestBootstrap {
         diagnosticLog: diagnosticLog,
         dataDirectoryPath: null,
       ),
+      feedFetcher: feedFetcher,
     );
   }
 

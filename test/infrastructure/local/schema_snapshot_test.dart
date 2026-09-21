@@ -258,6 +258,47 @@ void main() {
           'last_refresh_error_kind',
         ]),
       );
+      // v4 快照是 T014 的真实增量迁移基线（订阅表补 enabled 列）。同样必须在版本
+      // 提升后立刻导出，否则无法用 drift 校验 v3→v4 的迁移正确性。
+      final File v4Snapshot = File('drift_schemas/drift_schema_v4.json');
+      expect(
+        v4Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v4 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v4Decoded =
+          jsonDecode(v4Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v4Entities =
+          (v4Decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Set<String> v4Names = v4Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      // v4 同样只加列、不增删表：实体集合应与 v3 完全一致。
+      expect(v4Names, v3Names, reason: 'v4 只给 feeds 加 enabled，不得新增或删除实体');
+
+      final Map<String, dynamic> v4FeedsEntity = v4Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'feeds',
+      );
+      final Set<String> v4FeedColumns =
+          ((v4FeedsEntity['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(v4FeedColumns, contains('enabled'));
+      // v4 必须保留 v3 已有的三列：只加列不等于可以丢列。
+      expect(
+        v4FeedColumns,
+        containsAll(<String>[
+          'last_checked_at',
+          'last_refresh_result',
+          'last_refresh_error_kind',
+        ]),
+      );
     });
   });
 }

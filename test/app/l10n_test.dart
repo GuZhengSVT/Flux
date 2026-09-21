@@ -139,8 +139,9 @@ void main() {
       );
       // 105 条消息（T011 交付 90 条，T012 新增 15 条共享控件文案）；
       // 数量变化必须显式改这里，避免 ARB 被误删条目而无人察觉。
-      expect(_messageKeys(zh).length, 105);
-      expect(_messageKeys(en).length, 105);
+      // T014 新增 82 条订阅管理文案（添加/预览/分组/刷新策略/排序可达性/保留组名）。
+      expect(_messageKeys(zh).length, 187);
+      expect(_messageKeys(en).length, 187);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {
@@ -161,6 +162,36 @@ void main() {
         'controlSuccessLabel',
         'controlErrorLabel',
         'controlDisabledLabelSuffix',
+      ]) {
+        expect(zhKeys, contains(key), reason: '缺少 $key');
+        expect(_messageKeys(en), contains(key), reason: '英文缺少 $key');
+      }
+    });
+    test('T014 订阅管理文案齐备（添加/预览/分组/排序/刷新策略）', () {
+      final Set<String> zhKeys = _messageKeys(zh);
+      for (final String key in <String>[
+        'subscriptionManagerTitle',
+        'subscriptionAddFeedTitle',
+        'subscriptionFeedUrlLabel',
+        'subscriptionPreviewTitle',
+        'subscriptionPreviewDuplicateTitle',
+        'subscriptionConfirmAdd',
+        'subscriptionSave',
+        'subscriptionNewGroupTitle',
+        'subscriptionGroupRename',
+        'subscriptionGroupDelete',
+        'subscriptionGroupDeleteMoveOption',
+        'subscriptionGroupDeleteFeedsOption',
+        'subscriptionGroupDeleteFeedsHint',
+        'subscriptionReservedGroupNote',
+        'subscriptionReservedGroupName',
+        'subscriptionFeedEnable',
+        'subscriptionFeedDisable',
+        'subscriptionFeedFavorite',
+        'subscriptionGlobalRefreshLabel',
+        'subscriptionStartupRefreshLabel',
+        'subscriptionReorderHint',
+        'subscriptionDragHandleLabel',
       ]) {
         expect(zhKeys, contains(key), reason: '缺少 $key');
         expect(_messageKeys(en), contains(key), reason: '英文缺少 $key');

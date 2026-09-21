@@ -455,5 +455,440 @@
   "controlDisabledLabelSuffix": "不可用",
   "@controlDisabledLabelSuffix": {
     "description": "禁用态附在控件读屏标签后，说明当前不可操作"
+  },
+
+  "subscriptionManagerTitle": "订阅管理",
+  "@subscriptionManagerTitle": {
+    "description": "订阅管理页标题"
+  },
+  "subscriptionManagerNotice": "本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。",
+  "@subscriptionManagerNotice": {
+    "description": "订阅管理页的范围说明，避免被当成已交付文章列表"
+  },
+  "subscriptionGroupsSection": "分组与订阅",
+  "@subscriptionGroupsSection": {
+    "description": "分组列表小节标题"
+  },
+  "subscriptionAddFeed": "添加订阅",
+  "@subscriptionAddFeed": {
+    "description": "添加单个订阅的入口"
+  },
+  "subscriptionAddFeedTitle": "添加订阅",
+  "@subscriptionAddFeedTitle": {
+    "description": "添加订阅对话框标题"
+  },
+  "subscriptionFeedUrlLabel": "订阅地址",
+  "@subscriptionFeedUrlLabel": {
+    "description": "订阅地址输入框标签"
+  },
+  "subscriptionFeedUrlHint": "完整的 http/https 地址，例如 https://example.com/feed.xml",
+  "@subscriptionFeedUrlHint": {
+    "description": "订阅地址输入提示"
+  },
+  "subscriptionPreviewAction": "预览",
+  "@subscriptionPreviewAction": {
+    "description": "抓取并解析地址，展示预览"
+  },
+  "subscriptionPreviewTitle": "预览结果",
+  "@subscriptionPreviewTitle": {
+    "description": "预览结果区标题"
+  },
+  "subscriptionPreviewFormat": "格式",
+  "@subscriptionPreviewFormat": {
+    "description": "预览项：源格式"
+  },
+  "subscriptionPreviewEntries": "{count} 篇文章",
+  "@subscriptionPreviewEntries": {
+    "description": "预览项：解析出的文章数",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "subscriptionPreviewRejected": "{count} 条被跳过",
+  "@subscriptionPreviewRejected": {
+    "description": "预览项：因缺少必需字段被跳过的条目数",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "subscriptionPreviewNormalized": "规范化地址",
+  "@subscriptionPreviewNormalized": {
+    "description": "预览项：用于匹配与去重的规范化地址"
+  },
+  "subscriptionPreviewDuplicateTitle": "该地址已订阅",
+  "@subscriptionPreviewDuplicateTitle": {
+    "description": "重复添加时的预览标题"
+  },
+  "subscriptionPreviewDuplicateBody": "已存在该地址的订阅「{name}」。原有的分组、加精与刷新设置都保留，没有做任何改动。",
+  "@subscriptionPreviewDuplicateBody": {
+    "description": "重复添加的说明",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "示例博客"
+      }
+    }
+  },
+  "subscriptionConfirmAdd": "确认添加",
+  "@subscriptionConfirmAdd": {
+    "description": "确认入库"
+  },
+  "subscriptionCancel": "取消",
+  "@subscriptionCancel": {
+    "description": "取消对话框"
+  },
+  "subscriptionSave": "保存",
+  "@subscriptionSave": {
+    "description": "保存名称类对话框（改名/新建分组）"
+  },
+  "subscriptionClose": "关闭",
+  "@subscriptionClose": {
+    "description": "关闭对话框"
+  },
+  "subscriptionFeedNameLabel": "显示名称",
+  "@subscriptionFeedNameLabel": {
+    "description": "订阅显示名称输入标签"
+  },
+  "subscriptionFeedGroupLabel": "归属分组",
+  "@subscriptionFeedGroupLabel": {
+    "description": "订阅归属分组选择标签"
+  },
+  "subscriptionAddSuccess": "已添加「{name}」，导入 {count} 篇文章",
+  "@subscriptionAddSuccess": {
+    "description": "添加订阅成功后的提示",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "示例博客"
+      },
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "subscriptionAddSuccessEmpty": "已添加「{name}」，源里暂时没有可导入的文章",
+  "@subscriptionAddSuccessEmpty": {
+    "description": "添加成功但源里没有条目时的提示",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "示例博客"
+      }
+    }
+  },
+  "subscriptionErrorInvalidUrl": "地址不合法：请输入完整的 http/https 订阅地址",
+  "@subscriptionErrorInvalidUrl": {
+    "description": "添加订阅失败：地址非法"
+  },
+  "subscriptionErrorNetwork": "抓取失败：请检查网络后重试",
+  "@subscriptionErrorNetwork": {
+    "description": "添加订阅失败：网络"
+  },
+  "subscriptionErrorParse": "解析失败：该地址的内容不是可解析的 RSS/Atom",
+  "@subscriptionErrorParse": {
+    "description": "添加订阅失败：解析"
+  },
+  "subscriptionErrorStorage": "本地存储失败，本次改动没有保存",
+  "@subscriptionErrorStorage": {
+    "description": "添加订阅失败：存储"
+  },
+  "subscriptionNewGroup": "新建分组",
+  "@subscriptionNewGroup": {
+    "description": "新建分组入口"
+  },
+  "subscriptionGroupNameLabel": "分组名称",
+  "@subscriptionGroupNameLabel": {
+    "description": "分组名称输入标签"
+  },
+  "subscriptionGroupRename": "重命名",
+  "@subscriptionGroupRename": {
+    "description": "重命名分组菜单项"
+  },
+  "subscriptionGroupDelete": "删除分组",
+  "@subscriptionGroupDelete": {
+    "description": "删除分组菜单项"
+  },
+  "subscriptionGroupPin": "置顶分组",
+  "@subscriptionGroupPin": {
+    "description": "置顶分组菜单项"
+  },
+  "subscriptionGroupUnpin": "取消置顶",
+  "@subscriptionGroupUnpin": {
+    "description": "取消置顶菜单项"
+  },
+  "subscriptionPinnedBadge": "置顶",
+  "@subscriptionPinnedBadge": {
+    "description": "置顶徽标"
+  },
+  "subscriptionReservedGroupNote": "保留分组：不能删除或改名，其中订阅可移动",
+  "@subscriptionReservedGroupNote": {
+    "description": "未分类保留组的说明"
+  },
+  "subscriptionGroupDeleteTitle": "删除分组「{name}」",
+  "@subscriptionGroupDeleteTitle": {
+    "description": "删除分组确认框标题",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "技术"
+      }
+    }
+  },
+  "subscriptionGroupDeleteBody": "该分组下有 {count} 个订阅。请选择处理方式：",
+  "@subscriptionGroupDeleteBody": {
+    "description": "删除分组确认框正文",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionGroupDeleteMoveOption": "移动到未分类",
+  "@subscriptionGroupDeleteMoveOption": {
+    "description": "删除分组分支：移动订阅"
+  },
+  "subscriptionGroupDeleteMoveHint": "订阅与文章都保留，只改归属",
+  "@subscriptionGroupDeleteMoveHint": {
+    "description": "移动分支说明"
+  },
+  "subscriptionGroupDeleteFeedsOption": "删除其中的订阅",
+  "@subscriptionGroupDeleteFeedsOption": {
+    "description": "删除分组分支：删除订阅"
+  },
+  "subscriptionGroupDeleteFeedsHint": "保留收藏选项在 T018 生效；本期只记录，不会真正删除",
+  "@subscriptionGroupDeleteFeedsHint": {
+    "description": "删除订阅分支说明（本期为预留）"
+  },
+  "subscriptionGroupDeleteFeedsPending": "已记录 {count} 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据",
+  "@subscriptionGroupDeleteFeedsPending": {
+    "description": "预留分支的结果说明",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionGroupDeleted": "已删除分组「{name}」，{count} 个订阅已移动到未分类",
+  "@subscriptionGroupDeleted": {
+    "description": "删除分组成功提示",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "技术"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "subscriptionFeedMenu": "订阅操作",
+  "@subscriptionFeedMenu": {
+    "description": "订阅行菜单的读屏标签"
+  },
+  "subscriptionGroupMenu": "分组操作",
+  "@subscriptionGroupMenu": {
+    "description": "分组行菜单的读屏标签"
+  },
+  "subscriptionFeedRename": "重命名订阅",
+  "@subscriptionFeedRename": {
+    "description": "重命名订阅菜单项"
+  },
+  "subscriptionFeedEdit": "编辑订阅",
+  "@subscriptionFeedEdit": {
+    "description": "编辑订阅菜单项"
+  },
+  "subscriptionFeedMove": "移动到分组",
+  "@subscriptionFeedMove": {
+    "description": "移动订阅菜单项"
+  },
+  "subscriptionFeedEnable": "启用自动刷新",
+  "@subscriptionFeedEnable": {
+    "description": "启用订阅自动刷新（SET-022）"
+  },
+  "subscriptionFeedDisable": "停用自动刷新",
+  "@subscriptionFeedDisable": {
+    "description": "停用订阅自动刷新（SET-022）"
+  },
+  "subscriptionFeedDisabledBadge": "已停用",
+  "@subscriptionFeedDisabledBadge": {
+    "description": "停用徽标"
+  },
+  "subscriptionFeedFavorite": "加精",
+  "@subscriptionFeedFavorite": {
+    "description": "加精菜单项（SET-023）"
+  },
+  "subscriptionFeedUnfavorite": "取消加精",
+  "@subscriptionFeedUnfavorite": {
+    "description": "取消加精菜单项"
+  },
+  "subscriptionUnreadCount": "{count} 未读",
+  "@subscriptionUnreadCount": {
+    "description": "订阅行未读数",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionEmptyTitle": "还没有订阅",
+  "@subscriptionEmptyTitle": {
+    "description": "订阅管理页空态标题"
+  },
+  "subscriptionEmptyBody": "点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。",
+  "@subscriptionEmptyBody": {
+    "description": "订阅管理页空态正文"
+  },
+  "subscriptionRefreshPolicyTitle": "刷新策略",
+  "@subscriptionRefreshPolicyTitle": {
+    "description": "刷新策略区标题（SET-020/021）"
+  },
+  "subscriptionRefreshPolicyNote": "这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。",
+  "@subscriptionRefreshPolicyNote": {
+    "description": "刷新策略范围说明"
+  },
+  "subscriptionGlobalRefreshLabel": "全局自动刷新",
+  "@subscriptionGlobalRefreshLabel": {
+    "description": "SET-020 开关标签"
+  },
+  "subscriptionGlobalIntervalLabel": "刷新间隔",
+  "@subscriptionGlobalIntervalLabel": {
+    "description": "SET-020 间隔标签"
+  },
+  "subscriptionStartupRefreshLabel": "启动时刷新",
+  "@subscriptionStartupRefreshLabel": {
+    "description": "SET-021 开关标签"
+  },
+  "subscriptionIntervalInherit": "继承全局",
+  "@subscriptionIntervalInherit": {
+    "description": "单源刷新间隔：跟随全局"
+  },
+  "subscriptionIntervalManual": "手动",
+  "@subscriptionIntervalManual": {
+    "description": "刷新间隔：手动（SET-020 取值）"
+  },
+  "subscriptionIntervalMinutes": "{minutes} 分钟",
+  "@subscriptionIntervalMinutes": {
+    "description": "刷新间隔的分钟文案",
+    "placeholders": {
+      "minutes": {
+        "type": "String",
+        "example": "60"
+      }
+    }
+  },
+  "subscriptionFeedIntervalLabel": "该源刷新间隔",
+  "@subscriptionFeedIntervalLabel": {
+    "description": "SET-022 单源刷新间隔标签"
+  },
+  "subscriptionMoveToGroupTitle": "把「{name}」移动到分组",
+  "@subscriptionMoveToGroupTitle": {
+    "description": "移动订阅对话框标题",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "示例博客"
+      }
+    }
+  },
+  "subscriptionReorderHint": "拖动把手排序；聚焦把手后用上下方向键也能移动",
+  "@subscriptionReorderHint": {
+    "description": "排序的可达性提示（拖动 + 键盘）"
+  },
+  "subscriptionCollapsedCount": "{count} 个订阅（已折叠）",
+  "@subscriptionCollapsedCount": {
+    "description": "折叠状态下的订阅数",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionGroupHeaderLabel": "{name}，{count} 个订阅",
+  "@subscriptionGroupHeaderLabel": {
+    "description": "分组头部的读屏标签",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "技术"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionFeedRowLabel": "{name}，{count} 未读",
+  "@subscriptionFeedRowLabel": {
+    "description": "订阅行的读屏标签",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "示例博客"
+      },
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "subscriptionEnabledNote": "已停用：自动刷新会跳过该源（SET-022）",
+  "@subscriptionEnabledNote": {
+    "description": "停用订阅的说明"
+  },
+  "subscriptionFavoriteNote": "加精只影响显示，不参与新闻选材（SET-023）",
+  "@subscriptionFavoriteNote": {
+    "description": "加精的说明"
+  },
+  "subscriptionDragHandleLabel": "拖动或按上下方向键调整顺序",
+  "@subscriptionDragHandleLabel": {
+    "description": "排序把手的读屏标签"
+  },
+  "subscriptionMoveUp": "上移",
+  "@subscriptionMoveUp": {
+    "description": "把当前项上移一位"
+  },
+  "subscriptionMoveDown": "下移",
+  "@subscriptionMoveDown": {
+    "description": "把当前项下移一位"
+  },
+  "subscriptionFeedRenameTitle": "重命名订阅",
+  "@subscriptionFeedRenameTitle": {
+    "description": "重命名订阅对话框标题"
+  },
+  "subscriptionGroupRenameTitle": "重命名分组",
+  "@subscriptionGroupRenameTitle": {
+    "description": "重命名分组对话框标题"
+  },
+  "subscriptionNewGroupTitle": "新建分组",
+  "@subscriptionNewGroupTitle": {
+    "description": "新建分组对话框标题"
+  },
+  "subscriptionInvalidGroupName": "分组名称不能为空",
+  "@subscriptionInvalidGroupName": {
+    "description": "分组名校验失败文案"
+  },
+  "subscriptionInvalidFeedName": "订阅名称不能为空",
+  "@subscriptionInvalidFeedName": {
+    "description": "订阅名校验失败文案"
+  },
+  "subscriptionUngrouped": "未分组",
+  "@subscriptionUngrouped": {
+    "description": "移动到分组对话框里「不归入任何分组」的选项"
+  },
+  "subscriptionReservedGroupName": "未分类",
+  "@subscriptionReservedGroupName": {
+    "description": "保留组的显示名；保留组不可改名，因此显示名来自资源而不是数据库"
   }
 }

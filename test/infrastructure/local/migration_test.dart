@@ -1,4 +1,4 @@
-// T009（T010 更新为 v2 基线，T013 更新为 v3 基线）：迁移安全。
+// T009（T010 改为 v2 基线，T013 改为 v3 基线，T014 改为 v4 基线）：迁移安全。
 //
 // 三条硬要求（架构 5.3「旧版本不能写较新 schema」、手册 6.3「恢复」）：
 //   1) 正常按当前 schemaVersion 建库成功；
@@ -6,9 +6,10 @@
 //   3) 迁移步骤自身失败时同样不得重建，原有数据必须保持可回退。
 //
 // T010 把 schemaVersion 提到 2（新增 settings 表）、T013 提到 3（订阅表补抓取
-// 诊断列）后，本文件里的「当前版本」相应改为 3，而「代码比库新但迁移写坏」的场景
-// 用**比当前版本再高一级**的坏实现模拟（现为 v4）；真正的增量迁移正确性由
-// migration_v1_to_v2_test.dart / migration_v2_to_v3_test.dart 用 drift 快照校验。
+// 诊断列）、T014 提到 4（订阅表补启用列）后，本文件里的「当前版本」相应改为 4，
+// 而「代码比库新但迁移写坏」的场景用**比当前版本再高一级**的坏实现模拟（现为 v5）；
+// 真正的增量迁移正确性由 migration_v1_to_v2_test.dart 与
+// migration_v2_to_current_test.dart 用 drift 快照校验。
 //
 // 测试策略：优先使用内存库与共享的原始 sqlite3 句柄，避免磁盘残留；
 // 另有一条真实文件用例，用于直接证明“磁盘上的文件在失败后未被改动”。
@@ -33,7 +34,7 @@ class _FailingUpgradeDatabase extends AppDatabase {
   _FailingUpgradeDatabase(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   drift.MigrationStrategy get migration => drift.MigrationStrategy(
@@ -103,7 +104,7 @@ void main() {
       await second.close();
 
       expect(_rowCount(raw, 'groups'), 1);
-      expect(_userVersion(raw), 3);
+      expect(_userVersion(raw), 4);
     });
   });
 
@@ -219,9 +220,9 @@ void main() {
             ),
           );
       await before.close();
-      expect(_userVersion(raw), 3);
+      expect(_userVersion(raw), 4);
 
-      // 用“代码已是 v4 但迁移写坏”的版本打开同一库。
+      // 用“代码已是 v5 但迁移写坏”的版本打开同一库。
       final _FailingUpgradeDatabase broken = _FailingUpgradeDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
       );
@@ -230,8 +231,8 @@ void main() {
         throwsA(isA<StorageError>()),
       );
 
-      // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成 v4。
-      expect(_userVersion(raw), 3, reason: '迁移失败不得推进版本号');
+      // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成 v5。
+      expect(_userVersion(raw), 4, reason: '迁移失败不得推进版本号');
       expect(
         raw.select('SELECT name FROM feeds').single['name'],
         '升级前就有的源',

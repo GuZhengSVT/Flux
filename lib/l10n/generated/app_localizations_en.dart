@@ -357,4 +357,296 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get controlDisabledLabelSuffix => 'unavailable';
+
+  @override
+  String get subscriptionManagerTitle => 'Subscriptions';
+
+  @override
+  String get subscriptionManagerNotice =>
+      'This page manages feeds and groups; the article list and batch state actions ship in T017-T019.';
+
+  @override
+  String get subscriptionGroupsSection => 'Groups and feeds';
+
+  @override
+  String get subscriptionAddFeed => 'Add feed';
+
+  @override
+  String get subscriptionAddFeedTitle => 'Add a feed';
+
+  @override
+  String get subscriptionFeedUrlLabel => 'Feed address';
+
+  @override
+  String get subscriptionFeedUrlHint =>
+      'A full http/https address, for example https://example.com/feed.xml';
+
+  @override
+  String get subscriptionPreviewAction => 'Preview';
+
+  @override
+  String get subscriptionPreviewTitle => 'Preview';
+
+  @override
+  String get subscriptionPreviewFormat => 'Format';
+
+  @override
+  String subscriptionPreviewEntries(int count) {
+    return '$count articles';
+  }
+
+  @override
+  String subscriptionPreviewRejected(int count) {
+    return '$count entries skipped';
+  }
+
+  @override
+  String get subscriptionPreviewNormalized => 'Normalised address';
+
+  @override
+  String get subscriptionPreviewDuplicateTitle =>
+      'This address is already subscribed';
+
+  @override
+  String subscriptionPreviewDuplicateBody(String name) {
+    return 'A subscription to this address already exists (\"$name\"). Its group, featured flag and refresh settings are unchanged.';
+  }
+
+  @override
+  String get subscriptionConfirmAdd => 'Add';
+
+  @override
+  String get subscriptionCancel => 'Cancel';
+
+  @override
+  String get subscriptionSave => 'Save';
+
+  @override
+  String get subscriptionClose => 'Close';
+
+  @override
+  String get subscriptionFeedNameLabel => 'Display name';
+
+  @override
+  String get subscriptionFeedGroupLabel => 'Group';
+
+  @override
+  String subscriptionAddSuccess(String name, int count) {
+    return 'Added \"$name\" with $count articles';
+  }
+
+  @override
+  String subscriptionAddSuccessEmpty(String name) {
+    return 'Added \"$name\"; the feed has no articles to import right now';
+  }
+
+  @override
+  String get subscriptionErrorInvalidUrl =>
+      'Invalid address: enter a full http/https feed URL';
+
+  @override
+  String get subscriptionErrorNetwork =>
+      'Fetch failed: check the network and try again';
+
+  @override
+  String get subscriptionErrorParse =>
+      'Parse failed: this address does not serve RSS/Atom';
+
+  @override
+  String get subscriptionErrorStorage =>
+      'Local storage failed; nothing was saved';
+
+  @override
+  String get subscriptionNewGroup => 'New group';
+
+  @override
+  String get subscriptionGroupNameLabel => 'Group name';
+
+  @override
+  String get subscriptionGroupRename => 'Rename';
+
+  @override
+  String get subscriptionGroupDelete => 'Delete group';
+
+  @override
+  String get subscriptionGroupPin => 'Pin group';
+
+  @override
+  String get subscriptionGroupUnpin => 'Unpin';
+
+  @override
+  String get subscriptionPinnedBadge => 'Pinned';
+
+  @override
+  String get subscriptionReservedGroupNote =>
+      'Reserved group: it cannot be deleted or renamed, but its feeds can be moved';
+
+  @override
+  String subscriptionGroupDeleteTitle(String name) {
+    return 'Delete group \"$name\"';
+  }
+
+  @override
+  String subscriptionGroupDeleteBody(int count) {
+    return 'This group holds $count feeds. Choose what happens to them:';
+  }
+
+  @override
+  String get subscriptionGroupDeleteMoveOption => 'Move to Uncategorized';
+
+  @override
+  String get subscriptionGroupDeleteMoveHint =>
+      'Feeds and articles are kept; only the group changes';
+
+  @override
+  String get subscriptionGroupDeleteFeedsOption => 'Delete the feeds';
+
+  @override
+  String get subscriptionGroupDeleteFeedsHint =>
+      'Keeping favourites takes effect in T018; for now this is recorded only and nothing is deleted';
+
+  @override
+  String subscriptionGroupDeleteFeedsPending(int count) {
+    return 'Recorded $count feeds as pending; the keep-favourites rule lands in T018 and nothing was deleted here';
+  }
+
+  @override
+  String subscriptionGroupDeleted(String name, int count) {
+    return 'Deleted group \"$name\"; $count feeds moved to Uncategorized';
+  }
+
+  @override
+  String get subscriptionFeedMenu => 'Feed actions';
+
+  @override
+  String get subscriptionGroupMenu => 'Group actions';
+
+  @override
+  String get subscriptionFeedRename => 'Rename feed';
+
+  @override
+  String get subscriptionFeedEdit => 'Edit feed';
+
+  @override
+  String get subscriptionFeedMove => 'Move to group';
+
+  @override
+  String get subscriptionFeedEnable => 'Enable automatic refresh';
+
+  @override
+  String get subscriptionFeedDisable => 'Pause automatic refresh';
+
+  @override
+  String get subscriptionFeedDisabledBadge => 'Paused';
+
+  @override
+  String get subscriptionFeedFavorite => 'Mark as featured';
+
+  @override
+  String get subscriptionFeedUnfavorite => 'Remove featured mark';
+
+  @override
+  String subscriptionUnreadCount(int count) {
+    return '$count unread';
+  }
+
+  @override
+  String get subscriptionEmptyTitle => 'No subscriptions yet';
+
+  @override
+  String get subscriptionEmptyBody =>
+      'Use Add feed to enter an RSS/Atom address; OPML import and export ship in T015.';
+
+  @override
+  String get subscriptionRefreshPolicyTitle => 'Refresh policy';
+
+  @override
+  String get subscriptionRefreshPolicyNote =>
+      'These are saved settings only; background scheduling lands in T016, so nothing goes online from this page yet.';
+
+  @override
+  String get subscriptionGlobalRefreshLabel => 'Global automatic refresh';
+
+  @override
+  String get subscriptionGlobalIntervalLabel => 'Refresh interval';
+
+  @override
+  String get subscriptionStartupRefreshLabel => 'Refresh on launch';
+
+  @override
+  String get subscriptionIntervalInherit => 'Use global';
+
+  @override
+  String get subscriptionIntervalManual => 'Manual';
+
+  @override
+  String subscriptionIntervalMinutes(String minutes) {
+    return '$minutes minutes';
+  }
+
+  @override
+  String get subscriptionFeedIntervalLabel => 'Interval for this feed';
+
+  @override
+  String subscriptionMoveToGroupTitle(String name) {
+    return 'Move \"$name\" to a group';
+  }
+
+  @override
+  String get subscriptionReorderHint =>
+      'Drag the handle to reorder; with the handle focused the arrow keys work too';
+
+  @override
+  String subscriptionCollapsedCount(int count) {
+    return '$count feeds (collapsed)';
+  }
+
+  @override
+  String subscriptionGroupHeaderLabel(String name, int count) {
+    return '$name, $count feeds';
+  }
+
+  @override
+  String subscriptionFeedRowLabel(String name, int count) {
+    return '$name, $count unread';
+  }
+
+  @override
+  String get subscriptionEnabledNote =>
+      'Paused: automatic refresh skips this feed (SET-022)';
+
+  @override
+  String get subscriptionFavoriteNote =>
+      'Featured only affects display and never changes news selection (SET-023)';
+
+  @override
+  String get subscriptionDragHandleLabel =>
+      'Drag or press the arrow keys to reorder';
+
+  @override
+  String get subscriptionMoveUp => 'Move up';
+
+  @override
+  String get subscriptionMoveDown => 'Move down';
+
+  @override
+  String get subscriptionFeedRenameTitle => 'Rename feed';
+
+  @override
+  String get subscriptionGroupRenameTitle => 'Rename group';
+
+  @override
+  String get subscriptionNewGroupTitle => 'New group';
+
+  @override
+  String get subscriptionInvalidGroupName => 'Group name cannot be empty';
+
+  @override
+  String get subscriptionInvalidFeedName => 'Feed name cannot be empty';
+
+  @override
+  String get subscriptionUngrouped => 'No group';
+
+  @override
+  String get subscriptionReservedGroupName => 'Uncategorized';
 }

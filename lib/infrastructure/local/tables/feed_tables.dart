@@ -69,7 +69,21 @@ class Feeds extends Table {
   /// 加精：只影响显示与强调，不参与新闻选材（架构 4.1）。
   BoolColumn get favorite => boolean().withDefault(const Constant(false))();
 
+  /// 是否参与自动刷新（SET-022 的「启用」；T014，schema v4）。
+  ///
+  /// 为什么不复用 [refreshIntervalMinutes] 的空值或 0 来表达「禁用」：
+  /// SET-022 把「启用」与「刷新间隔」列为**两个独立**的可配置项，语义也不同——
+  /// 禁用是「这个源我现在不想看它联网」，间隔是「多久检查一次」。用同一个字段
+  /// 表达两者会让「禁用期间保留的间隔设置」无处存放：用户重新启用后，之前设的
+  /// 30 分钟会被抹成默认值。因此单列一个布尔列。
+  ///
+  /// 默认 true：升级前就存在的订阅在用户显式关闭之前照常刷新，不因迁移静默改变行为。
+  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+
   /// 刷新间隔覆盖（分钟）；null 表示跟随全局默认（SET-020 区域）。
+  ///
+  /// 0 表示「手动」：该源不参与定时刷新（SET-022 的 refreshInterval 取值之一），
+  /// 与 [enabled] 的区别是——禁用同时挡住手动刷新入口，手动只是不自动跑。
   IntColumn get refreshIntervalMinutes => integer().nullable()();
 
   /// 组内排序权重（架构 5.1：Feed 含「分组、排序」）。置顶是分组属性，
