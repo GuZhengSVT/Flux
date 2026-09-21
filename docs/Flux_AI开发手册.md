@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的十一项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）、T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）、T014（单源添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护，订阅管理页）、T015（OPML 导入预览/逐项结果/重试与导出，URL 秘密参数排除）、T016（刷新调度：启动/定时/手动触发合并、并发 4、失败隔离、离线与计费网络守卫）、T017（三态阅读/收藏、四类筛选与分页列表、批量范围操作与撤销、打开正文自动标已读）、T018（删除订阅/分组与保留收藏策略，含来源快照与墓碑事件，schema v5）与 T019（正文阅读器：受控文档渲染、代码静态高亮与折叠复制、LaTeX 自绘、目录、上下篇、页内查找、完整性四态）。现状：可启动真实应用并浏览真实文章列表——RSS 去向现在是完整可用的阅读页（筛选、分页、三态、收藏、批量、刷新），点开一篇文章是**真正的阅读器**（标题排版、代码高亮与折叠复制、公式自绘、目录侧栏、上下篇、页内查找、完整性四态），订阅管理里可删除单个订阅或整组并选择是否保留收藏；「今日新闻」仍是明确占位；SET-001 语言、SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6）。图片加载/缓存（T021）、链接外开与选区复制（T020）、宽列表的瀑布流与三栏列表面板、专注模式仍未实现（T019 遗留的卡片三形态、列表虚拟化与返回锚点已在 T019+ 补齐，见 R019a）。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的十三项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）、T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）、T014（单源添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护，订阅管理页）、T015（OPML 导入预览/逐项结果/重试与导出，URL 秘密参数排除）、T016（刷新调度：启动/定时/手动触发合并、并发 4、失败隔离、离线与计费网络守卫）、T017（三态阅读/收藏、四类筛选与分页列表、批量范围操作与撤销、打开正文自动标已读）、T018（删除订阅/分组与保留收藏策略，含来源快照与墓碑事件，schema v5）与 T019（正文阅读器：受控文档渲染、代码静态高亮与折叠复制、LaTeX 自绘、目录、上下篇、页内查找、完整性四态）。现状：可启动真实应用并浏览真实文章列表——RSS 去向现在是完整可用的阅读页（筛选、分页、三态、收藏、批量、刷新），点开一篇文章是**真正的阅读器**（标题排版、代码高亮与折叠复制、公式自绘、目录侧栏、上下篇、页内查找、完整性四态），订阅管理里可删除单个订阅或整组并选择是否保留收藏；「今日新闻」仍是明确占位；SET-001 语言、SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6）。M1 的第十三项 T021 交付**远程图片缓存与图像安全**（受控 MIME/体积/魔数校验、DNS 解析后私网复检、哈希文件名 + SET-080 上限的 LRU 磁盘缓存、解码像素上限、一张失败不阻塞文章），第十四项 T022 交付**中英文全库检索**（实测选定 fts5 trigram：≥3 字符走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串，schema v7 建索引并 rebuild 灌历史文章，搜索框 + 范围 + 结果片段高亮）；宽列表的瀑布流与三栏列表面板、专注模式、阅读统计（T023）仍未实现（T019 遗留的卡片三形态、列表虚拟化与返回锚点已在 T019+ 补齐，见 R019a）。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T020 已完成并有本机证据（T019 的验收缺口已在 T019+ 补齐，见 R019a）；下一任务 T021（远程图片缓存/媒体大小与图像安全），前置 T020 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T022 已完成并有本机证据（T019 的验收缺口已在 T019+ 补齐，见 R019a；T021 与 T022 各有本机证据，见 R021/R022）；下一任务 T023（阅读会话、热力图与七日统计），前置 T009/T019 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -59,7 +59,7 @@
 | RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | DOING（T013 已交付并真实源验证：条件请求/304、限并发与超时、大响应与压缩炸弹防护、DTD/实体拒绝、RSS 2.0/Atom 解析、受控文档树清洗、身份去重与正文修订；T014 交付订阅管理页（添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护）；T015 交付 OPML 导入预览/逐项结果/重试与导出，导出排除内部 ID、加精/刷新偏好、阅读状态与 URL 秘密参数；**T016 交付刷新调度**：启动/定时/手动三种触发按源合并去重、并发上限 4（SET-028）、失败隔离、304 走条件请求、离线与计费网络（SET-013，默认关）在**上网之前**拦下且不推进「上次检查」；桌面端无公开计费网络 API 因此如实记为未实现（见 7.1.9 遗留）；正文阅读产品化仍属 T019） |
 | 文章三态/收藏/批量操作 | F-STATE；SET-010、081 | T017、T018、T045 | DOING（T017 交付：三态与收藏的真实写入与列表操作、四类筛选（later 独立入口）、发布时间倒序分页、批量范围与批量操作可撤销、SET-010 打开正文自动标已读；**T018 交付删除订阅/分组与保留收藏策略**：影响预览（收藏/其他含 later 三个数字）在操作前可见、默认勾选保留、非收藏全清理、收藏脱离源并冻结来源快照、分组两个分支复用同一套规则、删除写入墓碑事件、单事务失败整批回滚，schema v5 让 articles.feed_id 可空；除订阅时的状态同步与删除的跨设备集成仍属 T045）|
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | DOING（**T019 交付正文阅读器**：受控文档树渲染（标题/段落/强调/删除线/引用/列表含任务勾选/链接/图片占位/表格含列对齐/行内代码/围栏代码块+静态高亮+折叠+复制）、LaTeX 单双美元号用 flutter_math_fork 纯自绘（不支持命令显示原式与原因，不留空白）、美元货币转义、正文完整性四态行、目录 h1–h3 侧栏（宽窗）、上下篇按进入时快照（首/尾边界禁用并说明）、页内查找高亮与计数；**T020 交付选区/复制/图片/链接**：SelectionArea 单块选区与自定义选区菜单、复制全文（纯文本重拼）、选词解释入口（未配置提示 + 跳设置，调用属 T034）、图片查看器（全屏/缩放/Esc/保存/分享，SET-012 关闭时占位+点选下载）、外链面板（完整地址 + 复制/打开，危险协议拒绝）、系统分享走 NSSharingServicePicker 且不可用时回退复制；**图片缓存/可控 MIME 与解码限额属 T021、跨块选择属后续（D-15）、卡片三形态与列表虚拟化已由 T019+ 补齐（R019a）、瀑布流与三栏列表面板仍属后续、专注模式属 T051**）|
-| 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | TODO |
+| 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**统计（阅读会话/热力图/七日）属 T023**） |
 | 原站静态全文 | F-READ；D-06 | T024 | TODO |
 | AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | TODO |
 | 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | TODO |
@@ -121,8 +121,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T018 | T014、T017 | 删除订阅/组与保留收藏策略 | 默认保留收藏、其余含 later 清理；分组移动/删除分支、保留来源快照、清理影响预览与墓碑事件，事务失败可回滚 | DONE（13 条用例层覆盖预览只读、保留/不保留两分支、快照冻结、分组两分支、触发器注入的事务回滚；新增 schema v5 迁移 v4→v5 一条并保 v1/v2 两条迁移用例对当前版本；**未**在真实 macOS 窗口里手工点过删除对话框）|
 | T019 | T004、T012、T013、T017 | 列表视图与正文阅读组件产品化 | 所有卡片模式、分页/虚拟化、目录/上下篇/页内查找、代码/公式/摘要完整性、原文不丢；滚动阅读及返回锚点验收 | DONE（受控文档渲染器移植并产品化：22 条解析用例 + 20 条渲染/目录/查找/集成用例 + 4 张 golden；LaTeX 用 flutter_math_fork 0.7.4 纯 Flutter 自绘，不支持命令显示原式与提示。**R019 遗留的三项（卡片三形态、列表虚拟化/分批加载、滚动返回锚点）已在 T019+ 补齐（见 R019a）**：SET-008 三档卡片、每批 100 条的虚拟化列表、返回锚点与换筛选重置；schema v6 新增 articles.image_url 以支撑卡片封面。宽列表的瀑布流/三栏列表面板仍属后续，详见 R019 遗留第 1 条的更新）|
 | T020 | T019 | 单块选区、全文复制、图片查看/保存/链接外开 | 复制/查询占位可接用例，查询未配置提示；危险协议拒绝、远端图片开关、权限拒绝和系统分享回退通过 | DONE（缺失 REVIEW：受控文档渲染区包在 SelectionArea 里做**单块选区**并挂自定义选区菜单（复制 + 解释入口）；「复制全文」按纯文本重拼文档树（段落空行、代码原文、表格竖线、图片不产 alt）；选区查询走「未配置 AI」提示 + 跳设置，**本轮不发任何请求**（调用属 T034）；图片位受 SET-012 控制自动加载、点击进查看器（全屏/双击缩放/Esc/保存/分享），保存走 file_selector 系统面板 + 限长（16 MiB）下载；外链先出面板显示完整地址与复制/打开，javascript:/data:/file: 等被拒（复用 isSafeDocUrl）；系统分享走 macOS NSSharingServicePicker 原生通道，不可用或失败时回退复制。**顺带修掉一个真实缺陷**：行内链接的 recognizer 挂在只有 children 的父 span 上，导致链接此前**从未可点**（详见 R020）。代价/秘密：无 AI 调用、无费用）|
-| T021 | T020 | 远程图片缓存/媒体大小与图像安全 | 受控 MIME/尺寸/重定向、解码限额、磁盘路径和 LRU；一张失败不阻塞文章，计费网络/图片禁加载测试 | TODO |
-| T022 | T009、T019 | 中文/英文全库检索与过滤 | FTS tokenizer 在两平台实际可用，短中文词/连续文本/英文用例、片段高亮、分页、空结果、重建索引期间可阅读 | TODO |
+| T021 | T020 | 远程图片缓存/媒体大小与图像安全 | 受控 MIME/尺寸/重定向、解码限额、磁盘路径和 LRU；一张失败不阻塞文章，计费网络/图片禁加载测试 | DONE（缺失 REVIEW）：受控抓取（MIME 白名单 jpeg/png/gif/webp、单图 4 MiB、重定向逐跳校验、DNS 解析后私网复检、解码前魔数嗅探 + 50 MP 像素上限）、哈希文件名 + SET-080 上限（默认 512 MiB，夹紧 128–4096）+ 按访问时间的 LRU 淘汰 + 内存缓存双上限（100 张 / 128 MiB 取小）、失败占位与重试不阻塞正文、SET-013 计费守卫在发请求前拦下、查看器与保存路径也走同一条管线（修掉 T020 用 Image.network 的旁路）。新增 89 条断言（守卫 9 + 大小/魔数/尺寸 19 + 受控抓取 21 + 磁盘缓存 20 + 加载管线 14 + 组件 6）|
+| T022 | T009、T019 | 中文/英文全库检索与过滤 | FTS tokenizer 在两平台实际可用，短中文词/连续文本/英文用例、片段高亮、分页、空结果、重建索引期间可阅读 | DONE（缺失 REVIEW）：**实测确定 tokenizer 语义**——默认 unicode61 对中文整段成一个 token（MATCH '离线' 零命中），改用 fts5 trigram：≥3 字符连续片段走 MATCH（bm25 排序 + snippet 高亮），任意长度（含 1–2 字中文与「AI」）走 LIKE 子串（LIKE 可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content（避开 rebuild 与触发器不一致），同步靠三个触发器，来源名现查 feeds.name（改名即时生效）；检索分页/空查询/无结果/失败四态可分，范围支持全部与当前筛选；schema v6→v7 含历史文章 rebuild 灌索引；10000 行烟测 MATCH p95 17 ms / LIKE p95 7 ms。新增 87 条断言（查询构造 31 + 数据层 32 + 性能烟测 5 + 迁移 3 + 界面/控制器 13 + 快照与建库 3） |
 | T023 | T009、T019 | 阅读会话、热力图和七日统计 | 前后台/锁屏/失焦暂停、5 分钟空闲、跨午夜/时区、清除统计、图例文字与历史年份通过 | TODO |
 | T024 | T013、T019、T020 | 用户主动获取静态网页正文 | URL/DNS/重定向信任边界、静态抽取/付费墙/JS 站失败、正文修订和外开回退；无隐藏浏览器，无自动全站爬取 | TODO |
 
@@ -1523,6 +1523,213 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
     下一可执行任务及前置条件：T021（远程图片缓存/媒体大小与图像安全），前置 T020 已 DONE；
       T021 接管本轮 Image.network 的加载路径（受控 MIME/尺寸/重定向、解码限额、磁盘 LRU）
 
+
+### 7.1.15 轮次记录 R021（T021）
+
+    轮次/日期：R021 / 2026-09-22
+    任务 ID 与状态变化：T021 TODO → DONE（M1 第十三项；**缺失 REVIEW**，理由同 T020：本任务
+      改了阅读路径的图片加载方式并新增一条出网路径，属该复核的适用范围，本轮未拿到维护者结论）
+    相关决策/功能/SET 项：架构 4.2（图片按需缓存、预留尺寸、失败不阻塞文章；受控 MIME/尺寸/
+      重定向；解码限额）、架构 5.1（不以外部标题直接拼路径）、架构第 8 节（图像安全、不把请求
+      打到内网）、SET-065（单图 4 MiB 的对齐口径）、SET-080（媒体缓存上限 512 MiB / 128–4096）、
+      SET-012（关闭时不自动加载、点选下载）、SET-013（计费网络守卫）、D-05（不引入 WebView）
+    修改文件与主要行为：
+      - 新增 core/domain/url_guard.dart：**出网地址守卫的纯函数判据**，分两档策略：
+        configuredSource（用户显式配置的订阅源，允许私网——内网 RSS 是正当需求）与
+        embeddedContent（正文/卡片里嵌入的地址，拒绝私网/回环/链路本地/CGNAT/组播）。
+        覆盖 localhost 与 .local/.internal、IPv4 私网段、IPv6 回环/ULA/链路本地，以及
+        **整数与十六进制写法的可疑主机**（2130706433、0x7f000001）。第一版把所有点分 IP
+        都拒了（guard 测试当场抓到），改为「先判定是否合法 IPv4 字面量，不是才按可疑拒绝」；
+      - 新增 core/domain/image_header.dart：**解码前**的字节校验——按魔数嗅探 jpeg/png/gif/webp
+        （不认的一律返回 null，不按声明放行）、从头部读尺寸（PNG IHDR、GIF 逻辑屏幕、JPEG 遍历
+        到 SOF0、WebP 三种子格式）、50 MP 像素上限；纯字节解析，每个分支都能用固定数组断言；
+      - 新增 core/domain/media_cache.dart：MIME 白名单（**不含 svg+xml**——可携带脚本）、单图
+        4 MiB、SET-080 上限夹紧 128–4096、Content-Type 解析、LoadedImage 与 MediaDownloadPolicy；
+      - 新增 infrastructure/network/media_fetcher.dart：受控图片抓取。守卫**两步都做**——字面量
+        检查 + DNS 解析后对每个结果复检（字面量挡不住 evil.example.com → 127.0.0.1）；重定向
+        手动跟随且逐跳重跑守卫；显式拒绝重定向成环；MIME 声明先审、声明长度预检、流式计数上限、
+        魔数与声明一致性校验、尺寸解码上限；
+      - 新增 infrastructure/local/image_cache_service.dart + media_cache_metadata.dart：**哈希
+        文件名**（SHA-256，避开路径穿越/保留字符/长度上限；不用 String.hashCode——它跨进程不
+        稳定，会让重启后缓存全失效）、按 mtime 的 LRU 淘汰（读取即 touch）、内存缓存双上限
+        （100 张 / 128 MiB 取小）、先写 .part 再 rename（失败不留半个正式条目）、元数据损坏与
+        长度不符一律按未命中并清掉坏条目、统计命中率；
+      - 新增 infrastructure/local/article_image_loader.dart：抓取→校验→缓存→交字节。缓存命中
+        先返回（离线可读已缓存的图，且**不问计费守卫**——读本机文件不是网络行为）；缓存写失败
+        不当作加载失败；保存路径**共用同一条管线**（不绕开 MIME/体积限制）；
+      - 新增 features/articles/application/article_image_ports.dart + media_cache_settings.dart、
+        presentation/reader/article_image_view.dart：图片位统一走缓存管线（卡片封面、正文图片、
+        查看器**三处共用**），失败只影响这一张并给重试（重试先驱逐 ImageCache 两层条目），
+        解码用 ResizeImage + allowUpscaling:false（**不把 200×200 的小图放大成大位图**），
+        SET-080 由 MediaCacheLimitHost 读取并套用；
+      - 修改 doc_blocks/article_card/link_panel：三处 Image.network 全部换成 ArticleImageView
+        （**查看器此前直接用 Image.network，等于给「点开大图」开了一条绕过全部校验的旁路**）；
+      - 修改 image_save_service：接受注入的 ArticleImageLoader，保存走缓存管线；
+      - 新增 app_bootstrap 的媒体缓存目录、app_providers 的加载器装配、l10n 三条新文案。
+    **本轮实测修掉的两个真实缺陷（都不是「顺手清理」）**：
+      1) **同一 Provider 实例的 loadImage 会被调用多次，而 chunk StreamController 挂在实例上**
+         ——StreamController 默认单订阅，第二次交给 completer 时构造即抛「Stream has already
+         been listened to」，表现为图片位直接崩掉而不是显示占位。改为每个 completer 拥有自己的
+         chunk 流。定位方式：先加轨迹记录排除「同一 completer 报错两次」，再看 ctor 抛出的类型；
+      2) **「一条已被处理的失败」会被框架重复报成未处理异常**：completer 只被 ImageCache 持有、
+         控件因「流 key 未变」提前返回时，没有任何带 onError 的监听者，框架把失败交给 FlutterError
+         （组件测试直接判失败、真机多刷一条红屏），而 errorBuilder 其实照常画出了占位与重试。
+         修法与 ResizeImage 内部同一种做法：在 loadImage 时挂一个 reportErrors:false 的守卫监听者，
+         失败后自行摘除并驱逐该缓存键。
+    数据迁移/删除/依赖变化：**无 schema 变更**（沿用 v6）；无删除；**无新增第三方依赖**（全部用
+      dart:io / dart:ui / 既有 http、path、sha256 实现）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      flutter pub get | 0 | PASS | 依赖无变化
+      dart run build_runner build | 0 | PASS | 生成物无差异
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 890 通过 / 2 跳过 / 0 失败（本轮新增 89 条：9 条地址守卫纯函数、
+        19 条魔数/尺寸/解码上限、21 条受控抓取、20 条磁盘缓存与 LRU、14 条加载管线集成、
+        6 条图片位组件行为）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    实测发现的真实性能/正确性事实（记下来供后续参考）：
+      - 用与不用 external content 是**两条不同的正确性**：fts5 的 'rebuild' 直接从 content 表扫描，
+        不执行触发器；若索引列里放的是变换后的值（如 COALESCE 出的来源名），rebuild 会造出与
+        触发器不一致的索引。这是 T022 最终把来源名移出索引的直接原因（T021 本身未用 fts5）。
+      - external content 表上对内容列做 UPDATE **不会重排倒排索引**（旧词仍可搜到）。
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用；新增的出网路径（图片）不出示任何凭据，
+      User-Agent 与 T013 同一条；诊断与错误信息不含正文，地址均经 SecretRedaction 脱敏
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本任务改了阅读路径的图片加载方式并新增一条出网路径（图片），
+         属复核适用范围，但本轮未拿到维护者结论，因此如实写「DONE（缺失 REVIEW）」；
+      2) **未在真实远端图片上跑一次端到端**：MIME/体积/魔数/守卫/重定向/缓存淘汰全部有测试
+         （抓取层用 MockClient、缓存层用真实临时目录），但没有对真实 CDN 取一张图（本机测试
+         环境无外网依赖，也不该让测试依赖外部站点）。查看器与保存路径同样只经替身与 MockClient 验证；
+      3) **解码限额是「拒绝超大图」而不是「按目标尺寸解码」的完整实现**：50 MP 像素上限与
+         ResizeImage(allowUpscaling:false) 都已落地，但没有做「超大图先降采样再解码」那种
+         分块解码（Flutter 的 ImageDescriptor 不提供该能力，需平台侧实现）；
+      4) **未接入布局前的尺寸占位**：架构 4.2 说「预留尺寸」，本轮沿用固定 140 高的图片位，
+         未按图片真实宽高比撑出高度；这需要先拿到头部尺寸再布局（属渲染层排版的后续工作）；
+      5) **T020 遗留的「图片保存未在真实磁盘上完成一次」仍成立**：保存路径现在走缓存管线并写了
+         测试（临时目录），但「真实点击系统保存面板并选路径」仍需人工；
+      6) Android 工程仍未初始化（随 Android 阶段补）；7) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T021 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与本轮记录。SET-065 的 4 MiB 与 SET-080 的 512 MiB 都按
+      文档原值落地，未自行调整
+    提交/差异范围：提交 "T021: image cache with LRU bounds, MIME/size limits and decode caps"
+      （1098554）；基线为 e251a30（T020）。未 push
+    下一可执行任务及前置条件：T022（中文/英文全库检索与过滤），前置 T009/T019 已 DONE
+
+### 7.1.16 轮次记录 R022（T022）
+
+    轮次/日期：R022 / 2026-09-22
+    任务 ID 与状态变化：T022 TODO → DONE（M1 第十四项；**缺失 REVIEW**，理由同前：新增了 schema
+      版本（v7）、一套触发器与一条影响全库的检索路径）
+    相关决策/功能/SET 项：架构 4.2（本地全库搜索标题/作者/来源/摘要/已存正文；**SQLite FTS5 需
+      实测中文 tokenizer，确定子串/词匹配语义，不能假设默认 tokenizer 已解决中文**；文章内查找
+      独立；搜索不访问未收录网页）、架构 5.3（迁移不得消费用户数据）、SET-015（本地搜索）
+
+    **本轮最关键的结论：FTS5 的 tokenizer 选型（先写探针实测，再据此实现）**
+
+      在真实运行时（sqlite3 3.53.4）上跑的探针结果，作为选型依据与后续回归的基线：
+
+      | 场景 | 默认 unicode61 | trigram（本轮选用） |
+      | --- | --- | --- |
+      | 正文含「离线阅读」，MATCH '离线'（2 字中文） | **0 命中** | 0 命中（<3 字符） |
+      | 同上，MATCH '离线阅'（3 字） | 0 命中 | 1 命中 |
+      | 同上，LIKE '%离线%' | 1 命中 | 1 命中 |
+      | 词表内容 | 「离线阅读与ai摘要功能」**整段一个 token** | 「离线阅」「线阅读」等 3 字窗口 |
+      | ASCII 大小写（MATCH 'off'/'OFF'） | 命中（不分大小写） | 命中（不分大小写） |
+      | 查询计划（LIKE pattern ≥3 字符） | — | 下推到 fts5 索引，非全表扫描 |
+
+      **结论（架构 4.2 要求的「语义确定」）**：
+        1) 默认 unicode61 **对中文不可用**——中文没有空格分词，而它没有 CJK 支持，整段中文
+           成为一个 token，因此 2 字与 1 字中文查询**零命中**（不是排序问题，是查不到）。
+           这正是架构禁止「看起来能搜到就用默认值」的原因；
+        2) 本项目的检索语义定为**大小写不敏感的子串匹配**，实现为两条路径：
+           * 连续 **≥3 字符** 的查询 → fts5 MATCH 短语（bm25 排序 + snippet 高亮）；
+           * 其余（1–2 字中文、短 ASCII 如「AI」）→ LIKE 子串（snippet() 在 LIKE 下不输出
+             高亮，实测确认，因此高亮由应用层按纯文本标注）。
+        两条路径对界面给出同一种结果形状，因此用户看到的是**一套**语义。
+
+    修改文件与主要行为：
+      - 新增 infrastructure/local/tables/article_search.drift：fts5 虚拟表（trigram、external
+        content=articles、content_rowid=id、索引列 title/author/summary/body）+ 三个同步触发器
+        （插入/删除/更新文章、订阅改名）。索引列**只放 articles 里逐字存在的列**是刻意的：
+        fts5 的 'rebuild' 直接从 content 表扫描、不执行触发器，放变换值会让两条路径不一致
+        （实测：曾把 COALESCE 出的来源名放进索引，rebuild 后来源名全为 null、来源名搜索整体失效）；
+      - 来源名（feeds.name）改为**查询时现查**：既避开上面的一致性问题，又让源改名立即生效；
+        已脱离订阅的收藏用 articles.feed_title 快照参与匹配，与列表显示来源名的规则同一条；
+      - 新增 core/domain/article_search.dart：检索请求/结果/片段的数据形状、**执行计划选择**
+        （planSearch）、fts5 短语构造与引号双写转义（防 MATCH 语法注入）、LIKE 的 %/_/\ 转义、
+        哨兵标记的高亮解析与纯文本高亮、片段截取（含两端省略标记）、请求校验。全部纯函数；
+      - 新增 infrastructure/local/article_search_store.dart：两条查询路径。**两个实测得出的
+        结构决定**：(a) 内容命中与来源名命中用 UNION ALL 合并，**不写成一个 OR**——写成
+        OR EXISTS 时 SQLite 无法把任一侧下推到索引，退化成 articles 全表扫描，1 万行实测
+        **17.6 秒**，改 UNION ALL 后同一条查询 **18 毫秒**；(b) snippet 高亮**只对当页的 id**
+        计算，写进排序子查询会让 SQLite 在分页之前为每个命中行算四次 snippet（1 万行命中时
+        四万次高亮计算）；
+      - 新增 features/articles/application/{article_search_use_case,article_search_state}.dart：
+        用例把片段贴在整行数据上（**保住存储层给的次序**，不按 id 重排），控制器带 180 ms 防抖
+        与**竞态序号**（快速输入时旧响应直接丢弃，避免结果与输入框对不上），空查询只停止检索、
+        不清空已有结果；
+      - 新增 presentation/article_search_view.dart + reader/search_snippet_view.dart：结果列表
+        **复用卡片内容区**（ArticleCardBody）而不是另画一套，卡片下方追加片段高亮；空态分三种
+        （未搜/无结果/失败，下一步动作各不相同）；
+      - 修改 reading_page.dart：工具栏下方新增搜索框 + 范围（全部文章/当前筛选），查询词非空即
+        切到结果视图、清空即回浏览列表；
+      - schema v6→v7（database.dart）：建 fts5 表与三个触发器，并**执行 rebuild 把历史文章灌进
+        索引**——触发器只对之后的写入生效，漏掉 rebuild 会让用户升级后搜不到自己的历史文章，
+        而界面上没有任何线索；
+      - build.yaml 新增 `sql.options.modules: [fts5]`：不声明它，drift 的分析器不认识
+        USING fts5(...)，会把该表报成 Unknown module 并**不生成**表元素，从而制造「快照里没有、
+        运行时有」的漂移；
+      - 新增 drift_schemas/drift_schema_v7.json 与 test/generated/schema_v7.dart；既有迁移测试的
+        当前版本常数从 6 改为 7，migration_test 里「模拟迁移写坏」的版本从 7 提到 **8**（它必须
+        严格高于当前版本，否则 drift 不触发 onUpgrade，测试会退化成「什么都没发生也算过」）。
+    数据迁移/删除/依赖变化：schema **v6 → v7**（新增 fts5 虚拟表 + 三个触发器；不改既有列、
+      不动用户数据，升级时 rebuild 把历史文章灌入索引）；无删除；**无新增第三方依赖**
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      flutter pub get | 0 | PASS | 无依赖变化
+      dart run build_runner build | 0 | PASS | 无告警（未声明 fts5 模块时会报 Unknown module）
+      dart run drift_dev schema dump …/drift_schemas/ | 0 | PASS | 新增 drift_schema_v7.json
+      dart run drift_dev schema generate --data-classes --companions … | 0 | PASS | 新增 schema_v7.dart
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 977 通过 / 2 跳过 / 0 失败（本轮新增 87 条：31 条查询构造/转义/
+        高亮纯函数、32 条数据层（两条路径、来源名现查、筛选、分页、注入转义、触发器同步、
+        重建）、5 条性能烟测、3 条 v6→v7 迁移、13 条界面/控制器、3 条建库结构与快照）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      flutter test integration_test/t022_evidence_test.dart -d macos | 0 | PASS | 两个状态（检索结果、
+        无结果态）在真实 macOS 窗口进入，供外部截图
+    性能烟测（10000 行文章；**环境相关，不宣称绝对耗时**）：建索引 654 ms；MATCH 路径 p95 17.3 ms
+      （中位 16.3）；LIKE 路径 p95 7.3 ms（中位 6.2）；offset 5000 分页 20 ms；来源名检索 3 ms。
+      门限取 1 s 是**结构性退化**的报警线（索引没建上或退化为全表扫描时远超它），不是性能承诺
+    费用与秘密：未发起任何 AI/搜索调用，无费用；检索**只查本地已收录文章**，不发任何网络请求
+      （架构 4.2）；错误信息只保留异常类型，不带用户查询词与语句
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本任务新增 schema 版本、一套触发器与一条影响全库的检索路径，属复核
+         适用范围，但本轮未拿到维护者结论，因此如实写「DONE（缺失 REVIEW）」；
+      2) **REVIEW 时最该复核的一条**：fts5 的 trigram 是 SQLite 3.34+ 的内置 tokenizer，本机
+         运行时（sqlite3 3.53.4）实测可用；手册口径要求「两平台实际可用」，**Android 侧未验证**
+         （工程尚未初始化）。若某平台的内置 SQLite 无 trigram，检索会退化为 LIKE 全表扫描
+         （结果仍正确，只是慢）——这一点需要在 Android 阶段实测确认；
+      3) **1–2 字查询不做相关性排序**（LIKE 没有排名概念），因此短词检索按时间倒序而不是
+         bm25 序。这是该 tokenizer 的定义所限，已在 domain 注释与本节写明，不伪装成同一套排序；
+      4) **多词查询（含空白的）也走 LIKE**：fts5 短语会要求这些词在原文里连续出现，与用户
+         「这几个词都要有」的预期不符。要做真正的 AND 语义需要按词切分后各自 MATCH 再取交集
+         （属后续增强，本轮如实退化为子串匹配）；
+      5) **未做索引损坏的实际恢复流程**：rebuildIndex 已实现并测试（幂等、重建后仍可搜），
+         但没有「检测到索引损坏 → 自动重建」的触发条件（那需要 integrity-check 失败后的处理
+         策略与用户提示，属 T047 的存储清理范围）；
+      6) **未做法文/日文等其它 CJK 语言的专项用例**：trigram 对它们同样按 3 字符切分，
+         理论上适用，但本轮只用中文与英文做了实测与断言；
+      7) 阅读页新增搜索框后，`reading_page_*` 三张 golden 已按新界面重出（人工确认过搜索框与
+         范围选择器的位置与样式）；8) Android 工程仍未初始化；9) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T022 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与本轮记录。tokenizer 选型在任务给定的选型顺序内选择
+      trigram（a 方案），未引入第三方分词库
+    提交/差异范围：提交 "T022: full-text search with CJK tokenizer strategy and FTS5 sync"
+      （9d92972）；基线为 1098554（T021）。未 push
+    下一可执行任务及前置条件：T023（阅读会话、热力图与七日统计），前置 T009/T019 已 DONE
+
 ### 7.2 工具链与环境记录（T008 填写）
 
 实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
@@ -1550,6 +1757,26 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 构建产物（T008 实测）：`flutter build macos --debug` 退出 0，产物 `build/macos/Build/Products/Debug/Flux.app`（debug 类型，非正式签名包，不代表可分发）。
 
 已知工具链行为：build_runner 2.16.1 已移除 `--delete-conflicting-outputs`（运行时会提示 "These options have been removed and were ignored"，退出码仍为 0）。手册 6.2 的命令基线保留该参数以兼容旧版本；它不再改变行为，生成物只写入 git 忽略的 `.dart_tool/build/`。
+
+### 7.2.1 T021/T022 新增的运行时能力（均无第三方依赖）
+
+| 能力 | 实现位置 | 实测/依据 |
+| --- | --- | --- |
+| 远程图片抓取与解码前校验 | infrastructure/network/media_fetcher.dart + core/domain/image_header.dart | 只用 dart:io 与既有 http 1.6.0；**未新增依赖**。魔数嗅探与尺寸读取是纯字节解析（19 条断言），不依赖任何图像库 |
+| 图片磁盘缓存与 LRU | infrastructure/local/image_cache_service.dart | 只用 dart:io 与 path 1.9.1；文件名用 core/digest/sha256.dart（T013 的自实现，无 crypto 依赖）。**不用** String.hashCode——它跨进程不稳定，会让重启后缓存全部失效 |
+| 图片解码限额 | presentation/reader/article_image_view.dart | Flutter 自带 ResizeImage(allowUpscaling: false) 加 50 MP 像素上限；**未引入**图像处理库（不需要 image 包） |
+| 全文检索 tokenizer | infrastructure/local/tables/article_search.drift（tokenize='trigram'） | 用 SQLite **内置**的 trigram tokenizer（3.34+；本机运行时 3.53.4 实测可用）。**未引入**第三方分词库（jieba 等），符合任务给定的选型顺序 a 方案 |
+| fts5 的 SQL 分析支持 | build.yaml 的 sql.options.modules: [fts5] | 让 drift 分析器认识 USING fts5(...)。不声明它会让该表落到「快照里没有、运行时有」的漂移上（实测报 Unknown module 且不生成表元素） |
+
+FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，完整表见 R022）：
+
+- 默认 **unicode61 对中文不可用**：整段中文成为一个 token，MATCH 查 1–2 字中文**零命中**；
+- 改用 **trigram** 后语义确定为「大小写不敏感的子串匹配」：连续 ≥3 字符走 MATCH（bm25 排序、
+  snippet 高亮），其余（1–2 字中文、短 ASCII）走 LIKE，pattern ≥3 字符时 SQLite 会把 LIKE
+  下推到 trigram 索引；
+- 调用方式以探针先验证再实现，探针结果记入 R022 表格；本机运行时 SQLite 版本经 `sqlite3.version`
+  读出为 3.53.4。**Android 侧未验证**（工程未初始化），若该平台内置 SQLite 无 trigram，检索会
+  退化为 LIKE 全表扫描——结果仍正确，只是慢。
 
 ### 7.3 提供商验证矩阵（实现前不得写“已支持”）
 
