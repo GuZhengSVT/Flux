@@ -120,7 +120,10 @@ void main() {
       // T016 起该去向不再是纯占位页：它有真实的刷新按钮与真实未读计数，
       // 但明确说明文章列表属 T017（不画一个看起来能用的假列表）。
       expect(find.text('刷新'), findsOneWidget);
-      expect(find.textContaining('属 T017'), findsOneWidget);
+      // T017 起它是完整的阅读页：有筛选入口，且空态按「有没有订阅」区分——
+      // 这里数据库里还没有任何订阅，因此显示的是引导添加订阅的那一条。
+      expect(find.text('未读'), findsWidgets);
+      expect(find.text('还没有订阅'), findsOneWidget);
 
       // 切到「我的」：进入真正的设置页（T011 已生效的部分）。
       await tester.tap(find.text('我的').first);

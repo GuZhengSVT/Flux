@@ -380,3 +380,16 @@ feedManagerControllerProvider =
     AsyncNotifierProvider<FeedManagerController, FeedManagerState>(
       FeedManagerController.new,
     );
+
+/// 订阅概览（分组 + 订阅 + 未读数）。
+///
+/// 从 [feedManagerControllerProvider] 派生而不是另起一次查询：T017 的阅读页需要
+/// 「有没有订阅」来决定空态文案（架构第 7 节要求「无订阅」与「筛选无结果」分别
+/// 提示），而订阅管理页已经读过同一份数据。派生出来可以保证两页对「有没有订阅」的
+/// 判断来自同一个读模型。
+final Provider<AsyncValue<FeedOverview>> feedOverviewProvider =
+    Provider<AsyncValue<FeedOverview>>((Ref ref) {
+      return ref
+          .watch(feedManagerControllerProvider)
+          .whenData((FeedManagerState state) => state.overview);
+    });

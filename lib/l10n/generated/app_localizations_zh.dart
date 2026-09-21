@@ -799,17 +799,150 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String readingPlaceholderUnread(int count) {
-    return '当前未读 $count 篇';
+  String get readingFilterAll => '全部';
+
+  @override
+  String get readingFilterUnread => '未读';
+
+  @override
+  String get readingFilterLater => '稍后再读';
+
+  @override
+  String get readingFilterFavorite => '收藏';
+
+  @override
+  String get readingFeedFilterAll => '全部来源';
+
+  @override
+  String get readingEmptyTitle => '这里还没有文章';
+
+  @override
+  String get readingEmptyBody => '在「我的 → 订阅管理」添加订阅，或在顶部点「刷新」抓取内容。';
+
+  @override
+  String get readingEmptyFilteredTitle => '当前筛选下没有文章';
+
+  @override
+  String get readingEmptyFilteredBody => '换一个筛选条件，或有新文章后再回来看看。';
+
+  @override
+  String readingPageIndicator(int page, int pages, int total) {
+    return '第 $page / $pages 页（共 $total 篇）';
   }
 
   @override
-  String get readingPlaceholderCounting => '正在读取未读计数…';
+  String get readingPreviousPage => '上一页';
 
   @override
-  String get readingPlaceholderCountFailed => '未读计数读取失败';
+  String get readingNextPage => '下一页';
 
   @override
-  String get readingPlaceholderBody =>
-      '文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。';
+  String get readingPublishedUnknown => '时间未知（按抓取时间排序）';
+
+  @override
+  String get readingBatchEnter => '批量选择';
+
+  @override
+  String get readingBatchExit => '退出批量';
+
+  @override
+  String get readingBatchSelectPage => '选择本页';
+
+  @override
+  String readingBatchSelectedCount(int count) {
+    return '已选 $count 篇';
+  }
+
+  @override
+  String get readingBatchScopeLabel => '作用范围';
+
+  @override
+  String get readingBatchScopeAll => '全部文章';
+
+  @override
+  String get readingBatchScopeFiltered => '当前筛选结果';
+
+  @override
+  String readingBatchScopeSelected(int count) {
+    return '已选 $count 篇';
+  }
+
+  @override
+  String get readingBatchMarkRead => '标为已读';
+
+  @override
+  String get readingBatchMarkUnread => '标为未读';
+
+  @override
+  String get readingBatchMarkLater => '标为稍后读';
+
+  @override
+  String get readingBatchFavorite => '加入收藏';
+
+  @override
+  String get readingBatchUnfavorite => '取消收藏';
+
+  @override
+  String get readingBatchEmptyScope => '这个范围里没有文章可操作';
+
+  @override
+  String readingBatchDone(int count) {
+    return '已处理 $count 篇';
+  }
+
+  @override
+  String get readingItemMenu => '文章操作';
+
+  @override
+  String get readingOpenArticle => '打开正文';
+
+  @override
+  String get readingDetailPlaceholderNotice =>
+      '正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。';
+
+  @override
+  String get readingDetailNoBody => '这篇文章没有可显示的正文（源只提供了摘要）。';
+
+  @override
+  String readingActionError(String reason) {
+    return '操作失败：$reason';
+  }
+
+  @override
+  String readingLoadFailed(String reason) {
+    return '文章列表读取失败：$reason';
+  }
+
+  @override
+  String readingUndoMessage(int count, String action) {
+    return '已处理 $count 篇（$action）';
+  }
+
+  @override
+  String get readingUndoAction => '撤销';
+
+  @override
+  String readingUndoDone(int count) {
+    return '已撤销 $count 篇';
+  }
+
+  @override
+  String readingUndoFailed(String reason) {
+    return '撤销失败：$reason';
+  }
+
+  @override
+  String get readingActionMarkRead => '标为已读';
+
+  @override
+  String get readingActionMarkUnread => '标为未读';
+
+  @override
+  String get readingActionMarkLater => '标为稍后读';
+
+  @override
+  String get readingActionFavorite => '加入收藏';
+
+  @override
+  String get readingActionUnfavorite => '取消收藏';
 }

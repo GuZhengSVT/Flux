@@ -1198,7 +1198,6 @@
     "description": "SET-013 守卫命中时的提示"
   },
   "readingRefreshFailed": "刷新失败：{reason}",
-  "readingPlaceholderUnread": "当前未读 {count} 篇",
   "@readingPlaceholderUnread": {
     "description": "T016 占位页上的未读计数（真实统计）",
     "placeholders": {
@@ -1207,18 +1206,6 @@
         "example": "12"
       }
     }
-  },
-  "readingPlaceholderCounting": "正在读取未读计数…",
-  "@readingPlaceholderCounting": {
-    "description": "未读计数读取中"
-  },
-  "readingPlaceholderCountFailed": "未读计数读取失败",
-  "@readingPlaceholderCountFailed": {
-    "description": "未读计数读取失败（不显示 0 假装没有未读）"
-  },
-  "readingPlaceholderBody": "文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。",
-  "@readingPlaceholderBody": {
-    "description": "T016 RSS 去向的范围说明"
   },
   "@readingRefreshFailed": {
     "description": "刷新整体失败",
@@ -1229,6 +1216,43 @@
       }
     }
   },
+  "readingFilterAll": "全部",
+  "@readingFilterAll": {
+    "description": "列表筛选：全部"
+  },
+  "readingFilterUnread": "未读",
+  "@readingFilterUnread": {
+    "description": "列表筛选：未读（只匹配 unread）"
+  },
+  "readingFilterLater": "稍后再读",
+  "@readingFilterLater": {
+    "description": "列表筛选：稍后再读（独立入口）"
+  },
+  "readingFilterFavorite": "收藏",
+  "@readingFilterFavorite": {
+    "description": "列表筛选：收藏"
+  },
+  "readingFeedFilterAll": "全部来源",
+  "@readingFeedFilterAll": {
+    "description": "来源筛选：不限"
+  },
+  "readingEmptyTitle": "这里还没有文章",
+  "@readingEmptyTitle": {
+    "description": "文章列表空态标题（有订阅但无文章）"
+  },
+  "readingEmptyBody": "在「我的 → 订阅管理」添加订阅，或在顶部点「刷新」抓取内容。",
+  "@readingEmptyBody": {
+    "description": "文章列表空态正文"
+  },
+  "readingEmptyFilteredTitle": "当前筛选下没有文章",
+  "@readingEmptyFilteredTitle": {
+    "description": "筛选结果为空标题"
+  },
+  "readingEmptyFilteredBody": "换一个筛选条件，或有新文章后再回来看看。",
+  "@readingEmptyFilteredBody": {
+    "description": "筛选结果为空正文"
+  },
+  "readingPageIndicator": "第 {page} / {pages} 页（共 {total} 篇）",
   "@readingPageIndicator": {
     "description": "分页指示",
     "placeholders": {
@@ -1246,6 +1270,31 @@
       }
     }
   },
+  "readingPreviousPage": "上一页",
+  "@readingPreviousPage": {
+    "description": "上一页按钮"
+  },
+  "readingNextPage": "下一页",
+  "@readingNextPage": {
+    "description": "下一页按钮"
+  },
+  "readingPublishedUnknown": "时间未知（按抓取时间排序）",
+  "@readingPublishedUnknown": {
+    "description": "发布时间缺失时的注明"
+  },
+  "readingBatchEnter": "批量选择",
+  "@readingBatchEnter": {
+    "description": "进入批量模式"
+  },
+  "readingBatchExit": "退出批量",
+  "@readingBatchExit": {
+    "description": "退出批量模式"
+  },
+  "readingBatchSelectPage": "选择本页",
+  "@readingBatchSelectPage": {
+    "description": "全选本页"
+  },
+  "readingBatchSelectedCount": "已选 {count} 篇",
   "@readingBatchSelectedCount": {
     "description": "已选数量",
     "placeholders": {
@@ -1255,6 +1304,19 @@
       }
     }
   },
+  "readingBatchScopeLabel": "作用范围",
+  "@readingBatchScopeLabel": {
+    "description": "批量操作范围选择标签"
+  },
+  "readingBatchScopeAll": "全部文章",
+  "@readingBatchScopeAll": {
+    "description": "范围：全部"
+  },
+  "readingBatchScopeFiltered": "当前筛选结果",
+  "@readingBatchScopeFiltered": {
+    "description": "范围：筛选结果"
+  },
+  "readingBatchScopeSelected": "已选 {count} 篇",
   "@readingBatchScopeSelected": {
     "description": "范围：所选行",
     "placeholders": {
@@ -1264,6 +1326,31 @@
       }
     }
   },
+  "readingBatchMarkRead": "标为已读",
+  "@readingBatchMarkRead": {
+    "description": "批量标为已读"
+  },
+  "readingBatchMarkUnread": "标为未读",
+  "@readingBatchMarkUnread": {
+    "description": "批量标为未读（不影响收藏）"
+  },
+  "readingBatchMarkLater": "标为稍后读",
+  "@readingBatchMarkLater": {
+    "description": "批量标为稍后再读"
+  },
+  "readingBatchFavorite": "加入收藏",
+  "@readingBatchFavorite": {
+    "description": "批量加入收藏"
+  },
+  "readingBatchUnfavorite": "取消收藏",
+  "@readingBatchUnfavorite": {
+    "description": "批量取消收藏"
+  },
+  "readingBatchEmptyScope": "这个范围里没有文章可操作",
+  "@readingBatchEmptyScope": {
+    "description": "范围为空时的提示（不谎报成功）"
+  },
+  "readingBatchDone": "已处理 {count} 篇",
   "@readingBatchDone": {
     "description": "批量操作完成",
     "placeholders": {
@@ -1273,6 +1360,23 @@
       }
     }
   },
+  "readingItemMenu": "文章操作",
+  "@readingItemMenu": {
+    "description": "列表项右键菜单标题"
+  },
+  "readingOpenArticle": "打开正文",
+  "@readingOpenArticle": {
+    "description": "打开正文占位页"
+  },
+  "readingDetailPlaceholderNotice": "正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。",
+  "@readingDetailPlaceholderNotice": {
+    "description": "详情占位页的范围说明"
+  },
+  "readingDetailNoBody": "这篇文章没有可显示的正文（源只提供了摘要）。",
+  "@readingDetailNoBody": {
+    "description": "文章无正文时的说明"
+  },
+  "readingActionError": "操作失败：{reason}",
   "@readingActionError": {
     "description": "单条/批量操作失败提示",
     "placeholders": {
@@ -1281,6 +1385,65 @@
         "example": "文章不存在"
       }
     }
+  },
+  "readingLoadFailed": "文章列表读取失败：{reason}",
+  "readingUndoMessage": "已处理 {count} 篇（{action}）",
+  "@readingUndoMessage": {
+    "description": "批量操作后的提示条（带撤销）",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "20"
+      },
+      "action": {
+        "type": "String",
+        "example": "标为已读"
+      }
+    }
+  },
+  "readingUndoAction": "撤销",
+  "@readingUndoAction": {
+    "description": "撤销按钮"
+  },
+  "readingUndoDone": "已撤销 {count} 篇",
+  "@readingUndoDone": {
+    "description": "撤销完成提示",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "readingUndoFailed": "撤销失败：{reason}",
+  "@readingUndoFailed": {
+    "description": "撤销失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "文章不存在"
+      }
+    }
+  },
+  "readingActionMarkRead": "标为已读",
+  "@readingActionMarkRead": {
+    "description": "撤销提示里的操作名：标为已读"
+  },
+  "readingActionMarkUnread": "标为未读",
+  "@readingActionMarkUnread": {
+    "description": "撤销提示里的操作名：标为未读"
+  },
+  "readingActionMarkLater": "标为稍后读",
+  "@readingActionMarkLater": {
+    "description": "撤销提示里的操作名：标为稍后读"
+  },
+  "readingActionFavorite": "加入收藏",
+  "@readingActionFavorite": {
+    "description": "撤销提示里的操作名：加入收藏"
+  },
+  "readingActionUnfavorite": "取消收藏",
+  "@readingActionUnfavorite": {
+    "description": "撤销提示里的操作名：取消收藏"
   },
   "@readingLoadFailed": {
     "description": "列表读取失败",

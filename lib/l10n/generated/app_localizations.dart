@@ -1508,29 +1508,263 @@ abstract class AppLocalizations {
   /// **'刷新失败：{reason}'**
   String readingRefreshFailed(String reason);
 
-  /// T016 占位页上的未读计数（真实统计）
+  /// 列表筛选：全部
   ///
   /// In zh, this message translates to:
-  /// **'当前未读 {count} 篇'**
-  String readingPlaceholderUnread(int count);
+  /// **'全部'**
+  String get readingFilterAll;
 
-  /// 未读计数读取中
+  /// 列表筛选：未读（只匹配 unread）
   ///
   /// In zh, this message translates to:
-  /// **'正在读取未读计数…'**
-  String get readingPlaceholderCounting;
+  /// **'未读'**
+  String get readingFilterUnread;
 
-  /// 未读计数读取失败（不显示 0 假装没有未读）
+  /// 列表筛选：稍后再读（独立入口）
   ///
   /// In zh, this message translates to:
-  /// **'未读计数读取失败'**
-  String get readingPlaceholderCountFailed;
+  /// **'稍后再读'**
+  String get readingFilterLater;
 
-  /// T016 RSS 去向的范围说明
+  /// 列表筛选：收藏
   ///
   /// In zh, this message translates to:
-  /// **'文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。'**
-  String get readingPlaceholderBody;
+  /// **'收藏'**
+  String get readingFilterFavorite;
+
+  /// 来源筛选：不限
+  ///
+  /// In zh, this message translates to:
+  /// **'全部来源'**
+  String get readingFeedFilterAll;
+
+  /// 文章列表空态标题（有订阅但无文章）
+  ///
+  /// In zh, this message translates to:
+  /// **'这里还没有文章'**
+  String get readingEmptyTitle;
+
+  /// 文章列表空态正文
+  ///
+  /// In zh, this message translates to:
+  /// **'在「我的 → 订阅管理」添加订阅，或在顶部点「刷新」抓取内容。'**
+  String get readingEmptyBody;
+
+  /// 筛选结果为空标题
+  ///
+  /// In zh, this message translates to:
+  /// **'当前筛选下没有文章'**
+  String get readingEmptyFilteredTitle;
+
+  /// 筛选结果为空正文
+  ///
+  /// In zh, this message translates to:
+  /// **'换一个筛选条件，或有新文章后再回来看看。'**
+  String get readingEmptyFilteredBody;
+
+  /// 分页指示
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {page} / {pages} 页（共 {total} 篇）'**
+  String readingPageIndicator(int page, int pages, int total);
+
+  /// 上一页按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'上一页'**
+  String get readingPreviousPage;
+
+  /// 下一页按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'下一页'**
+  String get readingNextPage;
+
+  /// 发布时间缺失时的注明
+  ///
+  /// In zh, this message translates to:
+  /// **'时间未知（按抓取时间排序）'**
+  String get readingPublishedUnknown;
+
+  /// 进入批量模式
+  ///
+  /// In zh, this message translates to:
+  /// **'批量选择'**
+  String get readingBatchEnter;
+
+  /// 退出批量模式
+  ///
+  /// In zh, this message translates to:
+  /// **'退出批量'**
+  String get readingBatchExit;
+
+  /// 全选本页
+  ///
+  /// In zh, this message translates to:
+  /// **'选择本页'**
+  String get readingBatchSelectPage;
+
+  /// 已选数量
+  ///
+  /// In zh, this message translates to:
+  /// **'已选 {count} 篇'**
+  String readingBatchSelectedCount(int count);
+
+  /// 批量操作范围选择标签
+  ///
+  /// In zh, this message translates to:
+  /// **'作用范围'**
+  String get readingBatchScopeLabel;
+
+  /// 范围：全部
+  ///
+  /// In zh, this message translates to:
+  /// **'全部文章'**
+  String get readingBatchScopeAll;
+
+  /// 范围：筛选结果
+  ///
+  /// In zh, this message translates to:
+  /// **'当前筛选结果'**
+  String get readingBatchScopeFiltered;
+
+  /// 范围：所选行
+  ///
+  /// In zh, this message translates to:
+  /// **'已选 {count} 篇'**
+  String readingBatchScopeSelected(int count);
+
+  /// 批量标为已读
+  ///
+  /// In zh, this message translates to:
+  /// **'标为已读'**
+  String get readingBatchMarkRead;
+
+  /// 批量标为未读（不影响收藏）
+  ///
+  /// In zh, this message translates to:
+  /// **'标为未读'**
+  String get readingBatchMarkUnread;
+
+  /// 批量标为稍后再读
+  ///
+  /// In zh, this message translates to:
+  /// **'标为稍后读'**
+  String get readingBatchMarkLater;
+
+  /// 批量加入收藏
+  ///
+  /// In zh, this message translates to:
+  /// **'加入收藏'**
+  String get readingBatchFavorite;
+
+  /// 批量取消收藏
+  ///
+  /// In zh, this message translates to:
+  /// **'取消收藏'**
+  String get readingBatchUnfavorite;
+
+  /// 范围为空时的提示（不谎报成功）
+  ///
+  /// In zh, this message translates to:
+  /// **'这个范围里没有文章可操作'**
+  String get readingBatchEmptyScope;
+
+  /// 批量操作完成
+  ///
+  /// In zh, this message translates to:
+  /// **'已处理 {count} 篇'**
+  String readingBatchDone(int count);
+
+  /// 列表项右键菜单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'文章操作'**
+  String get readingItemMenu;
+
+  /// 打开正文占位页
+  ///
+  /// In zh, this message translates to:
+  /// **'打开正文'**
+  String get readingOpenArticle;
+
+  /// 详情占位页的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。'**
+  String get readingDetailPlaceholderNotice;
+
+  /// 文章无正文时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有可显示的正文（源只提供了摘要）。'**
+  String get readingDetailNoBody;
+
+  /// 单条/批量操作失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败：{reason}'**
+  String readingActionError(String reason);
+
+  /// 列表读取失败
+  ///
+  /// In zh, this message translates to:
+  /// **'文章列表读取失败：{reason}'**
+  String readingLoadFailed(String reason);
+
+  /// 批量操作后的提示条（带撤销）
+  ///
+  /// In zh, this message translates to:
+  /// **'已处理 {count} 篇（{action}）'**
+  String readingUndoMessage(int count, String action);
+
+  /// 撤销按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'撤销'**
+  String get readingUndoAction;
+
+  /// 撤销完成提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已撤销 {count} 篇'**
+  String readingUndoDone(int count);
+
+  /// 撤销失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'撤销失败：{reason}'**
+  String readingUndoFailed(String reason);
+
+  /// 撤销提示里的操作名：标为已读
+  ///
+  /// In zh, this message translates to:
+  /// **'标为已读'**
+  String get readingActionMarkRead;
+
+  /// 撤销提示里的操作名：标为未读
+  ///
+  /// In zh, this message translates to:
+  /// **'标为未读'**
+  String get readingActionMarkUnread;
+
+  /// 撤销提示里的操作名：标为稍后读
+  ///
+  /// In zh, this message translates to:
+  /// **'标为稍后读'**
+  String get readingActionMarkLater;
+
+  /// 撤销提示里的操作名：加入收藏
+  ///
+  /// In zh, this message translates to:
+  /// **'加入收藏'**
+  String get readingActionFavorite;
+
+  /// 撤销提示里的操作名：取消收藏
+  ///
+  /// In zh, this message translates to:
+  /// **'取消收藏'**
+  String get readingActionUnfavorite;
 }
 
 class _AppLocalizationsDelegate

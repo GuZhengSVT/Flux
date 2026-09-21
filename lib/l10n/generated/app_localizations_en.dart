@@ -837,17 +837,153 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String readingPlaceholderUnread(int count) {
-    return '$count unread';
+  String get readingFilterAll => 'All';
+
+  @override
+  String get readingFilterUnread => 'Unread';
+
+  @override
+  String get readingFilterLater => 'Read later';
+
+  @override
+  String get readingFilterFavorite => 'Favorites';
+
+  @override
+  String get readingFeedFilterAll => 'All feeds';
+
+  @override
+  String get readingEmptyTitle => 'No articles yet';
+
+  @override
+  String get readingEmptyBody =>
+      'Add a subscription under Mine → Subscriptions, or tap Refresh at the top.';
+
+  @override
+  String get readingEmptyFilteredTitle => 'No articles match this filter';
+
+  @override
+  String get readingEmptyFilteredBody =>
+      'Try another filter, or come back when new articles arrive.';
+
+  @override
+  String readingPageIndicator(int page, int pages, int total) {
+    return 'Page $page of $pages ($total articles)';
   }
 
   @override
-  String get readingPlaceholderCounting => 'Counting unread articles…';
+  String get readingPreviousPage => 'Previous page';
 
   @override
-  String get readingPlaceholderCountFailed => 'Could not read the unread count';
+  String get readingNextPage => 'Next page';
 
   @override
-  String get readingPlaceholderBody =>
-      'The article list, reading states, favorites, filters and batch actions ship in T017; this page only shows the real unread count and the real refresh result, without drawing a list placeholder.';
+  String get readingPublishedUnknown => 'Date unknown (sorted by fetch time)';
+
+  @override
+  String get readingBatchEnter => 'Select';
+
+  @override
+  String get readingBatchExit => 'Exit selection';
+
+  @override
+  String get readingBatchSelectPage => 'Select this page';
+
+  @override
+  String readingBatchSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get readingBatchScopeLabel => 'Apply to';
+
+  @override
+  String get readingBatchScopeAll => 'All articles';
+
+  @override
+  String get readingBatchScopeFiltered => 'Current filter results';
+
+  @override
+  String readingBatchScopeSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get readingBatchMarkRead => 'Mark as read';
+
+  @override
+  String get readingBatchMarkUnread => 'Mark as unread';
+
+  @override
+  String get readingBatchMarkLater => 'Mark as read later';
+
+  @override
+  String get readingBatchFavorite => 'Add to favorites';
+
+  @override
+  String get readingBatchUnfavorite => 'Remove from favorites';
+
+  @override
+  String get readingBatchEmptyScope => 'No articles in this scope';
+
+  @override
+  String readingBatchDone(int count) {
+    return 'Updated $count articles';
+  }
+
+  @override
+  String get readingItemMenu => 'Article actions';
+
+  @override
+  String get readingOpenArticle => 'Open article';
+
+  @override
+  String get readingDetailPlaceholderNotice =>
+      'The full reader (typography, code, math, outline, prev/next) ships in T019; this is a minimal placeholder showing the title and plain-text body.';
+
+  @override
+  String get readingDetailNoBody =>
+      'This article has no body to show (the feed only provided a summary).';
+
+  @override
+  String readingActionError(String reason) {
+    return 'Action failed: $reason';
+  }
+
+  @override
+  String readingLoadFailed(String reason) {
+    return 'Could not load the article list: $reason';
+  }
+
+  @override
+  String readingUndoMessage(int count, String action) {
+    return 'Updated $count articles ($action)';
+  }
+
+  @override
+  String get readingUndoAction => 'Undo';
+
+  @override
+  String readingUndoDone(int count) {
+    return 'Undid the last action on $count articles';
+  }
+
+  @override
+  String readingUndoFailed(String reason) {
+    return 'Undo failed: $reason';
+  }
+
+  @override
+  String get readingActionMarkRead => 'mark as read';
+
+  @override
+  String get readingActionMarkUnread => 'mark as unread';
+
+  @override
+  String get readingActionMarkLater => 'mark as read later';
+
+  @override
+  String get readingActionFavorite => 'add to favorites';
+
+  @override
+  String get readingActionUnfavorite => 'remove from favorites';
 }

@@ -16,12 +16,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'package:flux/core/core.dart';
+import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/feeds/application/refresh_providers.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
+import 'package:flux/infrastructure/local/article_catalog_store.dart';
+import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
@@ -139,6 +142,10 @@ List<Override> bootstrapOverrides(
       feedArticleStoreProvider.overrideWithValue(
         DriftFeedArticleStore(catalogDatabase),
       ),
+      // T017：文章阅读端口（列表 + 状态写入）。
+      articleCatalogProvider.overrideWithValue(
+        DriftArticleCatalogStore(catalogDatabase),
+      ),
       groupCollapseStoreProvider.overrideWithValue(
         GroupCollapseRepository(catalogDatabase),
       ),
@@ -146,6 +153,11 @@ List<Override> bootstrapOverrides(
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
       feedArticleStoreProvider.overrideWithValue(
         const DegradedFeedArticleStore(),
+      ),
+      // 降级模式下文章列表退到内存空实现：读返回空集合、写返回类型化失败。
+      // 不返回假的成功，理由与另外两个端口一致（见 feed_store_adapter 的说明）。
+      articleCatalogProvider.overrideWithValue(
+        const DegradedArticleCatalogStore(),
       ),
       // 折叠状态在降级模式下退到会话内存：记不住不算错误（见端口说明）。
       groupCollapseStoreProvider.overrideWithValue(
