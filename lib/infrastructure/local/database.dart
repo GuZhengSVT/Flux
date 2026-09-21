@@ -15,6 +15,7 @@ import 'package:drift/native.dart';
 import 'package:flux/core/core.dart';
 
 import 'tables/article_tables.dart';
+import 'tables/ai_tables.dart';
 // database.g.dart 是本文件的 part，只能看到本文件的 import；枚举类型被生成的
 // 伴随类与表访问器引用，因此必须在这里直接可见。T012 起这些枚举由
 // package:flux/core/core.dart 的 domain 转出口提供（见 tables/enums.dart 的说明）。
@@ -43,6 +44,7 @@ part 'database.g.dart';
     SummaryVersions,
     Citations,
     Settings,
+    AiModelRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -75,7 +77,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -267,11 +269,29 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
+      if (from < 9) {
+        // v8 → v9：AI 模型表（T025，架构 5.1 的 AIProvider / Model 实体）。
+        //
+        // 这一步**没有任何凭据列**：SET-031 是秘密项，只住在 Keychain 里，因此
+        // 明文备份（架构 5.3）与 flux.sqlite 都不会携带 API Key。这一点是结构性的，
+        // 而不是靠「记得不要把 Key 写进去」。
+        //
+        // 不回填任何数据：升级前不存在「已经配好的 AI 模型」这个事实，空表是诚实的
+        // 默认状态（与 v2→v3 的抓取诊断列同一口径：不用看起来合理的值伪造事实）。
+        //
+        // 与 v1→v2 同一个坑：createTable 只建表，**不**建索引。索引是独立 schema
+        // 实体，漏掉 createIndex 时运行时查询照常工作，只有结构校验才会发现差异
+        // （T010 的迁移测试曾这样抓到过一次）。
+        await m.createTable(aiModelRecords);
+        await m.createIndex(uxAiModelsAlias);
+        await m.createIndex(ixAiModelsSort);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 8;
+      const int highestImplemented = 9;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

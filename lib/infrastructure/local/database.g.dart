@@ -6350,6 +6350,1069 @@ class SettingsCompanion extends UpdateCompanion<Setting> {
   }
 }
 
+class $AiModelRecordsTable extends AiModelRecords
+    with TableInfo<$AiModelRecordsTable, AiModelRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AiModelRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _aliasMeta = const VerificationMeta('alias');
+  @override
+  late final GeneratedColumn<String> alias = GeneratedColumn<String>(
+    'alias',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _presetMeta = const VerificationMeta('preset');
+  @override
+  late final GeneratedColumn<String> preset = GeneratedColumn<String>(
+    'preset',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _protocolIdMeta = const VerificationMeta(
+    'protocolId',
+  );
+  @override
+  late final GeneratedColumn<String> protocolId = GeneratedColumn<String>(
+    'protocol_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _baseUrlMeta = const VerificationMeta(
+    'baseUrl',
+  );
+  @override
+  late final GeneratedColumn<String> baseUrl = GeneratedColumn<String>(
+    'base_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelIdMeta = const VerificationMeta(
+    'modelId',
+  );
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+    'model_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _capabilityTextMeta = const VerificationMeta(
+    'capabilityText',
+  );
+  @override
+  late final GeneratedColumn<bool> capabilityText = GeneratedColumn<bool>(
+    'capability_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("capability_text" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _capabilityVisionMeta = const VerificationMeta(
+    'capabilityVision',
+  );
+  @override
+  late final GeneratedColumn<bool> capabilityVision = GeneratedColumn<bool>(
+    'capability_vision',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("capability_vision" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _capabilityStreamingMeta =
+      const VerificationMeta('capabilityStreaming');
+  @override
+  late final GeneratedColumn<bool> capabilityStreaming = GeneratedColumn<bool>(
+    'capability_streaming',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("capability_streaming" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _capabilityToolsMeta = const VerificationMeta(
+    'capabilityTools',
+  );
+  @override
+  late final GeneratedColumn<bool> capabilityTools = GeneratedColumn<bool>(
+    'capability_tools',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("capability_tools" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _capabilityStructuredMeta =
+      const VerificationMeta('capabilityStructured');
+  @override
+  late final GeneratedColumn<bool> capabilityStructured = GeneratedColumn<bool>(
+    'capability_structured',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("capability_structured" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _contextWindowMeta = const VerificationMeta(
+    'contextWindow',
+  );
+  @override
+  late final GeneratedColumn<int> contextWindow = GeneratedColumn<int>(
+    'context_window',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _outputBudgetMeta = const VerificationMeta(
+    'outputBudget',
+  );
+  @override
+  late final GeneratedColumn<int> outputBudget = GeneratedColumn<int>(
+    'output_budget',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDefaultForTasksMeta = const VerificationMeta(
+    'isDefaultForTasks',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefaultForTasks = GeneratedColumn<bool>(
+    'is_default_for_tasks',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_default_for_tasks" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    alias,
+    preset,
+    protocolId,
+    baseUrl,
+    modelId,
+    enabled,
+    sortOrder,
+    capabilityText,
+    capabilityVision,
+    capabilityStreaming,
+    capabilityTools,
+    capabilityStructured,
+    contextWindow,
+    outputBudget,
+    isDefaultForTasks,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ai_model_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AiModelRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('alias')) {
+      context.handle(
+        _aliasMeta,
+        alias.isAcceptableOrUnknown(data['alias']!, _aliasMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_aliasMeta);
+    }
+    if (data.containsKey('preset')) {
+      context.handle(
+        _presetMeta,
+        preset.isAcceptableOrUnknown(data['preset']!, _presetMeta),
+      );
+    }
+    if (data.containsKey('protocol_id')) {
+      context.handle(
+        _protocolIdMeta,
+        protocolId.isAcceptableOrUnknown(data['protocol_id']!, _protocolIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_protocolIdMeta);
+    }
+    if (data.containsKey('base_url')) {
+      context.handle(
+        _baseUrlMeta,
+        baseUrl.isAcceptableOrUnknown(data['base_url']!, _baseUrlMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_baseUrlMeta);
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(
+        _modelIdMeta,
+        modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('capability_text')) {
+      context.handle(
+        _capabilityTextMeta,
+        capabilityText.isAcceptableOrUnknown(
+          data['capability_text']!,
+          _capabilityTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('capability_vision')) {
+      context.handle(
+        _capabilityVisionMeta,
+        capabilityVision.isAcceptableOrUnknown(
+          data['capability_vision']!,
+          _capabilityVisionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('capability_streaming')) {
+      context.handle(
+        _capabilityStreamingMeta,
+        capabilityStreaming.isAcceptableOrUnknown(
+          data['capability_streaming']!,
+          _capabilityStreamingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('capability_tools')) {
+      context.handle(
+        _capabilityToolsMeta,
+        capabilityTools.isAcceptableOrUnknown(
+          data['capability_tools']!,
+          _capabilityToolsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('capability_structured')) {
+      context.handle(
+        _capabilityStructuredMeta,
+        capabilityStructured.isAcceptableOrUnknown(
+          data['capability_structured']!,
+          _capabilityStructuredMeta,
+        ),
+      );
+    }
+    if (data.containsKey('context_window')) {
+      context.handle(
+        _contextWindowMeta,
+        contextWindow.isAcceptableOrUnknown(
+          data['context_window']!,
+          _contextWindowMeta,
+        ),
+      );
+    }
+    if (data.containsKey('output_budget')) {
+      context.handle(
+        _outputBudgetMeta,
+        outputBudget.isAcceptableOrUnknown(
+          data['output_budget']!,
+          _outputBudgetMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_default_for_tasks')) {
+      context.handle(
+        _isDefaultForTasksMeta,
+        isDefaultForTasks.isAcceptableOrUnknown(
+          data['is_default_for_tasks']!,
+          _isDefaultForTasksMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AiModelRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AiModelRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      alias: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}alias'],
+      )!,
+      preset: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preset'],
+      ),
+      protocolId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}protocol_id'],
+      )!,
+      baseUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_url'],
+      )!,
+      modelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_id'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      capabilityText: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}capability_text'],
+      )!,
+      capabilityVision: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}capability_vision'],
+      )!,
+      capabilityStreaming: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}capability_streaming'],
+      )!,
+      capabilityTools: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}capability_tools'],
+      )!,
+      capabilityStructured: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}capability_structured'],
+      )!,
+      contextWindow: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}context_window'],
+      ),
+      outputBudget: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}output_budget'],
+      ),
+      isDefaultForTasks: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_default_for_tasks'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AiModelRecordsTable createAlias(String alias) {
+    return $AiModelRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class AiModelRecord extends DataClass implements Insertable<AiModelRecord> {
+  final int id;
+
+  /// 提供商别名（用户可见，唯一）。
+  final String alias;
+
+  /// 预设名（`deepseek`、`openai` 等）；自定义为 null。
+  final String? preset;
+
+  /// 协议稳定标识（`openai.chat_completions` 等；见 AiProtocol.id）。
+  ///
+  /// 存字符串而不是枚举序号：序号会在枚举里插一项之后整体错位，把一个真实用户的
+  /// 配置从 Chat Completions 静默变成别的协议。
+  final String protocolId;
+
+  /// Base URL（不含协议路径）。
+  final String baseUrl;
+
+  /// 服务商侧模型 ID。
+  final String modelId;
+
+  /// 是否启用（SET-032）。
+  final bool enabled;
+
+  /// 故障转移顺序（SET-032 的排序，升序优先）。
+  final int sortOrder;
+
+  /// 文本生成能力（默认 true：添加模型的主要意图）。
+  final bool capabilityText;
+
+  /// 视觉能力（默认 false：改变数据去向的能力不默认开启）。
+  final bool capabilityVision;
+
+  /// 流式能力。
+  final bool capabilityStreaming;
+
+  /// 工具调用能力。
+  final bool capabilityTools;
+
+  /// 结构化输出能力。
+  final bool capabilityStructured;
+
+  /// 上下文窗口（token）；null = 未声明（按 SET-033 的保守 8192 使用）。
+  final int? contextWindow;
+
+  /// 单次输出上限（token）；null = 未声明（按 SET-033 的保守 2048 使用）。
+  final int? outputBudget;
+
+  /// 是否为任务默认模型。
+  final bool isDefaultForTasks;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const AiModelRecord({
+    required this.id,
+    required this.alias,
+    this.preset,
+    required this.protocolId,
+    required this.baseUrl,
+    required this.modelId,
+    required this.enabled,
+    required this.sortOrder,
+    required this.capabilityText,
+    required this.capabilityVision,
+    required this.capabilityStreaming,
+    required this.capabilityTools,
+    required this.capabilityStructured,
+    this.contextWindow,
+    this.outputBudget,
+    required this.isDefaultForTasks,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['alias'] = Variable<String>(alias);
+    if (!nullToAbsent || preset != null) {
+      map['preset'] = Variable<String>(preset);
+    }
+    map['protocol_id'] = Variable<String>(protocolId);
+    map['base_url'] = Variable<String>(baseUrl);
+    map['model_id'] = Variable<String>(modelId);
+    map['enabled'] = Variable<bool>(enabled);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['capability_text'] = Variable<bool>(capabilityText);
+    map['capability_vision'] = Variable<bool>(capabilityVision);
+    map['capability_streaming'] = Variable<bool>(capabilityStreaming);
+    map['capability_tools'] = Variable<bool>(capabilityTools);
+    map['capability_structured'] = Variable<bool>(capabilityStructured);
+    if (!nullToAbsent || contextWindow != null) {
+      map['context_window'] = Variable<int>(contextWindow);
+    }
+    if (!nullToAbsent || outputBudget != null) {
+      map['output_budget'] = Variable<int>(outputBudget);
+    }
+    map['is_default_for_tasks'] = Variable<bool>(isDefaultForTasks);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AiModelRecordsCompanion toCompanion(bool nullToAbsent) {
+    return AiModelRecordsCompanion(
+      id: Value(id),
+      alias: Value(alias),
+      preset: preset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preset),
+      protocolId: Value(protocolId),
+      baseUrl: Value(baseUrl),
+      modelId: Value(modelId),
+      enabled: Value(enabled),
+      sortOrder: Value(sortOrder),
+      capabilityText: Value(capabilityText),
+      capabilityVision: Value(capabilityVision),
+      capabilityStreaming: Value(capabilityStreaming),
+      capabilityTools: Value(capabilityTools),
+      capabilityStructured: Value(capabilityStructured),
+      contextWindow: contextWindow == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contextWindow),
+      outputBudget: outputBudget == null && nullToAbsent
+          ? const Value.absent()
+          : Value(outputBudget),
+      isDefaultForTasks: Value(isDefaultForTasks),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory AiModelRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AiModelRecord(
+      id: serializer.fromJson<int>(json['id']),
+      alias: serializer.fromJson<String>(json['alias']),
+      preset: serializer.fromJson<String?>(json['preset']),
+      protocolId: serializer.fromJson<String>(json['protocolId']),
+      baseUrl: serializer.fromJson<String>(json['baseUrl']),
+      modelId: serializer.fromJson<String>(json['modelId']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      capabilityText: serializer.fromJson<bool>(json['capabilityText']),
+      capabilityVision: serializer.fromJson<bool>(json['capabilityVision']),
+      capabilityStreaming: serializer.fromJson<bool>(
+        json['capabilityStreaming'],
+      ),
+      capabilityTools: serializer.fromJson<bool>(json['capabilityTools']),
+      capabilityStructured: serializer.fromJson<bool>(
+        json['capabilityStructured'],
+      ),
+      contextWindow: serializer.fromJson<int?>(json['contextWindow']),
+      outputBudget: serializer.fromJson<int?>(json['outputBudget']),
+      isDefaultForTasks: serializer.fromJson<bool>(json['isDefaultForTasks']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'alias': serializer.toJson<String>(alias),
+      'preset': serializer.toJson<String?>(preset),
+      'protocolId': serializer.toJson<String>(protocolId),
+      'baseUrl': serializer.toJson<String>(baseUrl),
+      'modelId': serializer.toJson<String>(modelId),
+      'enabled': serializer.toJson<bool>(enabled),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'capabilityText': serializer.toJson<bool>(capabilityText),
+      'capabilityVision': serializer.toJson<bool>(capabilityVision),
+      'capabilityStreaming': serializer.toJson<bool>(capabilityStreaming),
+      'capabilityTools': serializer.toJson<bool>(capabilityTools),
+      'capabilityStructured': serializer.toJson<bool>(capabilityStructured),
+      'contextWindow': serializer.toJson<int?>(contextWindow),
+      'outputBudget': serializer.toJson<int?>(outputBudget),
+      'isDefaultForTasks': serializer.toJson<bool>(isDefaultForTasks),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  AiModelRecord copyWith({
+    int? id,
+    String? alias,
+    Value<String?> preset = const Value.absent(),
+    String? protocolId,
+    String? baseUrl,
+    String? modelId,
+    bool? enabled,
+    int? sortOrder,
+    bool? capabilityText,
+    bool? capabilityVision,
+    bool? capabilityStreaming,
+    bool? capabilityTools,
+    bool? capabilityStructured,
+    Value<int?> contextWindow = const Value.absent(),
+    Value<int?> outputBudget = const Value.absent(),
+    bool? isDefaultForTasks,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => AiModelRecord(
+    id: id ?? this.id,
+    alias: alias ?? this.alias,
+    preset: preset.present ? preset.value : this.preset,
+    protocolId: protocolId ?? this.protocolId,
+    baseUrl: baseUrl ?? this.baseUrl,
+    modelId: modelId ?? this.modelId,
+    enabled: enabled ?? this.enabled,
+    sortOrder: sortOrder ?? this.sortOrder,
+    capabilityText: capabilityText ?? this.capabilityText,
+    capabilityVision: capabilityVision ?? this.capabilityVision,
+    capabilityStreaming: capabilityStreaming ?? this.capabilityStreaming,
+    capabilityTools: capabilityTools ?? this.capabilityTools,
+    capabilityStructured: capabilityStructured ?? this.capabilityStructured,
+    contextWindow: contextWindow.present
+        ? contextWindow.value
+        : this.contextWindow,
+    outputBudget: outputBudget.present ? outputBudget.value : this.outputBudget,
+    isDefaultForTasks: isDefaultForTasks ?? this.isDefaultForTasks,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  AiModelRecord copyWithCompanion(AiModelRecordsCompanion data) {
+    return AiModelRecord(
+      id: data.id.present ? data.id.value : this.id,
+      alias: data.alias.present ? data.alias.value : this.alias,
+      preset: data.preset.present ? data.preset.value : this.preset,
+      protocolId: data.protocolId.present
+          ? data.protocolId.value
+          : this.protocolId,
+      baseUrl: data.baseUrl.present ? data.baseUrl.value : this.baseUrl,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      capabilityText: data.capabilityText.present
+          ? data.capabilityText.value
+          : this.capabilityText,
+      capabilityVision: data.capabilityVision.present
+          ? data.capabilityVision.value
+          : this.capabilityVision,
+      capabilityStreaming: data.capabilityStreaming.present
+          ? data.capabilityStreaming.value
+          : this.capabilityStreaming,
+      capabilityTools: data.capabilityTools.present
+          ? data.capabilityTools.value
+          : this.capabilityTools,
+      capabilityStructured: data.capabilityStructured.present
+          ? data.capabilityStructured.value
+          : this.capabilityStructured,
+      contextWindow: data.contextWindow.present
+          ? data.contextWindow.value
+          : this.contextWindow,
+      outputBudget: data.outputBudget.present
+          ? data.outputBudget.value
+          : this.outputBudget,
+      isDefaultForTasks: data.isDefaultForTasks.present
+          ? data.isDefaultForTasks.value
+          : this.isDefaultForTasks,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiModelRecord(')
+          ..write('id: $id, ')
+          ..write('alias: $alias, ')
+          ..write('preset: $preset, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('baseUrl: $baseUrl, ')
+          ..write('modelId: $modelId, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('capabilityText: $capabilityText, ')
+          ..write('capabilityVision: $capabilityVision, ')
+          ..write('capabilityStreaming: $capabilityStreaming, ')
+          ..write('capabilityTools: $capabilityTools, ')
+          ..write('capabilityStructured: $capabilityStructured, ')
+          ..write('contextWindow: $contextWindow, ')
+          ..write('outputBudget: $outputBudget, ')
+          ..write('isDefaultForTasks: $isDefaultForTasks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    alias,
+    preset,
+    protocolId,
+    baseUrl,
+    modelId,
+    enabled,
+    sortOrder,
+    capabilityText,
+    capabilityVision,
+    capabilityStreaming,
+    capabilityTools,
+    capabilityStructured,
+    contextWindow,
+    outputBudget,
+    isDefaultForTasks,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AiModelRecord &&
+          other.id == this.id &&
+          other.alias == this.alias &&
+          other.preset == this.preset &&
+          other.protocolId == this.protocolId &&
+          other.baseUrl == this.baseUrl &&
+          other.modelId == this.modelId &&
+          other.enabled == this.enabled &&
+          other.sortOrder == this.sortOrder &&
+          other.capabilityText == this.capabilityText &&
+          other.capabilityVision == this.capabilityVision &&
+          other.capabilityStreaming == this.capabilityStreaming &&
+          other.capabilityTools == this.capabilityTools &&
+          other.capabilityStructured == this.capabilityStructured &&
+          other.contextWindow == this.contextWindow &&
+          other.outputBudget == this.outputBudget &&
+          other.isDefaultForTasks == this.isDefaultForTasks &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AiModelRecordsCompanion extends UpdateCompanion<AiModelRecord> {
+  final Value<int> id;
+  final Value<String> alias;
+  final Value<String?> preset;
+  final Value<String> protocolId;
+  final Value<String> baseUrl;
+  final Value<String> modelId;
+  final Value<bool> enabled;
+  final Value<int> sortOrder;
+  final Value<bool> capabilityText;
+  final Value<bool> capabilityVision;
+  final Value<bool> capabilityStreaming;
+  final Value<bool> capabilityTools;
+  final Value<bool> capabilityStructured;
+  final Value<int?> contextWindow;
+  final Value<int?> outputBudget;
+  final Value<bool> isDefaultForTasks;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const AiModelRecordsCompanion({
+    this.id = const Value.absent(),
+    this.alias = const Value.absent(),
+    this.preset = const Value.absent(),
+    this.protocolId = const Value.absent(),
+    this.baseUrl = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.capabilityText = const Value.absent(),
+    this.capabilityVision = const Value.absent(),
+    this.capabilityStreaming = const Value.absent(),
+    this.capabilityTools = const Value.absent(),
+    this.capabilityStructured = const Value.absent(),
+    this.contextWindow = const Value.absent(),
+    this.outputBudget = const Value.absent(),
+    this.isDefaultForTasks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  AiModelRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String alias,
+    this.preset = const Value.absent(),
+    required String protocolId,
+    required String baseUrl,
+    required String modelId,
+    this.enabled = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.capabilityText = const Value.absent(),
+    this.capabilityVision = const Value.absent(),
+    this.capabilityStreaming = const Value.absent(),
+    this.capabilityTools = const Value.absent(),
+    this.capabilityStructured = const Value.absent(),
+    this.contextWindow = const Value.absent(),
+    this.outputBudget = const Value.absent(),
+    this.isDefaultForTasks = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : alias = Value(alias),
+       protocolId = Value(protocolId),
+       baseUrl = Value(baseUrl),
+       modelId = Value(modelId);
+  static Insertable<AiModelRecord> custom({
+    Expression<int>? id,
+    Expression<String>? alias,
+    Expression<String>? preset,
+    Expression<String>? protocolId,
+    Expression<String>? baseUrl,
+    Expression<String>? modelId,
+    Expression<bool>? enabled,
+    Expression<int>? sortOrder,
+    Expression<bool>? capabilityText,
+    Expression<bool>? capabilityVision,
+    Expression<bool>? capabilityStreaming,
+    Expression<bool>? capabilityTools,
+    Expression<bool>? capabilityStructured,
+    Expression<int>? contextWindow,
+    Expression<int>? outputBudget,
+    Expression<bool>? isDefaultForTasks,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (alias != null) 'alias': alias,
+      if (preset != null) 'preset': preset,
+      if (protocolId != null) 'protocol_id': protocolId,
+      if (baseUrl != null) 'base_url': baseUrl,
+      if (modelId != null) 'model_id': modelId,
+      if (enabled != null) 'enabled': enabled,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (capabilityText != null) 'capability_text': capabilityText,
+      if (capabilityVision != null) 'capability_vision': capabilityVision,
+      if (capabilityStreaming != null)
+        'capability_streaming': capabilityStreaming,
+      if (capabilityTools != null) 'capability_tools': capabilityTools,
+      if (capabilityStructured != null)
+        'capability_structured': capabilityStructured,
+      if (contextWindow != null) 'context_window': contextWindow,
+      if (outputBudget != null) 'output_budget': outputBudget,
+      if (isDefaultForTasks != null) 'is_default_for_tasks': isDefaultForTasks,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  AiModelRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? alias,
+    Value<String?>? preset,
+    Value<String>? protocolId,
+    Value<String>? baseUrl,
+    Value<String>? modelId,
+    Value<bool>? enabled,
+    Value<int>? sortOrder,
+    Value<bool>? capabilityText,
+    Value<bool>? capabilityVision,
+    Value<bool>? capabilityStreaming,
+    Value<bool>? capabilityTools,
+    Value<bool>? capabilityStructured,
+    Value<int?>? contextWindow,
+    Value<int?>? outputBudget,
+    Value<bool>? isDefaultForTasks,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return AiModelRecordsCompanion(
+      id: id ?? this.id,
+      alias: alias ?? this.alias,
+      preset: preset ?? this.preset,
+      protocolId: protocolId ?? this.protocolId,
+      baseUrl: baseUrl ?? this.baseUrl,
+      modelId: modelId ?? this.modelId,
+      enabled: enabled ?? this.enabled,
+      sortOrder: sortOrder ?? this.sortOrder,
+      capabilityText: capabilityText ?? this.capabilityText,
+      capabilityVision: capabilityVision ?? this.capabilityVision,
+      capabilityStreaming: capabilityStreaming ?? this.capabilityStreaming,
+      capabilityTools: capabilityTools ?? this.capabilityTools,
+      capabilityStructured: capabilityStructured ?? this.capabilityStructured,
+      contextWindow: contextWindow ?? this.contextWindow,
+      outputBudget: outputBudget ?? this.outputBudget,
+      isDefaultForTasks: isDefaultForTasks ?? this.isDefaultForTasks,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (alias.present) {
+      map['alias'] = Variable<String>(alias.value);
+    }
+    if (preset.present) {
+      map['preset'] = Variable<String>(preset.value);
+    }
+    if (protocolId.present) {
+      map['protocol_id'] = Variable<String>(protocolId.value);
+    }
+    if (baseUrl.present) {
+      map['base_url'] = Variable<String>(baseUrl.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (capabilityText.present) {
+      map['capability_text'] = Variable<bool>(capabilityText.value);
+    }
+    if (capabilityVision.present) {
+      map['capability_vision'] = Variable<bool>(capabilityVision.value);
+    }
+    if (capabilityStreaming.present) {
+      map['capability_streaming'] = Variable<bool>(capabilityStreaming.value);
+    }
+    if (capabilityTools.present) {
+      map['capability_tools'] = Variable<bool>(capabilityTools.value);
+    }
+    if (capabilityStructured.present) {
+      map['capability_structured'] = Variable<bool>(capabilityStructured.value);
+    }
+    if (contextWindow.present) {
+      map['context_window'] = Variable<int>(contextWindow.value);
+    }
+    if (outputBudget.present) {
+      map['output_budget'] = Variable<int>(outputBudget.value);
+    }
+    if (isDefaultForTasks.present) {
+      map['is_default_for_tasks'] = Variable<bool>(isDefaultForTasks.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiModelRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('alias: $alias, ')
+          ..write('preset: $preset, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('baseUrl: $baseUrl, ')
+          ..write('modelId: $modelId, ')
+          ..write('enabled: $enabled, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('capabilityText: $capabilityText, ')
+          ..write('capabilityVision: $capabilityVision, ')
+          ..write('capabilityStreaming: $capabilityStreaming, ')
+          ..write('capabilityTools: $capabilityTools, ')
+          ..write('capabilityStructured: $capabilityStructured, ')
+          ..write('contextWindow: $contextWindow, ')
+          ..write('outputBudget: $outputBudget, ')
+          ..write('isDefaultForTasks: $isDefaultForTasks, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6422,6 +7485,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $CitationsTable citations = $CitationsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final $AiModelRecordsTable aiModelRecords = $AiModelRecordsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -6454,6 +7518,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_settings_updated_at',
     'CREATE INDEX ix_settings_updated_at ON settings (updated_at)',
   );
+  late final Index uxAiModelsAlias = Index(
+    'ux_ai_models_alias',
+    'CREATE UNIQUE INDEX ux_ai_models_alias ON ai_model_records (alias)',
+  );
+  late final Index ixAiModelsSort = Index(
+    'ix_ai_models_sort',
+    'CREATE INDEX ix_ai_models_sort ON ai_model_records (sort_order)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6482,6 +7554,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     summaryVersions,
     citations,
     settings,
+    aiModelRecords,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -6490,6 +7563,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixCitationsSummary,
     ixCitationsSource,
     ixSettingsUpdatedAt,
+    uxAiModelsAlias,
+    ixAiModelsSort,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -10445,6 +11520,476 @@ typedef $$SettingsTableProcessedTableManager =
       Setting,
       PrefetchHooks Function()
     >;
+typedef $$AiModelRecordsTableCreateCompanionBuilder =
+    AiModelRecordsCompanion Function({
+      Value<int> id,
+      required String alias,
+      Value<String?> preset,
+      required String protocolId,
+      required String baseUrl,
+      required String modelId,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<bool> capabilityText,
+      Value<bool> capabilityVision,
+      Value<bool> capabilityStreaming,
+      Value<bool> capabilityTools,
+      Value<bool> capabilityStructured,
+      Value<int?> contextWindow,
+      Value<int?> outputBudget,
+      Value<bool> isDefaultForTasks,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$AiModelRecordsTableUpdateCompanionBuilder =
+    AiModelRecordsCompanion Function({
+      Value<int> id,
+      Value<String> alias,
+      Value<String?> preset,
+      Value<String> protocolId,
+      Value<String> baseUrl,
+      Value<String> modelId,
+      Value<bool> enabled,
+      Value<int> sortOrder,
+      Value<bool> capabilityText,
+      Value<bool> capabilityVision,
+      Value<bool> capabilityStreaming,
+      Value<bool> capabilityTools,
+      Value<bool> capabilityStructured,
+      Value<int?> contextWindow,
+      Value<int?> outputBudget,
+      Value<bool> isDefaultForTasks,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$AiModelRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $AiModelRecordsTable> {
+  $$AiModelRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get alias => $composableBuilder(
+    column: $table.alias,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preset => $composableBuilder(
+    column: $table.preset,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUrl => $composableBuilder(
+    column: $table.baseUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get capabilityText => $composableBuilder(
+    column: $table.capabilityText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get capabilityVision => $composableBuilder(
+    column: $table.capabilityVision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get capabilityStreaming => $composableBuilder(
+    column: $table.capabilityStreaming,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get capabilityTools => $composableBuilder(
+    column: $table.capabilityTools,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get capabilityStructured => $composableBuilder(
+    column: $table.capabilityStructured,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get contextWindow => $composableBuilder(
+    column: $table.contextWindow,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get outputBudget => $composableBuilder(
+    column: $table.outputBudget,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AiModelRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AiModelRecordsTable> {
+  $$AiModelRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get alias => $composableBuilder(
+    column: $table.alias,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preset => $composableBuilder(
+    column: $table.preset,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseUrl => $composableBuilder(
+    column: $table.baseUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get capabilityText => $composableBuilder(
+    column: $table.capabilityText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get capabilityVision => $composableBuilder(
+    column: $table.capabilityVision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get capabilityStreaming => $composableBuilder(
+    column: $table.capabilityStreaming,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get capabilityTools => $composableBuilder(
+    column: $table.capabilityTools,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get capabilityStructured => $composableBuilder(
+    column: $table.capabilityStructured,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get contextWindow => $composableBuilder(
+    column: $table.contextWindow,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get outputBudget => $composableBuilder(
+    column: $table.outputBudget,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AiModelRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AiModelRecordsTable> {
+  $$AiModelRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get alias =>
+      $composableBuilder(column: $table.alias, builder: (column) => column);
+
+  GeneratedColumn<String> get preset =>
+      $composableBuilder(column: $table.preset, builder: (column) => column);
+
+  GeneratedColumn<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get baseUrl =>
+      $composableBuilder(column: $table.baseUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get capabilityText => $composableBuilder(
+    column: $table.capabilityText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get capabilityVision => $composableBuilder(
+    column: $table.capabilityVision,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get capabilityStreaming => $composableBuilder(
+    column: $table.capabilityStreaming,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get capabilityTools => $composableBuilder(
+    column: $table.capabilityTools,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get capabilityStructured => $composableBuilder(
+    column: $table.capabilityStructured,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get contextWindow => $composableBuilder(
+    column: $table.contextWindow,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get outputBudget => $composableBuilder(
+    column: $table.outputBudget,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDefaultForTasks => $composableBuilder(
+    column: $table.isDefaultForTasks,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$AiModelRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AiModelRecordsTable,
+          AiModelRecord,
+          $$AiModelRecordsTableFilterComposer,
+          $$AiModelRecordsTableOrderingComposer,
+          $$AiModelRecordsTableAnnotationComposer,
+          $$AiModelRecordsTableCreateCompanionBuilder,
+          $$AiModelRecordsTableUpdateCompanionBuilder,
+          (
+            AiModelRecord,
+            BaseReferences<_$AppDatabase, $AiModelRecordsTable, AiModelRecord>,
+          ),
+          AiModelRecord,
+          PrefetchHooks Function()
+        > {
+  $$AiModelRecordsTableTableManager(
+    _$AppDatabase db,
+    $AiModelRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AiModelRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AiModelRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AiModelRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> alias = const Value.absent(),
+                Value<String?> preset = const Value.absent(),
+                Value<String> protocolId = const Value.absent(),
+                Value<String> baseUrl = const Value.absent(),
+                Value<String> modelId = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> capabilityText = const Value.absent(),
+                Value<bool> capabilityVision = const Value.absent(),
+                Value<bool> capabilityStreaming = const Value.absent(),
+                Value<bool> capabilityTools = const Value.absent(),
+                Value<bool> capabilityStructured = const Value.absent(),
+                Value<int?> contextWindow = const Value.absent(),
+                Value<int?> outputBudget = const Value.absent(),
+                Value<bool> isDefaultForTasks = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => AiModelRecordsCompanion(
+                id: id,
+                alias: alias,
+                preset: preset,
+                protocolId: protocolId,
+                baseUrl: baseUrl,
+                modelId: modelId,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                capabilityText: capabilityText,
+                capabilityVision: capabilityVision,
+                capabilityStreaming: capabilityStreaming,
+                capabilityTools: capabilityTools,
+                capabilityStructured: capabilityStructured,
+                contextWindow: contextWindow,
+                outputBudget: outputBudget,
+                isDefaultForTasks: isDefaultForTasks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String alias,
+                Value<String?> preset = const Value.absent(),
+                required String protocolId,
+                required String baseUrl,
+                required String modelId,
+                Value<bool> enabled = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> capabilityText = const Value.absent(),
+                Value<bool> capabilityVision = const Value.absent(),
+                Value<bool> capabilityStreaming = const Value.absent(),
+                Value<bool> capabilityTools = const Value.absent(),
+                Value<bool> capabilityStructured = const Value.absent(),
+                Value<int?> contextWindow = const Value.absent(),
+                Value<int?> outputBudget = const Value.absent(),
+                Value<bool> isDefaultForTasks = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => AiModelRecordsCompanion.insert(
+                id: id,
+                alias: alias,
+                preset: preset,
+                protocolId: protocolId,
+                baseUrl: baseUrl,
+                modelId: modelId,
+                enabled: enabled,
+                sortOrder: sortOrder,
+                capabilityText: capabilityText,
+                capabilityVision: capabilityVision,
+                capabilityStreaming: capabilityStreaming,
+                capabilityTools: capabilityTools,
+                capabilityStructured: capabilityStructured,
+                contextWindow: contextWindow,
+                outputBudget: outputBudget,
+                isDefaultForTasks: isDefaultForTasks,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AiModelRecordsTable, AiModelRecord>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $AiModelRecordsTable,
+                    AiModelRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AiModelRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AiModelRecordsTable,
+      AiModelRecord,
+      $$AiModelRecordsTableFilterComposer,
+      $$AiModelRecordsTableOrderingComposer,
+      $$AiModelRecordsTableAnnotationComposer,
+      $$AiModelRecordsTableCreateCompanionBuilder,
+      $$AiModelRecordsTableUpdateCompanionBuilder,
+      (
+        AiModelRecord,
+        BaseReferences<_$AppDatabase, $AiModelRecordsTable, AiModelRecord>,
+      ),
+      AiModelRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10467,4 +12012,6 @@ class $AppDatabaseManager {
       $$CitationsTableTableManager(_db, _db.citations);
   $$SettingsTableTableManager get settings =>
       $$SettingsTableTableManager(_db, _db.settings);
+  $$AiModelRecordsTableTableManager get aiModelRecords =>
+      $$AiModelRecordsTableTableManager(_db, _db.aiModelRecords);
 }

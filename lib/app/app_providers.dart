@@ -17,6 +17,11 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
+import 'package:flux/features/ai/application/ai_ports.dart';
+import 'package:flux/features/ai/application/model_manager.dart';
+import 'package:flux/features/ai/application/model_manager_controller.dart';
+import 'package:flux/features/ai/domain/ai_model_store.dart';
+import 'package:flux/features/ai/domain/ai_provider.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_extraction_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
@@ -26,6 +31,7 @@ import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/feeds/application/refresh_providers.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
+import 'package:flux/features/settings/application/settings_store.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/article_catalog_store.dart';
 import 'package:flux/infrastructure/local/article_search_store.dart';
@@ -38,6 +44,8 @@ import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
+import 'package:flux/infrastructure/local/ai_model_store.dart';
+import 'package:flux/infrastructure/local/degraded_ai_model_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
@@ -45,6 +53,7 @@ import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
+import 'package:flux/infrastructure/platform/ai_credential_adapter.dart';
 import 'package:flux/infrastructure/platform/external_link_opener.dart';
 import 'package:flux/infrastructure/platform/file_selector_access.dart';
 import 'package:flux/infrastructure/platform/image_save_service.dart';
@@ -125,6 +134,13 @@ List<Override> bootstrapOverrides(
   ReadingStatsStore? readingStatsStore,
   // T024：静态网页抓取端口也参数化（理由同上：Riverpod 禁止重复覆盖）。
   StaticPageFetcherPort? staticPageFetcher,
+  // T025：AI 模型存储端口同样参数化（同一理由）。默认值按数据库是否可用选择
+  // （见下方 catalogDatabase 分支）；参数化让测试能构造「列表读取失败」这类无法用
+  // 内存库直接制造的世界。
+  AiModelStore? aiModelStore,
+  // T025：适配器工厂。生产在 T026 接上真实适配器；为空时「测试连接」会明确报
+  // 「适配器尚未实现」，而不是静默什么都不做。
+  AiProviderFactory? aiProviderFactory,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -145,6 +161,22 @@ List<Override> bootstrapOverrides(
     diagnosticSinkProvider.overrideWithValue(
       DiagnosticLogSink(result.diagnosticLog),
     ),
+    // ---- T025：AI 模型与凭据 ------------------------------------------------
+    // 凭据端口读的是**同一个** result.credentialStore：组合根已经决定好「这次运行
+    // 用 Keychain 还是会话内存」，AI 配置不该有第二条判断路径——否则两处可能得出
+    // 不同结论（一处以为会持久化，另一处知道不会）。
+    aiCredentialStoreProvider.overrideWithValue(
+      AiCredentialStoreAdapter(result.credentialStore),
+    ),
+    aiDiagnosticSinkProvider.overrideWithValue(
+      DiagnosticLogSink(result.diagnosticLog),
+    ),
+    // 设置读取端口复用同一个 settingsStore：引用检查（SET-034/035）读到的值必须与
+    // 设置页写到的是同一份，否则删除确认框会基于另一份配置说「没有被引用」。
+    aiSettingsReaderProvider.overrideWithValue(
+      SettingsStoreReader(result.settingsStore),
+    ),
+    aiProviderFactoryProvider.overrideWithValue(aiProviderFactory),
     if (result.database case final AppDatabase database)
       databaseProvider.overrideWithValue(database),
     // ---- T014：订阅管理相关的端口 -------------------------------------------
@@ -239,6 +271,11 @@ List<Override> bootstrapOverrides(
       readingStatsProvider.overrideWithValue(
         readingStatsStore ?? DriftReadingStatsStore(catalogDatabase),
       ),
+      // T025：AI 模型记录。与其它数据表同一个库，因此「数据库不可用」时下面的
+      // 降级分支会给出明确的只读/写入失败语义。
+      aiModelStoreProvider.overrideWithValue(
+        aiModelStore ?? DriftAiModelStore(catalogDatabase),
+      ),
       // T024：提取正文读写。
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
@@ -269,6 +306,11 @@ List<Override> bootstrapOverrides(
       articleExtractionProvider.overrideWithValue(
         const DegradedArticleExtractionStore(),
       ),
+      // T025：数据库不可用时模型列表读作空（这是**真实**答案：本次运行确实没有
+      // 任何可用模型），写入明确失败（不假装保存成功）。
+      aiModelStoreProvider.overrideWithValue(
+        aiModelStore ?? const DegradedAiModelStore(),
+      ),
     ],
     // ---- T024：静态网页抓取 --------------------------------------------------
     // 与数据库无关（只需要 HTTP），因此两种启动状态下都给真实实现：降级模式只是不
@@ -277,4 +319,19 @@ List<Override> bootstrapOverrides(
       staticPageFetcher ?? HttpStaticPageFetcherAdapter(),
     ),
   ];
+}
+
+/// 把 T011 的 [SettingsStore] 适配成 T025 的只读设置端口。
+///
+/// 只转发「按编号读」：模型管理只需要 SET-034/035 两个值做引用检查，不需要写入口——
+/// 给它写能力会让「模型管理顺手改了设置」成为可能，而设置页的状态并不会因此刷新，
+/// 出现两处状态源。
+final class SettingsStoreReader implements SettingsReader {
+  /// 绑定一个设置端口。
+  const SettingsStoreReader(this._store);
+
+  final SettingsStore _store;
+
+  @override
+  Future<Result<Object?>> readSetting(SettingId id) => _store.readSetting(id);
 }

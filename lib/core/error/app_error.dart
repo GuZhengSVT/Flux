@@ -310,3 +310,160 @@ final class StateTransitionError extends AppError {
   @override
   String get kind => 'stateTransition';
 }
+
+// ---------------------------------------------------------------------------
+// AI / 服务商调用错误（T025）
+// ---------------------------------------------------------------------------
+//
+// 为什么这四个子类住在 core 而不是 lib/features/ai：core 的 [AppError] 是
+// **sealed** 类型，闭包里的子类必须与它同库（否则 sealed 的穷尽匹配能力就失去意义）。
+// 它们描述的是「调用一个外部服务商失败」这类通用语义，与具体某家协议无关，因此放在
+// core 是合适的归属。
+//
+// 为什么不能只复用 ProviderError(kind: ...)：上层对它们的**动作不同**，而且都不能靠
+// 「换个模型重试」绕过：
+//   - [RateLimitError]：可重试，且 429 可能带 Retry-After，重试前要等待；
+//   - [AuthError]：不可重试，Key 错/余额不足，重试只会白花钱；
+//   - [ContentFilteredError]：不可重试，也**不得跨服务商重试规避**（架构 4.5 明确写了
+//     这一条：换一家的模型再问一遍是绕过审核，不是容错）。
+// 若都塞进 ProviderError(kind: 'rateLimited') 这类字符串，任何一处漏判断字符串，就会
+// 把「认证失败」当成「稍后重试」而无限重试、无限计费。
+//
+// 安全约束：[detail] 只放结构性描述（错误类型、状态码、服务商错误码），不放响应体
+// 原文——响应体可能回显请求内容（架构第 8 节）。基类构造器还会对 message 再跑一遍脱敏。
+
+/// 限流：服务商要求稍后重试（HTTP 429）。
+final class RateLimitError extends AppError {
+  /// 构造限流错误。
+  RateLimitError({
+    required this.provider,
+    this.statusCode = 429,
+    this.retryAfter,
+    String? detail,
+    super.cause,
+    super.stackTrace,
+  }) : super(
+         '调用被限流：$provider'
+         '${retryAfter == null ? '' : '，建议 ${retryAfter.inSeconds}s 后重试'}'
+         '${detail == null || detail.isEmpty ? '' : ' — $detail'}',
+         isRetryable: true,
+       );
+
+  /// 提供商别名（本机配置的别名，不是 Base URL）。
+  final String provider;
+
+  /// HTTP 状态码（通常 429）。
+  final int? statusCode;
+
+  /// 服务商建议的等待时长（来自 Retry-After 头）；未给出或无法解析时为 null。
+  ///
+  /// 只在**解析成功**时非 null：日期形式的 Retry-After 需要「现在」才能换算成时长，
+  /// 适配器不持有可信时钟，因此这里不猜一个秒数，交上层按退避策略处理（架构 4.5 的
+  /// 2/4/8/16 秒）。
+  final Duration? retryAfter;
+
+  @override
+  String get kind => 'rateLimited';
+}
+
+/// 认证/授权失败：Key 缺失、错误、无权限或余额不足（HTTP 401/402/403）。
+final class AuthError extends AppError {
+  /// 构造认证错误。
+  AuthError({
+    required this.provider,
+    this.statusCode,
+    String? detail,
+    super.cause,
+    super.stackTrace,
+  }) : super(
+         '认证失败：$provider'
+         '${statusCode == null ? '' : ' (HTTP $statusCode)'}'
+         '${detail == null || detail.isEmpty ? '' : ' — $detail'}',
+         // 不可重试：Key 不会因为再试一次而变对（架构 4.5「Key 错、余额不足、
+         // 模型不存在，直接标记配置错误」）。
+         isRetryable: false,
+       );
+
+  /// 提供商别名。
+  final String provider;
+
+  /// HTTP 状态码；未收到响应（例如本地发现 Key 缺失就直接拒绝）时为 null。
+  final int? statusCode;
+
+  @override
+  String get kind => 'authentication';
+}
+
+/// 内容被拒绝：服务商的内容策略拦截了本次请求或输出（HTTP 400 content_filter 等）。
+final class ContentFilteredError extends AppError {
+  /// 构造内容拒绝错误。
+  ContentFilteredError({
+    required this.provider,
+    this.statusCode,
+    String? detail,
+    super.cause,
+    super.stackTrace,
+  }) : super(
+         '内容被服务商拒绝：$provider'
+         '${statusCode == null ? '' : ' (HTTP $statusCode)'}'
+         '${detail == null || detail.isEmpty ? '' : ' — $detail'}',
+         isRetryable: false,
+       );
+
+  /// 提供商别名。
+  final String provider;
+
+  /// HTTP 状态码（通常 400）。
+  final int? statusCode;
+
+  @override
+  String get kind => 'contentFiltered';
+}
+
+/// 模型仍被其他配置引用（T025：删除引用不悬空）。
+///
+/// 这是一个**需要用户决策**的结果，不是错误：引用存在时删除会让视觉路由或故障转移
+/// 列表指向不存在的模型，因此先返回它、由界面展示「谁在用它」并提供明确确认；
+/// 用户确认后带 force 再删。
+///
+/// 单独一个类型而不是 ValidationError：界面需要拿到 [referenceDescriptions] 才能说清
+/// 「被哪里引用」，而从 ValidationError 里反解引用信息只能靠解析文案。
+final class ModelInUseError extends AppError {
+  /// 构造「仍被引用」错误。
+  ModelInUseError({required this.alias, required this.referenceDescriptions})
+    : super('模型 $alias 仍被引用：${referenceDescriptions.join('、')}');
+
+  /// 被引用的模型别名。
+  final String alias;
+
+  /// 引用来源的稳定描述（$defaultForTasks、$visionModel(SET-034) 等）。
+  final List<String> referenceDescriptions;
+
+  @override
+  String get kind => 'modelInUse';
+}
+
+/// 模型配置不可用（协议无适配器、Key 缺失、模型未启用等**配置层面**的拒绝）。
+///
+/// 与 [ProviderError] 的区别：这一类在**发出请求之前**就确定了，重试不会改变结果，
+/// 界面的下一步动作是「去改配置」而不是「稍后重试」。
+final class ModelConfigurationError extends AppError {
+  /// 构造配置错误。
+  ModelConfigurationError({
+    required this.alias,
+    required this.reason,
+    String? detail,
+  }) : super(
+         '模型配置不可用：$alias — $reason'
+         '${detail == null || detail.isEmpty ? '' : ' ($detail)'}',
+       );
+
+  /// 模型别名。
+  final String alias;
+
+  /// 结构性原因（例如 $adapterMissing、$credentialMissing、$disabled）。
+  final String reason;
+
+  @override
+  String get kind => 'modelConfiguration';
+}

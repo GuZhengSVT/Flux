@@ -157,8 +157,10 @@ void main() {
       // 星期与日期标签、清空确认与回执、开关与空闲暂停、空态与估计值说明）＋ T024
       // 新增 13 条原站静态全文文案（入口、加载、成功、失败、原文/提取切换、付费墙与
       // JS 站提示、外开、无地址、无脚本说明）——两者同轮交付，因此一起计入。
-      expect(_messageKeys(zh).length, 426);
-      expect(_messageKeys(en).length, 426);
+      // T025 新增 75 条 AI 服务文案（入口、页面、模型表单四项 SET、能力五项、
+      // 预算说明、Key 遮盖与状态、费用确认、12 类失败文案、删除与引用确认）。
+      expect(_messageKeys(zh).length, 501);
+      expect(_messageKeys(en).length, 501);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

@@ -1537,4 +1537,279 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readingFetchFullTextButtonHint =>
       'Fetches the source only when you click, never automatically or in the background.';
+
+  @override
+  String get settingsAiEntryTitle => 'AI services';
+
+  @override
+  String get settingsAiEntrySubtitle =>
+      'Providers, models, capabilities and credentials (SET-030-033)';
+
+  @override
+  String get aiPageTitle => 'AI services';
+
+  @override
+  String get aiModelsSection => 'Models and providers';
+
+  @override
+  String get aiEmptyNotice =>
+      'No model is configured yet. Add a provider and a model ID before AI features can be used.';
+
+  @override
+  String get aiAddModel => 'Add model';
+
+  @override
+  String get aiEditModel => 'Edit';
+
+  @override
+  String get aiDeleteModel => 'Delete';
+
+  @override
+  String get aiProtocolLabel => 'Protocol';
+
+  @override
+  String get aiProtocolHint =>
+      'The protocol decides the request and event-stream shapes; different paths on the same host are not interchangeable.';
+
+  @override
+  String get aiProtocolPendingSuffix => ' (adapter pending)';
+
+  @override
+  String get aiAliasLabel => 'Provider alias';
+
+  @override
+  String get aiAliasHint =>
+      'Unique on this device; identifies this credential and labels the model list and failover order.';
+
+  @override
+  String get aiBaseUrlLabel => 'Base URL';
+
+  @override
+  String get aiBaseUrlHint =>
+      'Host or shared prefix only, for example https://api.deepseek.com; the adapter appends the protocol path.';
+
+  @override
+  String get aiModelIdLabel => 'Model ID';
+
+  @override
+  String get aiModelIdHint =>
+      'You can type it by hand when no list endpoint exists; it must match the provider\'s model name exactly.';
+
+  @override
+  String get aiApiKeyLabel => 'API key (SET-031)';
+
+  @override
+  String aiApiKeyConfigured(String preview) {
+    return 'Configured: $preview';
+  }
+
+  @override
+  String get aiApiKeyNotConfigured => 'Not configured';
+
+  @override
+  String get aiApiKeyHint =>
+      'Written only to the system secure store (Keychain): never the database, logs, sync or backups.';
+
+  @override
+  String get aiApiKeyReplace => 'Replace key';
+
+  @override
+  String get aiApiKeyClear => 'Delete key';
+
+  @override
+  String get aiApiKeyUnavailable =>
+      'Secure storage is unavailable on this device; a key entered now will not be saved.';
+
+  @override
+  String get aiCapabilitySection => 'Capabilities (SET-033)';
+
+  @override
+  String get aiCapabilityHint =>
+      'You declare capabilities; they are never inferred from the model name. A model without vision will not receive images.';
+
+  @override
+  String get aiCapabilityText => 'Text';
+
+  @override
+  String get aiCapabilityVision => 'Vision';
+
+  @override
+  String get aiCapabilityStreaming => 'Streaming';
+
+  @override
+  String get aiCapabilityTools => 'Tool calling';
+
+  @override
+  String get aiCapabilityStructured => 'Structured output';
+
+  @override
+  String get aiContextWindowLabel => 'Context limit (tokens)';
+
+  @override
+  String get aiOutputBudgetLabel => 'Output limit (tokens)';
+
+  @override
+  String aiBudgetConservativeHint(int context, int output) {
+    return 'Empty means undeclared: the conservative budget is used (context $context, output $output). This is not a real capability expansion.';
+  }
+
+  @override
+  String get aiEnabledLabel => 'Enabled';
+
+  @override
+  String get aiDefaultForTasksLabel => 'Set as default model for tasks';
+
+  @override
+  String get aiDefaultForTasksBadge => 'Default';
+
+  @override
+  String get aiMoveUp => 'Move up (failover order)';
+
+  @override
+  String get aiMoveDown => 'Move down (failover order)';
+
+  @override
+  String get aiSortHint =>
+      'Order decides the failover sequence (SET-032/035); disabled models do not take part.';
+
+  @override
+  String get aiSaveAction => 'Save';
+
+  @override
+  String get aiCancelAction => 'Cancel';
+
+  @override
+  String aiFormInvalid(String detail) {
+    return 'Please check: $detail';
+  }
+
+  @override
+  String get aiTestButton => 'Test connection and minimal generation';
+
+  @override
+  String get aiTestCostTitle => 'This test costs money';
+
+  @override
+  String aiTestCostBody(String provider, int tokens) {
+    return 'The test sends one real generation request to $provider (output limit $tokens tokens). It may be billed, and a protocol without idempotency keys cannot guarantee exactly-once billing. Continue?';
+  }
+
+  @override
+  String get aiTestCostConfirm => 'Confirm and test';
+
+  @override
+  String get aiTestRunning => 'Testing…';
+
+  @override
+  String aiTestSuccess(int elapsedMs, int chars) {
+    return 'Test passed: $elapsedMs ms, $chars characters returned';
+  }
+
+  @override
+  String aiTestSuccessWithUsage(
+    int elapsedMs,
+    int inputTokens,
+    int outputTokens,
+    int chars,
+  ) {
+    return 'Test passed: $elapsedMs ms, $inputTokens input / $outputTokens output tokens, $chars characters returned';
+  }
+
+  @override
+  String aiTestFailed(String reason) {
+    return 'Test failed: $reason';
+  }
+
+  @override
+  String get aiFailureAuth =>
+      'Authentication failed: the key may be wrong, or the account is out of credit.';
+
+  @override
+  String get aiFailureRateLimited =>
+      'The provider is rate limiting; try again later.';
+
+  @override
+  String get aiFailureContentFiltered =>
+      'The provider refused the content. This is not a network problem, and switching providers cannot circumvent it.';
+
+  @override
+  String aiFailureNetwork(String reason) {
+    return 'Network request failed: $reason';
+  }
+
+  @override
+  String get aiFailureTimeout => 'The request timed out.';
+
+  @override
+  String get aiFailureCancelled => 'Cancelled.';
+
+  @override
+  String get aiFailureAdapterMissing =>
+      'No adapter is implemented for this protocol yet, so it cannot be called.';
+
+  @override
+  String get aiFailureCredentialMissing => 'No API key is configured.';
+
+  @override
+  String get aiFailureDisabled => 'This model is currently disabled.';
+
+  @override
+  String aiFailureValidation(String reason) {
+    return 'Invalid configuration: $reason';
+  }
+
+  @override
+  String get aiFailureStorage =>
+      'Writing to local storage failed; this change was not saved.';
+
+  @override
+  String aiFailureUnknown(String reason) {
+    return 'Call failed: $reason';
+  }
+
+  @override
+  String aiDeleteConfirmTitle(String alias) {
+    return 'Delete model “$alias”?';
+  }
+
+  @override
+  String get aiDeleteConfirmBody =>
+      'This model record will no longer be usable. Its API key is not deleted.';
+
+  @override
+  String aiDeleteInUseBody(String references) {
+    return 'This model is still referenced by: $references. After deletion those settings point at a model that no longer exists, and you must fix them by hand.';
+  }
+
+  @override
+  String get aiReferenceDefaultForTasks => 'Default model for tasks';
+
+  @override
+  String get aiReferenceVisionModel => 'SET-034 vision model';
+
+  @override
+  String get aiReferenceFailover => 'SET-035 failover allow list';
+
+  @override
+  String get aiDeleteConfirmYes => 'Delete anyway';
+
+  @override
+  String get aiDeleteCancel => 'Cancel';
+
+  @override
+  String aiDeleteFailed(String reason) {
+    return 'Delete failed: $reason';
+  }
+
+  @override
+  String get aiSavedNotice => 'Saved.';
+
+  @override
+  String aiLoadFailed(String reason) {
+    return 'Could not load the model list: $reason';
+  }
+
+  @override
+  String get aiPlannedNotice =>
+      'Cross-model failover pause/retry rules (the SET-035 five-no-response rule) and the auto-summary switch (SET-037) belong to T029/T034; this page only configures providers and models.';
 }

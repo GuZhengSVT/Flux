@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/app_metadata.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/ai/presentation/ai_services_page.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
 import 'package:flux/features/statistics/presentation/reading_stats_page.dart';
 import 'package:flux/l10n/l10n.dart';
@@ -105,6 +106,19 @@ class _SettingsBody extends ConsumerWidget {
               ref.read(settingsControllerProvider.notifier).setTheme(value),
         ),
         _SectionHeader(title: l10n.subscriptionManagerTitle),
+        // T025：AI 服务（提供商/模型/能力/凭据）。SET-030–033 在本页真实生效，
+        // 因此它从「即将推出」占位里移除，改成这个入口——留一个禁用的占位项而功能
+        // 其实可用，会让 T051 的设置审计无法区分「已实现」与「看起来能用」。
+        _NavigationRow(
+          title: l10n.settingsAiEntryTitle,
+          subtitle: l10n.settingsAiEntrySubtitle,
+          icon: Icons.smart_toy_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const AiServicesPage(),
+            ),
+          ),
+        ),
         _NavigationRow(
           title: l10n.subscriptionManagerTitle,
           subtitle: l10n.subscriptionManagerNotice,

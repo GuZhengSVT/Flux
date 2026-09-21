@@ -2664,6 +2664,461 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'仅在点击时抓取原站，不会自动或后台执行。'**
   String get readingFetchFullTextButtonHint;
+
+  /// 设置页入口：AI 服务配置
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 服务'**
+  String get settingsAiEntryTitle;
+
+  /// 设置页入口副标题
+  ///
+  /// In zh, this message translates to:
+  /// **'提供商、模型、能力与凭据（SET-030–033）'**
+  String get settingsAiEntrySubtitle;
+
+  /// AI 服务页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 服务'**
+  String get aiPageTitle;
+
+  /// 模型列表分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'模型与提供商'**
+  String get aiModelsSection;
+
+  /// 模型列表为空时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有配置任何模型。添加一个提供商与模型 ID 之后，AI 功能才可用。'**
+  String get aiEmptyNotice;
+
+  /// 新增模型按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'添加模型'**
+  String get aiAddModel;
+
+  /// 编辑模型
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑'**
+  String get aiEditModel;
+
+  /// 删除模型
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get aiDeleteModel;
+
+  /// 协议选择标签
+  ///
+  /// In zh, this message translates to:
+  /// **'协议'**
+  String get aiProtocolLabel;
+
+  /// 协议选择说明
+  ///
+  /// In zh, this message translates to:
+  /// **'协议决定请求与事件流的形状；同名域名下不同路径的协议并不通用。'**
+  String get aiProtocolHint;
+
+  /// 协议选项后缀：适配器尚未实现
+  ///
+  /// In zh, this message translates to:
+  /// **'（适配器待实现）'**
+  String get aiProtocolPendingSuffix;
+
+  /// 别名标签
+  ///
+  /// In zh, this message translates to:
+  /// **'提供商别名'**
+  String get aiAliasLabel;
+
+  /// 别名说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本机唯一，用于标识这份凭据；模型列表与故障转移顺序按它显示。'**
+  String get aiAliasHint;
+
+  /// Base URL 标签
+  ///
+  /// In zh, this message translates to:
+  /// **'Base URL'**
+  String get aiBaseUrlLabel;
+
+  /// Base URL 说明
+  ///
+  /// In zh, this message translates to:
+  /// **'只填到主机或公共前缀即可，例如 https://api.deepseek.com；协议路径由适配器追加。'**
+  String get aiBaseUrlHint;
+
+  /// 模型 ID 标签
+  ///
+  /// In zh, this message translates to:
+  /// **'模型 ID'**
+  String get aiModelIdLabel;
+
+  /// 模型 ID 说明
+  ///
+  /// In zh, this message translates to:
+  /// **'列表接口不可用时可以手填；必须与服务商的模型名完全一致。'**
+  String get aiModelIdHint;
+
+  /// API Key 标签
+  ///
+  /// In zh, this message translates to:
+  /// **'API Key（SET-031）'**
+  String get aiApiKeyLabel;
+
+  /// 已配置 Key 时的遮盖显示；preview 为固定长度的掩码
+  ///
+  /// In zh, this message translates to:
+  /// **'已配置：{preview}'**
+  String aiApiKeyConfigured(String preview);
+
+  /// 未配置 Key
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未配置'**
+  String get aiApiKeyNotConfigured;
+
+  /// Key 存储说明
+  ///
+  /// In zh, this message translates to:
+  /// **'只写入系统安全存储（钥匙串），不进数据库、不进日志、不随同步或备份外传。'**
+  String get aiApiKeyHint;
+
+  /// 替换 Key 按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'替换 Key'**
+  String get aiApiKeyReplace;
+
+  /// 删除 Key 按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除 Key'**
+  String get aiApiKeyClear;
+
+  /// 安全存储不可用提示
+  ///
+  /// In zh, this message translates to:
+  /// **'本机安全存储不可用，本次会话可以填 Key 但不会保存。'**
+  String get aiApiKeyUnavailable;
+
+  /// 能力分区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'能力（SET-033）'**
+  String get aiCapabilitySection;
+
+  /// 能力说明
+  ///
+  /// In zh, this message translates to:
+  /// **'能力由你声明，不由模型名推断。未声明视觉能力的模型不会收到图片。'**
+  String get aiCapabilityHint;
+
+  /// 文本能力
+  ///
+  /// In zh, this message translates to:
+  /// **'文本'**
+  String get aiCapabilityText;
+
+  /// 视觉能力
+  ///
+  /// In zh, this message translates to:
+  /// **'视觉'**
+  String get aiCapabilityVision;
+
+  /// 流式能力
+  ///
+  /// In zh, this message translates to:
+  /// **'流式'**
+  String get aiCapabilityStreaming;
+
+  /// 工具调用能力
+  ///
+  /// In zh, this message translates to:
+  /// **'工具调用'**
+  String get aiCapabilityTools;
+
+  /// 结构化输出能力
+  ///
+  /// In zh, this message translates to:
+  /// **'结构化输出'**
+  String get aiCapabilityStructured;
+
+  /// 上下文上限标签
+  ///
+  /// In zh, this message translates to:
+  /// **'上下文上限（token）'**
+  String get aiContextWindowLabel;
+
+  /// 输出上限标签
+  ///
+  /// In zh, this message translates to:
+  /// **'输出上限（token）'**
+  String get aiOutputBudgetLabel;
+
+  /// 保守预算说明
+  ///
+  /// In zh, this message translates to:
+  /// **'留空表示未声明：按保守预算使用（上下文 {context}、输出 {output}），这不是真实能力扩容。'**
+  String aiBudgetConservativeHint(int context, int output);
+
+  /// 启用开关
+  ///
+  /// In zh, this message translates to:
+  /// **'启用'**
+  String get aiEnabledLabel;
+
+  /// 默认模型开关
+  ///
+  /// In zh, this message translates to:
+  /// **'设为任务默认模型'**
+  String get aiDefaultForTasksLabel;
+
+  /// 默认模型标记
+  ///
+  /// In zh, this message translates to:
+  /// **'默认'**
+  String get aiDefaultForTasksBadge;
+
+  /// 上移排序
+  ///
+  /// In zh, this message translates to:
+  /// **'上移（故障转移顺序）'**
+  String get aiMoveUp;
+
+  /// 下移排序
+  ///
+  /// In zh, this message translates to:
+  /// **'下移（故障转移顺序）'**
+  String get aiMoveDown;
+
+  /// 排序说明
+  ///
+  /// In zh, this message translates to:
+  /// **'顺序决定故障转移的先后（SET-032/035）；停用的模型不参与。'**
+  String get aiSortHint;
+
+  /// 保存按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存'**
+  String get aiSaveAction;
+
+  /// 取消按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get aiCancelAction;
+
+  /// 表单校验失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'请检查：{detail}'**
+  String aiFormInvalid(String detail);
+
+  /// 测试按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'测试连接与最小生成'**
+  String get aiTestButton;
+
+  /// 费用确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'这次测试会产生费用'**
+  String get aiTestCostTitle;
+
+  /// 费用确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'测试会向 {provider} 发起一次真实生成调用（输出上限 {tokens} token），可能产生费用，且不支持幂等键的协议无法保证只计费一次。是否继续？'**
+  String aiTestCostBody(String provider, int tokens);
+
+  /// 费用确认的确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'确认并测试'**
+  String get aiTestCostConfirm;
+
+  /// 测试进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在测试…'**
+  String get aiTestRunning;
+
+  /// 测试成功（无 usage 信息时）
+  ///
+  /// In zh, this message translates to:
+  /// **'测试成功：耗时 {elapsedMs} 毫秒，返回 {chars} 字符'**
+  String aiTestSuccess(int elapsedMs, int chars);
+
+  /// 测试成功（含 usage）
+  ///
+  /// In zh, this message translates to:
+  /// **'测试成功：耗时 {elapsedMs} 毫秒，输入 {inputTokens} / 输出 {outputTokens} token，返回 {chars} 字符'**
+  String aiTestSuccessWithUsage(
+    int elapsedMs,
+    int inputTokens,
+    int outputTokens,
+    int chars,
+  );
+
+  /// 测试失败
+  ///
+  /// In zh, this message translates to:
+  /// **'测试失败：{reason}'**
+  String aiTestFailed(String reason);
+
+  /// 认证失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'认证失败：Key 可能不正确，或账号余额不足。'**
+  String get aiFailureAuth;
+
+  /// 限流文案
+  ///
+  /// In zh, this message translates to:
+  /// **'被服务商限流，请稍后再试。'**
+  String get aiFailureRateLimited;
+
+  /// 内容拒绝文案
+  ///
+  /// In zh, this message translates to:
+  /// **'内容被服务商拒绝。这不是网络问题，换一家服务商重试也不能规避。'**
+  String get aiFailureContentFiltered;
+
+  /// 网络失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'网络请求失败：{reason}'**
+  String aiFailureNetwork(String reason);
+
+  /// 超时文案
+  ///
+  /// In zh, this message translates to:
+  /// **'请求超时。'**
+  String get aiFailureTimeout;
+
+  /// 取消文案
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消。'**
+  String get aiFailureCancelled;
+
+  /// 适配器缺失文案
+  ///
+  /// In zh, this message translates to:
+  /// **'该协议的适配器尚未实现，当前无法调用。'**
+  String get aiFailureAdapterMissing;
+
+  /// Key 缺失文案
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未配置 API Key。'**
+  String get aiFailureCredentialMissing;
+
+  /// 模型停用文案
+  ///
+  /// In zh, this message translates to:
+  /// **'这个模型当前是停用状态。'**
+  String get aiFailureDisabled;
+
+  /// 校验失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'配置无效：{reason}'**
+  String aiFailureValidation(String reason);
+
+  /// 存储失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'本地存储写入失败，本次改动没有保存。'**
+  String get aiFailureStorage;
+
+  /// 其它失败文案
+  ///
+  /// In zh, this message translates to:
+  /// **'调用失败：{reason}'**
+  String aiFailureUnknown(String reason);
+
+  /// 删除确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除模型「{alias}」？'**
+  String aiDeleteConfirmTitle(String alias);
+
+  /// 删除确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'删除后这条模型记录不再可用。它使用的 API Key 不会被删除。'**
+  String get aiDeleteConfirmBody;
+
+  /// 被引用时的删除确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'这个模型仍被以下配置引用：{references}。删除后这些配置会指向不存在的模型，需要你随后手动修正。'**
+  String aiDeleteInUseBody(String references);
+
+  /// 引用来源：任务默认模型
+  ///
+  /// In zh, this message translates to:
+  /// **'任务默认模型'**
+  String get aiReferenceDefaultForTasks;
+
+  /// 引用来源：视觉模型
+  ///
+  /// In zh, this message translates to:
+  /// **'SET-034 专用视觉模型'**
+  String get aiReferenceVisionModel;
+
+  /// 引用来源：故障转移允许列表
+  ///
+  /// In zh, this message translates to:
+  /// **'SET-035 故障转移允许列表'**
+  String get aiReferenceFailover;
+
+  /// 确认删除
+  ///
+  /// In zh, this message translates to:
+  /// **'仍然删除'**
+  String get aiDeleteConfirmYes;
+
+  /// 取消删除
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get aiDeleteCancel;
+
+  /// 删除失败
+  ///
+  /// In zh, this message translates to:
+  /// **'删除失败：{reason}'**
+  String aiDeleteFailed(String reason);
+
+  /// 保存成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存。'**
+  String get aiSavedNotice;
+
+  /// 读取失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取模型列表失败：{reason}'**
+  String aiLoadFailed(String reason);
+
+  /// 未实现部分说明
+  ///
+  /// In zh, this message translates to:
+  /// **'故障转移的跨模型暂停/重试规则（SET-035 的五次无响应）与自动摘要开关（SET-037）属 T029/T034，本页只做提供商与模型配置。'**
+  String get aiPlannedNotice;
 }
 
 class _AppLocalizationsDelegate

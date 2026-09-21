@@ -1468,4 +1468,264 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingFetchFullTextButtonHint => '仅在点击时抓取原站，不会自动或后台执行。';
+
+  @override
+  String get settingsAiEntryTitle => 'AI 服务';
+
+  @override
+  String get settingsAiEntrySubtitle => '提供商、模型、能力与凭据（SET-030–033）';
+
+  @override
+  String get aiPageTitle => 'AI 服务';
+
+  @override
+  String get aiModelsSection => '模型与提供商';
+
+  @override
+  String get aiEmptyNotice => '还没有配置任何模型。添加一个提供商与模型 ID 之后，AI 功能才可用。';
+
+  @override
+  String get aiAddModel => '添加模型';
+
+  @override
+  String get aiEditModel => '编辑';
+
+  @override
+  String get aiDeleteModel => '删除';
+
+  @override
+  String get aiProtocolLabel => '协议';
+
+  @override
+  String get aiProtocolHint => '协议决定请求与事件流的形状；同名域名下不同路径的协议并不通用。';
+
+  @override
+  String get aiProtocolPendingSuffix => '（适配器待实现）';
+
+  @override
+  String get aiAliasLabel => '提供商别名';
+
+  @override
+  String get aiAliasHint => '本机唯一，用于标识这份凭据；模型列表与故障转移顺序按它显示。';
+
+  @override
+  String get aiBaseUrlLabel => 'Base URL';
+
+  @override
+  String get aiBaseUrlHint =>
+      '只填到主机或公共前缀即可，例如 https://api.deepseek.com；协议路径由适配器追加。';
+
+  @override
+  String get aiModelIdLabel => '模型 ID';
+
+  @override
+  String get aiModelIdHint => '列表接口不可用时可以手填；必须与服务商的模型名完全一致。';
+
+  @override
+  String get aiApiKeyLabel => 'API Key（SET-031）';
+
+  @override
+  String aiApiKeyConfigured(String preview) {
+    return '已配置：$preview';
+  }
+
+  @override
+  String get aiApiKeyNotConfigured => '尚未配置';
+
+  @override
+  String get aiApiKeyHint => '只写入系统安全存储（钥匙串），不进数据库、不进日志、不随同步或备份外传。';
+
+  @override
+  String get aiApiKeyReplace => '替换 Key';
+
+  @override
+  String get aiApiKeyClear => '删除 Key';
+
+  @override
+  String get aiApiKeyUnavailable => '本机安全存储不可用，本次会话可以填 Key 但不会保存。';
+
+  @override
+  String get aiCapabilitySection => '能力（SET-033）';
+
+  @override
+  String get aiCapabilityHint => '能力由你声明，不由模型名推断。未声明视觉能力的模型不会收到图片。';
+
+  @override
+  String get aiCapabilityText => '文本';
+
+  @override
+  String get aiCapabilityVision => '视觉';
+
+  @override
+  String get aiCapabilityStreaming => '流式';
+
+  @override
+  String get aiCapabilityTools => '工具调用';
+
+  @override
+  String get aiCapabilityStructured => '结构化输出';
+
+  @override
+  String get aiContextWindowLabel => '上下文上限（token）';
+
+  @override
+  String get aiOutputBudgetLabel => '输出上限（token）';
+
+  @override
+  String aiBudgetConservativeHint(int context, int output) {
+    return '留空表示未声明：按保守预算使用（上下文 $context、输出 $output），这不是真实能力扩容。';
+  }
+
+  @override
+  String get aiEnabledLabel => '启用';
+
+  @override
+  String get aiDefaultForTasksLabel => '设为任务默认模型';
+
+  @override
+  String get aiDefaultForTasksBadge => '默认';
+
+  @override
+  String get aiMoveUp => '上移（故障转移顺序）';
+
+  @override
+  String get aiMoveDown => '下移（故障转移顺序）';
+
+  @override
+  String get aiSortHint => '顺序决定故障转移的先后（SET-032/035）；停用的模型不参与。';
+
+  @override
+  String get aiSaveAction => '保存';
+
+  @override
+  String get aiCancelAction => '取消';
+
+  @override
+  String aiFormInvalid(String detail) {
+    return '请检查：$detail';
+  }
+
+  @override
+  String get aiTestButton => '测试连接与最小生成';
+
+  @override
+  String get aiTestCostTitle => '这次测试会产生费用';
+
+  @override
+  String aiTestCostBody(String provider, int tokens) {
+    return '测试会向 $provider 发起一次真实生成调用（输出上限 $tokens token），可能产生费用，且不支持幂等键的协议无法保证只计费一次。是否继续？';
+  }
+
+  @override
+  String get aiTestCostConfirm => '确认并测试';
+
+  @override
+  String get aiTestRunning => '正在测试…';
+
+  @override
+  String aiTestSuccess(int elapsedMs, int chars) {
+    return '测试成功：耗时 $elapsedMs 毫秒，返回 $chars 字符';
+  }
+
+  @override
+  String aiTestSuccessWithUsage(
+    int elapsedMs,
+    int inputTokens,
+    int outputTokens,
+    int chars,
+  ) {
+    return '测试成功：耗时 $elapsedMs 毫秒，输入 $inputTokens / 输出 $outputTokens token，返回 $chars 字符';
+  }
+
+  @override
+  String aiTestFailed(String reason) {
+    return '测试失败：$reason';
+  }
+
+  @override
+  String get aiFailureAuth => '认证失败：Key 可能不正确，或账号余额不足。';
+
+  @override
+  String get aiFailureRateLimited => '被服务商限流，请稍后再试。';
+
+  @override
+  String get aiFailureContentFiltered => '内容被服务商拒绝。这不是网络问题，换一家服务商重试也不能规避。';
+
+  @override
+  String aiFailureNetwork(String reason) {
+    return '网络请求失败：$reason';
+  }
+
+  @override
+  String get aiFailureTimeout => '请求超时。';
+
+  @override
+  String get aiFailureCancelled => '已取消。';
+
+  @override
+  String get aiFailureAdapterMissing => '该协议的适配器尚未实现，当前无法调用。';
+
+  @override
+  String get aiFailureCredentialMissing => '尚未配置 API Key。';
+
+  @override
+  String get aiFailureDisabled => '这个模型当前是停用状态。';
+
+  @override
+  String aiFailureValidation(String reason) {
+    return '配置无效：$reason';
+  }
+
+  @override
+  String get aiFailureStorage => '本地存储写入失败，本次改动没有保存。';
+
+  @override
+  String aiFailureUnknown(String reason) {
+    return '调用失败：$reason';
+  }
+
+  @override
+  String aiDeleteConfirmTitle(String alias) {
+    return '删除模型「$alias」？';
+  }
+
+  @override
+  String get aiDeleteConfirmBody => '删除后这条模型记录不再可用。它使用的 API Key 不会被删除。';
+
+  @override
+  String aiDeleteInUseBody(String references) {
+    return '这个模型仍被以下配置引用：$references。删除后这些配置会指向不存在的模型，需要你随后手动修正。';
+  }
+
+  @override
+  String get aiReferenceDefaultForTasks => '任务默认模型';
+
+  @override
+  String get aiReferenceVisionModel => 'SET-034 专用视觉模型';
+
+  @override
+  String get aiReferenceFailover => 'SET-035 故障转移允许列表';
+
+  @override
+  String get aiDeleteConfirmYes => '仍然删除';
+
+  @override
+  String get aiDeleteCancel => '取消';
+
+  @override
+  String aiDeleteFailed(String reason) {
+    return '删除失败：$reason';
+  }
+
+  @override
+  String get aiSavedNotice => '已保存。';
+
+  @override
+  String aiLoadFailed(String reason) {
+    return '读取模型列表失败：$reason';
+  }
+
+  @override
+  String get aiPlannedNotice =>
+      '故障转移的跨模型暂停/重试规则（SET-035 的五次无响应）与自动摘要开关（SET-037）属 T029/T034，本页只做提供商与模型配置。';
 }

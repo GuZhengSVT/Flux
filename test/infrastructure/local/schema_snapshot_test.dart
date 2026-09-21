@@ -437,5 +437,95 @@ void main() {
         containsAll(<String>['body', 'body_hash', 'image_url', 'feed_title']),
       );
     });
+
+    test('v9 快照新增 AI 模型表（T025），且不丢 v8 的任何实体', () {
+      final File v9Snapshot = File('drift_schemas/drift_schema_v9.json');
+      expect(
+        v9Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v9 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v9Decoded =
+          jsonDecode(v9Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v9Entities =
+          (v9Decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Set<String> v9Names = v9Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v8 的全部实体（含 fts5 检索对象）都必须保留：v9 只新增一张表。
+      final Map<String, dynamic> v8Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v8.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v8Names = (v8Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v9Names,
+        containsAll(v8Names),
+        reason: 'v9 只新增 AI 模型表，不得删除 v8 的任何实体',
+      );
+      expect(
+        v9Names.difference(v8Names),
+        <String>{'ai_model_records', 'ux_ai_models_alias', 'ix_ai_models_sort'},
+        reason:
+            'v9 相对 v8 的新增实体应只有 AI 模型表与它的两个索引'
+            '（表名由类名派生）；索引是独立 schema 实体，必须显式建出',
+      );
+
+      // 表里**不能有任何凭据列**：SET-031 只住 Keychain（架构 5.1「数据库不含秘密」）。
+      // 这条断言把该约束钉在 schema 层面，而不是靠「记得不要加」。
+      final Map<String, dynamic> aiTable = v9Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'ai_model_records',
+      );
+      final Set<String> aiColumns =
+          ((aiTable['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        aiColumns,
+        containsAll(<String>[
+          'alias',
+          'preset',
+          'protocol_id',
+          'base_url',
+          'model_id',
+          'enabled',
+          'sort_order',
+          'capability_text',
+          'capability_vision',
+          'capability_streaming',
+          'capability_tools',
+          'capability_structured',
+          'context_window',
+          'output_budget',
+          'is_default_for_tasks',
+        ]),
+      );
+      for (final String forbidden in <String>[
+        'api_key',
+        'key',
+        'token',
+        'secret',
+        'credential',
+        'password',
+      ]) {
+        expect(
+          aiColumns.where((String name) => name.contains(forbidden)),
+          isEmpty,
+          reason: 'AI 模型表不得出现凭据列（含「$forbidden」）',
+        );
+      }
+    });
   });
 }

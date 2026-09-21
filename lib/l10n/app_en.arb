@@ -724,5 +724,414 @@
   "readingFetchFullTextOpenExternal": "Open in browser",
   "readingFetchFullTextNoUrl": "This article has no reachable source address.",
   "readingFetchFullTextNoScript": "HTTP fetch and static parsing only: no scripts are run and no paywall or sign-in is bypassed.",
-  "readingFetchFullTextButtonHint": "Fetches the source only when you click, never automatically or in the background."
+  "readingFetchFullTextButtonHint": "Fetches the source only when you click, never automatically or in the background.",
+
+  "settingsAiEntryTitle": "AI services",
+  "@settingsAiEntryTitle": {
+    "description": "Settings entry: AI service configuration"
+  },
+  "settingsAiEntrySubtitle": "Providers, models, capabilities and credentials (SET-030-033)",
+  "@settingsAiEntrySubtitle": {
+    "description": "Settings entry subtitle"
+  },
+  "aiPageTitle": "AI services",
+  "@aiPageTitle": {
+    "description": "AI services page title"
+  },
+  "aiModelsSection": "Models and providers",
+  "@aiModelsSection": {
+    "description": "Model list section title"
+  },
+  "aiEmptyNotice": "No model is configured yet. Add a provider and a model ID before AI features can be used.",
+  "@aiEmptyNotice": {
+    "description": "Empty model list notice"
+  },
+  "aiAddModel": "Add model",
+  "@aiAddModel": {
+    "description": "Add model button"
+  },
+  "aiEditModel": "Edit",
+  "@aiEditModel": {
+    "description": "Edit model"
+  },
+  "aiDeleteModel": "Delete",
+  "@aiDeleteModel": {
+    "description": "Delete model"
+  },
+  "aiProtocolLabel": "Protocol",
+  "@aiProtocolLabel": {
+    "description": "Protocol selector label"
+  },
+  "aiProtocolHint": "The protocol decides the request and event-stream shapes; different paths on the same host are not interchangeable.",
+  "@aiProtocolHint": {
+    "description": "Protocol selector explanation"
+  },
+  "aiProtocolPendingSuffix": " (adapter pending)",
+  "@aiProtocolPendingSuffix": {
+    "description": "Protocol option suffix: adapter not implemented"
+  },
+  "aiAliasLabel": "Provider alias",
+  "@aiAliasLabel": {
+    "description": "Alias label"
+  },
+  "aiAliasHint": "Unique on this device; identifies this credential and labels the model list and failover order.",
+  "@aiAliasHint": {
+    "description": "Alias explanation"
+  },
+  "aiBaseUrlLabel": "Base URL",
+  "@aiBaseUrlLabel": {
+    "description": "Base URL label"
+  },
+  "aiBaseUrlHint": "Host or shared prefix only, for example https://api.deepseek.com; the adapter appends the protocol path.",
+  "@aiBaseUrlHint": {
+    "description": "Base URL explanation"
+  },
+  "aiModelIdLabel": "Model ID",
+  "@aiModelIdLabel": {
+    "description": "Model ID label"
+  },
+  "aiModelIdHint": "You can type it by hand when no list endpoint exists; it must match the provider's model name exactly.",
+  "@aiModelIdHint": {
+    "description": "Model ID explanation"
+  },
+  "aiApiKeyLabel": "API key (SET-031)",
+  "@aiApiKeyLabel": {
+    "description": "API key label"
+  },
+  "aiApiKeyConfigured": "Configured: {preview}",
+  "@aiApiKeyConfigured": {
+    "description": "Masked display when a key exists; preview is a fixed-length mask",
+    "placeholders": {
+      "preview": {
+        "type": "String",
+        "example": "********"
+      }
+    }
+  },
+  "aiApiKeyNotConfigured": "Not configured",
+  "@aiApiKeyNotConfigured": {
+    "description": "No key configured"
+  },
+  "aiApiKeyHint": "Written only to the system secure store (Keychain): never the database, logs, sync or backups.",
+  "@aiApiKeyHint": {
+    "description": "Key storage explanation"
+  },
+  "aiApiKeyReplace": "Replace key",
+  "@aiApiKeyReplace": {
+    "description": "Replace key button"
+  },
+  "aiApiKeyClear": "Delete key",
+  "@aiApiKeyClear": {
+    "description": "Delete key button"
+  },
+  "aiApiKeyUnavailable": "Secure storage is unavailable on this device; a key entered now will not be saved.",
+  "@aiApiKeyUnavailable": {
+    "description": "Secure storage unavailable notice"
+  },
+  "aiCapabilitySection": "Capabilities (SET-033)",
+  "@aiCapabilitySection": {
+    "description": "Capability section title"
+  },
+  "aiCapabilityHint": "You declare capabilities; they are never inferred from the model name. A model without vision will not receive images.",
+  "@aiCapabilityHint": {
+    "description": "Capability explanation"
+  },
+  "aiCapabilityText": "Text",
+  "@aiCapabilityText": {
+    "description": "Text capability"
+  },
+  "aiCapabilityVision": "Vision",
+  "@aiCapabilityVision": {
+    "description": "Vision capability"
+  },
+  "aiCapabilityStreaming": "Streaming",
+  "@aiCapabilityStreaming": {
+    "description": "Streaming capability"
+  },
+  "aiCapabilityTools": "Tool calling",
+  "@aiCapabilityTools": {
+    "description": "Tool calling capability"
+  },
+  "aiCapabilityStructured": "Structured output",
+  "@aiCapabilityStructured": {
+    "description": "Structured output capability"
+  },
+  "aiContextWindowLabel": "Context limit (tokens)",
+  "@aiContextWindowLabel": {
+    "description": "Context limit label"
+  },
+  "aiOutputBudgetLabel": "Output limit (tokens)",
+  "@aiOutputBudgetLabel": {
+    "description": "Output limit label"
+  },
+  "aiBudgetConservativeHint": "Empty means undeclared: the conservative budget is used (context {context}, output {output}). This is not a real capability expansion.",
+  "@aiBudgetConservativeHint": {
+    "description": "Conservative budget explanation",
+    "placeholders": {
+      "context": {
+        "type": "int",
+        "example": "8192"
+      },
+      "output": {
+        "type": "int",
+        "example": "2048"
+      }
+    }
+  },
+  "aiEnabledLabel": "Enabled",
+  "@aiEnabledLabel": {
+    "description": "Enabled toggle"
+  },
+  "aiDefaultForTasksLabel": "Set as default model for tasks",
+  "@aiDefaultForTasksLabel": {
+    "description": "Default model toggle"
+  },
+  "aiDefaultForTasksBadge": "Default",
+  "@aiDefaultForTasksBadge": {
+    "description": "Default model badge"
+  },
+  "aiMoveUp": "Move up (failover order)",
+  "@aiMoveUp": {
+    "description": "Move up in order"
+  },
+  "aiMoveDown": "Move down (failover order)",
+  "@aiMoveDown": {
+    "description": "Move down in order"
+  },
+  "aiSortHint": "Order decides the failover sequence (SET-032/035); disabled models do not take part.",
+  "@aiSortHint": {
+    "description": "Ordering explanation"
+  },
+  "aiSaveAction": "Save",
+  "@aiSaveAction": {
+    "description": "Save button"
+  },
+  "aiCancelAction": "Cancel",
+  "@aiCancelAction": {
+    "description": "Cancel button"
+  },
+  "aiFormInvalid": "Please check: {detail}",
+  "@aiFormInvalid": {
+    "description": "Form validation failure",
+    "placeholders": {
+      "detail": {
+        "type": "String",
+        "example": "Alias cannot be empty"
+      }
+    }
+  },
+  "aiTestButton": "Test connection and minimal generation",
+  "@aiTestButton": {
+    "description": "Test button"
+  },
+  "aiTestCostTitle": "This test costs money",
+  "@aiTestCostTitle": {
+    "description": "Cost confirmation title"
+  },
+  "aiTestCostBody": "The test sends one real generation request to {provider} (output limit {tokens} tokens). It may be billed, and a protocol without idempotency keys cannot guarantee exactly-once billing. Continue?",
+  "@aiTestCostBody": {
+    "description": "Cost confirmation body",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "deepseek"
+      },
+      "tokens": {
+        "type": "int",
+        "example": "64"
+      }
+    }
+  },
+  "aiTestCostConfirm": "Confirm and test",
+  "@aiTestCostConfirm": {
+    "description": "Cost confirmation confirm button"
+  },
+  "aiTestRunning": "Testing\u2026",
+  "@aiTestRunning": {
+    "description": "Test in progress"
+  },
+  "aiTestSuccess": "Test passed: {elapsedMs} ms, {chars} characters returned",
+  "@aiTestSuccess": {
+    "description": "Test success (no usage available)",
+    "placeholders": {
+      "elapsedMs": {
+        "type": "int",
+        "example": "1200"
+      },
+      "chars": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "aiTestSuccessWithUsage": "Test passed: {elapsedMs} ms, {inputTokens} input / {outputTokens} output tokens, {chars} characters returned",
+  "@aiTestSuccessWithUsage": {
+    "description": "Test success (with usage)",
+    "placeholders": {
+      "elapsedMs": {
+        "type": "int",
+        "example": "1200"
+      },
+      "inputTokens": {
+        "type": "int",
+        "example": "32"
+      },
+      "outputTokens": {
+        "type": "int",
+        "example": "6"
+      },
+      "chars": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "aiTestFailed": "Test failed: {reason}",
+  "@aiTestFailed": {
+    "description": "Test failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Authentication failed"
+      }
+    }
+  },
+  "aiFailureAuth": "Authentication failed: the key may be wrong, or the account is out of credit.",
+  "@aiFailureAuth": {
+    "description": "Authentication failure text"
+  },
+  "aiFailureRateLimited": "The provider is rate limiting; try again later.",
+  "@aiFailureRateLimited": {
+    "description": "Rate limit text"
+  },
+  "aiFailureContentFiltered": "The provider refused the content. This is not a network problem, and switching providers cannot circumvent it.",
+  "@aiFailureContentFiltered": {
+    "description": "Content refusal text"
+  },
+  "aiFailureNetwork": "Network request failed: {reason}",
+  "@aiFailureNetwork": {
+    "description": "Network failure text",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "connection timed out"
+      }
+    }
+  },
+  "aiFailureTimeout": "The request timed out.",
+  "@aiFailureTimeout": {
+    "description": "Timeout text"
+  },
+  "aiFailureCancelled": "Cancelled.",
+  "@aiFailureCancelled": {
+    "description": "Cancelled text"
+  },
+  "aiFailureAdapterMissing": "No adapter is implemented for this protocol yet, so it cannot be called.",
+  "@aiFailureAdapterMissing": {
+    "description": "Missing adapter text"
+  },
+  "aiFailureCredentialMissing": "No API key is configured.",
+  "@aiFailureCredentialMissing": {
+    "description": "Missing key text"
+  },
+  "aiFailureDisabled": "This model is currently disabled.",
+  "@aiFailureDisabled": {
+    "description": "Disabled model text"
+  },
+  "aiFailureValidation": "Invalid configuration: {reason}",
+  "@aiFailureValidation": {
+    "description": "Validation failure text",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Base URL must be a full address"
+      }
+    }
+  },
+  "aiFailureStorage": "Writing to local storage failed; this change was not saved.",
+  "@aiFailureStorage": {
+    "description": "Storage failure text"
+  },
+  "aiFailureUnknown": "Call failed: {reason}",
+  "@aiFailureUnknown": {
+    "description": "Other failure text",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "modelConfiguration"
+      }
+    }
+  },
+  "aiDeleteConfirmTitle": "Delete model \u201c{alias}\u201d?",
+  "@aiDeleteConfirmTitle": {
+    "description": "Delete confirmation title",
+    "placeholders": {
+      "alias": {
+        "type": "String",
+        "example": "deepseek"
+      }
+    }
+  },
+  "aiDeleteConfirmBody": "This model record will no longer be usable. Its API key is not deleted.",
+  "@aiDeleteConfirmBody": {
+    "description": "Delete confirmation body"
+  },
+  "aiDeleteInUseBody": "This model is still referenced by: {references}. After deletion those settings point at a model that no longer exists, and you must fix them by hand.",
+  "@aiDeleteInUseBody": {
+    "description": "Delete confirmation body when referenced",
+    "placeholders": {
+      "references": {
+        "type": "String",
+        "example": "Default model for tasks, SET-034"
+      }
+    }
+  },
+  "aiReferenceDefaultForTasks": "Default model for tasks",
+  "@aiReferenceDefaultForTasks": {
+    "description": "Reference source: default model"
+  },
+  "aiReferenceVisionModel": "SET-034 vision model",
+  "@aiReferenceVisionModel": {
+    "description": "Reference source: vision model"
+  },
+  "aiReferenceFailover": "SET-035 failover allow list",
+  "@aiReferenceFailover": {
+    "description": "Reference source: failover allow list"
+  },
+  "aiDeleteConfirmYes": "Delete anyway",
+  "@aiDeleteConfirmYes": {
+    "description": "Confirm deletion"
+  },
+  "aiDeleteCancel": "Cancel",
+  "@aiDeleteCancel": {
+    "description": "Cancel deletion"
+  },
+  "aiDeleteFailed": "Delete failed: {reason}",
+  "@aiDeleteFailed": {
+    "description": "Delete failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage failure"
+      }
+    }
+  },
+  "aiSavedNotice": "Saved.",
+  "@aiSavedNotice": {
+    "description": "Save success notice"
+  },
+  "aiLoadFailed": "Could not load the model list: {reason}",
+  "@aiLoadFailed": {
+    "description": "Load failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
+  },
+  "aiPlannedNotice": "Cross-model failover pause/retry rules (the SET-035 five-no-response rule) and the auto-summary switch (SET-037) belong to T029/T034; this page only configures providers and models.",
+  "@aiPlannedNotice": {
+    "description": "Not-yet-implemented notice"
+  }
 }

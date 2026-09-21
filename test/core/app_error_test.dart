@@ -262,6 +262,12 @@ void main() {
           to: TaskStatus.failed,
           taskId: 't',
         ),
+        // T025：AI/服务商调用错误（限流、认证、内容拒绝）与模型管理错误。
+        RateLimitError(provider: 'ds'),
+        AuthError(provider: 'ds', statusCode: 401),
+        ContentFilteredError(provider: 'ds', statusCode: 400),
+        ModelInUseError(alias: 'ds', referenceDescriptions: <String>['x']),
+        ModelConfigurationError(alias: 'ds', reason: 'adapterMissing'),
       ];
 
       final List<String> kinds = errors.map((AppError error) {
@@ -275,6 +281,11 @@ void main() {
           ProviderError() => 'provider',
           ValidationError() => 'validation',
           StateTransitionError() => 'transition',
+          RateLimitError() => 'rateLimited',
+          AuthError() => 'authentication',
+          ContentFilteredError() => 'contentFiltered',
+          ModelInUseError() => 'modelInUse',
+          ModelConfigurationError() => 'modelConfiguration',
         };
       }).toList();
 
@@ -288,6 +299,11 @@ void main() {
         'provider',
         'validation',
         'transition',
+        'rateLimited',
+        'authentication',
+        'contentFiltered',
+        'modelInUse',
+        'modelConfiguration',
       ]);
     });
 
