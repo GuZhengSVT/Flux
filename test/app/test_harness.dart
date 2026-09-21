@@ -17,6 +17,7 @@ import 'package:flux/app/app_bootstrap.dart';
 import 'package:flux/app/app_providers.dart';
 import 'package:flux/app/theme/flux_theme.dart';
 import 'package:flux/core/core.dart';
+import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
@@ -93,6 +94,9 @@ final class TestBootstrap {
   List<Override> overrides({
     FeedFetcher? feedFetcher,
     NetworkConditionPort? networkConditions,
+    ExternalLinkOpener? externalLinkOpener,
+    ImageSaveService? imageSaveService,
+    SystemShareService? systemShareService,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -114,6 +118,9 @@ final class TestBootstrap {
       ),
       feedFetcher: feedFetcher,
       networkConditions: networkConditions,
+      externalLinkOpener: externalLinkOpener,
+      imageSaveService: imageSaveService,
+      systemShareService: systemShareService,
     );
   }
 

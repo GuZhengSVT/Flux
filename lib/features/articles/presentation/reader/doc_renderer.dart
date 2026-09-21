@@ -30,6 +30,7 @@ class DocDocumentView extends StatelessWidget {
     this.maxWidth = FluxBreakpoints.maxBodyWidth,
     this.onOpenLink,
     this.onCopyLink,
+    this.onOpenImage,
     this.findQuery,
   });
 
@@ -47,6 +48,9 @@ class DocDocumentView extends StatelessWidget {
 
   /// 链接复制回调。
   final void Function(String url)? onCopyLink;
+
+  /// 图片点击回调（T020）。
+  final void Function(String url, String alt)? onOpenImage;
 
   /// 页内查找词（非空时高亮匹配）。
   final String? findQuery;
@@ -90,6 +94,7 @@ class DocDocumentView extends StatelessWidget {
                   typography: typography,
                   onOpenLink: onOpenLink,
                   onCopyLink: onCopyLink,
+                  onOpenImage: onOpenImage,
                   findQuery: findQuery,
                 ),
               ),
@@ -127,6 +132,8 @@ class BlockView extends StatelessWidget {
     required this.typography,
     this.onOpenLink,
     this.onCopyLink,
+    this.onOpenImage,
+    this.autoLoadImages = true,
     this.findQuery,
   });
 
@@ -142,6 +149,12 @@ class BlockView extends StatelessWidget {
   /// 链接复制回调。
   final void Function(String url)? onCopyLink;
 
+  /// 图片点击回调（T020：打开查看器）。
+  final void Function(String url, String alt)? onOpenImage;
+
+  /// 是否自动加载远程图片（SET-012）。
+  final bool autoLoadImages;
+
   /// 页内查找词。
   final String? findQuery;
 
@@ -151,6 +164,8 @@ class BlockView extends StatelessWidget {
     typography: typography,
     onOpenLink: onOpenLink,
     onCopyLink: onCopyLink,
+    onOpenImage: onOpenImage,
+    autoLoadImages: autoLoadImages,
     findQuery: findQuery,
   );
 
@@ -223,6 +238,8 @@ class BlockView extends StatelessWidget {
         url: url,
         alt: alt,
         typography: typography,
+        autoLoad: autoLoadImages,
+        onTap: onOpenImage == null ? null : () => onOpenImage!(url, alt),
       ),
       DocThematicBreak() => Container(height: 1, color: theme.border),
       DocMathBlock(:final String tex) => DocBlockMath(

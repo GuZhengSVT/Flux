@@ -80,6 +80,7 @@ dependencies:
   # 没有远端渲染服务——这正符合 D-05 与第 8 节对「不引入浏览器运行时」的约束。
   # 版本与 T004 原型一致（0.7.4）：原型已用 fixture 固化过它支持与不支持的命令边界。
   flutter_math_fork: ^0.7.4
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

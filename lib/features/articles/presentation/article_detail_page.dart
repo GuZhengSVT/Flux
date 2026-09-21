@@ -5,8 +5,12 @@
 //     正文哈希需要「标签属性与空白变化不算修订」这样的稳定判据）。因此阅读器对这段文本
 //     再走一次 Markdown → 受控文档树的解析——同一条渲染管线，T020 的选区/复制接口不必为
 //     两套来源各写一遍。落库的是文本，画出的是受控节点，中间没有 HTML 字符串。
-//   * **图片是占位框**：远程图片加载、缓存与尺寸安全属 T021，本期不发起任何图片请求。
-//   * **外链不打开**：外开属 T020；这里提供「复制地址」并把当前范围写在页面上。
+//   * **图片**（T020）：受 SET-012 控制是否自动加载；点击打开查看器（全屏/缩放/Esc），
+//     可从查看器保存到系统选择的位置。缓存、可控 MIME 与解码限额属 T021。
+//   * **外链**（T020）：点击先出面板显示完整地址 + 复制/打开；打开交给系统默认浏览器。
+//     协议校验复用渲染层的 isSafeDocUrl（不在这里另写一套判断）。
+//   * **选区**（T020）：正文包在 SelectionArea 里（桌面单块选择 + 系统菜单），另提供
+//     「复制全文」与选区的「解释」入口。解释本身属 T034，本轮只做入口与提示，不发起调用。
 //   * **目录只取 h1–h3**，桌面宽窗（>=1100，架构第 7 节三栏断点）显示，窄窗不显示。
 //   * **上下篇依据进入时的筛选/排序快照**（架构 4.1），不按当前筛选现算。
 library;
@@ -18,17 +22,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/ai/application/ai_availability.dart';
+import 'package:flux/features/settings/application/settings_controller.dart';
+import 'package:flux/features/settings/application/settings_navigation.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
 import '../application/article_ports.dart';
+import '../application/article_platform_ports.dart';
 import '../application/article_state.dart';
+import '../application/article_text_actions.dart';
 import '../application/reader_outline.dart';
 import '../domain/markdown_to_document.dart';
 import 'article_list_controller.dart';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
+import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 
+import 'reader/link_panel.dart';
 import 'reader/doc_renderer.dart';
 import 'reader/doc_theme.dart';
 import 'reader/reader_chrome.dart';
@@ -67,7 +79,16 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
   bool _loading = true;
   bool _findOpen = false;
   String _findQuery = '';
+  bool _autoLoadImages = true;
   final TextEditingController _findController = TextEditingController();
+  final GlobalKey _selectionAreaKey = GlobalKey();
+
+  /// 当前选中的文本。
+  ///
+  /// 用 ValueNotifier 而不是一个普通字段：选区菜单的构建发生在 SelectionArea 的闭包里，
+  /// 它需要读到**最新**的选区。一个 setState 驱动的字段也能工作，但那会让每次拖动选区
+  /// 都重建整篇正文（拖动是连续事件）；ValueNotifier 让读取与正文重建解耦。
+  final ValueNotifier<String> _selection = ValueNotifier<String>('');
 
   /// 每个顶层块的位置 key（目录跳转用）。
   List<GlobalKey> _blockKeys = <GlobalKey>[];
@@ -77,12 +98,33 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
   void initState() {
     super.initState();
     unawaited(_load());
+    unawaited(_loadImageSetting());
+  }
+
+  /// 读取 SET-012（是否自动加载远程图片）。
+  ///
+  /// 默认按**开**渲染（与设置注册表的默认值一致）：读设置是一次异步往返，先按「不加载」
+  /// 渲染会在图片本该出现的地方闪一下占位框，而绝大多数用户的设置就是开。
+  Future<void> _loadImageSetting() async {
+    final Result<Object?> value = await ref
+        .read(settingsStoreProvider)
+        .readSetting(SettingId.set012);
+    if (!mounted) {
+      return;
+    }
+    final Object? raw = value.valueOrNull;
+    setState(() {
+      _autoLoadImages = raw is bool
+          ? raw
+          : SettingRegistry.findById(SettingId.set012)?.defaultValue == true;
+    });
   }
 
   @override
   void dispose() {
     _findController.dispose();
     _scrollController.dispose();
+    _selection.dispose();
     super.dispose();
   }
 
@@ -191,6 +233,232 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
     );
   }
 
+  /// 复制全文：把受控文档压平成纯文本（读者要的是文字，不是渲染结构）。
+  Future<void> _copyAllPlainText() async {
+    final DocDocument? document = _document;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    if (document == null) {
+      _notify(l10n.readingCopyAllEmpty);
+      return;
+    }
+    final String text = articlePlainText(document);
+    if (text.trim().isEmpty) {
+      // 有文档但压平后为空（例如只剩一张没有替代文字的图）：如实说没有可复制的内容，
+      // 而不是复制一个空字符串并提示「已复制」。
+      _notify(l10n.readingCopyAllEmpty);
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) {
+      return;
+    }
+    _notify(l10n.readingCopyAllDone(text.length));
+  }
+
+  /// 「解释」选区：入口与提示（真正的调用属 T034）。
+  ///
+  /// 无论 AI 是否已配置，都**不发起任何请求**：T020 的验收是「复制/查询占位可接用例，
+  /// 查询未配置提示」，调 AI 是 T034。因此两条路径都给明确说明，而不是一个看起来能用
+  /// 却什么都不做的按钮。
+  Future<void> _explainSelection(String selection) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final SelectionExplanationRequest request =
+        SelectionExplanationRequest.fromDocument(
+          plainText: _document == null ? '' : articlePlainText(_document!),
+          selection: selection,
+        );
+    if (request.selection.isEmpty) {
+      return;
+    }
+    final bool configured = await _hasAiCredential();
+    if (!mounted) {
+      return;
+    }
+    if (!configured) {
+      await showDialog<void>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text(l10n.readingSelectionExplainNoAiTitle),
+          // 说清「将发送什么」：架构 2.3 要求首次配置逐项告知接收者，而选词解释是
+          // 第一次把用户正文的一部分交给外部服务的地方。
+          content: Text(l10n.readingSelectionExplainNoAiBody(1200)),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.subscriptionClose),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // 跳设置：解释需要 AI 配置，把用户直接送到那里，而不是只留一句话。
+                ref.read(settingsNavigationRequestProvider.notifier).request();
+              },
+              child: Text(l10n.readingSelectionExplainGoSettings),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    _notify(l10n.readingSelectionExplainPending);
+  }
+
+  /// AI 是否已配置。
+  ///
+  /// 走 [AiAvailability] 端口而不是自己在详情页里查 Keychain：完整的提供商/模型配置
+  /// 属 T025/T030，而「能不能解释」这个判断在 T034 接上真实调用之后仍然要用同一份
+  /// 答案，现在写死在这里会变成第二套判断。
+  Future<bool> _hasAiCredential() async {
+    try {
+      return await ref.read(aiAvailabilityProvider).isConfigured();
+    } on Exception {
+      // 探针失败按「未配置」处理：解释入口是可选功能，探针异常不该让正文读不了。
+      return false;
+    }
+  }
+
+  /// 记录选区（供「解释」入口使用）。
+  void _onSelectionChanged(SelectedContent? content) {
+    _selection.value = content?.plainText ?? '';
+  }
+
+  /// 被拒绝的协议名（面板上显示「已拦截：xxx」）。
+  ///
+  /// 与渲染层用同一条判据 [isSafeDocUrl]，因此两处不会对同一个地址给出不同结论。
+  /// 取协议名的目的是让提示**具体**：只说「已拦截」会让用户以为是网络问题。
+  static String _blockedScheme(String url) {
+    final int colon = url.indexOf(':');
+    if (colon <= 0) {
+      return url;
+    }
+    return url.substring(0, colon);
+  }
+
+  /// 打开链接面板（先显示地址，再决定复制或打开）。
+  ///
+  /// 安全判定在这里做**最后一次**（渲染层已经拒绝过的链接根本不会走到这里，因为被拒绝
+  /// 的链接渲染成不可点的文本）。这次判定的意义是兜底：地址可能来自渲染之外的路径
+  /// （将来的「原文链接」按钮、分享面板），而把一个 file: 交给系统启动器就不再受本应用
+  /// 控制了。
+  Future<void> _openLinkPanel(String url) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool safe = isSafeDocUrl(url);
+    final LinkPanelResult? result = await showDialog<LinkPanelResult>(
+      context: context,
+      builder: (BuildContext context) =>
+          LinkPanel(url: url, blockedReason: safe ? null : _blockedScheme(url)),
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    switch (result.action) {
+      case LinkPanelAction.copy:
+        await Clipboard.setData(ClipboardData(text: result.url));
+        if (mounted) {
+          _notify(l10n.readingLinkCopied);
+        }
+      case LinkPanelAction.open:
+        final Result<bool> opened = await ref
+            .read(externalLinkOpenerProvider)
+            .openExternal(result.url);
+        if (!mounted) {
+          return;
+        }
+        if (opened.isErr) {
+          _notify(l10n.readingLinkOpenFailed(opened.errorOrNull!.message));
+        }
+    }
+  }
+
+  /// 打开图片查看器。
+  ///
+  /// 保存与分享回调**闭包捕获详情页的 ref/context**，因此提示条落在详情页上：查看器是
+  /// 一个独立的页面，它的 ScaffoldMessenger 会随它一起销毁，把「已保存到 …」显示在即将
+  /// 消失的页面上，用户看不到。
+  Future<void> _openImageViewer(String url, String alt) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => ImageViewerPage(
+          url: url,
+          alt: alt,
+          onSave: () => _saveImage(url),
+          onShare: () => _shareText(url),
+        ),
+      ),
+    );
+  }
+
+  /// 保存图片（下载 + 让用户选位置）。
+  Future<void> _saveImage(String url) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Result<String?> saved = await ref
+        .read(imageSaveServiceProvider)
+        .saveImage(url: url, suggestedName: _suggestedImageName(url));
+    if (!mounted) {
+      return;
+    }
+    if (saved.isErr) {
+      _notify(l10n.readingImageSaveFailed(saved.errorOrNull!.message));
+      return;
+    }
+    if (saved.valueOrNull case final String path) {
+      _notify(l10n.readingImageSavedTo(path));
+    }
+    // 用户取消（Ok(null)）不提示：取消是正常动作，弹一句「未保存」会被读成失败。
+  }
+
+  /// 分享（不可用时回退复制）。
+  Future<void> _shareText(String text) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final SystemShareService share = ref.read(systemShareServiceProvider);
+    if (!await share.isAvailable()) {
+      // 架构 4.2：系统分享不可用时回退复制。先复制再提示，让用户拿到东西。
+      await Clipboard.setData(ClipboardData(text: text));
+      if (mounted) {
+        _notify(l10n.readingShareUnavailable);
+      }
+      return;
+    }
+    final Result<bool> shared = await share.shareText(text);
+    if (!mounted) {
+      return;
+    }
+    if (shared.isErr) {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (mounted) {
+        _notify(l10n.readingShareFailed);
+      }
+      return;
+    }
+    if (shared.unwrap()) {
+      _notify(l10n.readingShareDone);
+    }
+  }
+
+  /// 从地址推一个保存用的文件名。
+  ///
+  /// 只取路径最后一段并做最小清洗：**不**用远端提供的文件名直接拼路径（架构 5.1：
+  /// 不以外部标题直接拼路径），路径穿越与非法字符都在这里挡掉。
+  static String _suggestedImageName(String url) {
+    final Uri? uri = Uri.tryParse(url);
+    final String last = uri == null || uri.pathSegments.isEmpty
+        ? ''
+        : uri.pathSegments.last;
+    final String cleaned = last.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
+    if (cleaned.isEmpty || !cleaned.contains('.')) {
+      return 'flux-image.jpg';
+    }
+    return cleaned;
+  }
+
+  /// 统一的操作提示（同一时刻只留一条）。
+  void _notify(String message) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
@@ -207,6 +475,13 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         actions: <Widget>[
+          // 复制全文：桌面用户没有「全选正文再复制」的便捷路径（正文里有多块，且
+          // SelectionArea 的全选会把标题与元信息一起带上），因此给一个明确的按钮。
+          IconButton(
+            tooltip: l10n.readingCopyAll,
+            icon: const Icon(Icons.copy_all),
+            onPressed: _copyAllPlainText,
+          ),
           IconButton(
             tooltip: _findOpen ? l10n.readingFindClose : l10n.readingFindOpen,
             icon: Icon(_findOpen ? Icons.search_off : Icons.search),
@@ -294,6 +569,13 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage> {
             document: document,
             blockKeys: _blockKeys,
             findQuery: _findQuery,
+            autoLoadImages: _autoLoadImages,
+            selectionAreaKey: _selectionAreaKey,
+            selection: _selection,
+            onSelectionChanged: _onSelectionChanged,
+            onOpenLink: _openLinkPanel,
+            onOpenImage: _openImageViewer,
+            onExplainSelection: _explainSelection,
           )
         else
           Text(l10n.readingDetailNoBody, style: theme.textTheme.bodyMedium),
@@ -386,11 +668,25 @@ class _DocumentBody extends StatelessWidget {
     required this.document,
     required this.blockKeys,
     required this.findQuery,
+    required this.autoLoadImages,
+    required this.selectionAreaKey,
+    required this.selection,
+    required this.onSelectionChanged,
+    required this.onOpenLink,
+    required this.onOpenImage,
+    required this.onExplainSelection,
   });
 
   final DocDocument document;
   final List<GlobalKey> blockKeys;
   final String findQuery;
+  final bool autoLoadImages;
+  final GlobalKey selectionAreaKey;
+  final ValueListenable<String> selection;
+  final ValueChanged<SelectedContent?> onSelectionChanged;
+  final void Function(String url) onOpenLink;
+  final void Function(String url, String alt) onOpenImage;
+  final Future<void> Function(String selection) onExplainSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -403,37 +699,75 @@ class _DocumentBody extends StatelessWidget {
       ),
     );
     final AppLocalizations l10n = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        for (int i = 0; i < document.children.length; i++)
-          KeyedSubtree(
-            key: blockKeys.length > i ? blockKeys[i] : null,
-            child: Padding(
-              padding: blockPadding(document.children[i], typography),
-              child: BlockView(
-                node: document.children[i],
-                typography: typography,
-                onCopyLink: (String url) => _copyLink(context, url),
-                onOpenLink: (String url) => _copyLink(context, url),
-                findQuery: findQuery.isEmpty ? null : findQuery,
+    // SelectionArea：桌面上的**单块选择**（架构 4.2 与 D-15：跨块选择属后续阶段）。
+    // 系统菜单（复制/全选）由 contextMenuBuilder 交给平台默认实现，只额外挂上我们自己的
+    // 「解释」入口——复制与全选是用户已经熟悉的动作，不该被我们重写。
+    return SelectionArea(
+      key: selectionAreaKey,
+      onSelectionChanged: onSelectionChanged,
+      contextMenuBuilder:
+          (BuildContext context, SelectableRegionState selectableRegionState) {
+            // 先用框架的默认菜单（它给出**当前平台**正确的复制/全选等项，含标签文案与
+            // 顺序），再在末尾追加我们自己的「解释」。
+            //
+            // 为什么不自己拼一个只有复制+解释的菜单：那会丢掉平台习惯的动作（macOS 上
+            // 是「拷贝」，Android 上有「全选」等），而复制本身也不该由我们重写——选区
+            // 的分段与换行拼接由框架决定，自己拼出来的结果与系统菜单不一致。
+            final List<ContextMenuButtonItem> items = <ContextMenuButtonItem>[
+              ...selectableRegionState.contextMenuButtonItems,
+            ];
+            final String selected = selection.value;
+            if (selected.trim().isNotEmpty) {
+              items.add(
+                ContextMenuButtonItem(
+                  label: l10n.readingSelectionExplain,
+                  onPressed: () {
+                    // 先收起菜单再开对话框：菜单是 overlay，留着它会让对话框与它
+                    // 重叠，且选中态一直是「正在选择」的样子。
+                    selectableRegionState.hideToolbar();
+                    onExplainSelection(selected);
+                  },
+                ),
+              );
+            }
+            return AdaptiveTextSelectionToolbar.buttonItems(
+              anchors: selectableRegionState.contextMenuAnchors,
+              buttonItems: items,
+            );
+          },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          for (int i = 0; i < document.children.length; i++)
+            KeyedSubtree(
+              key: blockKeys.length > i ? blockKeys[i] : null,
+              child: Padding(
+                padding: blockPadding(document.children[i], typography),
+                child: BlockView(
+                  node: document.children[i],
+                  typography: typography,
+                  onCopyLink: (String url) => _copyLink(context, url),
+                  onOpenLink: onOpenLink,
+                  onOpenImage: onOpenImage,
+                  autoLoadImages: autoLoadImages,
+                  findQuery: findQuery.isEmpty ? null : findQuery,
+                ),
               ),
             ),
-          ),
-        if (findQuery.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: FluxSpacing.sm),
-            child: Text(
-              l10n.readingFindScopeNote(findQuery),
-              style: Theme.of(context).textTheme.labelSmall,
+          if (findQuery.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: FluxSpacing.sm),
+              child: Text(
+                l10n.readingFindScopeNote(findQuery),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
-  /// 点击或右键链接都只复制地址：外开属 T020。复制而不是毫无反应——用户点了一下
-  /// 至少要拿到能用的东西，否则会以为链接坏了。
+  /// 右键链接只复制地址（点击由面板处理：面板上也提供复制）。
   static Future<void> _copyLink(BuildContext context, String url) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);

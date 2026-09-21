@@ -149,11 +149,13 @@ void main() {
       expect(find.text('列一'), findsOneWidget);
     });
 
-    testWidgets('图片是占位框，替代文字与范围说明都可见', (WidgetTester tester) async {
+    testWidgets('图片位保留版位与替代文字，并且可点击（T020 打开查看器）', (WidgetTester tester) async {
       await pumpDoc(tester, '![图说](https://example.com/i.png)');
       expect(find.textContaining('图说'), findsOneWidget);
-      expect(find.byIcon(Icons.image_outlined), findsOneWidget);
-      expect(find.textContaining('T021'), findsOneWidget, reason: '范围说明');
+      // 图片块现在会真的尝试加载（T020；缓存与限额属 T021），因此这里不再断言占位图标，
+      // 而是断言「替代文字仍在」与「可点」——这两条才是产品要求。
+      expect(find.byType(InkWell), findsWidgets, reason: '图片位可点击以打开查看器');
+      expect(find.textContaining('https://example.com/i.png'), findsOneWidget);
     });
 
     testWidgets('危险链接可见但不可点（不静默丢弃）', (WidgetTester tester) async {

@@ -1139,6 +1139,92 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingLinkOpenHint => '外链打开属 T020，当前可复制地址。';
 
   @override
+  String get readingCopyAll => '复制全文';
+
+  @override
+  String readingCopyAllDone(int characters) {
+    return '全文已复制（$characters 字）';
+  }
+
+  @override
+  String get readingCopyAllEmpty => '这篇没有可复制的正文。';
+
+  @override
+  String get readingSelectionExplain => '解释';
+
+  @override
+  String get readingSelectionExplainNoAiTitle => '尚未配置 AI 服务';
+
+  @override
+  String readingSelectionExplainNoAiBody(int limit) {
+    return '解释需要 AI 服务。将只发送选中的文字与前后各一段的最少上下文（不超过 $limit 字）。';
+  }
+
+  @override
+  String get readingSelectionExplainGoSettings => '去设置';
+
+  @override
+  String get readingSelectionExplainPending =>
+      '选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。';
+
+  @override
+  String get readingSelectionCopy => '复制';
+
+  @override
+  String get readingLinkPanelTitle => '外部链接';
+
+  @override
+  String get readingLinkCopyAction => '复制地址';
+
+  @override
+  String get readingLinkOpenAction => '用浏览器打开';
+
+  @override
+  String readingLinkOpenFailed(String reason) {
+    return '无法打开这个地址：$reason';
+  }
+
+  @override
+  String get readingImageViewerTitle => '图片';
+
+  @override
+  String get readingImageCloseAction => '关闭（Esc）';
+
+  @override
+  String get readingImageSaveAction => '保存图片';
+
+  @override
+  String get readingImageShareAction => '分享';
+
+  @override
+  String readingImageSavedTo(String path) {
+    return '图片已保存到 $path';
+  }
+
+  @override
+  String readingImageSaveFailed(String reason) {
+    return '保存失败：$reason';
+  }
+
+  @override
+  String get readingImageLoadFailed => '图片加载失败。';
+
+  @override
+  String get readingImageTapToDownload => '点击下载这张图片';
+
+  @override
+  String get readingImageAutoLoadOff => '自动加载远程图片已关闭（SET-012）；点击图片可单独下载。';
+
+  @override
+  String get readingShareUnavailable => '系统分享不可用，已改为复制。';
+
+  @override
+  String get readingShareDone => '已打开系统分享。';
+
+  @override
+  String get readingShareFailed => '分享未完成，已复制到剪贴板。';
+
+  @override
   String get readingRichBodyUnavailable => '这篇正文只能按纯文本显示（缺少可渲染的受控文档结构）。';
 
   @override

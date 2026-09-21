@@ -105,13 +105,23 @@ List<InlineSpan> buildInlineSpans(
   void Function(String url)? onCopyLink,
   List<TapGestureRecognizer>? ownedRecognizers,
   String? findQuery,
+  TapGestureRecognizer? leafRecognizer,
 }) {
   final List<InlineSpan> spans = <InlineSpan>[];
   final DocTheme theme = typography.theme;
   for (final DocInline node in nodes) {
     switch (node) {
       case DocText(:final String text):
-        spans.addAll(_highlightSpans(text, findQuery, typography, theme));
+        spans.addAll(
+          // 叶子 span 带上上下文传进来的 recognizer（链接内部的文字靠它才是可点的）。
+          _highlightSpans(
+            text,
+            findQuery,
+            typography,
+            theme,
+            recognizer: leafRecognizer,
+          ),
+        );
       case DocEmphasis(:final List<DocInline> children):
         spans.add(
           TextSpan(
@@ -124,6 +134,7 @@ List<InlineSpan> buildInlineSpans(
               onCopyLink: onCopyLink,
               ownedRecognizers: ownedRecognizers,
               findQuery: findQuery,
+              leafRecognizer: leafRecognizer,
             ),
           ),
         );
@@ -139,6 +150,7 @@ List<InlineSpan> buildInlineSpans(
               onCopyLink: onCopyLink,
               ownedRecognizers: ownedRecognizers,
               findQuery: findQuery,
+              leafRecognizer: leafRecognizer,
             ),
           ),
         );
@@ -154,6 +166,7 @@ List<InlineSpan> buildInlineSpans(
               onCopyLink: onCopyLink,
               ownedRecognizers: ownedRecognizers,
               findQuery: findQuery,
+              leafRecognizer: leafRecognizer,
             ),
           ),
         );
@@ -164,12 +177,19 @@ List<InlineSpan> buildInlineSpans(
             style: typography.inlineCode.copyWith(
               backgroundColor: theme.codeBackground,
             ),
+            recognizer: leafRecognizer,
           ),
         );
       case DocLinkInline(:final String url, :final List<DocInline> children):
         // 一个 recognizer 同时承载「点击打开」与「右键复制」：TextSpan 只接受一个
         // gestureRecognizer，而 TapGestureRecognizer 自身就区分主键与次键。
         // 对桌面阅读来说右键复制比长按更自然（长按在 macOS 上是选择文本）。
+        //
+        // **它必须挂到叶子 span 上，不能只挂在包裹用的父 span 上**。这是实测出来的：
+        // RenderParagraph 在命中测试时会先定位到**最深**的那个 span，再去问它的
+        // recognizer；父 span 自己不带文字（只有 children）时，那个 recognizer 永远
+        // 不会被问到——表现为链接有下划线、颜色也对，但点下去毫无反应。因此这里把
+        // recognizer 一路传下去，让每个真正承载文字的 span 都带上它。
         TapGestureRecognizer? recognizer;
         if (onOpenLink != null || onCopyLink != null) {
           recognizer = TapGestureRecognizer();
@@ -196,8 +216,8 @@ List<InlineSpan> buildInlineSpans(
               onCopyLink: onCopyLink,
               ownedRecognizers: ownedRecognizers,
               findQuery: findQuery,
+              leafRecognizer: recognizer,
             ),
-            recognizer: recognizer,
           ),
         );
       case DocRejectedUrl(
@@ -264,10 +284,11 @@ List<InlineSpan> _highlightSpans(
   String text,
   String? findQuery,
   DocTypography typography,
-  DocTheme theme,
-) {
+  DocTheme theme, {
+  TapGestureRecognizer? recognizer,
+}) {
   if (findQuery == null || findQuery.isEmpty || text.isEmpty) {
-    return <InlineSpan>[TextSpan(text: text)];
+    return <InlineSpan>[TextSpan(text: text, recognizer: recognizer)];
   }
   final String haystack = text.toLowerCase();
   final String needle = findQuery.toLowerCase();
@@ -277,17 +298,20 @@ List<InlineSpan> _highlightSpans(
     final int at = haystack.indexOf(needle, cursor);
     if (at == -1) {
       if (cursor < text.length) {
-        out.add(TextSpan(text: text.substring(cursor)));
+        out.add(TextSpan(text: text.substring(cursor), recognizer: recognizer));
       }
       return out;
     }
     if (at > cursor) {
-      out.add(TextSpan(text: text.substring(cursor, at)));
+      out.add(
+        TextSpan(text: text.substring(cursor, at), recognizer: recognizer),
+      );
     }
     out.add(
       TextSpan(
         text: text.substring(at, at + needle.length),
         style: TextStyle(backgroundColor: theme.accent.withValues(alpha: 0.35)),
+        recognizer: recognizer,
       ),
     );
     cursor = at + needle.length;

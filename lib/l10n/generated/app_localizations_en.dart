@@ -1192,6 +1192,95 @@ class AppLocalizationsEn extends AppLocalizations {
       'Opening links in the browser ships in T020; you can copy the address now.';
 
   @override
+  String get readingCopyAll => 'Copy article text';
+
+  @override
+  String readingCopyAllDone(int characters) {
+    return 'Article text copied ($characters characters)';
+  }
+
+  @override
+  String get readingCopyAllEmpty => 'This article has no body text to copy.';
+
+  @override
+  String get readingSelectionExplain => 'Explain';
+
+  @override
+  String get readingSelectionExplainNoAiTitle => 'No AI service configured yet';
+
+  @override
+  String readingSelectionExplainNoAiBody(int limit) {
+    return 'Explaining a selection needs an AI service. Only the selected text plus one short paragraph of context on each side (at most $limit characters) is sent.';
+  }
+
+  @override
+  String get readingSelectionExplainGoSettings => 'Open settings';
+
+  @override
+  String get readingSelectionExplainPending =>
+      'Explaining a selection needs an AI service; the call itself is T034. This round only adds the entry point and notice, and sends no request.';
+
+  @override
+  String get readingSelectionCopy => 'Copy';
+
+  @override
+  String get readingLinkPanelTitle => 'External link';
+
+  @override
+  String get readingLinkCopyAction => 'Copy address';
+
+  @override
+  String get readingLinkOpenAction => 'Open in browser';
+
+  @override
+  String readingLinkOpenFailed(String reason) {
+    return 'Could not open this address: $reason';
+  }
+
+  @override
+  String get readingImageViewerTitle => 'Image';
+
+  @override
+  String get readingImageCloseAction => 'Close (Esc)';
+
+  @override
+  String get readingImageSaveAction => 'Save image';
+
+  @override
+  String get readingImageShareAction => 'Share';
+
+  @override
+  String readingImageSavedTo(String path) {
+    return 'Image saved to $path';
+  }
+
+  @override
+  String readingImageSaveFailed(String reason) {
+    return 'Save failed: $reason';
+  }
+
+  @override
+  String get readingImageLoadFailed => 'Image failed to load.';
+
+  @override
+  String get readingImageTapToDownload => 'Tap to download this image';
+
+  @override
+  String get readingImageAutoLoadOff =>
+      'Loading remote images automatically is off (SET-012); tap an image to download that one.';
+
+  @override
+  String get readingShareUnavailable =>
+      'System share is unavailable; copied instead.';
+
+  @override
+  String get readingShareDone => 'System share opened.';
+
+  @override
+  String get readingShareFailed =>
+      'Share did not complete; copied to the clipboard instead.';
+
+  @override
   String get readingRichBodyUnavailable =>
       'This body can only be shown as plain text (no renderable controlled document structure).';
 

@@ -149,8 +149,9 @@ void main() {
       // 上下篇与边界、页内查找、代码块复制与折叠、公式回退、图片占位、外链与范围说明、
       // 未解析块提示、作者行、返回按钮）。
       // T019+ 新增 2 条列表分批加载文案（已加载计数、加载更多）。
-      expect(_messageKeys(zh).length, 335);
-      expect(_messageKeys(en).length, 335);
+      // T020 新增 25 条选区/复制全文/链接面板/图片查看与保存/系统分享文案。
+      expect(_messageKeys(zh).length, 360);
+      expect(_messageKeys(en).length, 360);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

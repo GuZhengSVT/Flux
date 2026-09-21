@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/feeds/presentation/refresh_automation.dart';
+import 'package:flux/features/settings/application/settings_navigation.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
@@ -45,6 +46,21 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppDestination selected = ref.watch(selectedDestinationProvider);
     final AppBootstrapStatus status = ref.watch(appBootstrapStatusProvider);
+
+    // 落实 features 侧的「去设置」请求（T020 的选词解释入口）。
+    //
+    // 用 listen 而不是直接在 build 里改状态：build 期间写另一个 provider 会在同一帧内
+    // 触发重建，而 Riverpod 明确禁止在 build 中修改依赖它的状态。listen 回调发生在帧后，
+    // 改去向是安全的一次状态变更。
+    ref.listen<bool>(settingsNavigationRequestProvider, (bool? _, bool next) {
+      if (!next) {
+        return;
+      }
+      ref.read(selectedDestinationProvider.notifier).state =
+          AppDestination.mine;
+      // 消费后清空：否则用户之后每次手动切换去向都会被拉回设置。
+      ref.read(settingsNavigationRequestProvider.notifier).consume();
+    });
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {

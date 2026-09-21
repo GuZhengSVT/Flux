@@ -2089,6 +2089,156 @@ abstract class AppLocalizations {
   /// **'外链打开属 T020，当前可复制地址。'**
   String get readingLinkOpenHint;
 
+  /// 复制全文按钮（正文纯文本）
+  ///
+  /// In zh, this message translates to:
+  /// **'复制全文'**
+  String get readingCopyAll;
+
+  /// 复制全文完成提示
+  ///
+  /// In zh, this message translates to:
+  /// **'全文已复制（{characters} 字）'**
+  String readingCopyAllDone(int characters);
+
+  /// 正文为空时点复制全文的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇没有可复制的正文。'**
+  String get readingCopyAllEmpty;
+
+  /// 选区菜单里的解释入口
+  ///
+  /// In zh, this message translates to:
+  /// **'解释'**
+  String get readingSelectionExplain;
+
+  /// 选词解释：未配置 AI 时的提示标题
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未配置 AI 服务'**
+  String get readingSelectionExplainNoAiTitle;
+
+  /// 选词解释：说明将发送什么，并引导去配置
+  ///
+  /// In zh, this message translates to:
+  /// **'解释需要 AI 服务。将只发送选中的文字与前后各一段的最少上下文（不超过 {limit} 字）。'**
+  String readingSelectionExplainNoAiBody(int limit);
+
+  /// 选词解释：跳转设置页
+  ///
+  /// In zh, this message translates to:
+  /// **'去设置'**
+  String get readingSelectionExplainGoSettings;
+
+  /// 选词解释：已配置 AI 时的占位说明（不发起调用）
+  ///
+  /// In zh, this message translates to:
+  /// **'选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。'**
+  String get readingSelectionExplainPending;
+
+  /// 选区菜单里的复制
+  ///
+  /// In zh, this message translates to:
+  /// **'复制'**
+  String get readingSelectionCopy;
+
+  /// 链接面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'外部链接'**
+  String get readingLinkPanelTitle;
+
+  /// 链接面板：复制地址按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'复制地址'**
+  String get readingLinkCopyAction;
+
+  /// 链接面板：外部浏览器打开按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'用浏览器打开'**
+  String get readingLinkOpenAction;
+
+  /// 外部打开失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开这个地址：{reason}'**
+  String readingLinkOpenFailed(String reason);
+
+  /// 图片查看器标题（无替代文字时）
+  ///
+  /// In zh, this message translates to:
+  /// **'图片'**
+  String get readingImageViewerTitle;
+
+  /// 图片查看器：关闭按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭（Esc）'**
+  String get readingImageCloseAction;
+
+  /// 图片查看器：保存按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存图片'**
+  String get readingImageSaveAction;
+
+  /// 图片查看器：分享按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'分享'**
+  String get readingImageShareAction;
+
+  /// 图片保存成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'图片已保存到 {path}'**
+  String readingImageSavedTo(String path);
+
+  /// 图片保存失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败：{reason}'**
+  String readingImageSaveFailed(String reason);
+
+  /// 图片加载失败时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'图片加载失败。'**
+  String get readingImageLoadFailed;
+
+  /// SET-012 关闭时：图片显示为占位框，点选可下载这一张
+  ///
+  /// In zh, this message translates to:
+  /// **'点击下载这张图片'**
+  String get readingImageTapToDownload;
+
+  /// SET-012 关闭时正文里的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'自动加载远程图片已关闭（SET-012）；点击图片可单独下载。'**
+  String get readingImageAutoLoadOff;
+
+  /// 系统分享不可用时的回退说明（架构 4.2）
+  ///
+  /// In zh, this message translates to:
+  /// **'系统分享不可用，已改为复制。'**
+  String get readingShareUnavailable;
+
+  /// 系统分享已打开
+  ///
+  /// In zh, this message translates to:
+  /// **'已打开系统分享。'**
+  String get readingShareDone;
+
+  /// 分享失败时回退复制
+  ///
+  /// In zh, this message translates to:
+  /// **'分享未完成，已复制到剪贴板。'**
+  String get readingShareFailed;
+
   /// 没有可渲染文档结构时的说明（原文不丢）
   ///
   /// In zh, this message translates to:

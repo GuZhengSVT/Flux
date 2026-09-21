@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
+import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/feeds/application/refresh_providers.dart';
@@ -32,7 +33,10 @@ import 'package:flux/infrastructure/local/group_collapse_repository.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
+import 'package:flux/infrastructure/platform/external_link_opener.dart';
 import 'package:flux/infrastructure/platform/file_selector_access.dart';
+import 'package:flux/infrastructure/platform/image_save_service.dart';
+import 'package:flux/infrastructure/platform/system_share_service.dart';
 
 import 'app_bootstrap.dart';
 
@@ -95,6 +99,9 @@ List<Override> bootstrapOverrides(
   AppBootstrapResult result, {
   FeedFetcher? feedFetcher,
   NetworkConditionPort? networkConditions,
+  ExternalLinkOpener? externalLinkOpener,
+  ImageSaveService? imageSaveService,
+  SystemShareService? systemShareService,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -127,6 +134,20 @@ List<Override> bootstrapOverrides(
     // 降级模式下仍可导出当前（可能为空的）清单、仍可读文件做预览，只有入库会
     // 因存储失败而明确报错。
     fileAccessProvider.overrideWithValue(const FileSelectorAccess()),
+    // ---- T020：正文的平台动作（外开 / 图片保存 / 系统分享 / 去设置） --------------
+    // 四个端口都与数据库无关，因此两种启动状态下都给真实实现：降级模式只是不持久化
+    // 数据，打开浏览器、保存一张图、弹出分享面板都不需要数据库。
+    externalLinkOpenerProvider.overrideWithValue(
+      externalLinkOpener ?? const UrlLauncherLinkOpener(),
+    ),
+    imageSaveServiceProvider.overrideWithValue(
+      imageSaveService ?? const HttpImageSaveService(),
+    ),
+    // macOS 原生 NSSharingServicePicker 通道；通道不存在时 isAvailable() 返回 false，
+    // 上层回退复制（架构 4.2），因此这里不需要按平台分支。
+    systemShareServiceProvider.overrideWithValue(
+      systemShareService ?? const NativeSystemShareService(),
+    ),
     // ---- T016：网络状况探测（计费/离线） -----------------------------------
     // 与数据库无关（它只需要本机网络接口信息），因此两种启动状态下都给真实实现。
     // 桌面实现的边界写在 infrastructure/platform/network_conditions.dart：

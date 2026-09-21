@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/l10n/l10n.dart';
+import 'package:flux/ui/ui.dart';
 
 import 'code_highlighter.dart';
 import 'doc_inline.dart';
@@ -272,10 +273,16 @@ class CopyCodeButton extends StatelessWidget {
   }
 }
 
-/// 图片占位框。
+/// 图片位（T020：可点击打开查看器；是否真的加载远程图受 SET-012 控制）。
 ///
-/// 远程图片的加载、缓存与尺寸安全属 T021。这里**保留版位**（因此「原文有一张图」这件事
-/// 在布局上可见），并显示替代文字与地址，使一张没有加载的图不会让正文莫名其妙地断掉。
+/// 三条与产品规则对应的选择：
+///   1) **保留版位**（架构 4.2）：一张没有加载的图仍然占住它该占的位置，并显示替代
+///      文字与地址，使正文不会莫名其妙地断掉；
+///   2) **SET-012 关闭时不自动加载**（架构 4.2 的「远端图片开关」）：画占位框而不是
+///      发起请求，并说明「点击可单独下载」——关掉自动加载不等于不能看这一张；
+///   3) **可点**：无论是否加载了图，点击都打开查看器（全屏可缩放、可保存）。
+///
+/// 远程图片的缓存、可控 MIME 与解码限额属 T021。
 class ImageBlockView extends StatelessWidget {
   /// 构造图片占位。
   const ImageBlockView({
@@ -283,6 +290,8 @@ class ImageBlockView extends StatelessWidget {
     required this.url,
     required this.alt,
     required this.typography,
+    this.autoLoad = true,
+    this.onTap,
   });
 
   /// 地址（已通过 [isSafeDocUrl]）。
@@ -294,45 +303,89 @@ class ImageBlockView extends StatelessWidget {
   /// 排版。
   final DocTypography typography;
 
+  /// 是否自动加载远程图片（SET-012）。false 时只画占位框，但**仍然可点**。
+  final bool autoLoad;
+
+  /// 点击回调（打开查看器）。
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final DocTheme theme = typography.theme;
+    final Widget framed = Container(
+      width: double.infinity,
+      height: 140,
+      decoration: BoxDecoration(
+        color: theme.codeBackground,
+        border: Border.all(color: theme.border),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
+      child: autoLoad
+          // 真实加载：失败时退回占位的内容（图标 + 替代文字 + 说明），而不是留一个破图标。
+          ? Image.network(
+              url,
+              width: double.infinity,
+              height: 140,
+              fit: BoxFit.cover,
+              semanticLabel: alt.isEmpty ? null : alt,
+              loadingBuilder:
+                  (
+                    BuildContext context,
+                    Widget child,
+                    ImageChunkEvent? progress,
+                  ) => progress == null
+                  ? child
+                  // 加载中仍显示替代文字（叠加一个进度指示），而不是只给一个转圈：
+                  // 一块没有文字的空框会让读者以为这张图没有说明，而替代文字在图片
+                  // 到达之前正是他判断「这里是什么」的唯一依据。
+                  : Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        _placeholder(l10n, theme, failed: false),
+                        const FluxLoadingIndicator(size: 16),
+                      ],
+                    ),
+              errorBuilder: (
+                BuildContext context,
+                Object error,
+                StackTrace? stack,
+              ) => _placeholder(l10n, theme, failed: true),
+            )
+          : _placeholder(l10n, theme, failed: false),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Container(
-          width: double.infinity,
-          height: 140,
-          decoration: BoxDecoration(
-            color: theme.codeBackground,
-            border: Border.all(color: theme.border),
+        // 可点：整块图片位是一个按钮的热区（手机上 140 高足够大；桌面上鼠标任意位置
+        // 都能点中）。用 InkWell 而不是 GestureDetector：需要焦点与键盘可达。
+        //
+        // 自带一层透明 Material：渲染器是**纯映射**，不该要求宿主必须提供 Material
+        // 祖先——golden 与组件测试直接挂 DocDocumentView，没有 Material 时 InkWell 会
+        // 直接断言失败（实测）。自带之后，谁挂这段渲染都能得到同样的行为。
+        Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
             borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.image_outlined, color: theme.textSecondary),
-              const SizedBox(height: 6),
-              Text(
-                alt.isEmpty ? l10n.readingImagePlaceholder : alt,
-                style: typography.secondary,
-                textAlign: TextAlign.center,
-              ),
-            ],
+            child: framed,
           ),
         ),
         const SizedBox(height: 4),
         SelectableText(
-          l10n.readingImageNotice,
+          // 关闭自动加载时说明「点击可单独下载」，而不是说「属 T021」——T021 是缓存
+          // 与安全，与「这一张能不能看」是两件事。
+          autoLoad ? l10n.readingImageNotice : l10n.readingImageAutoLoadOff,
           style: typography.secondary.copyWith(
             fontSize: typography.baseSize * 0.7,
           ),
         ),
         SelectableText(
-          url,
+          autoLoad ? url : '${l10n.readingImageTapToDownload} · $url',
           style: typography.secondary.copyWith(
             fontSize: typography.baseSize * 0.7,
           ),
@@ -340,6 +393,35 @@ class ImageBlockView extends StatelessWidget {
       ],
     );
   }
+
+  /// 占位内容（未加载或加载失败时）。
+  Widget _placeholder(
+    AppLocalizations l10n,
+    DocTheme theme, {
+    required bool failed,
+  }) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: <Widget>[
+      Icon(
+        failed ? Icons.broken_image_outlined : Icons.image_outlined,
+        color: theme.textSecondary,
+      ),
+      const SizedBox(height: 6),
+      Text(
+        alt.isEmpty ? l10n.readingImagePlaceholder : alt,
+        style: typography.secondary,
+        textAlign: TextAlign.center,
+      ),
+      if (failed) ...<Widget>[
+        const SizedBox(height: 4),
+        Text(
+          l10n.readingImageLoadFailed,
+          style: typography.secondary,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ],
+  );
 }
 
 /// 表格：按列对齐，宽表在块内横向滚动。
