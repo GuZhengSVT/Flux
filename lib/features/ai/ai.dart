@@ -38,5 +38,14 @@
 //   presentation/search_services_page.dart + search_service_form.dart；
 //   infrastructure/network/{search_http,tavily_search_adapter,brave_search_adapter,
 //   searxng_search_adapter,search_provider_factory}.dart。
-// TODO(T032): search/fetchPage/inspectImage 受控工具。
+// T032 已落地：domain/tool_call.dart（封闭的 ToolName 三项、ToolCall/ToolResult/
+//   ToolPayload、ToolCallBudget、工具 JSON Schema 声明）、
+//   domain/tool_arguments.dart（参数校验纯函数 + 图片材料集合）、
+//   domain/tool_call_parser.dart（三个协议的工具调用解析 + 分片累加器）、
+//   application/tool_ports.dart（受控抓取/看图端口 + 预算设置端口）、
+//   application/tool_executor.dart（预算闸门 → 工具白名单 → 参数与地址校验 → 执行）、
+//   infrastructure/network/tool_port_adapters.dart（复用 T024 抓取与 T021 图片管线）；
+//   AiRequest.tools 已接线到三个适配器，响应中的 tool_calls 解析为 AiToolCalls 事件，
+//   由 AiTaskRunner 的受控循环执行并回填（轮数上限 kMaxToolRounds + SET-062 次数预算）。
+// TODO(T033): 视觉分析（inspectImage 目前只返回「已就绪待分析」的占位元数据）。
 library;

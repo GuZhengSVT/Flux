@@ -28,6 +28,8 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/ai/domain/ai_errors.dart';
 import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/tool_call.dart';
+import 'package:flux/features/ai/domain/tool_call_parser.dart';
 
 import 'ai_http.dart';
 
@@ -126,6 +128,9 @@ final class ResponsesAdapter implements AiProvider {
       String? finishReason;
       bool completed = false;
       bool sawAnyEvent = false;
+      // Responses 把 function_call 作为**完整的输出项**给出（不是流式分片），
+      // 因此直接收集列表，不需要累加器。
+      final List<ToolCall> collectedCalls = <ToolCall>[];
 
       await for (final String payload in sseEventPayloads(
         guarded,
@@ -156,12 +161,20 @@ final class ResponsesAdapter implements AiProvider {
             if (delta is String && delta.isNotEmpty) {
               yield AiDelta(delta);
             }
+          case 'response.output_item.done':
+            // 一个输出项完成。function_call 项在这里到达（**不是**流式分片：Responses
+            // 把整项一次性给出），因此直接收集，不需要累加器。
+            final Object? item = event['item'];
+            collectedCalls.addAll(parseResponsesToolCalls(<Object?>[item]));
           case 'response.completed':
             completed = true;
             final Object? body = event['response'];
             if (body is Map<Object?, Object?>) {
               usage = parseResponsesUsage(body['usage']);
               finishReason = _statusOf(body);
+              // 完成事件里若带 output 数组，也一并收集：两种到达方式都要覆盖
+              // （有的实现只在 completed 里给完整 output）。
+              collectedCalls.addAll(parseResponsesToolCalls(body['output']));
             }
           case 'response.failed':
             // 失败事件的错误在 response.error 里。
@@ -192,6 +205,9 @@ final class ResponsesAdapter implements AiProvider {
 
       if (usage != null) {
         yield usage;
+      }
+      if (collectedCalls.isNotEmpty) {
+        yield AiToolCalls(List<ToolCall>.unmodifiable(collectedCalls));
       }
       if (!completed && !sawAnyEvent) {
         throw NetworkError(

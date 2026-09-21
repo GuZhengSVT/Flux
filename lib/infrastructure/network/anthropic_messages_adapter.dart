@@ -36,6 +36,8 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/ai/domain/ai_errors.dart';
 import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/tool_call.dart';
+import 'package:flux/features/ai/domain/tool_call_parser.dart';
 
 import 'ai_http.dart';
 
@@ -142,6 +144,12 @@ final class AnthropicMessagesAdapter implements AiProvider {
       String? finishReason;
       bool sawMessageStop = false;
       bool sawMessageStart = false;
+      // tool_use 块的形状：content_block_start 给出 index/id/name（流式时 input 是空
+      // 对象），随后若干 content_block_delta 以 partial_json 把参数补齐。因此按
+      // **块索引**归位累积——按到达顺序拼会把并发两个调用的参数接到对方身上。
+      final Map<int, _PartialToolUse> toolUses = <int, _PartialToolUse>{};
+      // 非流式的完整 message（message_start 里直接带 content 数组）。
+      final List<ToolCall> completeToolUse = <ToolCall>[];
 
       await for (final String payload in sseEventPayloads(
         guarded,
@@ -170,6 +178,8 @@ final class AnthropicMessagesAdapter implements AiProvider {
             sawMessageStart = true;
             final Object? message = event['message'];
             if (message is Map<Object?, Object?>) {
+              // 完整（非流式）的 message 里可能直接带 tool_use 块。
+              completeToolUse.addAll(parseAnthropicToolUse(message['content']));
               final AiUsage? usage = parseAnthropicUsage(message['usage']);
               if (usage != null) {
                 inputTokens = usage.inputTokens;
@@ -185,12 +195,47 @@ final class AnthropicMessagesAdapter implements AiProvider {
           case 'content_block_delta':
             final Object? delta = event['delta'];
             if (delta is Map<Object?, Object?>) {
-              // delta.type == "text_delta" 的增量在 delta.text；其它 delta 类型
-              // （input_json_delta 等，属工具调用/T032）不产生文本增量。
+              // delta.type == "text_delta" 的增量在 delta.text；
+              // partial_json（input_json_delta）则属于工具调用的参数分片——它不产生
+              // 文本增量，但**必须**被累积：丢掉它会让一次工具调用的参数变成空对象，
+              // 而执行器看到空参数只会给出一次「缺少 url」的拒绝（看起来像模型出错）。
               final Object? text = delta['text'];
               if (text is String && text.isNotEmpty) {
                 yield AiDelta(text);
               }
+              final Object? partial = delta['partial_json'];
+              final Object? rawIndex = event['index'];
+              final int? index = rawIndex is int
+                  ? rawIndex
+                  : (rawIndex is num ? rawIndex.toInt() : null);
+              if (partial is String &&
+                  partial.isNotEmpty &&
+                  index != null &&
+                  toolUses[index] != null) {
+                toolUses[index]!.input.write(partial);
+              }
+            }
+          case 'content_block_start':
+            // tool_use 块从这里开始：带 id/name/input（input 可能随后以
+            // input_json_delta 分片补齐，见 content_block_delta）。
+            final Object? block = event['content_block'];
+            final Object? rawIndex = event['index'];
+            final int? index = rawIndex is int
+                ? rawIndex
+                : (rawIndex is num ? rawIndex.toInt() : null);
+            if (block is Map<Object?, Object?> && block['type'] == 'tool_use') {
+              final Object? name = block['name'];
+              final Object? id = block['id'];
+              final _PartialToolUse partial = _PartialToolUse(
+                id: id is String && id.isNotEmpty ? id : null,
+                name: name is String && name.isNotEmpty ? name : null,
+              );
+              final Object? input = block['input'];
+              if (input is Map<Object?, Object?> && input.isNotEmpty) {
+                // 完整 input 直接给全（非流式写法）：写进缓冲区等收尾时统一解析。
+                partial.input.write(jsonEncode(input));
+              }
+              toolUses[index ?? 0] = partial;
             }
           case 'message_delta':
             final AiUsage? usage = parseAnthropicUsage(event['usage']);
@@ -224,6 +269,25 @@ final class AnthropicMessagesAdapter implements AiProvider {
           inputTokens: inputTokens ?? 0,
           outputTokens: outputTokens ?? 0,
         );
+      }
+      // 收尾流式的 tool_use（按块索引升序），与完整 message 里收集到的合并。
+      final List<ToolCall> calls = <ToolCall>[...completeToolUse];
+      for (final int index in (toolUses.keys.toList()..sort())) {
+        final _PartialToolUse partial = toolUses[index]!;
+        final String? name = partial.name;
+        if (name == null || name.isEmpty) {
+          continue;
+        }
+        calls.add(
+          ToolCall(
+            id: partial.id ?? 'call_index_$index',
+            rawName: name,
+            args: parseToolArguments(partial.input.toString()),
+          ),
+        );
+      }
+      if (calls.isNotEmpty) {
+        yield AiToolCalls(List<ToolCall>.unmodifiable(calls));
       }
       if (!sawMessageStop && !sawMessageStart) {
         // 一个事件都没收到：多半是中间代理返回了 200 但内容不是事件流。
@@ -295,4 +359,13 @@ final class AnthropicMessagesAdapter implements AiProvider {
     }
     return decoded is Map<String, Object?> ? decoded : null;
   }
+}
+
+/// 一个尚未收完的 tool_use 块（按 content_block 的 index 归位）。
+final class _PartialToolUse {
+  _PartialToolUse({required this.id, required this.name});
+
+  final String? id;
+  final String? name;
+  final StringBuffer input = StringBuffer();
 }

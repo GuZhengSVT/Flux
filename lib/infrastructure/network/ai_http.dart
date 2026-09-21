@@ -39,10 +39,7 @@ Map<String, Object?> chatCompletionsRequestBody(
   'model': modelId,
   'messages': <Map<String, Object?>>[
     for (final AiMessage message in request.messages)
-      <String, Object?>{
-        'role': message.role.wireName,
-        'content': message.content,
-      },
+      chatCompletionsMessage(message),
   ],
   'stream': true,
   // include_usage 让服务商在流的最后发一个只带 usage 的 chunk。不发它就拿不到
@@ -64,6 +61,26 @@ Map<String, Object?> chatCompletionsRequestBody(
     ],
 };
 
+/// 把一条消息渲染成 Chat Completions 的 messages 项。
+///
+/// 工具结果的消息**必须**带 tool_call_id（协议要求）：缺它服务商会返回 400，而那条
+/// 400 的表现是「任务失败」，用户完全看不出「只是因为没带上一个 id」。
+Map<String, Object?> chatCompletionsMessage(AiMessage message) {
+  if (message.role == AiRole.tool) {
+    return <String, Object?>{
+      'role': 'tool',
+      // 没有 id 时不编一个：用一个假的 id 会让服务商把它当成一个不存在的调用
+      // （错误更难懂），而缺字段至少是协议层面的明确拒绝。
+      if (message.toolCallId != null) 'tool_call_id': message.toolCallId,
+      'content': message.content,
+    };
+  }
+  return <String, Object?>{
+    'role': message.role.wireName,
+    'content': message.content,
+  };
+}
+
 /// 构造 Responses 的请求体。
 ///
 /// 与 Chat Completions 的**结构差异**（不是改个字段名）：
@@ -80,6 +97,17 @@ Map<String, Object?> responsesRequestBody(AiRequest request, String modelId) {
         instructions.write('\n\n');
       }
       instructions.write(message.content);
+      continue;
+    }
+    // 工具结果在 Responses 里是**独立的输出项形状** function_call_output，而不是
+    // input 里的一条 role=tool 消息：协议不接受后者。字段名也不是 tool_call_id 而是
+    // call_id——这是「两个 OpenAI 协议不能只改 URL」的又一处具体体现。
+    if (message.role == AiRole.tool) {
+      input.add(<String, Object?>{
+        'type': 'function_call_output',
+        if (message.toolCallId != null) 'call_id': message.toolCallId,
+        'output': message.content,
+      });
       continue;
     }
     input.add(<String, Object?>{
@@ -195,6 +223,22 @@ Map<String, Object?> anthropicMessagesRequestBody(
         system.write('\n\n');
       }
       system.write(message.content);
+      continue;
+    }
+    if (message.role == AiRole.tool) {
+      // 工具结果是 user 消息里的一个 tool_result 内容块，且**必须**带 tool_use_id
+      // （T027 当初就把这条记为「T032 要做的事」）。把它当普通文本发会让服务商
+      // 拒绝或（更糟）让模型把工具产出误读成用户输入。
+      messages.add(<String, Object?>{
+        'role': 'user',
+        'content': <Map<String, Object?>>[
+          <String, Object?>{
+            'type': 'tool_result',
+            if (message.toolCallId != null) 'tool_use_id': message.toolCallId,
+            'content': message.content,
+          },
+        ],
+      });
       continue;
     }
     messages.add(<String, Object?>{

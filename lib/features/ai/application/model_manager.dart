@@ -388,7 +388,16 @@ final class ModelManager {
           case AiUsage():
             usage = event;
           case AiDone():
+            // 连接测试不发送工具声明，因此不会有工具调用；真收到也**不执行**
+            // （测试路径不该有能力做任何工具动作——那会把一次连通性验证
+            // 变成一次出网与计费）。显式列出并忽略，让「有工具调用」这件事
+            // 在编译器层面被处理掉而不是漏掉。
             finishReason = event.finishReason;
+          case AiToolCalls():
+            // 连接测试不发送工具声明，因此理论上收不到；真收到也**不执行**
+            // （测试路径不该有能力做任何工具动作——那会把一次连通性验证变成一次
+            // 出网与计费）。显式列出并忽略，让「有工具调用」在编译器层面被处理掉。
+            break;
         }
       }
     } on AppError catch (error) {

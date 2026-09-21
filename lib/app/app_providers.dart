@@ -25,6 +25,7 @@ import 'package:flux/features/ai/domain/ai_task_store.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
 import 'package:flux/features/ai/domain/search_provider.dart';
 import 'package:flux/features/ai/domain/search_service_store.dart';
+import 'package:flux/features/ai/application/tool_ports.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_extraction_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
@@ -59,6 +60,7 @@ import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
 import 'package:flux/infrastructure/network/ai_provider_factory.dart';
 import 'package:flux/infrastructure/network/search_provider_factory.dart';
+import 'package:flux/infrastructure/network/tool_port_adapters.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
@@ -374,7 +376,45 @@ List<Override> bootstrapOverrides(
     staticPageFetcherProvider.overrideWithValue(
       staticPageFetcher ?? HttpStaticPageFetcherAdapter(),
     ),
+    // ---- T032：受控工具的两个执行端口 ----------------------------------------
+    // 两者都与数据库无关，因此两种启动状态下都给真实实现。
+    //
+    // 网页抓取**复用 T024 的抓取端口**（上面刚装配好的那一个）：它已经带完整安全链
+    // （地址守卫 + DNS 解析后复检 + 逐跳重定向校验 + 体积/解压上限）。另起一条
+    // 「只给工具用」的下载路径会让两条路径的判据各自漂移。
+    controlledPageFetcherProvider.overrideWith(
+      (Ref ref) => ControlledPageFetcherAdapter(
+        fetcher: ref.watch(staticPageFetcherProvider),
+      ),
+    ),
+    // 图片查看**复用 T021 的受控加载器**（阅读器图片走同一条路，含 MIME/体积/魔数
+    // 校验与缓存），因此这里也读同一个 Provider，而不是另建一条下载路径。
+    toolImageInspectorProvider.overrideWith(
+      (Ref ref) =>
+          ToolImageInspectorAdapter(ref.watch(articleImageLoaderProvider)),
+    ),
+    // 单材料预算（SET-061）由设置读取；接线到这里之后执行器就能拿到用户配置的值。
+    toolBudgetSettingsProvider.overrideWithValue(
+      SettingsStoreToolBudgetReader(result.settingsStore),
+    ),
   ];
+}
+
+/// 把设置端口接成工具预算读取端口（SET-061）。
+///
+/// 与 SettingsStoreReader 同一做法：只转发「按编号读」，不给写入口——给工具层写设置的
+/// 能力会让「一次工具执行顺手改了用户配置」成为可能，而设置页不会因此刷新。
+final class SettingsStoreToolBudgetReader implements ToolBudgetSettings {
+  /// 绑定一个设置端口。
+  const SettingsStoreToolBudgetReader(this._store);
+
+  final SettingsStore _store;
+
+  @override
+  Future<Object?> readSingleMaterialBudget() async {
+    final Result<Object?> read = await _store.readSetting(SettingId.set061);
+    return read.isOk ? read.valueOrNull : null;
+  }
 }
 
 /// 把 T011 的 [SettingsStore] 适配成 T025 的只读设置端口。

@@ -15,6 +15,7 @@ import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/ai_model.dart';
 import 'package:flux/features/ai/domain/ai_protocol.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/tool_call.dart';
 
 /// 一次调用的剧本。
 sealed class AiAttemptScript {
@@ -44,6 +45,7 @@ final class ScriptSuccess extends AiAttemptScript {
     this.finishReason = 'stop',
     this.onStart,
     this.advanceClockBy = Duration.zero,
+    this.toolCalls = const <ToolCall>[],
   });
 
   /// 增量文本。
@@ -54,6 +56,9 @@ final class ScriptSuccess extends AiAttemptScript {
 
   /// 结束原因（回答 length 表示输出被截断）。
   final String? finishReason;
+
+  /// 本轮请求的工具调用（T032 的工具循环用它构造「模型请求了工具」这一轮）。
+  final List<ToolCall> toolCalls;
 
   @override
   final void Function()? onStart;
@@ -207,6 +212,7 @@ final class _ScriptedProvider implements AiProvider {
           :final List<String> deltas,
           :final AiUsage? usage,
           :final String? finishReason,
+          :final List<ToolCall> toolCalls,
         ):
           if (request.cancellation.isCancelled) {
             throw CancelledError(reason: request.cancellation.reason);
@@ -216,6 +222,9 @@ final class _ScriptedProvider implements AiProvider {
           }
           if (usage != null) {
             yield usage;
+          }
+          if (toolCalls.isNotEmpty) {
+            yield AiToolCalls(toolCalls);
           }
           yield AiDone(finishReason: finishReason);
         case ScriptFailure(

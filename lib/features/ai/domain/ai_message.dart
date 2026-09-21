@@ -11,6 +11,8 @@
 // 领域层带上一半的传输语义会让「换协议不改业务」这条设计目标失效。
 library;
 
+import 'tool_call.dart';
+
 /// 消息角色（四类，与 OpenAI 兼容协议一致）。
 enum AiRole {
   /// 系统指令。
@@ -32,25 +34,40 @@ enum AiRole {
 /// 一条消息（文本形态；图片等多模态分量属 T033）。
 final class AiMessage {
   /// 构造一条消息。
-  const AiMessage({required this.role, required this.content});
+  const AiMessage({required this.role, required this.content, this.toolCallId});
 
   /// 便捷构造：系统指令。
-  const AiMessage.system(this.content) : role = AiRole.system;
+  const AiMessage.system(this.content)
+    : role = AiRole.system,
+      toolCallId = null;
 
   /// 便捷构造：用户输入。
-  const AiMessage.user(this.content) : role = AiRole.user;
+  const AiMessage.user(this.content) : role = AiRole.user, toolCallId = null;
 
   /// 便捷构造：模型输出。
-  const AiMessage.assistant(this.content) : role = AiRole.assistant;
+  const AiMessage.assistant(this.content)
+    : role = AiRole.assistant,
+      toolCallId = null;
 
   /// 便捷构造：工具结果。
-  const AiMessage.tool(this.content) : role = AiRole.tool;
+  ///
+  /// toolCallId 是**协议要求**的回填依据：
+  ///   - Chat Completions 的 role=tool 消息必须带 tool_call_id；
+  ///   - Responses 的 function_call_output 项必须带 call_id；
+  ///   - Anthropic 的 tool_result 内容块必须带 tool_use_id。
+  /// 三者字段名不同但语义一致，因此统一到这一个字段（T027 当初把它记为「T032 要做的
+  /// 事」，本轮补上）。为 null 表示这条工具结果没有对应的调用 id（例如历史数据或
+  /// 手工构造），此时按「没有 id 可填」如实处理，而不是编一个。
+  const AiMessage.tool(this.content, {this.toolCallId}) : role = AiRole.tool;
 
   /// 角色。
   final AiRole role;
 
   /// 文本内容。
   final String content;
+
+  /// 工具调用 id（仅 role=tool 时使用；其余角色为 null）。
+  final String? toolCallId;
 
   @override
   String toString() => 'AiMessage(${role.wireName}, ${content.length} chars)';
@@ -166,6 +183,30 @@ final class AiDone extends AiEvent {
 
   /// 服务商给出的结束原因（例如 `stop`、`length`）；未给出时为 null。
   final String? finishReason;
+}
+
+/// 模型请求的工具调用（T032）。
+///
+/// 为什么作为一个**独立事件**而不是塞进 [AiDone] 或 [AiDelta]：
+///   - 工具调用不是文本：把它混进 delta 会让「把模型输出当总结文本保存」的调用点
+///     悄悄把一段 JSON 存成正文；
+///   - 它与 done 的时机也不同：流可能在工具调用之后继续（多轮），而 done 表示本轮结束。
+///     协议里 finish_reason=tool_calls 时**没有**终态文本，若只靠 done 传递，调用点
+///     必须从 finishReason 字符串反推「这一轮其实是工具调用」——那是一次字符串判断，
+///     而字符串判断必然会漏掉某个协议的某一种写法。
+///
+/// [calls] 由协议响应里的结构化字段解析而来（见 tool_call_parser.dart）。这是**唯一**
+/// 的构造路径，因此模型输出的自由文本（含「请调用 fetchPage ...」这类注入）在类型上
+/// 没有通往执行器的路。
+final class AiToolCalls extends AiEvent {
+  /// 构造工具调用事件。
+  const AiToolCalls(this.calls);
+
+  /// 本轮流式响应里请求的全部调用（按服务商给出的顺序）。
+  final List<ToolCall> calls;
+
+  @override
+  String toString() => 'AiToolCalls(${calls.length} calls)';
 }
 
 /// 取消信号。

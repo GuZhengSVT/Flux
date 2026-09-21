@@ -32,6 +32,8 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/ai/domain/ai_errors.dart';
 import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
+import 'package:flux/features/ai/domain/tool_call.dart';
+import 'package:flux/features/ai/domain/tool_call_parser.dart';
 
 import 'ai_http.dart';
 
@@ -131,6 +133,9 @@ final class ChatCompletionsAdapter implements AiProvider {
       String? finishReason;
       AiUsage? usage;
       bool sawDone = false;
+      // 工具调用会跨多个 chunk 分片到达（见 ToolCallAccumulator 的说明），因此这里
+      // 逐片喂入、流结束时统一收尾。
+      final ToolCallAccumulator toolCalls = ToolCallAccumulator();
 
       await for (final String payload in sseEventPayloads(
         guarded,
@@ -189,17 +194,25 @@ final class ChatCompletionsAdapter implements AiProvider {
           if (content is String && content.isNotEmpty) {
             yield AiDelta(content);
           }
-          // tool_calls 的增量在 T032 才消费；这里不解析、也不丢弃整个 chunk：
-          // 「有工具调用就整块跳过」会连带丢掉同一 chunk 里可能存在的正文。
+          // tool_calls 是**增量**（分片到达），按 index 归位累加；不解析、也不丢弃整个
+          // chunk：「有工具调用就整块跳过」会连带丢掉同一 chunk 里可能存在的正文。
+          toolCalls.addDelta(delta['tool_calls']);
         }
       }
 
       if (usage != null) {
         yield usage;
       }
-      if (!sawDone && finishReason == null) {
+      // 收集到的调用作为一个独立事件发出（在 done 之前）：调用点据此决定要不要执行，
+      // 而不必从 finishReason 字符串反推「这一轮其实是工具调用」。
+      final List<ToolCall> calls = toolCalls.build();
+      if (calls.isNotEmpty) {
+        yield AiToolCalls(calls);
+      }
+      if (!sawDone && finishReason == null && calls.isEmpty) {
         // 既没有 [DONE] 也没有 finish_reason：流被中途截断（网络断开或服务商异常）。
         // 必须报出来而不是安静地结束——安静结束会让上层把半句话当成完整答案保存。
+        // （有工具调用但没有 [DONE] 的流不算截断：有些实现直接以工具调用结束流。）
         throw NetworkError(
           uri: endpoint.toString(),
           reason: '流在中途结束，既未收到 [DONE] 也未收到结束原因',

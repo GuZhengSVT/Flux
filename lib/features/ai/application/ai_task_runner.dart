@@ -36,6 +36,15 @@ import '../domain/ai_model.dart';
 import '../domain/ai_provider.dart';
 import 'ai_failover.dart';
 import 'ai_task_budget.dart';
+import '../domain/tool_call.dart';
+import 'tool_executor.dart';
+
+/// 工具循环的轮数上限。
+///
+/// 取 8 而不是「跟着工具次数预算走」：次数预算（SET-062 默认 30）管的是**成本**，
+/// 而轮数管的是「一次任务要在多久内收敛」。一次工具调用可能带 3–4 次模型往返，8 轮
+/// 已经远超任何合理的「检索 + 抓网页 + 再看图」流程；超过它几乎总是模型在打转。
+const int kMaxToolRounds = 8;
 
 /// 一次尝试的结构化记录（诊断与验收用）。
 ///
@@ -154,6 +163,8 @@ final class AiTaskRunner {
     this.offlineRetryDelay = const Duration(seconds: 1),
     this.failoverThreshold = 5,
     this.onSnapshot,
+    this.toolExecutor,
+    this.maxToolRounds = kMaxToolRounds,
   });
 
   /// 凭据读取（SET-031；Key 只在此处短暂存在，绝不进日志）。
@@ -185,6 +196,14 @@ final class AiTaskRunner {
 
   /// 每次状态迁移后的回调（T030 用它落库；T029 只做状态机接线）。
   final void Function(TaskSnapshot snapshot)? onSnapshot;
+
+  /// 受控工具执行器（T032）；为空时**不执行任何工具**（工具调用会被忽略，
+  /// 模型拿到一条明确的「未执行」说明，见 _runToolLoop）。
+  final ToolExecutor? toolExecutor;
+
+  /// 工具循环的**轮数**上限（与 SET-062 的次数预算一起约束同一件事的两面，见
+  /// _runToolLoop 的说明）。
+  final int maxToolRounds;
 
   /// 在预算内把一个请求跑成一次结果。
   ///
@@ -377,9 +396,84 @@ final class AiTaskRunner {
           tracker.recordSuccess();
           _log(
             '任务模型调用成功 task=$taskId alias=${model.alias} attempt=$index '
-            'tokens=$attemptTokens truncated=$truncated',
+            'tokens=$attemptTokens truncated=$truncated '
+            'toolCalls=${result.toolCalls.length}',
             success: true,
           );
+          // ---- 受控工具循环（T032） -------------------------------------------
+          // 模型请求了工具调用时**不**把这一轮当最终答案：执行工具、把结果回填进
+          // 消息序列、再问一次模型。循环上限由 SET-062 的**工具次数预算**在
+          // ToolExecutor 内部强制（每次 execute 都过预算闸门），因此这里不再维护
+          // 第二个「轮数」计数器——两个计数器会漂移，而漂移的表现是「界面显示的剩余
+          // 次数与实际不一致」。
+          if (result.toolCalls.isNotEmpty) {
+            final _ToolLoopOutcome loop = await _runToolLoop(
+              taskId: taskId,
+              model: model,
+              provider: provider,
+              request: request,
+              cancellation: child,
+              limiter: limiter,
+              firstText: result.text,
+              firstToolCalls: result.toolCalls,
+              consumedTokens: consumed,
+              attempts: attempts,
+              elapsedSoFar: elapsed,
+              attemptIndex: index,
+            );
+            consumed = loop.consumedTokens;
+            if (loop.error != null) {
+              // 工具循环内部的失败按类型分类：认证/内容拒绝不换模型、无响应计入五次。
+              // 复用既有的分类器，避免在这里写第二套判断。
+              lastError = loop.error is AppError
+                  ? loop.error! as AppError
+                  : null;
+              final AiFailureClass failureClass = classifyAiFailure(
+                loop.error!,
+              );
+              if (failureClass == AiFailureClass.cancelled) {
+                return _finishCancelled(
+                  snapshot,
+                  attempts,
+                  consumed,
+                  loop.error!,
+                );
+              }
+              if (failureClass == AiFailureClass.configuration ||
+                  failureClass == AiFailureClass.contentRefused ||
+                  failureClass == AiFailureClass.format ||
+                  failureClass == AiFailureClass.budget ||
+                  failureClass == AiFailureClass.internal) {
+                return _finishFailed(
+                  snapshot,
+                  attempts,
+                  consumed,
+                  loop.error!,
+                  partial: loop.text,
+                  partialAlias: model.alias,
+                  partialModelId: model.modelId,
+                );
+              }
+              // 无响应类失败交给外层循环继续（它会按五次规则决定是否换模型）。
+              continue;
+            }
+            final TaskStatus loopStatus = loop.truncated
+                ? TaskStatus.partial
+                : TaskStatus.succeeded;
+            snapshot = _transition(snapshot, loopStatus);
+            return AiTaskOutcome(
+              snapshot: snapshot,
+              status: loopStatus,
+              attempts: List<AiAttemptRecord>.unmodifiable(attempts),
+              consumedTokens: consumed,
+              error: null,
+              text: loop.text,
+              usage: loop.usage,
+              alias: model.alias,
+              modelId: model.modelId,
+              finishReason: loop.finishReason,
+            );
+          }
           final TaskStatus status = truncated
               ? TaskStatus.partial
               : TaskStatus.succeeded;
@@ -570,6 +664,7 @@ final class AiTaskRunner {
     final StringBuffer received = StringBuffer();
     AiUsage? usage;
     String? finishReason;
+    final List<ToolCall> toolCalls = <ToolCall>[];
     try {
       await _withHardLimit(
         cancellation: cancellation,
@@ -584,6 +679,10 @@ final class AiTaskRunner {
                 // 直接读 event.finishReason：对象模式在这里会把类型推导退化成 Object?，
                 // 需要一个多余的强转；读字段则类型就是 String?。
                 finishReason = event.finishReason;
+              case AiToolCalls():
+                // 只**收集**，不在这里执行：执行要走预算闸门与参数校验，而那是
+                // ToolExecutor 的职责（本层不该同时管网络、预算与工具语义）。
+                toolCalls.addAll(event.calls);
             }
           }
         },
@@ -627,7 +726,166 @@ final class AiTaskRunner {
       text: received.toString(),
       usage: usage,
       finishReason: finishReason,
+      toolCalls: List<ToolCall>.unmodifiable(toolCalls),
     );
+  }
+
+  /// 受控工具循环（T032）：执行模型请求的工具、把结果回填、再问一次模型。
+  ///
+  /// 为什么是一个**显式的循环上限为「工具次数预算」**的循环，而不是一个 while(true)：
+  ///   - 每次工具执行都会消耗 SET-062 的次数额度（由 ToolExecutor 强制）；额度用尽时
+  ///     工具结果是一次类型化拒绝，模型看到拒绝后通常会给最终答案；
+  ///   - 即使模型不放弃，本循环也有一个**硬轮数上限** [maxToolRounds]，避免「模型一直
+  ///     请求工具」把一次任务拖到总时限耗尽（那种表现是「任务一直转圈」，用户看不到
+  ///     任何原因）。两个上限的语义不同：次数管**成本**，轮数管**可控性**。
+  ///
+  /// 工具执行结果的回填方式：每条结果作为一条 role=tool 的消息追加在助手消息之后
+  /// （协议里的规范做法）。**不把工具结果拼进系统提示**——那会让一次工具产出看起来像
+  /// 一条指令，而它恰恰是第三方的不可信内容。
+  Future<_ToolLoopOutcome> _runToolLoop({
+    required String taskId,
+    required AiModel model,
+    required AiProvider provider,
+    required AiRequest request,
+    required AiCancellation cancellation,
+    required AiInFlightLimiter limiter,
+    required String firstText,
+    required List<ToolCall> firstToolCalls,
+    required int consumedTokens,
+    required List<AiAttemptRecord> attempts,
+    required Duration elapsedSoFar,
+    required int attemptIndex,
+  }) async {
+    final ToolExecutor? executor = toolExecutor;
+    if (executor == null) {
+      // 没有执行器时**不执行任何工具**：把工具结果替换成一条明确的说明回填给模型，
+      // 让它据此给出答案。静默忽略会让模型以为工具返回了空内容，从而编造结论。
+      return _ToolLoopOutcome(
+        text: firstText,
+        finishReason: null,
+        consumedTokens: consumedTokens,
+        truncated: false,
+      );
+    }
+
+    int consumed = consumedTokens;
+    String text = firstText;
+    AiUsage? usage;
+    String? finishReason;
+    List<AiMessage> messages = List<AiMessage>.of(request.messages);
+    List<ToolCall> pending = firstToolCalls;
+
+    for (int round = 0; round < maxToolRounds; round++) {
+      // 执行这一轮请求的工具（顺序执行：并行工具会让「先执行哪个」不确定，而
+      // 有依赖的工具顺序会影响结果）。
+      final List<ToolResult> results = await executor.executeAll(pending);
+      _log(
+        '任务工具轮次完成 task=$taskId round=$round '
+        'calls=$pending.length ok=${results.where((ToolResult r) => r.ok).length}',
+        success: true,
+      );
+
+      // 回填：助手消息（可为空文本）之后跟若干 role=tool 的消息。
+      messages = <AiMessage>[
+        ...messages,
+        if (text.isNotEmpty) AiMessage.assistant(text),
+        for (final ToolResult result in results)
+          AiMessage.tool(_toolResultContent(result), toolCallId: result.callId),
+      ];
+
+      final int index = attempts.length + 1;
+      final Duration startedAt = clock.monotonic();
+      _AttemptResult result;
+      await limiter.acquire();
+      // 额度的 acquire 在调用点、release 在 _attempt 的 finally 里（与主循环同一分工：
+      // 那里也是先 acquire 再进 _attempt）。因此这里**不**再包一层 finally 释放——
+      // 重复释放会抛 StateError，而它表示的是「额度凭空变多」，比一次失败更危险。
+      result = await _attempt(
+        provider: provider,
+        model: model,
+        request: AiRequest(
+          modelId: request.modelId,
+          messages: messages,
+          maxTokens: request.maxTokens,
+          temperature: request.temperature,
+          tools: request.tools,
+          cancellation: cancellation,
+        ),
+        cancellation: cancellation,
+        limiter: limiter,
+      );
+      final Duration elapsed = clock.monotonic() - startedAt;
+      usage = result.usage ?? usage;
+      finishReason = result.finishReason;
+      final int attemptTokens = result.usage != null
+          ? result.usage!.effectiveTotal
+          : estimateAiTokens(result.text);
+      consumed += attemptTokens;
+      attempts.add(
+        AiAttemptRecord(
+          index: index,
+          alias: model.alias,
+          modelId: model.modelId,
+          failureClass: result.error == null
+              ? null
+              : classifyAiFailure(result.error!),
+          usage: result.usage,
+          estimatedTokens: attemptTokens,
+          elapsed: elapsed,
+          note: result.toolCalls.isNotEmpty ? 'toolRound' : null,
+        ),
+      );
+
+      if (result.error != null) {
+        // 把已经收到的文本一并交回：半句话也要保留（与主循环同一口径）。
+        return _ToolLoopOutcome(
+          text: result.text.isEmpty ? text : result.text,
+          finishReason: finishReason,
+          consumedTokens: consumed,
+          truncated: false,
+          error: result.error,
+        );
+      }
+      text = result.text;
+      if (result.toolCalls.isEmpty) {
+        // 模型给出了最终答案。
+        return _ToolLoopOutcome(
+          text: text,
+          finishReason: finishReason,
+          consumedTokens: consumed,
+          truncated: _isTruncated(finishReason),
+          usage: usage,
+        );
+      }
+      pending = result.toolCalls;
+    }
+
+    // 轮数用尽：把最后一轮已收到的文本当结果返回，并在诊断里说明「是轮数用尽」。
+    // 不抛错：用户拿到的是模型的最后一句话（可能是「还需要查一下」），比一次
+    // 「任务失败」更接近真实发生的事。
+    _log('任务工具轮数用尽 task=$taskId rounds=$maxToolRounds', success: false);
+    return _ToolLoopOutcome(
+      text: text,
+      finishReason: finishReason,
+      consumedTokens: consumed,
+      truncated: true,
+      usage: usage,
+    );
+  }
+
+  /// 把一条工具结果渲染成回填给模型的文本。
+  ///
+  /// 失败也**必须回填**（带类型化原因）：不回填会让模型以为工具没有返回，从而重试
+  /// 同一件事或编造结论。这是「模型看到的必须与真实发生的一致」这条纪律在本层的落点。
+  String _toolResultContent(ToolResult result) {
+    if (result.ok) {
+      return result.payload!.toModelContent();
+    }
+    final String reason = result.reason!.name;
+    final String detail = result.detail ?? '';
+    return '[工具调用未执行] 工具=$result.callId 原因=$reason'
+        '${detail.isEmpty ? '' : ' 说明=$detail'}\n'
+        '请据此调整：不要重复请求同一个被拒绝的目标，也不要假定拿到了任何内容。';
   }
 
   /// 给一次调用套上单次硬时限与取消。
@@ -870,10 +1128,33 @@ final class _AttemptResult {
     this.usage,
     this.error,
     this.finishReason,
+    this.toolCalls = const <ToolCall>[],
   });
 
   final String text;
   final AiUsage? usage;
   final Object? error;
   final String? finishReason;
+
+  /// 模型在本轮请求的工具调用（T032）；无则为空。
+  final List<ToolCall> toolCalls;
+}
+
+/// 工具循环的产出（内部类型）。
+final class _ToolLoopOutcome {
+  const _ToolLoopOutcome({
+    required this.text,
+    required this.finishReason,
+    required this.consumedTokens,
+    required this.truncated,
+    this.usage,
+    this.error,
+  });
+
+  final String text;
+  final String? finishReason;
+  final int consumedTokens;
+  final bool truncated;
+  final AiUsage? usage;
+  final Object? error;
 }
