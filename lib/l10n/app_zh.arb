@@ -2831,5 +2831,123 @@
   "searchAllowPrivateHint": "仅在自建实例位于局域网或使用明文 HTTP 时打开。未批准时该端点会被地址守卫拒绝，不会发出请求。",
   "@searchAllowPrivateHint": {"description": "内网批准说明"},
   "searchPlannedNotice": "查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。",
-  "@searchPlannedNotice": {"description": "未实现部分说明"}
+  "@searchPlannedNotice": {"description": "未实现部分说明"},
+  "readingTranslateAction": "翻译",
+  "@readingTranslateAction": {
+    "description": "详情页：全文翻译入口"
+  },
+  "readingTranslateTitle": "全文翻译",
+  "@readingTranslateTitle": {
+    "description": "翻译面板标题"
+  },
+  "readingTranslateRunning": "正在逐段翻译…（已完成 {done}/{total} 段）",
+  "@readingTranslateRunning": {
+    "description": "翻译进度（已完成段数 / 总段数）",
+    "placeholders": {
+      "done": { "type": "int", "example": "3" },
+      "total": { "type": "int", "example": "8" }
+    }
+  },
+  "readingTranslateDone": "翻译完成：已完成 {done}/{total} 段。",
+  "@readingTranslateDone": {
+    "description": "翻译完成回执",
+    "placeholders": {
+      "done": { "type": "int", "example": "8" },
+      "total": { "type": "int", "example": "8" }
+    }
+  },
+  "readingTranslatePartial": "翻译完成：已完成 {done}/{total} 段，{failed} 段失败（可只重试失败段）。",
+  "@readingTranslatePartial": {
+    "description": "部分成功回执（失败段可单独重试）",
+    "placeholders": {
+      "done": { "type": "int", "example": "6" },
+      "total": { "type": "int", "example": "8" },
+      "failed": { "type": "int", "example": "2" }
+    }
+  },
+  "readingTranslateCancelAction": "取消翻译",
+  "@readingTranslateCancelAction": {
+    "description": "翻译面板：取消进行中的翻译"
+  },
+  "readingTranslateCancelled": "已取消翻译，已完成的段落保留，未完成的段落显示原文。",
+  "@readingTranslateCancelled": {
+    "description": "取消翻译后的提示（取消保留已完成段）"
+  },
+  "readingTranslateRetryFailed": "重试失败段（{count} 段）",
+  "@readingTranslateRetryFailed": {
+    "description": "只重试失败段按钮",
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "readingTranslateRetryHint": "只重跑失败的段落，已完成的译文会保留。",
+  "@readingTranslateRetryHint": {
+    "description": "重试失败段说明"
+  },
+  "readingTranslateSegmentFailed": "这一段翻译失败，正文仍显示原文。",
+  "@readingTranslateSegmentFailed": {
+    "description": "失败段的说明（渲染在未完成的段上）"
+  },
+  "readingTranslateShowOriginal": "显示原文",
+  "@readingTranslateShowOriginal": {
+    "description": "切换到原文"
+  },
+  "readingTranslateShowTranslation": "显示译文",
+  "@readingTranslateShowTranslation": {
+    "description": "切换到译文"
+  },
+  "readingTranslateSourceKept": "原文始终保留，切换只改变显示。",
+  "@readingTranslateSourceKept": {
+    "description": "原译文切换的说明（原文永远保留）"
+  },
+  "readingTranslateTruncatedNotice": "有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。",
+  "@readingTranslateTruncatedNotice": {
+    "description": "有段落被截断的说明"
+  },
+  "readingTranslateStale": "这篇正文在上次翻译之后变化过；以下译文对应的是上一版正文。",
+  "@readingTranslateStale": {
+    "description": "译文对应旧版正文的说明"
+  },
+  "readingTranslateSummaryOnly": "这篇文章的源只提供了摘要（仅摘要），没有可翻译的全文；摘要不当作正文翻译。",
+  "@readingTranslateSummaryOnly": {
+    "description": "summaryOnly 不提供全文翻译的说明"
+  },
+  "readingTranslateNoBody": "这篇文章没有正文可翻译，已保留源摘要。",
+  "@readingTranslateNoBody": {
+    "description": "没有正文时的跳过说明"
+  },
+  "readingTranslateNoModelBody": "翻译需要 AI 服务。请先配置至少一个已启用的模型。",
+  "@readingTranslateNoModelBody": {
+    "description": "没有可用模型时的提示"
+  },
+  "readingTranslateNoText": "这篇正文里没有可翻译的段落（例如只有一张图片）。",
+  "@readingTranslateNoText": {
+    "description": "没有可翻译块时的说明"
+  },
+  "readingTranslateFailed": "翻译失败：{reason}",
+  "@readingTranslateFailed": {
+    "description": "翻译失败提示",
+    "placeholders": {
+      "reason": { "type": "String", "example": "network" }
+    }
+  },
+  "readingTranslateSavedLabel": "译文 · {model} · {date}",
+  "@readingTranslateSavedLabel": {
+    "description": "译文来源与生成时间标注",
+    "placeholders": {
+      "model": { "type": "String", "example": "deepseek/deepseek-chat" },
+      "date": { "type": "String", "example": "2026-09-22" }
+    }
+  },
+  "readingTranslateLanguage": "目标语言：{language}",
+  "@readingTranslateLanguage": {
+    "description": "当前目标语言（SET-011）",
+    "placeholders": {
+      "language": { "type": "String", "example": "简体中文" }
+    }
+  },
+  "readingTranslateInterrupted": "上次翻译未完成（进程被中断），已完成的段落保留；可以重试失败段。",
+  "@readingTranslateInterrupted": {
+    "description": "中断后恢复的说明"
+  }
 }

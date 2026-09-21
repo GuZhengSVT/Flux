@@ -48,6 +48,8 @@ import '../application/article_state.dart';
 import '../application/article_text_actions.dart';
 import '../application/article_ai_providers.dart';
 import '../application/article_ai_text_tasks.dart';
+import '../application/article_translation_providers.dart';
+import '../application/article_translation_tasks.dart';
 import '../application/article_vision_analysis.dart';
 import '../application/reader_outline.dart';
 import '../domain/markdown_to_document.dart';
@@ -61,6 +63,7 @@ import 'reader/link_panel.dart';
 import 'reader/doc_renderer.dart';
 import 'reader/doc_theme.dart';
 import 'reader/reader_chrome.dart';
+import 'translation_panel.dart';
 
 /// 正文阅读页。
 class ArticleDetailPage extends ConsumerStatefulWidget {
@@ -157,6 +160,21 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
 
   /// 已存在的 AI 摘要（打开文章时读一次）。
   AiSummaryRecord? _savedAiSummary;
+
+  /// 翻译面板状态（T035）。null 表示没有面板。
+  TranslationPanelState? _translation;
+
+  /// 已保存的译文（按目标语言；打开文章时读一次）。
+  ArticleTranslation? _savedTranslation;
+
+  /// 当前是否显示译文（false = 显示原文；切换**不删任何一份**）。
+  bool _showTranslation = false;
+
+  /// 当前译文对应的源正文摘要（用于判断是否已过期）。
+  String? _translationSourceDigest;
+
+  /// 本次会话解析出的翻译目标语言（SET-011；打开文章时读一次）。
+  String? _resolvedTargetLanguage;
 
   /// 每个顶层块的位置 key（目录跳转用）。
   List<GlobalKey> _blockKeys = <GlobalKey>[];
@@ -342,8 +360,57 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
   ///
   /// 两份**都保留**：切换只是改显示，不删任何东西，用户可以随时切回原文对照
   /// （架构 4.2 的「失败保留原内容」与「原文始终保留」）。
-  DocDocument? get _displayDocument =>
-      _showExtracted ? (_extractedDocument ?? _document) : _document;
+  DocDocument? get _displayDocument {
+    final DocDocument? base = _showExtracted
+        ? (_extractedDocument ?? _document)
+        : _document;
+    if (!_showTranslation || base == null) {
+      return base;
+    }
+    final ArticleTranslation? translation = _savedTranslation;
+    if (translation == null) {
+      return base;
+    }
+    // 译文按段落回填到**同一棵**文档树：未翻译或失败的段显示原文（架构 4.2）。
+    // 回填是渲染期的一次纯函数调用，源正文与译文存储都不因此改动。
+    return applyTranslation(base, translation);
+  }
+
+  /// 当前译文是否与正文不同步（界面据此标注「对应上一版正文」）。
+  bool get _translationStale {
+    final ArticleTranslation? translation = _savedTranslation;
+    final String? digest = _translationSourceDigest;
+    return translation != null &&
+        digest != null &&
+        translation.isStaleFor(digest);
+  }
+
+  /// 目标语言的显示名（SET-011 的 translationTarget 由设置读出）。
+  ///
+  /// 读不到设置时按注册表默认（简体中文）显示：这不是「猜语言」，而是与 SET 默认值
+  /// 完全一致的显示——真正的目标语言由翻译调用时的设置值决定。
+  String get _targetLanguageLabel {
+    final TranslationLanguage? language = TranslationLanguage.fromCode(
+      _translationTargetLanguage,
+    );
+    return language?.displayName ?? TranslationLanguage.chinese.displayName;
+  }
+
+  /// 本次会话读到的目标语言（打开文章时由 translationSettingsProvider 填入）。
+  String get _translationTargetLanguage =>
+      _resolvedTargetLanguage ?? TranslationLanguage.chinese.code;
+
+  /// 译文生成时间的显示文本（YYYY-MM-DD；无译文时为空串）。
+  String get _translationDateLabel {
+    final DateTime? at = _savedTranslation?.createdAt;
+    if (at == null) {
+      return '';
+    }
+    final DateTime utc = at.toUtc();
+    return '${utc.year.toString().padLeft(4, '0')}-'
+        '${utc.month.toString().padLeft(2, '0')}-'
+        '${utc.day.toString().padLeft(2, '0')}';
+  }
 
   List<ReaderOutlineEntry> get _outline => _displayDocument == null
       ? const <ReaderOutlineEntry>[]
@@ -385,6 +452,21 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     final Result<AiSummaryRecord?> savedAiSummary = entry == null
         ? const Ok<AiSummaryRecord?>(null)
         : await store.readAiSummary(entry.id);
+    // 已存在的译文（T035）：按当前目标语言只读一次。读不到目标语言时**不读译文**
+    // （而不是随便挑一份），否则用户会看到一份语言不对的译文而没有线索。
+    final TranslationSettings translationSettings = await ref.read(
+      translationSettingsProvider.future,
+    );
+    _resolvedTargetLanguage = translationSettings.targetLanguage;
+    final ArticleTranslationStore translations = ref.read(
+      articleTranslationStoreProvider,
+    );
+    final Result<ArticleTranslation?> savedTranslation = entry == null
+        ? const Ok<ArticleTranslation?>(null)
+        : await translations.find(
+            articleId: entry.id,
+            targetLanguage: translationSettings.targetLanguage,
+          );
     if (!mounted) {
       return;
     }
@@ -393,6 +475,10 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
       _document = document;
       _sourceBody = raw;
       _savedAiSummary = savedAiSummary.valueOrNull;
+      _savedTranslation = savedTranslation.valueOrNull;
+      _translationSourceDigest = raw == null || raw.trim().isEmpty
+          ? null
+          : translationDigestOf(raw);
       _loading = false;
       _blockKeys = List<GlobalKey>.generate(
         document?.children.length ?? 0,
@@ -550,6 +636,168 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
       setState(() => _summary = null);
       _notify(AppLocalizations.of(context).readingSummaryCancelled);
     }
+  }
+
+  /// 「翻译」按钮：分段翻译当前正文（T035）。
+  ///
+  /// 五条与架构 4.2 对应的行为：
+  ///   1) **summaryOnly 不提供全文翻译**：源只给了摘要时直接说明「仅摘要」，不把摘要
+  ///      当成正文去翻（那是把一段摘要当全文，用户会以为读到了全文的译文）；
+  ///   2) **逐段调用 + 进度**：面板显示已完成 x/y 段；
+  ///   3) **取消保留已完成段**：取消后未完成的段显示原文；
+  ///   4) **部分成功**：失败段可单独重试（_retryFailedTranslation），不重跑全部；
+  ///   5) **原文永远保留**：只写译文结构，源正文列不动。
+  Future<void> _translateArticle({Set<int>? onlyFailed}) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final TranslationPanelState? current = _translation;
+    if (current is TranslationRunning) {
+      return;
+    }
+    // 架构 4.2：源只提供了摘要时不提供「全文翻译」。
+    if (_entry?.bodyCompleteness == BodyCompleteness.summaryOnly) {
+      setState(
+        () => _translation = const TranslationSkipped(
+          reason: TranslationSkipReason.summaryOnly,
+        ),
+      );
+      return;
+    }
+    final DocDocument? document = _showExtracted
+        ? (_extractedDocument ?? _document)
+        : _document;
+    if (document == null || _bodyText() == null) {
+      setState(
+        () => _translation = const TranslationSkipped(
+          reason: TranslationSkipReason.noBody,
+        ),
+      );
+      return;
+    }
+    final Result<List<AiModel>> models = await ref
+        .read(modelManagerProvider)
+        .loadEnabledModels();
+    if (!mounted) {
+      return;
+    }
+    if (models.isErr || models.valueOrNull!.isEmpty) {
+      await _showAiNotConfigured(l10n.readingTranslateNoModelBody);
+      return;
+    }
+    final TranslationSettings settings = await ref.read(
+      translationSettingsProvider.future,
+    );
+    final AiCancellation cancellation = AiCancellation();
+    setState(
+      () => _translation = TranslationRunning(
+        cancellation: cancellation,
+        translated: onlyFailed == null
+            ? 0
+            : (_savedTranslation?.translatedCount ?? 0),
+        failed: onlyFailed == null ? 0 : (_savedTranslation?.failedCount ?? 0),
+        total: _savedTranslation?.totalCount ?? 0,
+      ),
+    );
+    final String bodyText = _bodyText()!;
+    final TranslationOutcome outcome = await ref
+        .read(translationServiceProvider)
+        .translate(
+          articleId: widget.articleId,
+          document: document,
+          targetLanguage: settings.targetLanguage,
+          models: models.valueOrNull!,
+          sourceDigest: translationDigestOf(bodyText),
+          sourceLength: bodyText.runes.length,
+          existing: onlyFailed == null ? null : _savedTranslation,
+          onlyFailed: onlyFailed,
+          cancellation: cancellation,
+          onProgress: (TranslationProgress progress) {
+            if (!mounted) {
+              return;
+            }
+            setState(
+              () => _translation = TranslationRunning(
+                cancellation: cancellation,
+                translated: progress.translated,
+                failed: progress.failed,
+                total: progress.total,
+              ),
+            );
+          },
+        );
+    if (!mounted) {
+      return;
+    }
+    if (outcome.translation case final ArticleTranslation translation) {
+      // 落库失败也**不**把译文面板变成失败：译文已经产出，用户可以看它；但界面只在
+      // 写入成功后才说「已保存」，不谎报持久化。
+      final Result<ArticleTranslation> saved = await ref
+          .read(articleTranslationStoreProvider)
+          .save(translation);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _savedTranslation = saved.isOk
+            ? saved.valueOrNull
+            : _savedTranslation?.copyWith(segments: translation.segments);
+        _showTranslation = true;
+        _translation = TranslationFinished(
+          translated: translation.translatedCount,
+          failed: translation.failedCount,
+          total: translation.totalCount,
+          cancelled: outcome.cancelled,
+          saveFailed: saved.isErr,
+        );
+      });
+      return;
+    }
+    setState(() {
+      _translation = outcome.error != null
+          ? TranslationFailed(error: outcome.error!)
+          : TranslationSkipped(
+              reason: outcome.skippedReason ?? TranslationSkipReason.noBody,
+            );
+    });
+  }
+
+  /// 只重试失败的段（架构 4.2「只重试失败段」，不重跑全部）。
+  Future<void> _retryFailedTranslation() async {
+    final ArticleTranslation? translation = _savedTranslation;
+    if (translation == null) {
+      await _translateArticle();
+      return;
+    }
+    final Set<int> failed = <int>{
+      for (final TranslationSegment segment in translation.segments)
+        if (segment.status == TranslationSegmentStatus.failed) segment.index,
+    };
+    if (failed.isEmpty) {
+      return;
+    }
+    await _translateArticle(onlyFailed: failed);
+  }
+
+  /// 取消进行中的翻译（已完成段保留）。
+  void _cancelTranslation() {
+    final TranslationPanelState? current = _translation;
+    if (current is TranslationRunning) {
+      current.cancellation.cancel(reason: 'userCancelled');
+      // 不写库、不改原文：面板保留已完成段的进度，让用户看到「取消发生在哪里」。
+      setState(
+        () => _translation = TranslationFinished(
+          translated: current.translated,
+          failed: current.failed,
+          total: current.total,
+          cancelled: true,
+        ),
+      );
+      _notify(AppLocalizations.of(context).readingTranslateCancelled);
+    }
+  }
+
+  /// 切换原文/译文（**原文始终保留**，切换只改变显示）。
+  void _toggleTranslation() {
+    setState(() => _showTranslation = !_showTranslation);
   }
 
   /// 当前显示用的正文文本（源正文或提取正文，与渲染那一份一致）。
@@ -994,6 +1242,12 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
             icon: const Icon(Icons.summarize_outlined),
             onPressed: _summarizeArticle,
           ),
+          // 「翻译」（T035）：分段翻译当前正文；**原文始终保留**，只写译文结构。
+          IconButton(
+            tooltip: l10n.readingTranslateAction,
+            icon: const Icon(Icons.translate),
+            onPressed: _translateArticle,
+          ),
           IconButton(
             tooltip: _findOpen ? l10n.readingFindClose : l10n.readingFindOpen,
             icon: Icon(_findOpen ? Icons.search_off : Icons.search),
@@ -1039,6 +1293,23 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
                     SelectionExplainPanel(
                       state: explanation,
                       onClose: _closeExplanation,
+                    ),
+                  // 翻译面板（T035）：进度/完成/失败/跳过 + 原文/译文切换 + 重试失败段。
+                  if (_translation case final TranslationPanelState translation)
+                    ArticleTranslationPanelView(
+                      state: translation,
+                      onCancel: _cancelTranslation,
+                      onRetryFailed: _retryFailedTranslation,
+                      onToggle: _toggleTranslation,
+                      showingTranslation: _showTranslation,
+                      targetLanguageLabel: _targetLanguageLabel,
+                      generatedAtLabel: _translationDateLabel,
+                      modelLabel: _savedTranslation?.modelLabel,
+                      stale: _translationStale,
+                      truncated: _savedTranslation?.hasTruncatedSource ?? false,
+                      hasTranslation:
+                          (_savedTranslation?.translatedCount ?? 0) > 0,
+                      onClose: () => setState(() => _translation = null),
                     ),
                   Expanded(
                     child: LayoutBuilder(

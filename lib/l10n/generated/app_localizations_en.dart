@@ -2248,4 +2248,98 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get searchPlannedNotice =>
       'The query keyword list (SET-052), forbidden query terms and topic filters (SET-053), and the daily-news search orchestration (T036/T037) come later; this page only manages the search services themselves.';
+
+  @override
+  String get readingTranslateAction => 'Translate';
+
+  @override
+  String get readingTranslateTitle => 'Full translation';
+
+  @override
+  String readingTranslateRunning(int done, int total) {
+    return 'Translating paragraph by paragraph… ($done/$total done)';
+  }
+
+  @override
+  String readingTranslateDone(int done, int total) {
+    return 'Translation finished: $done/$total paragraphs done.';
+  }
+
+  @override
+  String readingTranslatePartial(int done, int total, int failed) {
+    return 'Translation finished: $done/$total paragraphs done, $failed failed (you can retry only the failures).';
+  }
+
+  @override
+  String get readingTranslateCancelAction => 'Cancel translation';
+
+  @override
+  String get readingTranslateCancelled =>
+      'Translation cancelled. Finished paragraphs are kept; the rest show the original.';
+
+  @override
+  String readingTranslateRetryFailed(int count) {
+    return 'Retry failed paragraphs ($count)';
+  }
+
+  @override
+  String get readingTranslateRetryHint =>
+      'Only failed paragraphs are re-run; finished translations are kept.';
+
+  @override
+  String get readingTranslateSegmentFailed =>
+      'This paragraph failed to translate; the original text is still shown.';
+
+  @override
+  String get readingTranslateShowOriginal => 'Show original';
+
+  @override
+  String get readingTranslateShowTranslation => 'Show translation';
+
+  @override
+  String get readingTranslateSourceKept =>
+      'The original is always kept; switching only changes what is displayed.';
+
+  @override
+  String get readingTranslateTruncatedNotice =>
+      'Some paragraphs exceed the single-material budget (SET-061, 8000 characters) and were only translated in part.';
+
+  @override
+  String get readingTranslateStale =>
+      'The body changed after this translation; the text below corresponds to the previous version.';
+
+  @override
+  String get readingTranslateSummaryOnly =>
+      'The source only provides a summary (summary only), so there is no full text to translate; a summary is not treated as a body.';
+
+  @override
+  String get readingTranslateNoBody =>
+      'This article has no body to translate; the source summary is kept.';
+
+  @override
+  String get readingTranslateNoModelBody =>
+      'Translation needs AI services. Configure at least one enabled model first.';
+
+  @override
+  String get readingTranslateNoText =>
+      'This body has no translatable paragraphs (for example, it contains only an image).';
+
+  @override
+  String readingTranslateFailed(String reason) {
+    return 'Translation failed: $reason';
+  }
+
+  @override
+  String readingTranslateSavedLabel(String model, String date) {
+    return 'Translation · $model · $date';
+  }
+
+  @override
+  String readingTranslateLanguage(String language) {
+    return 'Target language: $language';
+  }
+
+  @override
+  String get readingTranslateInterrupted =>
+      'The previous translation did not finish (the process was interrupted). Finished paragraphs are kept; you can retry the failures.';
 }

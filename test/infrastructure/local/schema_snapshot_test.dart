@@ -834,5 +834,117 @@ void main() {
         );
       }
     });
+
+    test('v13 快照新增翻译的两张表（T035），且不丢 v12 的任何实体', () {
+      final File v13Snapshot = File('drift_schemas/drift_schema_v13.json');
+      expect(
+        v13Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v13 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v13Decoded =
+          jsonDecode(v13Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v13Entities =
+          (v13Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v13Names = v13Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v12 的全部实体都必须保留：v13 只**新增**两张表与它们的索引。
+      final Map<String, dynamic> v12Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v12.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v12Names = (v12Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v13Names,
+        containsAll(v12Names),
+        reason: 'v13 只新增翻译表，不得删除 v12 的任何实体',
+      );
+      expect(v13Names.difference(v12Names), <String>{
+        'article_translation_records',
+        'translation_segment_records',
+        'ux_translations_article_language',
+        'ux_translation_segments_translation_index',
+      }, reason: 'v13 相对 v12 的新增实体应只有两张表与它们的索引');
+
+      Map<String, dynamic> table(String name) => v13Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == name,
+      );
+      Set<String> columnsOf(String name) =>
+          ((table(name)['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+
+      expect(
+        columnsOf('article_translation_records'),
+        containsAll(<String>[
+          'id',
+          'article_id',
+          'target_language',
+          'source_digest',
+          'source_length',
+          'model_label',
+          'created_at',
+          'updated_at',
+        ]),
+      );
+      expect(
+        columnsOf('translation_segment_records'),
+        containsAll(<String>[
+          'id',
+          'translation_id',
+          'segment_index',
+          'block_kind',
+          'level',
+          'source_digest',
+          'source_text',
+          'status',
+          'translated_text',
+          'source_truncated',
+          'updated_at',
+        ]),
+      );
+
+      // 「原文始终保留」的**结构性**证据：v13 不得给 articles 增加任何列。
+      // 译文有自己的归属，源正文因此没有第二条写入路径。
+      final Map<String, dynamic> v13Articles = table('articles');
+      final Set<String> v13ArticleColumns =
+          ((v13Articles['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      final List<Map<String, dynamic>> v12EntitiesForColumns =
+          (v12Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Map<String, dynamic> v12Articles = v12EntitiesForColumns.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'articles',
+      );
+      final Set<String> v12ArticleColumns =
+          ((v12Articles['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        v13ArticleColumns,
+        v12ArticleColumns,
+        reason: 'v13 不得改动 articles 的任何列（原文本体、正文与摘要都要原样保留）',
+      );
+    });
   });
 }

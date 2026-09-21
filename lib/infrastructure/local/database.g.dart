@@ -9765,6 +9765,1241 @@ class SearchServiceRecordsCompanion
   }
 }
 
+class $ArticleTranslationRecordsTable extends ArticleTranslationRecords
+    with TableInfo<$ArticleTranslationRecordsTable, ArticleTranslationRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArticleTranslationRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _articleIdMeta = const VerificationMeta(
+    'articleId',
+  );
+  @override
+  late final GeneratedColumn<int> articleId = GeneratedColumn<int>(
+    'article_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES articles (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _targetLanguageMeta = const VerificationMeta(
+    'targetLanguage',
+  );
+  @override
+  late final GeneratedColumn<String> targetLanguage = GeneratedColumn<String>(
+    'target_language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceDigestMeta = const VerificationMeta(
+    'sourceDigest',
+  );
+  @override
+  late final GeneratedColumn<String> sourceDigest = GeneratedColumn<String>(
+    'source_digest',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceLengthMeta = const VerificationMeta(
+    'sourceLength',
+  );
+  @override
+  late final GeneratedColumn<int> sourceLength = GeneratedColumn<int>(
+    'source_length',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _modelLabelMeta = const VerificationMeta(
+    'modelLabel',
+  );
+  @override
+  late final GeneratedColumn<String> modelLabel = GeneratedColumn<String>(
+    'model_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    articleId,
+    targetLanguage,
+    sourceDigest,
+    sourceLength,
+    modelLabel,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'article_translation_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArticleTranslationRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('article_id')) {
+      context.handle(
+        _articleIdMeta,
+        articleId.isAcceptableOrUnknown(data['article_id']!, _articleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_articleIdMeta);
+    }
+    if (data.containsKey('target_language')) {
+      context.handle(
+        _targetLanguageMeta,
+        targetLanguage.isAcceptableOrUnknown(
+          data['target_language']!,
+          _targetLanguageMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetLanguageMeta);
+    }
+    if (data.containsKey('source_digest')) {
+      context.handle(
+        _sourceDigestMeta,
+        sourceDigest.isAcceptableOrUnknown(
+          data['source_digest']!,
+          _sourceDigestMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceDigestMeta);
+    }
+    if (data.containsKey('source_length')) {
+      context.handle(
+        _sourceLengthMeta,
+        sourceLength.isAcceptableOrUnknown(
+          data['source_length']!,
+          _sourceLengthMeta,
+        ),
+      );
+    }
+    if (data.containsKey('model_label')) {
+      context.handle(
+        _modelLabelMeta,
+        modelLabel.isAcceptableOrUnknown(data['model_label']!, _modelLabelMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ArticleTranslationRecord map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArticleTranslationRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      articleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}article_id'],
+      )!,
+      targetLanguage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_language'],
+      )!,
+      sourceDigest: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_digest'],
+      )!,
+      sourceLength: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_length'],
+      )!,
+      modelLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_label'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ArticleTranslationRecordsTable createAlias(String alias) {
+    return $ArticleTranslationRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class ArticleTranslationRecord extends DataClass
+    implements Insertable<ArticleTranslationRecord> {
+  final int id;
+
+  /// 所属文章。用 CASCADE：文章被彻底删除时，指向它的译文没有任何保留价值
+  /// （引用的材料已经不在了），留着会让「译文列表」出现指向不存在文章的孤儿行。
+  final int articleId;
+
+  /// 目标语言（SET-011 的 translationTarget；zh-Hans / en）。
+  final String targetLanguage;
+
+  /// 翻译时所依据的源正文摘要（SHA-256 十六进制）。
+  ///
+  /// 正文变化后这一列与新正文的摘要不再相等，界面据此说明「译文对应的是上一版正文」
+  /// 而不是把过期译文当成当前译文展示。
+  final String sourceDigest;
+
+  /// 源正文长度（字符数；界面说明用）。
+  final int sourceLength;
+
+  /// 产出译文的模型标识（别名/模型ID）；未知为 null。
+  final String? modelLabel;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const ArticleTranslationRecord({
+    required this.id,
+    required this.articleId,
+    required this.targetLanguage,
+    required this.sourceDigest,
+    required this.sourceLength,
+    this.modelLabel,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['article_id'] = Variable<int>(articleId);
+    map['target_language'] = Variable<String>(targetLanguage);
+    map['source_digest'] = Variable<String>(sourceDigest);
+    map['source_length'] = Variable<int>(sourceLength);
+    if (!nullToAbsent || modelLabel != null) {
+      map['model_label'] = Variable<String>(modelLabel);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ArticleTranslationRecordsCompanion toCompanion(bool nullToAbsent) {
+    return ArticleTranslationRecordsCompanion(
+      id: Value(id),
+      articleId: Value(articleId),
+      targetLanguage: Value(targetLanguage),
+      sourceDigest: Value(sourceDigest),
+      sourceLength: Value(sourceLength),
+      modelLabel: modelLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modelLabel),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ArticleTranslationRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArticleTranslationRecord(
+      id: serializer.fromJson<int>(json['id']),
+      articleId: serializer.fromJson<int>(json['articleId']),
+      targetLanguage: serializer.fromJson<String>(json['targetLanguage']),
+      sourceDigest: serializer.fromJson<String>(json['sourceDigest']),
+      sourceLength: serializer.fromJson<int>(json['sourceLength']),
+      modelLabel: serializer.fromJson<String?>(json['modelLabel']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'articleId': serializer.toJson<int>(articleId),
+      'targetLanguage': serializer.toJson<String>(targetLanguage),
+      'sourceDigest': serializer.toJson<String>(sourceDigest),
+      'sourceLength': serializer.toJson<int>(sourceLength),
+      'modelLabel': serializer.toJson<String?>(modelLabel),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ArticleTranslationRecord copyWith({
+    int? id,
+    int? articleId,
+    String? targetLanguage,
+    String? sourceDigest,
+    int? sourceLength,
+    Value<String?> modelLabel = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => ArticleTranslationRecord(
+    id: id ?? this.id,
+    articleId: articleId ?? this.articleId,
+    targetLanguage: targetLanguage ?? this.targetLanguage,
+    sourceDigest: sourceDigest ?? this.sourceDigest,
+    sourceLength: sourceLength ?? this.sourceLength,
+    modelLabel: modelLabel.present ? modelLabel.value : this.modelLabel,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ArticleTranslationRecord copyWithCompanion(
+    ArticleTranslationRecordsCompanion data,
+  ) {
+    return ArticleTranslationRecord(
+      id: data.id.present ? data.id.value : this.id,
+      articleId: data.articleId.present ? data.articleId.value : this.articleId,
+      targetLanguage: data.targetLanguage.present
+          ? data.targetLanguage.value
+          : this.targetLanguage,
+      sourceDigest: data.sourceDigest.present
+          ? data.sourceDigest.value
+          : this.sourceDigest,
+      sourceLength: data.sourceLength.present
+          ? data.sourceLength.value
+          : this.sourceLength,
+      modelLabel: data.modelLabel.present
+          ? data.modelLabel.value
+          : this.modelLabel,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticleTranslationRecord(')
+          ..write('id: $id, ')
+          ..write('articleId: $articleId, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('sourceDigest: $sourceDigest, ')
+          ..write('sourceLength: $sourceLength, ')
+          ..write('modelLabel: $modelLabel, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    articleId,
+    targetLanguage,
+    sourceDigest,
+    sourceLength,
+    modelLabel,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArticleTranslationRecord &&
+          other.id == this.id &&
+          other.articleId == this.articleId &&
+          other.targetLanguage == this.targetLanguage &&
+          other.sourceDigest == this.sourceDigest &&
+          other.sourceLength == this.sourceLength &&
+          other.modelLabel == this.modelLabel &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ArticleTranslationRecordsCompanion
+    extends UpdateCompanion<ArticleTranslationRecord> {
+  final Value<int> id;
+  final Value<int> articleId;
+  final Value<String> targetLanguage;
+  final Value<String> sourceDigest;
+  final Value<int> sourceLength;
+  final Value<String?> modelLabel;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const ArticleTranslationRecordsCompanion({
+    this.id = const Value.absent(),
+    this.articleId = const Value.absent(),
+    this.targetLanguage = const Value.absent(),
+    this.sourceDigest = const Value.absent(),
+    this.sourceLength = const Value.absent(),
+    this.modelLabel = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ArticleTranslationRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required int articleId,
+    required String targetLanguage,
+    required String sourceDigest,
+    this.sourceLength = const Value.absent(),
+    this.modelLabel = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : articleId = Value(articleId),
+       targetLanguage = Value(targetLanguage),
+       sourceDigest = Value(sourceDigest);
+  static Insertable<ArticleTranslationRecord> custom({
+    Expression<int>? id,
+    Expression<int>? articleId,
+    Expression<String>? targetLanguage,
+    Expression<String>? sourceDigest,
+    Expression<int>? sourceLength,
+    Expression<String>? modelLabel,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (articleId != null) 'article_id': articleId,
+      if (targetLanguage != null) 'target_language': targetLanguage,
+      if (sourceDigest != null) 'source_digest': sourceDigest,
+      if (sourceLength != null) 'source_length': sourceLength,
+      if (modelLabel != null) 'model_label': modelLabel,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ArticleTranslationRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? articleId,
+    Value<String>? targetLanguage,
+    Value<String>? sourceDigest,
+    Value<int>? sourceLength,
+    Value<String?>? modelLabel,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ArticleTranslationRecordsCompanion(
+      id: id ?? this.id,
+      articleId: articleId ?? this.articleId,
+      targetLanguage: targetLanguage ?? this.targetLanguage,
+      sourceDigest: sourceDigest ?? this.sourceDigest,
+      sourceLength: sourceLength ?? this.sourceLength,
+      modelLabel: modelLabel ?? this.modelLabel,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (articleId.present) {
+      map['article_id'] = Variable<int>(articleId.value);
+    }
+    if (targetLanguage.present) {
+      map['target_language'] = Variable<String>(targetLanguage.value);
+    }
+    if (sourceDigest.present) {
+      map['source_digest'] = Variable<String>(sourceDigest.value);
+    }
+    if (sourceLength.present) {
+      map['source_length'] = Variable<int>(sourceLength.value);
+    }
+    if (modelLabel.present) {
+      map['model_label'] = Variable<String>(modelLabel.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticleTranslationRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('articleId: $articleId, ')
+          ..write('targetLanguage: $targetLanguage, ')
+          ..write('sourceDigest: $sourceDigest, ')
+          ..write('sourceLength: $sourceLength, ')
+          ..write('modelLabel: $modelLabel, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TranslationSegmentRecordsTable extends TranslationSegmentRecords
+    with TableInfo<$TranslationSegmentRecordsTable, TranslationSegmentRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TranslationSegmentRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _translationIdMeta = const VerificationMeta(
+    'translationId',
+  );
+  @override
+  late final GeneratedColumn<int> translationId = GeneratedColumn<int>(
+    'translation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES article_translation_records (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _segmentIndexMeta = const VerificationMeta(
+    'segmentIndex',
+  );
+  @override
+  late final GeneratedColumn<int> segmentIndex = GeneratedColumn<int>(
+    'segment_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _blockKindMeta = const VerificationMeta(
+    'blockKind',
+  );
+  @override
+  late final GeneratedColumn<String> blockKind = GeneratedColumn<String>(
+    'block_kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+    'level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _sourceDigestMeta = const VerificationMeta(
+    'sourceDigest',
+  );
+  @override
+  late final GeneratedColumn<String> sourceDigest = GeneratedColumn<String>(
+    'source_digest',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceTextMeta = const VerificationMeta(
+    'sourceText',
+  );
+  @override
+  late final GeneratedColumn<String> sourceText = GeneratedColumn<String>(
+    'source_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _translatedTextMeta = const VerificationMeta(
+    'translatedText',
+  );
+  @override
+  late final GeneratedColumn<String> translatedText = GeneratedColumn<String>(
+    'translated_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceTruncatedMeta = const VerificationMeta(
+    'sourceTruncated',
+  );
+  @override
+  late final GeneratedColumn<bool> sourceTruncated = GeneratedColumn<bool>(
+    'source_truncated',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("source_truncated" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    translationId,
+    segmentIndex,
+    blockKind,
+    level,
+    sourceDigest,
+    sourceText,
+    status,
+    translatedText,
+    sourceTruncated,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'translation_segment_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TranslationSegmentRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('translation_id')) {
+      context.handle(
+        _translationIdMeta,
+        translationId.isAcceptableOrUnknown(
+          data['translation_id']!,
+          _translationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_translationIdMeta);
+    }
+    if (data.containsKey('segment_index')) {
+      context.handle(
+        _segmentIndexMeta,
+        segmentIndex.isAcceptableOrUnknown(
+          data['segment_index']!,
+          _segmentIndexMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_segmentIndexMeta);
+    }
+    if (data.containsKey('block_kind')) {
+      context.handle(
+        _blockKindMeta,
+        blockKind.isAcceptableOrUnknown(data['block_kind']!, _blockKindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_blockKindMeta);
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    }
+    if (data.containsKey('source_digest')) {
+      context.handle(
+        _sourceDigestMeta,
+        sourceDigest.isAcceptableOrUnknown(
+          data['source_digest']!,
+          _sourceDigestMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceDigestMeta);
+    }
+    if (data.containsKey('source_text')) {
+      context.handle(
+        _sourceTextMeta,
+        sourceText.isAcceptableOrUnknown(data['source_text']!, _sourceTextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceTextMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('translated_text')) {
+      context.handle(
+        _translatedTextMeta,
+        translatedText.isAcceptableOrUnknown(
+          data['translated_text']!,
+          _translatedTextMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_truncated')) {
+      context.handle(
+        _sourceTruncatedMeta,
+        sourceTruncated.isAcceptableOrUnknown(
+          data['source_truncated']!,
+          _sourceTruncatedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TranslationSegmentRecord map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TranslationSegmentRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      translationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}translation_id'],
+      )!,
+      segmentIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}segment_index'],
+      )!,
+      blockKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}block_kind'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}level'],
+      )!,
+      sourceDigest: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_digest'],
+      )!,
+      sourceText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_text'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      translatedText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}translated_text'],
+      ),
+      sourceTruncated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}source_truncated'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TranslationSegmentRecordsTable createAlias(String alias) {
+    return $TranslationSegmentRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class TranslationSegmentRecord extends DataClass
+    implements Insertable<TranslationSegmentRecord> {
+  final int id;
+
+  /// 所属译文。CASCADE：译文被替换/删除时它的段落不再有意义。
+  final int translationId;
+
+  /// 段落顺序号（与切分的顺序一致）。
+  final int segmentIndex;
+
+  /// 块角色稳定标识（heading / paragraph / listItem，见 TranslationBlockKind.name）。
+  final String blockKind;
+
+  /// 层级：标题级别或列表嵌套深度（段落实 0）。
+  final int level;
+
+  /// 源文本摘要（段落级缓存键）。
+  final String sourceDigest;
+
+  /// 源文本（保留它：即使正文后来变了，这一段仍能显示当时发给模型的原文）。
+  final String sourceText;
+
+  /// 处理状态稳定标识（pending / translated / failed）。
+  final String status;
+
+  /// 译文；未翻译或失败时为 null。
+  final String? translatedText;
+
+  /// 源文本是否被截断（SET-061 的单段预算）。
+  final bool sourceTruncated;
+  final DateTime updatedAt;
+  const TranslationSegmentRecord({
+    required this.id,
+    required this.translationId,
+    required this.segmentIndex,
+    required this.blockKind,
+    required this.level,
+    required this.sourceDigest,
+    required this.sourceText,
+    required this.status,
+    this.translatedText,
+    required this.sourceTruncated,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['translation_id'] = Variable<int>(translationId);
+    map['segment_index'] = Variable<int>(segmentIndex);
+    map['block_kind'] = Variable<String>(blockKind);
+    map['level'] = Variable<int>(level);
+    map['source_digest'] = Variable<String>(sourceDigest);
+    map['source_text'] = Variable<String>(sourceText);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || translatedText != null) {
+      map['translated_text'] = Variable<String>(translatedText);
+    }
+    map['source_truncated'] = Variable<bool>(sourceTruncated);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TranslationSegmentRecordsCompanion toCompanion(bool nullToAbsent) {
+    return TranslationSegmentRecordsCompanion(
+      id: Value(id),
+      translationId: Value(translationId),
+      segmentIndex: Value(segmentIndex),
+      blockKind: Value(blockKind),
+      level: Value(level),
+      sourceDigest: Value(sourceDigest),
+      sourceText: Value(sourceText),
+      status: Value(status),
+      translatedText: translatedText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(translatedText),
+      sourceTruncated: Value(sourceTruncated),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TranslationSegmentRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TranslationSegmentRecord(
+      id: serializer.fromJson<int>(json['id']),
+      translationId: serializer.fromJson<int>(json['translationId']),
+      segmentIndex: serializer.fromJson<int>(json['segmentIndex']),
+      blockKind: serializer.fromJson<String>(json['blockKind']),
+      level: serializer.fromJson<int>(json['level']),
+      sourceDigest: serializer.fromJson<String>(json['sourceDigest']),
+      sourceText: serializer.fromJson<String>(json['sourceText']),
+      status: serializer.fromJson<String>(json['status']),
+      translatedText: serializer.fromJson<String?>(json['translatedText']),
+      sourceTruncated: serializer.fromJson<bool>(json['sourceTruncated']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'translationId': serializer.toJson<int>(translationId),
+      'segmentIndex': serializer.toJson<int>(segmentIndex),
+      'blockKind': serializer.toJson<String>(blockKind),
+      'level': serializer.toJson<int>(level),
+      'sourceDigest': serializer.toJson<String>(sourceDigest),
+      'sourceText': serializer.toJson<String>(sourceText),
+      'status': serializer.toJson<String>(status),
+      'translatedText': serializer.toJson<String?>(translatedText),
+      'sourceTruncated': serializer.toJson<bool>(sourceTruncated),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TranslationSegmentRecord copyWith({
+    int? id,
+    int? translationId,
+    int? segmentIndex,
+    String? blockKind,
+    int? level,
+    String? sourceDigest,
+    String? sourceText,
+    String? status,
+    Value<String?> translatedText = const Value.absent(),
+    bool? sourceTruncated,
+    DateTime? updatedAt,
+  }) => TranslationSegmentRecord(
+    id: id ?? this.id,
+    translationId: translationId ?? this.translationId,
+    segmentIndex: segmentIndex ?? this.segmentIndex,
+    blockKind: blockKind ?? this.blockKind,
+    level: level ?? this.level,
+    sourceDigest: sourceDigest ?? this.sourceDigest,
+    sourceText: sourceText ?? this.sourceText,
+    status: status ?? this.status,
+    translatedText: translatedText.present
+        ? translatedText.value
+        : this.translatedText,
+    sourceTruncated: sourceTruncated ?? this.sourceTruncated,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  TranslationSegmentRecord copyWithCompanion(
+    TranslationSegmentRecordsCompanion data,
+  ) {
+    return TranslationSegmentRecord(
+      id: data.id.present ? data.id.value : this.id,
+      translationId: data.translationId.present
+          ? data.translationId.value
+          : this.translationId,
+      segmentIndex: data.segmentIndex.present
+          ? data.segmentIndex.value
+          : this.segmentIndex,
+      blockKind: data.blockKind.present ? data.blockKind.value : this.blockKind,
+      level: data.level.present ? data.level.value : this.level,
+      sourceDigest: data.sourceDigest.present
+          ? data.sourceDigest.value
+          : this.sourceDigest,
+      sourceText: data.sourceText.present
+          ? data.sourceText.value
+          : this.sourceText,
+      status: data.status.present ? data.status.value : this.status,
+      translatedText: data.translatedText.present
+          ? data.translatedText.value
+          : this.translatedText,
+      sourceTruncated: data.sourceTruncated.present
+          ? data.sourceTruncated.value
+          : this.sourceTruncated,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TranslationSegmentRecord(')
+          ..write('id: $id, ')
+          ..write('translationId: $translationId, ')
+          ..write('segmentIndex: $segmentIndex, ')
+          ..write('blockKind: $blockKind, ')
+          ..write('level: $level, ')
+          ..write('sourceDigest: $sourceDigest, ')
+          ..write('sourceText: $sourceText, ')
+          ..write('status: $status, ')
+          ..write('translatedText: $translatedText, ')
+          ..write('sourceTruncated: $sourceTruncated, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    translationId,
+    segmentIndex,
+    blockKind,
+    level,
+    sourceDigest,
+    sourceText,
+    status,
+    translatedText,
+    sourceTruncated,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TranslationSegmentRecord &&
+          other.id == this.id &&
+          other.translationId == this.translationId &&
+          other.segmentIndex == this.segmentIndex &&
+          other.blockKind == this.blockKind &&
+          other.level == this.level &&
+          other.sourceDigest == this.sourceDigest &&
+          other.sourceText == this.sourceText &&
+          other.status == this.status &&
+          other.translatedText == this.translatedText &&
+          other.sourceTruncated == this.sourceTruncated &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TranslationSegmentRecordsCompanion
+    extends UpdateCompanion<TranslationSegmentRecord> {
+  final Value<int> id;
+  final Value<int> translationId;
+  final Value<int> segmentIndex;
+  final Value<String> blockKind;
+  final Value<int> level;
+  final Value<String> sourceDigest;
+  final Value<String> sourceText;
+  final Value<String> status;
+  final Value<String?> translatedText;
+  final Value<bool> sourceTruncated;
+  final Value<DateTime> updatedAt;
+  const TranslationSegmentRecordsCompanion({
+    this.id = const Value.absent(),
+    this.translationId = const Value.absent(),
+    this.segmentIndex = const Value.absent(),
+    this.blockKind = const Value.absent(),
+    this.level = const Value.absent(),
+    this.sourceDigest = const Value.absent(),
+    this.sourceText = const Value.absent(),
+    this.status = const Value.absent(),
+    this.translatedText = const Value.absent(),
+    this.sourceTruncated = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  TranslationSegmentRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required int translationId,
+    required int segmentIndex,
+    required String blockKind,
+    this.level = const Value.absent(),
+    required String sourceDigest,
+    required String sourceText,
+    required String status,
+    this.translatedText = const Value.absent(),
+    this.sourceTruncated = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : translationId = Value(translationId),
+       segmentIndex = Value(segmentIndex),
+       blockKind = Value(blockKind),
+       sourceDigest = Value(sourceDigest),
+       sourceText = Value(sourceText),
+       status = Value(status);
+  static Insertable<TranslationSegmentRecord> custom({
+    Expression<int>? id,
+    Expression<int>? translationId,
+    Expression<int>? segmentIndex,
+    Expression<String>? blockKind,
+    Expression<int>? level,
+    Expression<String>? sourceDigest,
+    Expression<String>? sourceText,
+    Expression<String>? status,
+    Expression<String>? translatedText,
+    Expression<bool>? sourceTruncated,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (translationId != null) 'translation_id': translationId,
+      if (segmentIndex != null) 'segment_index': segmentIndex,
+      if (blockKind != null) 'block_kind': blockKind,
+      if (level != null) 'level': level,
+      if (sourceDigest != null) 'source_digest': sourceDigest,
+      if (sourceText != null) 'source_text': sourceText,
+      if (status != null) 'status': status,
+      if (translatedText != null) 'translated_text': translatedText,
+      if (sourceTruncated != null) 'source_truncated': sourceTruncated,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  TranslationSegmentRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? translationId,
+    Value<int>? segmentIndex,
+    Value<String>? blockKind,
+    Value<int>? level,
+    Value<String>? sourceDigest,
+    Value<String>? sourceText,
+    Value<String>? status,
+    Value<String?>? translatedText,
+    Value<bool>? sourceTruncated,
+    Value<DateTime>? updatedAt,
+  }) {
+    return TranslationSegmentRecordsCompanion(
+      id: id ?? this.id,
+      translationId: translationId ?? this.translationId,
+      segmentIndex: segmentIndex ?? this.segmentIndex,
+      blockKind: blockKind ?? this.blockKind,
+      level: level ?? this.level,
+      sourceDigest: sourceDigest ?? this.sourceDigest,
+      sourceText: sourceText ?? this.sourceText,
+      status: status ?? this.status,
+      translatedText: translatedText ?? this.translatedText,
+      sourceTruncated: sourceTruncated ?? this.sourceTruncated,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (translationId.present) {
+      map['translation_id'] = Variable<int>(translationId.value);
+    }
+    if (segmentIndex.present) {
+      map['segment_index'] = Variable<int>(segmentIndex.value);
+    }
+    if (blockKind.present) {
+      map['block_kind'] = Variable<String>(blockKind.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (sourceDigest.present) {
+      map['source_digest'] = Variable<String>(sourceDigest.value);
+    }
+    if (sourceText.present) {
+      map['source_text'] = Variable<String>(sourceText.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (translatedText.present) {
+      map['translated_text'] = Variable<String>(translatedText.value);
+    }
+    if (sourceTruncated.present) {
+      map['source_truncated'] = Variable<bool>(sourceTruncated.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TranslationSegmentRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('translationId: $translationId, ')
+          ..write('segmentIndex: $segmentIndex, ')
+          ..write('blockKind: $blockKind, ')
+          ..write('level: $level, ')
+          ..write('sourceDigest: $sourceDigest, ')
+          ..write('sourceText: $sourceText, ')
+          ..write('status: $status, ')
+          ..write('translatedText: $translatedText, ')
+          ..write('sourceTruncated: $sourceTruncated, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9843,6 +11078,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $AiResultCacheRecordsTable(this);
   late final $SearchServiceRecordsTable searchServiceRecords =
       $SearchServiceRecordsTable(this);
+  late final $ArticleTranslationRecordsTable articleTranslationRecords =
+      $ArticleTranslationRecordsTable(this);
+  late final $TranslationSegmentRecordsTable translationSegmentRecords =
+      $TranslationSegmentRecordsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -9903,6 +11142,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_search_service_sort',
     'CREATE INDEX ix_search_service_sort ON search_service_records (sort_order)',
   );
+  late final Index uxTranslationsArticleLanguage = Index(
+    'ux_translations_article_language',
+    'CREATE UNIQUE INDEX ux_translations_article_language ON article_translation_records (article_id, target_language)',
+  );
+  late final Index uxTranslationSegmentsTranslationIndex = Index(
+    'ux_translation_segments_translation_index',
+    'CREATE UNIQUE INDEX ux_translation_segments_translation_index ON translation_segment_records (translation_id, segment_index)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9935,6 +11182,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     aiTasks,
     aiResultCacheRecords,
     searchServiceRecords,
+    articleTranslationRecords,
+    translationSegmentRecords,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -9950,6 +11199,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixAiResultCacheCreated,
     uxSearchServiceLabel,
     ixSearchServiceSort,
+    uxTranslationsArticleLanguage,
+    uxTranslationSegmentsTranslationIndex,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -9980,6 +11231,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('citations', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'articles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('article_translation_records', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'article_translation_records',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('translation_segment_records', kind: UpdateKind.delete),
+      ],
     ),
   ]);
   @override
@@ -11111,6 +12380,31 @@ final class $$ArticlesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $ArticleTranslationRecordsTable,
+    List<ArticleTranslationRecord>
+  >
+  _articleTranslationRecordsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.articleTranslationRecords,
+        aliasName: 'articles__id__article_translation_records__article_id',
+      );
+
+  $$ArticleTranslationRecordsTableProcessedTableManager
+  get articleTranslationRecordsRefs {
+    final manager = $$ArticleTranslationRecordsTableTableManager(
+      $_db,
+      $_db.articleTranslationRecords,
+    ).filter((f) => f.articleId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _articleTranslationRecordsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ArticlesTableFilterComposer
@@ -11355,6 +12649,33 @@ class $$ArticlesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> articleTranslationRecordsRefs(
+    Expression<bool> Function($$ArticleTranslationRecordsTableFilterComposer f)
+    f,
+  ) {
+    final $$ArticleTranslationRecordsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleTranslationRecords,
+          getReferencedColumn: (t) => t.articleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleTranslationRecordsTableFilterComposer(
+                $db: $db,
+                $table: $db.articleTranslationRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -11755,6 +13076,33 @@ class $$ArticlesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> articleTranslationRecordsRefs<T extends Object>(
+    Expression<T> Function($$ArticleTranslationRecordsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$ArticleTranslationRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.articleTranslationRecords,
+          getReferencedColumn: (t) => t.articleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleTranslationRecordsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.articleTranslationRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$ArticlesTableTableManager
@@ -11774,6 +13122,7 @@ class $$ArticlesTableTableManager
             bool feedId,
             bool readingSessionsRefs,
             bool citationsRefs,
+            bool articleTranslationRecordsRefs,
           })
         > {
   $$ArticlesTableTableManager(_$AppDatabase db, $ArticlesTable table)
@@ -11938,12 +13287,15 @@ class $$ArticlesTableTableManager
                 feedId = false,
                 readingSessionsRefs = false,
                 citationsRefs = false,
+                articleTranslationRecordsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (readingSessionsRefs) db.readingSessions,
                     if (citationsRefs) db.citations,
+                    if (articleTranslationRecordsRefs)
+                      db.articleTranslationRecords,
                   ],
                   addJoins:
                       <
@@ -12019,6 +13371,27 @@ class $$ArticlesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (articleTranslationRecordsRefs)
+                        await $_getPrefetchedData<
+                          Article,
+                          $ArticlesTable,
+                          ArticleTranslationRecord
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ArticlesTableReferences
+                              ._articleTranslationRecordsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ArticlesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).articleTranslationRecordsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.articleId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -12043,6 +13416,7 @@ typedef $$ArticlesTableProcessedTableManager =
         bool feedId,
         bool readingSessionsRefs,
         bool citationsRefs,
+        bool articleTranslationRecordsRefs,
       })
     >;
 typedef $ArticlesFtsCreateCompanionBuilder = ArticlesFtsCompanion Function({
@@ -15495,6 +16869,987 @@ typedef $$SearchServiceRecordsTableProcessedTableManager =
       SearchServiceRecord,
       PrefetchHooks Function()
     >;
+typedef $$ArticleTranslationRecordsTableCreateCompanionBuilder =
+    ArticleTranslationRecordsCompanion Function({
+      Value<int> id,
+      required int articleId,
+      required String targetLanguage,
+      required String sourceDigest,
+      Value<int> sourceLength,
+      Value<String?> modelLabel,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$ArticleTranslationRecordsTableUpdateCompanionBuilder =
+    ArticleTranslationRecordsCompanion Function({
+      Value<int> id,
+      Value<int> articleId,
+      Value<String> targetLanguage,
+      Value<String> sourceDigest,
+      Value<int> sourceLength,
+      Value<String?> modelLabel,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$ArticleTranslationRecordsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ArticleTranslationRecordsTable,
+          ArticleTranslationRecord
+        > {
+  $$ArticleTranslationRecordsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ArticlesTable _articleIdTable(_$AppDatabase db) => db.articles
+      .createAlias('article_translation_records__article_id__articles__id');
+
+  $$ArticlesTableProcessedTableManager get articleId {
+    final $_column = $_itemColumn<int>('article_id')!;
+
+    final manager = $$ArticlesTableTableManager(
+      $_db,
+      $_db.articles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_articleIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $TranslationSegmentRecordsTable,
+    List<TranslationSegmentRecord>
+  >
+  _translationSegmentRecordsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.translationSegmentRecords,
+        aliasName: 'article_translation_records__id__translation_segment_records__translation_id',
+      );
+
+  $$TranslationSegmentRecordsTableProcessedTableManager
+  get translationSegmentRecordsRefs {
+    final manager = $$TranslationSegmentRecordsTableTableManager(
+      $_db,
+      $_db.translationSegmentRecords,
+    ).filter((f) => f.translationId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _translationSegmentRecordsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ArticleTranslationRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $ArticleTranslationRecordsTable> {
+  $$ArticleTranslationRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourceLength => $composableBuilder(
+    column: $table.sourceLength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelLabel => $composableBuilder(
+    column: $table.modelLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ArticlesTableFilterComposer get articleId {
+    final $$ArticlesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableFilterComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> translationSegmentRecordsRefs(
+    Expression<bool> Function($$TranslationSegmentRecordsTableFilterComposer f)
+    f,
+  ) {
+    final $$TranslationSegmentRecordsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.translationSegmentRecords,
+          getReferencedColumn: (t) => t.translationId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TranslationSegmentRecordsTableFilterComposer(
+                $db: $db,
+                $table: $db.translationSegmentRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$ArticleTranslationRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ArticleTranslationRecordsTable> {
+  $$ArticleTranslationRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourceLength => $composableBuilder(
+    column: $table.sourceLength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelLabel => $composableBuilder(
+    column: $table.modelLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ArticlesTableOrderingComposer get articleId {
+    final $$ArticlesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableOrderingComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArticleTranslationRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ArticleTranslationRecordsTable> {
+  $$ArticleTranslationRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetLanguage => $composableBuilder(
+    column: $table.targetLanguage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sourceLength => $composableBuilder(
+    column: $table.sourceLength,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get modelLabel => $composableBuilder(
+    column: $table.modelLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ArticlesTableAnnotationComposer get articleId {
+    final $$ArticlesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.articleId,
+      referencedTable: $db.articles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArticlesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.articles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> translationSegmentRecordsRefs<T extends Object>(
+    Expression<T> Function($$TranslationSegmentRecordsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$TranslationSegmentRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.translationSegmentRecords,
+          getReferencedColumn: (t) => t.translationId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TranslationSegmentRecordsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.translationSegmentRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$ArticleTranslationRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ArticleTranslationRecordsTable,
+          ArticleTranslationRecord,
+          $$ArticleTranslationRecordsTableFilterComposer,
+          $$ArticleTranslationRecordsTableOrderingComposer,
+          $$ArticleTranslationRecordsTableAnnotationComposer,
+          $$ArticleTranslationRecordsTableCreateCompanionBuilder,
+          $$ArticleTranslationRecordsTableUpdateCompanionBuilder,
+          (
+            ArticleTranslationRecord,
+            $$ArticleTranslationRecordsTableReferences,
+          ),
+          ArticleTranslationRecord,
+          PrefetchHooks Function({
+            bool articleId,
+            bool translationSegmentRecordsRefs,
+          })
+        > {
+  $$ArticleTranslationRecordsTableTableManager(
+    _$AppDatabase db,
+    $ArticleTranslationRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ArticleTranslationRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ArticleTranslationRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ArticleTranslationRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> articleId = const Value.absent(),
+                Value<String> targetLanguage = const Value.absent(),
+                Value<String> sourceDigest = const Value.absent(),
+                Value<int> sourceLength = const Value.absent(),
+                Value<String?> modelLabel = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ArticleTranslationRecordsCompanion(
+                id: id,
+                articleId: articleId,
+                targetLanguage: targetLanguage,
+                sourceDigest: sourceDigest,
+                sourceLength: sourceLength,
+                modelLabel: modelLabel,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int articleId,
+                required String targetLanguage,
+                required String sourceDigest,
+                Value<int> sourceLength = const Value.absent(),
+                Value<String?> modelLabel = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ArticleTranslationRecordsCompanion.insert(
+                id: id,
+                articleId: articleId,
+                targetLanguage: targetLanguage,
+                sourceDigest: sourceDigest,
+                sourceLength: sourceLength,
+                modelLabel: modelLabel,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $ArticleTranslationRecordsTable,
+                    ArticleTranslationRecord
+                  >(table),
+                  $$ArticleTranslationRecordsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({articleId = false, translationSegmentRecordsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (translationSegmentRecordsRefs)
+                      db.translationSegmentRecords,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (articleId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.articleId,
+                            referencedTable:
+                                $$ArticleTranslationRecordsTableReferences
+                                    ._articleIdTable(db),
+                            referencedColumn:
+                                $$ArticleTranslationRecordsTableReferences
+                                    ._articleIdTable(db)
+                                    .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (translationSegmentRecordsRefs)
+                        await $_getPrefetchedData<
+                          ArticleTranslationRecord,
+                          $ArticleTranslationRecordsTable,
+                          TranslationSegmentRecord
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$ArticleTranslationRecordsTableReferences
+                                  ._translationSegmentRecordsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ArticleTranslationRecordsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).translationSegmentRecordsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.translationId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ArticleTranslationRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ArticleTranslationRecordsTable,
+      ArticleTranslationRecord,
+      $$ArticleTranslationRecordsTableFilterComposer,
+      $$ArticleTranslationRecordsTableOrderingComposer,
+      $$ArticleTranslationRecordsTableAnnotationComposer,
+      $$ArticleTranslationRecordsTableCreateCompanionBuilder,
+      $$ArticleTranslationRecordsTableUpdateCompanionBuilder,
+      (ArticleTranslationRecord, $$ArticleTranslationRecordsTableReferences),
+      ArticleTranslationRecord,
+      PrefetchHooks Function({
+        bool articleId,
+        bool translationSegmentRecordsRefs,
+      })
+    >;
+typedef $$TranslationSegmentRecordsTableCreateCompanionBuilder =
+    TranslationSegmentRecordsCompanion Function({
+      Value<int> id,
+      required int translationId,
+      required int segmentIndex,
+      required String blockKind,
+      Value<int> level,
+      required String sourceDigest,
+      required String sourceText,
+      required String status,
+      Value<String?> translatedText,
+      Value<bool> sourceTruncated,
+      Value<DateTime> updatedAt,
+    });
+typedef $$TranslationSegmentRecordsTableUpdateCompanionBuilder =
+    TranslationSegmentRecordsCompanion Function({
+      Value<int> id,
+      Value<int> translationId,
+      Value<int> segmentIndex,
+      Value<String> blockKind,
+      Value<int> level,
+      Value<String> sourceDigest,
+      Value<String> sourceText,
+      Value<String> status,
+      Value<String?> translatedText,
+      Value<bool> sourceTruncated,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$TranslationSegmentRecordsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $TranslationSegmentRecordsTable,
+          TranslationSegmentRecord
+        > {
+  $$TranslationSegmentRecordsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ArticleTranslationRecordsTable _translationIdTable(
+    _$AppDatabase db,
+  ) => db.articleTranslationRecords.createAlias(
+    'translation_segment_records__translation_id__article_translation_records__id',
+  );
+
+  $$ArticleTranslationRecordsTableProcessedTableManager get translationId {
+    final $_column = $_itemColumn<int>('translation_id')!;
+
+    final manager = $$ArticleTranslationRecordsTableTableManager(
+      $_db,
+      $_db.articleTranslationRecords,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_translationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TranslationSegmentRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $TranslationSegmentRecordsTable> {
+  $$TranslationSegmentRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get segmentIndex => $composableBuilder(
+    column: $table.segmentIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get blockKind => $composableBuilder(
+    column: $table.blockKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceText => $composableBuilder(
+    column: $table.sourceText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get translatedText => $composableBuilder(
+    column: $table.translatedText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get sourceTruncated => $composableBuilder(
+    column: $table.sourceTruncated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ArticleTranslationRecordsTableFilterComposer get translationId {
+    final $$ArticleTranslationRecordsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.translationId,
+          referencedTable: $db.articleTranslationRecords,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleTranslationRecordsTableFilterComposer(
+                $db: $db,
+                $table: $db.articleTranslationRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TranslationSegmentRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TranslationSegmentRecordsTable> {
+  $$TranslationSegmentRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get segmentIndex => $composableBuilder(
+    column: $table.segmentIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get blockKind => $composableBuilder(
+    column: $table.blockKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceText => $composableBuilder(
+    column: $table.sourceText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get translatedText => $composableBuilder(
+    column: $table.translatedText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get sourceTruncated => $composableBuilder(
+    column: $table.sourceTruncated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ArticleTranslationRecordsTableOrderingComposer get translationId {
+    final $$ArticleTranslationRecordsTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.translationId,
+          referencedTable: $db.articleTranslationRecords,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleTranslationRecordsTableOrderingComposer(
+                $db: $db,
+                $table: $db.articleTranslationRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TranslationSegmentRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TranslationSegmentRecordsTable> {
+  $$TranslationSegmentRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get segmentIndex => $composableBuilder(
+    column: $table.segmentIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get blockKind =>
+      $composableBuilder(column: $table.blockKind, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceDigest => $composableBuilder(
+    column: $table.sourceDigest,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceText => $composableBuilder(
+    column: $table.sourceText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get translatedText => $composableBuilder(
+    column: $table.translatedText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get sourceTruncated => $composableBuilder(
+    column: $table.sourceTruncated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ArticleTranslationRecordsTableAnnotationComposer get translationId {
+    final $$ArticleTranslationRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.translationId,
+          referencedTable: $db.articleTranslationRecords,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArticleTranslationRecordsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.articleTranslationRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TranslationSegmentRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TranslationSegmentRecordsTable,
+          TranslationSegmentRecord,
+          $$TranslationSegmentRecordsTableFilterComposer,
+          $$TranslationSegmentRecordsTableOrderingComposer,
+          $$TranslationSegmentRecordsTableAnnotationComposer,
+          $$TranslationSegmentRecordsTableCreateCompanionBuilder,
+          $$TranslationSegmentRecordsTableUpdateCompanionBuilder,
+          (
+            TranslationSegmentRecord,
+            $$TranslationSegmentRecordsTableReferences,
+          ),
+          TranslationSegmentRecord,
+          PrefetchHooks Function({bool translationId})
+        > {
+  $$TranslationSegmentRecordsTableTableManager(
+    _$AppDatabase db,
+    $TranslationSegmentRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TranslationSegmentRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$TranslationSegmentRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$TranslationSegmentRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> translationId = const Value.absent(),
+                Value<int> segmentIndex = const Value.absent(),
+                Value<String> blockKind = const Value.absent(),
+                Value<int> level = const Value.absent(),
+                Value<String> sourceDigest = const Value.absent(),
+                Value<String> sourceText = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> translatedText = const Value.absent(),
+                Value<bool> sourceTruncated = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => TranslationSegmentRecordsCompanion(
+                id: id,
+                translationId: translationId,
+                segmentIndex: segmentIndex,
+                blockKind: blockKind,
+                level: level,
+                sourceDigest: sourceDigest,
+                sourceText: sourceText,
+                status: status,
+                translatedText: translatedText,
+                sourceTruncated: sourceTruncated,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int translationId,
+                required int segmentIndex,
+                required String blockKind,
+                Value<int> level = const Value.absent(),
+                required String sourceDigest,
+                required String sourceText,
+                required String status,
+                Value<String?> translatedText = const Value.absent(),
+                Value<bool> sourceTruncated = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => TranslationSegmentRecordsCompanion.insert(
+                id: id,
+                translationId: translationId,
+                segmentIndex: segmentIndex,
+                blockKind: blockKind,
+                level: level,
+                sourceDigest: sourceDigest,
+                sourceText: sourceText,
+                status: status,
+                translatedText: translatedText,
+                sourceTruncated: sourceTruncated,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $TranslationSegmentRecordsTable,
+                    TranslationSegmentRecord
+                  >(table),
+                  $$TranslationSegmentRecordsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({translationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (translationId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.translationId,
+                        referencedTable:
+                            $$TranslationSegmentRecordsTableReferences
+                                ._translationIdTable(db),
+                        referencedColumn:
+                            $$TranslationSegmentRecordsTableReferences
+                                ._translationIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TranslationSegmentRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TranslationSegmentRecordsTable,
+      TranslationSegmentRecord,
+      $$TranslationSegmentRecordsTableFilterComposer,
+      $$TranslationSegmentRecordsTableOrderingComposer,
+      $$TranslationSegmentRecordsTableAnnotationComposer,
+      $$TranslationSegmentRecordsTableCreateCompanionBuilder,
+      $$TranslationSegmentRecordsTableUpdateCompanionBuilder,
+      (TranslationSegmentRecord, $$TranslationSegmentRecordsTableReferences),
+      TranslationSegmentRecord,
+      PrefetchHooks Function({bool translationId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -15525,4 +17880,14 @@ class $AppDatabaseManager {
       $$AiResultCacheRecordsTableTableManager(_db, _db.aiResultCacheRecords);
   $$SearchServiceRecordsTableTableManager get searchServiceRecords =>
       $$SearchServiceRecordsTableTableManager(_db, _db.searchServiceRecords);
+  $$ArticleTranslationRecordsTableTableManager get articleTranslationRecords =>
+      $$ArticleTranslationRecordsTableTableManager(
+        _db,
+        _db.articleTranslationRecords,
+      );
+  $$TranslationSegmentRecordsTableTableManager get translationSegmentRecords =>
+      $$TranslationSegmentRecordsTableTableManager(
+        _db,
+        _db.translationSegmentRecords,
+      );
 }

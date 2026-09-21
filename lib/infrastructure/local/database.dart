@@ -24,6 +24,7 @@ import 'tables/deletion_tables.dart';
 import 'tables/reading_tables.dart';
 import 'tables/settings_tables.dart';
 import 'tables/summary_tables.dart';
+import 'tables/translation_tables.dart';
 
 part 'database.g.dart';
 
@@ -48,6 +49,8 @@ part 'database.g.dart';
     AiTasks,
     AiResultCacheRecords,
     SearchServiceRecords,
+    ArticleTranslationRecords,
+    TranslationSegmentRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -80,7 +83,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -357,11 +360,31 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
+      if (from < 13) {
+        // v12 → v13：分段全文翻译的两张表（T035；架构 4.2「译文与原文按段落关联，
+        // 原文始终保留」）。
+        //
+        // **不新增任何 articles 列**：原文只有 articles.body 一份，译文另有归属
+        // （article_translations + translation_segments），因此「原文始终保留」在这
+        // 一步之后依然是结构性的——没有第二条写入路径会碰源正文。
+        //
+        // 不回填任何数据：升级前不存在「翻译过这篇文章」这个事实，空表是诚实的默认
+        // 状态（与 v8→v9 的模型表、v9→v10 的任务表、v10→v11 的搜索服务表同一口径）。
+        //
+        // 与 v1→v2、v8→v9、v9→v10、v10→v11 同一个坑：createTable 只建表，**不**建
+        // 索引。索引是独立 schema 实体，漏掉 createIndex 时运行时查询照常工作，只有
+        // 结构校验才会发现差异，因此逐个显式写出。
+        await m.createTable(articleTranslationRecords);
+        await m.createIndex(uxTranslationsArticleLanguage);
+        await m.createTable(translationSegmentRecords);
+        await m.createIndex(uxTranslationSegmentsTranslationIndex);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 12;
+      const int highestImplemented = 13;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

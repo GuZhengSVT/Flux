@@ -2137,4 +2137,89 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get searchPlannedNotice =>
       '查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。';
+
+  @override
+  String get readingTranslateAction => '翻译';
+
+  @override
+  String get readingTranslateTitle => '全文翻译';
+
+  @override
+  String readingTranslateRunning(int done, int total) {
+    return '正在逐段翻译…（已完成 $done/$total 段）';
+  }
+
+  @override
+  String readingTranslateDone(int done, int total) {
+    return '翻译完成：已完成 $done/$total 段。';
+  }
+
+  @override
+  String readingTranslatePartial(int done, int total, int failed) {
+    return '翻译完成：已完成 $done/$total 段，$failed 段失败（可只重试失败段）。';
+  }
+
+  @override
+  String get readingTranslateCancelAction => '取消翻译';
+
+  @override
+  String get readingTranslateCancelled => '已取消翻译，已完成的段落保留，未完成的段落显示原文。';
+
+  @override
+  String readingTranslateRetryFailed(int count) {
+    return '重试失败段（$count 段）';
+  }
+
+  @override
+  String get readingTranslateRetryHint => '只重跑失败的段落，已完成的译文会保留。';
+
+  @override
+  String get readingTranslateSegmentFailed => '这一段翻译失败，正文仍显示原文。';
+
+  @override
+  String get readingTranslateShowOriginal => '显示原文';
+
+  @override
+  String get readingTranslateShowTranslation => '显示译文';
+
+  @override
+  String get readingTranslateSourceKept => '原文始终保留，切换只改变显示。';
+
+  @override
+  String get readingTranslateTruncatedNotice =>
+      '有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。';
+
+  @override
+  String get readingTranslateStale => '这篇正文在上次翻译之后变化过；以下译文对应的是上一版正文。';
+
+  @override
+  String get readingTranslateSummaryOnly =>
+      '这篇文章的源只提供了摘要（仅摘要），没有可翻译的全文；摘要不当作正文翻译。';
+
+  @override
+  String get readingTranslateNoBody => '这篇文章没有正文可翻译，已保留源摘要。';
+
+  @override
+  String get readingTranslateNoModelBody => '翻译需要 AI 服务。请先配置至少一个已启用的模型。';
+
+  @override
+  String get readingTranslateNoText => '这篇正文里没有可翻译的段落（例如只有一张图片）。';
+
+  @override
+  String readingTranslateFailed(String reason) {
+    return '翻译失败：$reason';
+  }
+
+  @override
+  String readingTranslateSavedLabel(String model, String date) {
+    return '译文 · $model · $date';
+  }
+
+  @override
+  String readingTranslateLanguage(String language) {
+    return '目标语言：$language';
+  }
+
+  @override
+  String get readingTranslateInterrupted => '上次翻译未完成（进程被中断），已完成的段落保留；可以重试失败段。';
 }

@@ -3832,6 +3832,144 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。'**
   String get searchPlannedNotice;
+
+  /// 详情页：全文翻译入口
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译'**
+  String get readingTranslateAction;
+
+  /// 翻译面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'全文翻译'**
+  String get readingTranslateTitle;
+
+  /// 翻译进度（已完成段数 / 总段数）
+  ///
+  /// In zh, this message translates to:
+  /// **'正在逐段翻译…（已完成 {done}/{total} 段）'**
+  String readingTranslateRunning(int done, int total);
+
+  /// 翻译完成回执
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译完成：已完成 {done}/{total} 段。'**
+  String readingTranslateDone(int done, int total);
+
+  /// 部分成功回执（失败段可单独重试）
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译完成：已完成 {done}/{total} 段，{failed} 段失败（可只重试失败段）。'**
+  String readingTranslatePartial(int done, int total, int failed);
+
+  /// 翻译面板：取消进行中的翻译
+  ///
+  /// In zh, this message translates to:
+  /// **'取消翻译'**
+  String get readingTranslateCancelAction;
+
+  /// 取消翻译后的提示（取消保留已完成段）
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消翻译，已完成的段落保留，未完成的段落显示原文。'**
+  String get readingTranslateCancelled;
+
+  /// 只重试失败段按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重试失败段（{count} 段）'**
+  String readingTranslateRetryFailed(int count);
+
+  /// 重试失败段说明
+  ///
+  /// In zh, this message translates to:
+  /// **'只重跑失败的段落，已完成的译文会保留。'**
+  String get readingTranslateRetryHint;
+
+  /// 失败段的说明（渲染在未完成的段上）
+  ///
+  /// In zh, this message translates to:
+  /// **'这一段翻译失败，正文仍显示原文。'**
+  String get readingTranslateSegmentFailed;
+
+  /// 切换到原文
+  ///
+  /// In zh, this message translates to:
+  /// **'显示原文'**
+  String get readingTranslateShowOriginal;
+
+  /// 切换到译文
+  ///
+  /// In zh, this message translates to:
+  /// **'显示译文'**
+  String get readingTranslateShowTranslation;
+
+  /// 原译文切换的说明（原文永远保留）
+  ///
+  /// In zh, this message translates to:
+  /// **'原文始终保留，切换只改变显示。'**
+  String get readingTranslateSourceKept;
+
+  /// 有段落被截断的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。'**
+  String get readingTranslateTruncatedNotice;
+
+  /// 译文对应旧版正文的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇正文在上次翻译之后变化过；以下译文对应的是上一版正文。'**
+  String get readingTranslateStale;
+
+  /// summaryOnly 不提供全文翻译的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章的源只提供了摘要（仅摘要），没有可翻译的全文；摘要不当作正文翻译。'**
+  String get readingTranslateSummaryOnly;
+
+  /// 没有正文时的跳过说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有正文可翻译，已保留源摘要。'**
+  String get readingTranslateNoBody;
+
+  /// 没有可用模型时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译需要 AI 服务。请先配置至少一个已启用的模型。'**
+  String get readingTranslateNoModelBody;
+
+  /// 没有可翻译块时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇正文里没有可翻译的段落（例如只有一张图片）。'**
+  String get readingTranslateNoText;
+
+  /// 翻译失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译失败：{reason}'**
+  String readingTranslateFailed(String reason);
+
+  /// 译文来源与生成时间标注
+  ///
+  /// In zh, this message translates to:
+  /// **'译文 · {model} · {date}'**
+  String readingTranslateSavedLabel(String model, String date);
+
+  /// 当前目标语言（SET-011）
+  ///
+  /// In zh, this message translates to:
+  /// **'目标语言：{language}'**
+  String readingTranslateLanguage(String language);
+
+  /// 中断后恢复的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'上次翻译未完成（进程被中断），已完成的段落保留；可以重试失败段。'**
+  String get readingTranslateInterrupted;
 }
 
 class _AppLocalizationsDelegate

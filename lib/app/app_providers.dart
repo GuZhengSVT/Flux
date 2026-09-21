@@ -49,6 +49,7 @@ import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/daily_summary_counter_store.dart';
 import 'package:flux/features/articles/application/article_ai_providers.dart';
+import 'package:flux/features/articles/application/article_translation_providers.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -59,6 +60,7 @@ import 'package:flux/infrastructure/local/degraded_ai_task_store.dart';
 import 'package:flux/infrastructure/local/search_service_store.dart';
 import 'package:flux/infrastructure/local/degraded_search_service_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
+import 'package:flux/infrastructure/local/article_translation_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
@@ -330,6 +332,10 @@ List<Override> bootstrapOverrides(
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
       ),
+      // T035：分段翻译的读写（译文只写自己的两张表，不碰 articles 的任何列）。
+      articleTranslationStoreProvider.overrideWithValue(
+        DriftArticleTranslationStore(catalogDatabase),
+      ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
       feedArticleStoreProvider.overrideWithValue(
@@ -355,6 +361,10 @@ List<Override> bootstrapOverrides(
       ),
       articleExtractionProvider.overrideWithValue(
         const DegradedArticleExtractionStore(),
+      ),
+      // T035：降级模式下读作「没有译文」（真实答案），写明确失败（不假装保存成功）。
+      articleTranslationStoreProvider.overrideWithValue(
+        const DegradedArticleTranslationStore(),
       ),
       // T025：数据库不可用时模型列表读作空（这是**真实**答案：本次运行确实没有
       // 任何可用模型），写入明确失败（不假装保存成功）。

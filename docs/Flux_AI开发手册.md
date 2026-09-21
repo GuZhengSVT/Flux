@@ -46,7 +46,7 @@
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）、T031（三个搜索协议适配器与搜索服务管理）、T032（受控工具执行器）、T033（新闻图像理解与文本降级）与 T034（选词解释/单文摘要/自动缺摘要开关），见 R025–R034。下一任务 T035（分段全文翻译与原译文切换），前置 T019/T030 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）、T031（三个搜索协议适配器与搜索服务管理）、T032（受控工具执行器）、T033（新闻图像理解与文本降级）与 T034（选词解释/单文摘要/自动缺摘要开关）与 T035（分段全文翻译与原译文切换），见 R025–R035。下一任务 T036（新闻来源配置、版本化 prompt 与编辑器），前置 T025/T031 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -63,7 +63,7 @@
 | 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
 | AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**T027 交付 Anthropic Messages 适配器**：独立建模（不继承 CC），认证走 x-api-key + anthropic-version（用例断言请求头**不含** Authorization）、system 是顶层参数、max_tokens 必填、content 是分量数组（文本块 / base64 图片块）；SSE 按 type 分派并忽略生命周期与未知事件；usage **分两处拼合**（input 在 message_start、output 在 message_delta 且是累计值，覆盖而非累加），协议不给 total_tokens 故如实标本地合计；529 overloaded → **可重试**（不是通用 5xx 的不可重试），200 流内的 error 先用结构化类型名换语义状态码再分类；断流（无 message_stop）明确报错。**T028 交付预设验证矩阵**：7 条预设（OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen）各含 id、显示名、协议、Base URL、认证方式、三档状态与注释，**只有实测才配「已支持」**；本轮仅 DeepSeek = 实测，OpenAI 双协议与 Anthropic = fixture 通过，Qwen/MiMo/Zen = 待验证（**共用 CC 协议不继承状态**）；OpenCode Zen 按授权用无效 Key 探 1 次返回 401 且错误体非 OpenAI 形状，如实记「端点待真实验证」；界面新增预设下拉（自动填协议 + Base URL、不代填 Key、显示最终端点）、三档徽章与验证状态小节。**T029 交付有预算的队列与五次无响应/跨模型故障转移**：按类型分类失败（只有无响应/超时/断流/连接失败/429 重试后计入五次；认证失败与内容拒绝**既不计数也不换模型**，后者是为避免跨服务商规避内容策略）；预算闸门在每次调用前检查（总时限 deadline 不重置 / HTTP 尝试 30 / Token 预算含调用前预留，无 usage 时按 CJK 1 字 1 token、非 CJK 4 字符 1 token 保守估算并标记）；总时限优先于五次规则（第 3 次后累计超限即停，不等第 5 次）；429 服从 Retry-After 一次且不做退避风暴；单次硬时限 120s 用真实计时器（卡住的流一定被打断），到点只取消这一次尝试并把取消翻译回超时；每次尝试用子取消信号（用户取消经父信号传播）；并发 2 用在途额度对象约束而故障转移保持串行；离线暂停为 waitingNetwork 且不消耗五次额度；断流但已有部分文本 → partial，跨模型的半句话**从不拼接**。**T030 交付持久任务、结果缓存与中断恢复**：schema v10 新增 ai_tasks（18 列，含输入快照、deadline、累计消耗、九态、错误**类别**）与 ai_result_cache_records 两张表及三个索引，**两张表均无凭据列**（逐列断言）；缓存键 = 任务类型 + 输入哈希 + 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此输入/模型/语言任一变化即失效是**结构性**的；命中缓存**一个请求都不发**（用请求计数断言）并标 from_cache；**只写成功结果**（failed/partial/cancelled 不写）；启动把四个活跃态一次性批量标成 interrupted 且**绝不自动重发**（架构 4.5：不为不确定是否计费的请求付两次费），成功版本不被覆盖；interrupted 显示在「设置 → AI 任务记录」并可手动重新开始——新任务承接、旧任务保持 interrupted，活跃态任务拒绝重开。**仍未实现**：视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入；**除 DeepSeek 外的预设均无真实调用证据（7.3 逐行标 NOT_RUN）**） |
 | 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | DOING（**T031 交付三个搜索协议适配器与搜索服务管理**：`SearchProvider`/`SearchProviderFactory` 契约返回统一 `SearchResponse`（结果列表 + answer + response_time + 总数）；三协议**完全独立建模**——Tavily 是 POST + JSON body、认证走 Authorization Bearer；Brave 是 GET + 查询参数、认证走 **X-Subscription-Token**（不是 Bearer）、结果在 `web.results` 两层嵌套里、**标题与片段里的高亮标签都剥离**、唯一支持 offset；SearXNG 是自建实例 GET + `format=json`、**没有默认端点**（不替用户猜一个公网实例）、凭据可选（无凭据不发认证头）。统一映射：`sourceId` 是「协议 + 服务商返回序号」的 SHA-256 摘要（不用 URL 或内容——同一篇材料换 URL 会被误认成两份独立证据，内容被服务商改写会让历史引用全部失效）；`publishedAt` 可空且**相对时间不换算**（Brave 的 "3 days ago" 需要抓取时刻作基准，而基准不是协议事实）；访问类别按「有发布时间 → 新闻 / 命中技术域名表 → 技术 / 其余 → 通用」判定，不用「域名含 news」这类猜测。安全边界：结果 URL 一律过地址守卫（embeddedContent 策略，拒绝私网/回环/链路本地），不合格条目**在适配器里就丢弃**而不是留给下游再判一次；**没有凭据绝不发请求**（在发出任何字节之前返回 AuthError，有用例断言请求计数为 0）；凭据只进认证头，不进 URL、日志或错误消息；SearXNG 的私网/HTTP 端点**必须由用户逐条显式批准**（SET-041，批准存在记录里），未批准时在发请求之前拒绝且错误指向「去开启显式批准」。管理面：`search_service_records`（schema v11，**无任何凭据列**，有用例逐列断言）+ 服务 CRUD/排序/启用/唯一任务默认/删除前引用检查（引用读不到时**不放行删除**）+ 最小检索测试（`SearchSendConfirmation` 是前置参数，忘了弹费用与数据发送确认在类型上不可能；测试只取 1 条，不按用户配置的 10 条去花）；界面新增「设置 → 搜索服务」（列表/表单/删除确认/发送确认，缺凭据时测试按钮**禁用并给出原因**，SearXNG 始终可点）；搜索凭据与 AI 凭据分属不同 Keychain 类别（SET-039），有用例断言同名不会互相覆盖。**T032 交付受控工具执行器**（见任务表 T032 行的完整口径）：封闭三项 search/fetchPage/inspectImage；预算闸门在任何工作之前；参数与地址校验是纯函数且复用 core 的 url_guard（fetchPage 指向 169.254.169.254/回环/私网一律被拒且**一次请求都不发**）；inspectImage 只认客户端注册过的材料引用（**不允许任意 URL**）；未知工具名（readFile/shell 等）不存在执行路径；**文本注入无效是类型事实**（执行器只接受 ToolCall，而它只能由协议结构化字段解析而来）；AiRequest.tools 已接线到三个适配器（三种声明形状各异）并由 AiTaskRunner 的受控循环执行与回填（回填带协议要求的调用 id）。**T033 交付新闻图像理解与文本降级**（见任务表 T033 行的完整口径）：路由 **专用视觉模型（SET-034）→ 有视觉能力的主模型 → 跳过**，跳过**不是失败**（返回带原因的结论让文本链路继续，且**一个请求都不发**）；指定但不可用/未声明能力的模型只回退**不绕过**（原因带进结论，不按模型名猜能力）；SET-065 的 6 张 / 4 MiB 限制在发送前规划，超单图**降采样并在请求与回填文本里都标出来**、超数量标跳过；**首次发送告知**（架构第 8 节）在真实调用之前：未确认时返回待确认端点并**一个字节都不发**，确认记录以**端点摘要**落在 device. 命名空间的**本机**存储（不随设置同步）；图片以**字节**进请求（Anthropic base64 / 两个 OpenAI 协议的 data URL，三种形状各异各有断言），地址只用于本机受控加载、不进 prompt；inspectImage 接上真实分析（无视觉模型时明确回填「已跳过」）；**动态网页不截图**（无 WebView/无头浏览器路径）。**仍未实现**：查询关键词列表与禁用词（SET-052/053，属 T036/T037）、无 native tool calling 的模型的「预先检索材料」编排（属 T036/T037 的新闻任务）；**三个搜索协议与全部 AI 预设（除 DeepSeek 外）本轮均无真实调用证据**（无凭据，7.3 逐行标 NOT_RUN））|
-| 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | DOING（**T034 交付选词解释、单文摘要与自动缺摘要开关**：schema v12 给 articles 加 `ai_summary`/`ai_summary_at`/`ai_summary_model` 三列（可空、不回填），**与源摘要分列**——写 AI 摘要的实现里只有这三列，因此「覆盖源摘要」在结构上不可能（有用例断言源摘要、正文、三态、收藏在写入后原值不变）。选词解释**复用 T020 的 `SelectionExplanationRequest`**（上下文总量 1200 字、两侧各半、截断标省略号、选区本身不截断、找不到位置不猜），因此「只发送选区和最少上下文」这条数据出境规则只有一份实现；结果在浮层显示并注明**实际送出字数**与「上下文已截断」，**取消与失败都不改动原文**（架构 4.2）。单文摘要按 SET-061 的 8000 字符截断（在 **rune 边界**切，不切坏代理对）并在用户消息里**写明截断**（否则模型把半篇当全文）；结果写 `ai_summary` 三列，源摘要在；列表与详情按 **AI 摘要 → 源摘要 → 截取正文** 的优先级决定显示哪一段并标注来源。自动缺摘要开关 **SET-037 默认关**：关闭时批处理**一个请求都不发**（请求计数断言）；只在**列表刷新批处理**里执行（滚动/渲染不触发，因此「滚一下列表」不会产生计费调用）；开启后受 **SET-064 当天上限**约束，上限按**成功数**递减（失败不扣额度，避免「连着失败两次把额度用光而用户什么都没拿到」），且每个候选前重查剩余；**命中 T030 结果缓存时一个请求都不发**但仍落库且不消耗额度；**失败不写库**（不把一次网络抖动固化成一条假摘要）；读不到当天计数时 fail-closed（不发请求）。当天计数按日期键落 `device.autoSummaryUsed.YYYY-MM-DD`（**本机运行计数，不占 SET 编号、不参与同步**，跨午夜天然归零，坏值按上限兜底）。界面：详情页「摘要」按钮 + AI 摘要卡片（标注模型与生成时间、截断说明、「源摘要仍然保留」）、选区「解释」入口接上真实调用（替换 T020 的占位提示）、刷新后给自动摘要回执（成功/失败/缓存命中/当天上限）、AI 服务页新增 SET-037 开关（默认关、写明每篇单独计费与当天上限）。**全文翻译属 T035**，本轮不做；**无真实 AI 调用证据**（除 DeepSeek 外无凭据））|
+| 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | DOING（**T034 交付选词解释、单文摘要与自动缺摘要开关**：schema v12 给 articles 加 `ai_summary`/`ai_summary_at`/`ai_summary_model` 三列（可空、不回填），**与源摘要分列**——写 AI 摘要的实现里只有这三列，因此「覆盖源摘要」在结构上不可能（有用例断言源摘要、正文、三态、收藏在写入后原值不变）。选词解释**复用 T020 的 `SelectionExplanationRequest`**（上下文总量 1200 字、两侧各半、截断标省略号、选区本身不截断、找不到位置不猜），因此「只发送选区和最少上下文」这条数据出境规则只有一份实现；结果在浮层显示并注明**实际送出字数**与「上下文已截断」，**取消与失败都不改动原文**（架构 4.2）。单文摘要按 SET-061 的 8000 字符截断（在 **rune 边界**切，不切坏代理对）并在用户消息里**写明截断**（否则模型把半篇当全文）；结果写 `ai_summary` 三列，源摘要在；列表与详情按 **AI 摘要 → 源摘要 → 截取正文** 的优先级决定显示哪一段并标注来源。自动缺摘要开关 **SET-037 默认关**：关闭时批处理**一个请求都不发**（请求计数断言）；只在**列表刷新批处理**里执行（滚动/渲染不触发，因此「滚一下列表」不会产生计费调用）；开启后受 **SET-064 当天上限**约束，上限按**成功数**递减（失败不扣额度，避免「连着失败两次把额度用光而用户什么都没拿到」），且每个候选前重查剩余；**命中 T030 结果缓存时一个请求都不发**但仍落库且不消耗额度；**失败不写库**（不把一次网络抖动固化成一条假摘要）；读不到当天计数时 fail-closed（不发请求）。当天计数按日期键落 `device.autoSummaryUsed.YYYY-MM-DD`（**本机运行计数，不占 SET 编号、不参与同步**，跨午夜天然归零，坏值按上限兜底）。界面：详情页「摘要」按钮 + AI 摘要卡片（标注模型与生成时间、截断说明、「源摘要仍然保留」）、选区「解释」入口接上真实调用（替换 T020 的占位提示）、刷新后给自动摘要回执（成功/失败/缓存命中/当天上限）、AI 服务页新增 SET-037 开关（默认关、写明每篇单独计费与当天上限）。**T035 交付分段全文翻译与原译文切换**：schema v13 新增 article_translation_records 与 translation_segment_records 两张表，**不新增任何 articles 列**（原文只有 articles.body 一份，译文另有归属）；切分与回填是**同一个遍历**（mapTranslation），标题/段落/列表项各为一段、引用块与列表向下递归，代码块/公式/图片/分隔线/表格/未解析块不产生单元（宁可少翻不可翻错），回填按段查译文、找不到就显示原文；summaryOnly **早于**「有没有可翻译文字」判定（顺序反了会被永远掩盖）；逐段串行调用并回报「已完成 x/y 段」，**取消保留已完成段**（取消的段标 pending 而非 failed），**单段失败不回滚整份译文**且「重试失败段」只重跑失败的，已有译文段按**段落文本摘要**比对复用（正文改过即不复用）；段落级缓存键 = 段落文本 + 目标语言 + 路由模型链，命中时一个请求都不发；超长段按 SET-061 的 8000 字符在 rune 边界截断并写明；目标语言取 SET-011（zh-Hans/en），域外直接跳过；界面新增「翻译」按钮与面板（进度/取消/重试失败段/原文-译文切换/截断与过期说明），**原文始终保留是结构性的**（存储实现里没有任何一处写 articles 的列）；**无真实 AI 调用证据**（除 DeepSeek 外无凭据））|
 | 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | TODO |
 | WebDAV 共通设置与阅读状态 | SET-070–075 | T041–T045 | TODO |
 | 明文备份/恢复/清理/诊断 | SET-076–082 | T046–T048 | TODO |
@@ -140,7 +140,7 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T032 | T029、T031 | search/fetchPage/inspectImage 受控工具执行器 | schema、域名、私网/DNS/重定向、安全上限强制；无 native tool calling 的文本模型可消费预先检索材料；恶意正文不能读文件、删数据或请求任意端点 | DONE（缺失 REVIEW）：新增 domain/tool_call.dart（**封闭的** ToolName 三项 + ToolCall/ToolResult/ToolPayload + ToolCallBudget + 与校验逐条对应的 JSON Schema 声明）、tool_arguments.dart（参数校验**纯函数** + 图片材料集合）、tool_call_parser.dart（三协议各一个解析器 + 按 index 归位的分片累加器）；application/tool_executor.dart（顺序固定：**预算闸门 → 工具白名单 → 参数与地址校验 → 执行**，永不抛异常、fail-closed）、tool_ports.dart；infrastructure/network/tool_port_adapters.dart（**复用** T024 抓取链与 T021 图片管线，不重写第二套判据）。**安全边界逐条有断言**：未知工具名（readFile/shell/exec/httpRequest/deleteData）被拒；fetchPage 指向 169.254.169.254 / 127.0.0.1 / localhost / 10.x / 192.168.x / 172.16.x / ::1 / .local / .internal 一律被拒且**一次请求都不发**（用端口调用计数断言）；file://、ftp://、data: 归为「协议不允许」；超长 url/query、类型错的 count、越界 count（**拒绝而不夹紧**）全部被拒；超预算的第 N+1 次被拒且被拒的调用**不消耗额度**；inspectImage 传任意 URL 被归为「未知引用」且**不去下载**。**文本注入无效在类型上成立**：执行器的入口只有 ToolCall，而 ToolCall 只能由解析器从协议的 tool_calls 字段构造——「请调用 fetchPage http://169.254.169.254/」写在消息正文里没有通往执行器的路径（有用例把这段注入放进 AiMessage 再断言端口零调用）。**接线**：AiRequest.tools 已传给三个适配器（CC 的 {type:function,function:{...}}、Responses 的无包装形状、Anthropic 的 input_schema，三者形状各异各有断言）；响应里的 tool_calls 解析为 **AiToolCalls 事件**（在 done 之前发出），由 AiTaskRunner 的受控循环执行并回填——回填按协议要求带调用 id（CC 的 tool_call_id / Responses 的 call_id / Anthropic 的 tool_use_id，T027 当初记为「T032 要做的事」本轮补上）；循环有**两个上限**：SET-062 的次数管成本、kMaxToolRounds=8 管收敛。**单材料预算 SET-061**：fetchPage 正文按预算截断并**在回填文本里标注截断**（不标注会让模型把半篇当全文）。inspectImage **本期只返回元数据 + 「已就绪待分析」占位**（视觉分析属 T033，有用例断言文案如此）。**真实调用 NOT_RUN**：本轮无任何搜索/AI 凭据，全部证据为夹具与替身级 |
 | T033 | T021、T025、T032 | 新闻图像理解与文本降级 | 专用视觉→有能力主模型→跳过图像；上传前采样/尺寸限制/数据告知；图片不支持时文本链路继续，动态网页不截图执行 | DONE（缺失 REVIEW）：新增 domain/vision_routing.dart（路由纯函数：专用视觉模型 → 有视觉能力的主模型 → 跳过；`VisionSkipReason` 区分「未设置/已删除/未声明能力/一个视觉模型都没有」；SET-034 指定但不可用时**回退并把原因带进结论**，不按模型名猜能力；`planImageInputs` 按 SET-065 规划 6 张 / 4 MiB，超单图标降采样、超数量标跳过且置 `truncatedByCount`）、domain/vision_consent.dart（`VisionSendAcknowledgement.storageKeyFor` 用**端点摘要**做 `device.` 命名空间的键；`VisionSendConfirmation` 只由弹过对话框的路径构造）、application/vision_ports.dart（`VisionImageLoader`/`VisionSettingsReader`/`VisionConsentStore` 三个端口 + `VisionLoadedImage.downsampled`）、application/visual_router.dart（**告知闸门在真实调用之前**：未确认时返回 `awaitingConsentEndpoint` 且**一个字节都不发**；逐张加载并**一张失败不影响其余**；每张图一次 `AiTaskRunner` 任务，候选**只含声明了视觉能力的模型**；可取消）、application/tool_ports 新增 `ToolVisionAnalyzer` 与 `VisionSkipKind`、domain/ai_message.dart 新增 `AiImagePart`（字节 + base64 + data URL + 内容摘要）与 `AiMessage.images`、`AiInputSnapshot.imageCount`（带图与不带图是**两个缓存键**）；三协议图像分量构造**形状各异各有断言**（CC 的 `image_url` 嵌套对象、Responses 的 `input_image` 平铺字符串、Anthropic 的 base64 源**不给 URL**）；infrastructure/network/vision_adapters.dart（`CachedVisionImageLoader` **复用 T021 受控加载器**并逐轮缩到字节预算内、`settings`/`consent` 适配器、`VisualRouterToolAnalyzer`）；inspectImage **接上真实分析**（无分析器或无视觉模型时回填「本次跳过图像分析」而**不失败**，替换 T032 的占位文案）；界面：图片查看器新增「分析这张图」、详情页 `VisionAnalysisPanel`（成文/跳过/失败三分呈现、降采样说明、数据去向）与首次发送告知对话框（**说清发给谁、发什么、记录只在本机**）；**动态网页不截图**（无 WebView/无头浏览器路径）。**未做真实视觉调用**（无视觉模型凭据；DeepSeek 无视觉）|
 | T034 | T020、T030 | 选词解释/单文摘要/自动缺摘要开关 | 默认不开自动摘要，正文截取兜底；开启后有当日上限与缓存；选区仅发送最少上下文，取消/失败不改原文 | DONE（缺失 REVIEW）：schema v12 给 articles 加 **ai_summary / ai_summary_at / ai_summary_model** 三列（全部可空、**不回填**；与源摘要 **summary 分列**，写 AI 摘要的实现里**只有这三列**）；domain/article_summary.dart（`resolveDisplaySummary` 优先级 AI→源→截取、`excerptSummaryFrom` 在 **rune 边界**截断、`DailySummaryQuota`）；application/article_ai_text_tasks.dart（复用 T020 的 `SelectionExplanationRequest` 做**最少上下文**；SET-061 的 8000 字符截断并在消息里**标注截断**；`kArticleSummaryPrompt`/`kSelectionExplainPrompt` 要求不引入材料外信息）；application/auto_summary_batch.dart（`runBatch(enabled: ...)`：SET-037 关闭时**一个请求都不发**；只在刷新批处理里调用（滚动不触发计费）；SET-064 当天上限是硬边界且按**成功数**递减；命中 T030 缓存时**不发请求**但仍落库且不扣额度；失败**不写库、不扣额度**；读不到当天计数时 fail-closed）、infrastructure/local/daily_summary_counter_store.dart（按日期键落 `device.autoSummaryUsed.YYYY-MM-DD`，跨午夜天然归零；坏值按上限兜底；`DegradedDailySummaryCounter` 读写双向失败）；文章端口新增 saveAiSummary/readAiSummary/listArticlesMissingSummary（「缺摘要」= 源摘要与 AI 摘要**都为空**，空白串也算缺）；界面：详情页「摘要」按钮与 AI 摘要卡片（标注模型与生成时间、截断说明、**源摘要仍保留**）、选词解释**真实调用**并替换 T020 占位（浮层显示，标注送出字数与上下文截断，**取消/失败不改原文**）、列表刷新后跑自动摘要批处理并给回执、AI 服务页新增 SET-037 开关（默认关、写明每篇单独计费与当天上限）|
-| T035 | T019、T030 | 分段全文翻译与原译文切换 | summaryOnly 不标全文；段落映射、目标语言、超长拆分、取消/部分成功/单段重试、原文永远保留 | TODO |
+| T035 | T019、T030 | 分段全文翻译与原译文切换 | summaryOnly 不标全文；段落映射、目标语言、超长拆分、取消/部分成功/单段重试、原文永远保留 | DONE（缺失 REVIEW）：schema v13 新增 article_translation_records 与 translation_segment_records 两张表（**不新增任何 articles 列**：原文只有 articles.body 一份，译文另有归属）；core/domain/article_translation.dart 的 `mapTranslation` 是**切分与回填的唯一遍历**（标题/段落/列表项各为一段，引用块与列表向下递归，代码块/公式/图片/分隔线/表格/未解析块不产生单元——宁可少翻不可翻错），回填按段查译文、找不到就显示原文；`translationBlockReason` 让 **summaryOnly 早于「有没有可翻译文字」** 判定（顺序反了这条规则会被永远掩盖）；application/article_translation_tasks.dart 的 TranslationService **逐段串行**调用（并发上限默认 1，与 SET-036 的队列上限分开）、连续 per 段回报 `TranslationProgress`（已完成 x/y）、**取消保留已完成段**（取消的那一段标 pending 而非 failed：用户按的取消不是「这一段失败了」）、**单段失败不回滚整份译文**且只重试失败段（不重跑全部）、已有译文段按**段落文本摘要**比对复用（正文改过即不复用，避免把上一版译文贴到新段上）、段落级缓存键 = 段落文本 + 目标语言 + 路由模型链（命中时**一个请求都不发**但仍算已完成，只有成功段写缓存）；超长段按 SET-061 的 8000 字符在 **rune 边界**截断并在用户消息里写明截断；`prepareTranslationSegment` 与 T034 同一数字口径但**不共用代码**（逐段判断 vs 整篇一次）；目标语言取 SET-011 的 zh-Hans/en，取值域外直接跳过（不猜一个语言）；界面：详情页「翻译」按钮 + `ArticleTranslationPanelView`（进度/完成/部分成功/失败/跳过、取消、**重试失败段**、原文/译文切换、截断与过期说明、译文来源模型与时间），切换只改显示（`applyTranslation` 在渲染期回填），**原文始终保留**在数据层是结构性的（存储实现里没有任何一处写 articles 的列，有用例断言写入后 body/summary/ai_summary/三态/收藏原值不变）；降级启动读作「没有译文」、写明确失败。**无真实 AI 调用证据**（除 DeepSeek 外无凭据） |
 | T036 | T025、T031 | 新闻来源配置、版本化 prompt 与编辑器 | SET-050–055、组合/高级覆盖差异、恢复默认、必访任务不静默消失、查询禁词与主题过滤各有测试 | TODO |
 | T037 | T030、T032、T033、T036 | 每日新闻输入快照、事件聚合与初稿 | 设备时区/日期固定、文章去重、必访逐站状态、Token/工具轮数/图片预算、空输入不编造新闻 | TODO |
 | T038 | T037 | 独立来源核验/引用校验与版本保存 | 每条重要事实尝试独立来源；转载聚类、来源冲突/不足标签，拒绝未知 sourceId；取消/失败保留上次成功总结 | TODO |
@@ -3204,9 +3204,113 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       选区只发最少上下文、自动摘要默认关、当天上限只限自动任务而手动独立）。
     提交/差异范围：提交 "T034: selection explain, article summary with auto mode and daily cap"；
       基线为 T033 的提交。未 push
-    下一可执行任务及前置条件：T035（分段全文翻译与原译文切换），前置 T019/T030 均已 DONE
+   下一可执行任务及前置条件：T035（分段全文翻译与原译文切换），前置 T019/T030 均已 DONE
 
+### 7.1.29 轮次记录 R035（T035）
 
+    轮次/日期：R035 / 2026-09-22
+    任务 ID 与状态变化：T035 TODO → DONE（M2 第十一项；**缺失 REVIEW**，理由：本轮新增两张表
+      （schema v13）并定义了「译文与原文如何关联」这条贯穿渲染路径的数据规则）
+    相关决策/功能/SET 项：架构 4.2（单块选区可复制、查询；**译文与原文按段落关联，原文始终
+      保留；超长翻译分段、可取消，只重试失败段**）、架构 4.5（缓存键包含任务类型/输入/语言/
+      模型/参数；失败不写缓存）、架构 5.1（Article / Revision 的身份与正文归属）、手册 T035 的
+      验收、D-08；SET-011（翻译目标语言：zh-Hans / en）、SET-061（单材料文本预算 8000 字符）
+
+    **本轮最关键的一条：切分与回填是同一个遍历**
+
+      架构 4.2 只写了「译文与原文按段落关联」，而这句话有两种实现方式：给文档树打标（每个块
+      带一个段号）或把遍历写成两个函数互相调用。本轮选后者，并把**同一个** `mapTranslation`
+      同时用于切分与回填（翻译表里存的是顺序号，回填时按同一顺序查译文）。
+
+      理由：两边各写一遍遍历是最容易漂移的一处——顺序或层级判断差一个分支，「第 3 段的译文」
+      就会画到第 4 段上，而译文看上去仍然是通顺的中文，用户与评审都无从察觉。共用一份实现之后
+      「错位」在结构上不可能，而不是靠两侧的测试各自盯着。
+
+      回填还刻意**不猜段落**：译文来自另一版正文时（段号越界或找不到），该段直接显示原文。
+
+    **哪些块不进翻译单元：宁可少翻，不可翻错**
+
+      只有标题、段落、列表项产生单元（引用块与列表向下递归）。代码块、公式、图片、分隔线、
+      表格与未解析块**原样保留**：把代码或公式交给模型改写会把「原文照抄」变成一次静默的内容
+      损坏，而「表格逐格翻译」需要另一套结构回填规则（属后续范围）。
+
+    **取消的那一段不是「失败」**
+
+      初版把「取消时未完成的段」也标成 failed，测试立刻抓到它的错：界面会提示「这一段失败了，
+      请重试」，而真相是用户自己按了取消。两者对用户的含义完全不同（一个是网络/服务商问题，
+      一个是自己的操作），因此取消的段标 pending，failed 只留给真正的请求失败。
+
+    **取消保留已完成段、失败不重跑全部**
+
+      - 取消只停止后续段，已完成的那些留在译文里；未完成的段渲染时显示原文；
+      - 单段失败不回滚整份译文，界面给出「重试失败段（N 段）」；重试时**只**把这些段的顺序号
+        传入 `onlyFailed`，已有译文段经源文本摘要比对后直接复用，因此已完成的段不会被重跑；
+      - 复用判据是**段落文本摘要**而不是顺序号：正文在两次翻译之间刷新过时，顺序号可能仍然
+        重合，而那一刻的「第 3 段」已经是另一段文字。
+
+    **原文始终保留是结构性的**
+
+      `article_translation_records` + `translation_segment_records` 两张表**不新增任何 articles
+      列**：写译文的实现里没有任何一处碰 articles 的列。用例在真实内存库上断言写入译文后
+      body / summary / ai_summary / reading_state / favorite 全部原值，且 v13 快照的 articles
+      列集合与 v12 **完全相同**（另一条结构性证据）。
+
+    数据迁移（schema v12 → v13）与本轮的三条硬约束：
+      - 两张表 + 它们的索引（唯一索引 ux_translations_article_language 保证「文章 + 语言」唯一；
+        translation_segments 上 (translation_id, segment_index) 唯一）；createTable 不建索引，
+        因此两步 createIndex 都显式写出；
+      - 文章删除时译文由外键 CASCADE 清理（不留指向不存在文章的孤儿行），有真实库用例覆盖；
+      - 写入是一个事务（删旧段落 + 写新段落 + 更新译文行）：分步写会留下「译文行说完成、段落
+        却缺了几条」的自相矛盾状态。
+
+    修改文件与主要行为：
+      - 新增 core/domain/article_translation.dart（TranslationUnit/Segment/ArticleTranslation、
+        mapTranslation 的切分与回填、applyTranslation、translationBlockReason、
+        prepareTranslationSegment 的 rune 边界截断、TranslationSkipReason、读写端口）；
+      - 新增 infrastructure/local/tables/translation_tables.dart 与 article_translation_store.dart
+        （drift 实现 + 降级实现）；database.dart 升到 v13 并加迁移步骤（highestImplemented 同步）；
+      - 新增 features/articles/application/article_translation_tasks.dart（TranslationService：
+        逐段调用、进度、取消、失败段、段落级缓存）与 article_translation_providers.dart；
+      - 新增 features/articles/presentation/translation_panel.dart（面板状态 + 呈现）；
+      - 修改 features/articles/presentation/article_detail_page.dart（翻译按钮、面板接线、
+        原文/译文切换、翻译设置与已有译文的读取）；app/app_providers.dart（存储接线）；
+      - 新增 23 条中英文案；新增 drift_schema_v13.json 与 test/generated/schema_v13.dart；
+      - 新增 test/features/articles/{article_translation_test,article_translation_store_test,
+        translation_test_support}.dart（22 + 6 条 + 替身）、
+        test/infrastructure/local/migration_v12_to_v13_test.dart（2 条），并更新 schema_snapshot_test
+        的 v13 快照断言与既有迁移/版本用例的当前版本号。
+
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 重生成 database.g.dart（schema v13）
+      dart run drift_dev schema dump … drift_schemas/ | 0 | PASS | 新增 drift_schema_v13.json
+      dart run drift_dev schema generate --data-classes --companions … | 0 | PASS | 新增 schema_v13.dart（共 14 个文件）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1578 通过 / 2 跳过 / 0 失败（相对 T034 的 1547 新增 31 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    费用与秘密：**未发起任何真实网络调用，无费用产生**（全部断言用脚本化适配器；多条断言正是
+      「不发请求」）；诊断只记结构事实（段数、成功/失败段数、请求数、缓存命中数），不记正文或译文
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增两张表（schema v13）、定义了译文与原文的关联规则，并新增一条
+         渲染期回填路径；
+      2) **表格不逐格翻译**：表格整体原样保留（见上「宁可少翻」），逐格翻译需要另一套结构回填
+         规则，属后续范围；
+      3) **超长段标截断而非分块**：SET-061 允许「长文分块或标截断」，本轮与 T034 同选**标截断**
+         （分块会把用户一次点击变成不可预期的 N 次计费调用）；截断在界面与提示词里都写明；
+      4) **并发上限固定为 1（串行）**：架构允许并发 2（SET-036），本轮把分段翻译实现为串行，让
+         进度与取消的语义确定；将来要提高并发需要同时定义「进度是已完成还是已开始」；
+      5) **译文不参与全文检索**：本地检索索引建在 articles 上，译文表未进 fts5（搜译文属后续范围）；
+      6) **无真实 AI 调用证据**：除 DeepSeek 外无凭据，且本轮不调用真实模型（避免花维护者的钱）；
+         翻译质量、段落切分是否与模型输出粒度吻合均未在真实模型上验证；
+      7) Android 工程仍未初始化；8) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T035 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与 R035 记录。三条既定产品边界未被改动（原文始终保留、
+      只重试失败段、summaryOnly 不提供全文翻译）。
+    提交/差异范围：提交 "T035: paragraph-mapped translation with retry, cancel and source preservation"；
+      基线为 T034 的提交。未 push
+    下一可执行任务及前置条件：T036（新闻来源配置、版本化 prompt 与编辑器），前置 T025/T031 均已 DONE
 
 
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。

@@ -1357,5 +1357,123 @@
   "searchAllowPrivateHint": "Turn this on only for a self-hosted instance on your LAN or over plain HTTP. Without approval the endpoint is rejected by the URL guard and no request is sent.",
   "@searchAllowPrivateHint": {"description": "Private approval hint"},
   "searchPlannedNotice": "The query keyword list (SET-052), forbidden query terms and topic filters (SET-053), and the daily-news search orchestration (T036/T037) come later; this page only manages the search services themselves.",
-  "@searchPlannedNotice": {"description": "Not-yet-implemented notice"}
+  "@searchPlannedNotice": {"description": "Not-yet-implemented notice"},
+  "readingTranslateAction": "Translate",
+  "@readingTranslateAction": {
+    "description": "Detail page: full translation entry"
+  },
+  "readingTranslateTitle": "Full translation",
+  "@readingTranslateTitle": {
+    "description": "Translation panel title"
+  },
+  "readingTranslateRunning": "Translating paragraph by paragraph… ({done}/{total} done)",
+  "@readingTranslateRunning": {
+    "description": "Translation progress",
+    "placeholders": {
+      "done": { "type": "int", "example": "3" },
+      "total": { "type": "int", "example": "8" }
+    }
+  },
+  "readingTranslateDone": "Translation finished: {done}/{total} paragraphs done.",
+  "@readingTranslateDone": {
+    "description": "Translation finished receipt",
+    "placeholders": {
+      "done": { "type": "int", "example": "8" },
+      "total": { "type": "int", "example": "8" }
+    }
+  },
+  "readingTranslatePartial": "Translation finished: {done}/{total} paragraphs done, {failed} failed (you can retry only the failures).",
+  "@readingTranslatePartial": {
+    "description": "Partial success receipt",
+    "placeholders": {
+      "done": { "type": "int", "example": "6" },
+      "total": { "type": "int", "example": "8" },
+      "failed": { "type": "int", "example": "2" }
+    }
+  },
+  "readingTranslateCancelAction": "Cancel translation",
+  "@readingTranslateCancelAction": {
+    "description": "Translation panel: cancel"
+  },
+  "readingTranslateCancelled": "Translation cancelled. Finished paragraphs are kept; the rest show the original.",
+  "@readingTranslateCancelled": {
+    "description": "Cancellation notice"
+  },
+  "readingTranslateRetryFailed": "Retry failed paragraphs ({count})",
+  "@readingTranslateRetryFailed": {
+    "description": "Retry failed paragraphs button",
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "readingTranslateRetryHint": "Only failed paragraphs are re-run; finished translations are kept.",
+  "@readingTranslateRetryHint": {
+    "description": "Retry hint"
+  },
+  "readingTranslateSegmentFailed": "This paragraph failed to translate; the original text is still shown.",
+  "@readingTranslateSegmentFailed": {
+    "description": "Failed paragraph note"
+  },
+  "readingTranslateShowOriginal": "Show original",
+  "@readingTranslateShowOriginal": {
+    "description": "Switch to original"
+  },
+  "readingTranslateShowTranslation": "Show translation",
+  "@readingTranslateShowTranslation": {
+    "description": "Switch to translation"
+  },
+  "readingTranslateSourceKept": "The original is always kept; switching only changes what is displayed.",
+  "@readingTranslateSourceKept": {
+    "description": "Original is preserved note"
+  },
+  "readingTranslateTruncatedNotice": "Some paragraphs exceed the single-material budget (SET-061, 8000 characters) and were only translated in part.",
+  "@readingTranslateTruncatedNotice": {
+    "description": "Truncated paragraphs note"
+  },
+  "readingTranslateStale": "The body changed after this translation; the text below corresponds to the previous version.",
+  "@readingTranslateStale": {
+    "description": "Stale translation note"
+  },
+  "readingTranslateSummaryOnly": "The source only provides a summary (summary only), so there is no full text to translate; a summary is not treated as a body.",
+  "@readingTranslateSummaryOnly": {
+    "description": "summaryOnly skip note"
+  },
+  "readingTranslateNoBody": "This article has no body to translate; the source summary is kept.",
+  "@readingTranslateNoBody": {
+    "description": "No body skip note"
+  },
+  "readingTranslateNoModelBody": "Translation needs AI services. Configure at least one enabled model first.",
+  "@readingTranslateNoModelBody": {
+    "description": "No available model note"
+  },
+  "readingTranslateNoText": "This body has no translatable paragraphs (for example, it contains only an image).",
+  "@readingTranslateNoText": {
+    "description": "No translatable block note"
+  },
+  "readingTranslateFailed": "Translation failed: {reason}",
+  "@readingTranslateFailed": {
+    "description": "Translation failure note",
+    "placeholders": {
+      "reason": { "type": "String", "example": "network" }
+    }
+  },
+  "readingTranslateSavedLabel": "Translation · {model} · {date}",
+  "@readingTranslateSavedLabel": {
+    "description": "Translation origin label",
+    "placeholders": {
+      "model": { "type": "String", "example": "deepseek/deepseek-chat" },
+      "date": { "type": "String", "example": "2026-09-22" }
+    }
+  },
+  "readingTranslateLanguage": "Target language: {language}",
+  "@readingTranslateLanguage": {
+    "description": "Current target language (SET-011)",
+    "placeholders": {
+      "language": { "type": "String", "example": "Simplified Chinese" }
+    }
+  },
+  "readingTranslateInterrupted": "The previous translation did not finish (the process was interrupted). Finished paragraphs are kept; you can retry the failures.",
+  "@readingTranslateInterrupted": {
+    "description": "Interrupted translation note"
+  }
 }
