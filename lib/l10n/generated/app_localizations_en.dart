@@ -1856,5 +1856,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPlannedNotice =>
-      'Cross-model failover pause/retry rules (the SET-035 five-no-response rule) and the auto-summary switch (SET-037) belong to T029/T034; this page only configures providers and models.';
+      'The automatic-summary switch (SET-037) belongs to T034; this page only configures providers and models. The five-no-response failover rule, total timeout and token budget are implemented by T029 (see Settings → AI tasks).';
+
+  @override
+  String get aiTaskListTitle => 'AI tasks';
+
+  @override
+  String get settingsAiTasksEntryTitle => 'AI tasks';
+
+  @override
+  String get settingsAiTasksEntrySubtitle =>
+      'Review past tasks and interruptions; restart them by hand';
+
+  @override
+  String get aiTaskListEmpty => 'No AI tasks yet.';
+
+  @override
+  String aiTaskListLoadFailed(String reason) {
+    return 'Could not load AI tasks: $reason';
+  }
+
+  @override
+  String get aiTaskRestart => 'Restart';
+
+  @override
+  String get aiTaskRestartBlocked =>
+      'This task is still running; it cannot be started again';
+
+  @override
+  String get aiTaskRestartSuccess =>
+      'A new task finished; the original record is unchanged';
+
+  @override
+  String get aiTaskFromCache => 'Cache hit (no request sent)';
+
+  @override
+  String aiTaskMeta(int tokens, int attempts) {
+    return '$tokens tokens total · $attempts attempts';
+  }
+
+  @override
+  String get aiTaskStatusQueued => 'Queued';
+
+  @override
+  String get aiTaskStatusRunning => 'Running';
+
+  @override
+  String get aiTaskStatusWaitingConfiguration => 'Waiting for configuration';
+
+  @override
+  String get aiTaskStatusWaitingNetwork => 'Waiting for network';
+
+  @override
+  String get aiTaskStatusSucceeded => 'Succeeded';
+
+  @override
+  String get aiTaskStatusPartial => 'Partially finished';
+
+  @override
+  String get aiTaskStatusFailed => 'Failed';
+
+  @override
+  String get aiTaskStatusCancelled => 'Cancelled';
+
+  @override
+  String get aiTaskStatusInterrupted =>
+      'Interrupted (not resent automatically)';
+
+  @override
+  String get aiTaskKindSummary => 'Daily summary';
+
+  @override
+  String get aiTaskKindExplain => 'Explain selection';
+
+  @override
+  String get aiTaskKindTranslate => 'Full translation';
+
+  @override
+  String get aiTaskKindNews => 'Today\'s news';
+
+  @override
+  String get aiTaskKindOther => 'Other task';
 }

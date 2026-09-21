@@ -17,7 +17,7 @@ import '../../generated/schema.dart';
 import '../../generated/schema_v7.dart' as v7;
 
 /// 当前 schema 版本（与应用代码一致）。
-const int currentSchemaVersion = 9;
+const int currentSchemaVersion = 10;
 
 void main() {
   drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;

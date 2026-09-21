@@ -25,8 +25,10 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_store.dart';
 import 'package:flux/infrastructure/local/database.dart';
+import 'package:flux/infrastructure/local/ai_task_store.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
+import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/settings_repository.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/infrastructure/platform/keychain_store.dart';
@@ -59,6 +61,7 @@ final class AppBootstrapResult {
     required this.diagnosticLog,
     required this.dataDirectoryPath,
     this.mediaCacheDirectory,
+    this.interruptedTaskCount = 0,
   });
 
   /// 已打开的数据库；启动失败时为 null。
@@ -87,6 +90,13 @@ final class AppBootstrapResult {
   /// 为 null 时图片仍然可用（每次都重新取，不落盘），因为「本次运行不持久化」不等于
   /// 「图片功能不可用」。
   final Directory? mediaCacheDirectory;
+
+  /// 本次启动时被标记为 interrupted 的 AI 任务数（T030）。
+  ///
+  /// 为什么把它带到装配结果里：用户需要知道「上次有任务没跑完」，而清单里没有任何
+  /// 界面状态能表达「这是本次启动判定出来的」。为 0 表示上次没有留下未完成任务
+  /// （正常情况，不需要任何提示）。
+  final int interruptedTaskCount;
 
   /// 数据库是否不可用（界面据此显示「本次运行不保存改动」）。
   bool get isDegraded => database == null;
@@ -172,6 +182,26 @@ Future<AppBootstrapResult> bootstrapApp({
       ? InMemoryOnboardingStore()
       : RepositoryOnboardingStore(DeviceStateRepository(db));
 
+  // ---- 4b. 中断恢复（T030） --------------------------------------------
+  // 把上次进程结束时仍在进行中的 AI 任务标成 interrupted，并**不**自动重发
+  // （架构 4.5：不能自动重放不确定是否计费的请求）。这一步必须在任何界面代码读到
+  // 任务列表之前完成，否则用户会先看到一个永远不会完成的「运行中」任务。
+  int interrupted = 0;
+  if (db != null) {
+    final Result<int> marked = await DriftAiTaskStore(
+      db,
+      diagnostics: DiagnosticLogSink(diagnostics),
+    ).markActiveAsInterrupted(at: DateTime.now().toUtc());
+    if (marked.isOk) {
+      interrupted = marked.valueOrNull!;
+    } else {
+      diagnostics.warning(
+        'AI 任务中断标记失败 kind=${marked.errorOrNull!.kind}',
+        tag: 'bootstrap',
+      );
+    }
+  }
+
   // ---- 5. 凭据存储 ------------------------------------------------------
   final CredentialStore credentialStore =
       credentialStoreOverride ?? await _resolveCredentialStore(diagnostics);
@@ -187,6 +217,7 @@ Future<AppBootstrapResult> bootstrapApp({
     mediaCacheDirectory: dataDirectory == null
         ? null
         : Directory(p.join(dataDirectory.path, fluxMediaCacheDirectoryName)),
+    interruptedTaskCount: interrupted,
   );
 }
 

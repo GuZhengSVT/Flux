@@ -19,6 +19,13 @@
 // T027 已落地：anthropic_messages_adapter.dart（x-api-key + anthropic-version、
 //   顶层 system、必填 max_tokens、content 分量数组、带 type 的事件流、usage 拼合、
 //   529 → 可重试的 overloaded）。
-// TODO(T029): 有预算的队列与故障转移（五次无响应、跨模型重试）。
+// T029 已落地：application/ai_task_budget.dart（三个上限 + 在途额度 + 等待调度）、
+//   application/ai_failover.dart（失败分类与五次计数、保守 Token 估算）、
+//   application/ai_task_runner.dart（有预算的队列：串行故障转移、子取消、单次硬时限、
+//   429 一次、离线暂停、状态机接线）。**不再**用「TODO」占位它。
+// T030 已落地：domain/ai_task_record.dart（任务记录、输入快照、缓存键）、
+//   domain/ai_task_store.dart（持久任务与结果缓存两个端口）、
+//   application/persistent_ai_task_service.dart（先查缓存再执行、成功才写缓存、
+//   启动标中断、重新开始走新任务）、presentation/ai_task_list_page.dart。
 // TODO(T032): search/fetchPage/inspectImage 受控工具。
 library;

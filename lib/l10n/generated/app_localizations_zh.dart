@@ -1767,5 +1767,81 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiPlannedNotice =>
-      '故障转移的跨模型暂停/重试规则（SET-035 的五次无响应）与自动摘要开关（SET-037）属 T029/T034，本页只做提供商与模型配置。';
+      '自动摘要开关（SET-037）属 T034，本页只做提供商与模型配置；故障转移的五次无响应、总时限与 Token 预算已由 T029 落地（见设置 → AI 任务记录）。';
+
+  @override
+  String get aiTaskListTitle => 'AI 任务记录';
+
+  @override
+  String get settingsAiTasksEntryTitle => 'AI 任务记录';
+
+  @override
+  String get settingsAiTasksEntrySubtitle => '查看历史任务与中断记录，可手动重新开始';
+
+  @override
+  String get aiTaskListEmpty => '还没有 AI 任务记录。';
+
+  @override
+  String aiTaskListLoadFailed(String reason) {
+    return '读取 AI 任务列表失败：$reason';
+  }
+
+  @override
+  String get aiTaskRestart => '重新开始';
+
+  @override
+  String get aiTaskRestartBlocked => '任务仍在进行中，不能重复发起';
+
+  @override
+  String get aiTaskRestartSuccess => '已创建新任务并完成，原任务记录保持不变';
+
+  @override
+  String get aiTaskFromCache => '命中缓存（未发请求）';
+
+  @override
+  String aiTaskMeta(int tokens, int attempts) {
+    return '累计 $tokens token · $attempts 次尝试';
+  }
+
+  @override
+  String get aiTaskStatusQueued => '排队中';
+
+  @override
+  String get aiTaskStatusRunning => '进行中';
+
+  @override
+  String get aiTaskStatusWaitingConfiguration => '等待配置';
+
+  @override
+  String get aiTaskStatusWaitingNetwork => '等待网络';
+
+  @override
+  String get aiTaskStatusSucceeded => '成功';
+
+  @override
+  String get aiTaskStatusPartial => '部分完成';
+
+  @override
+  String get aiTaskStatusFailed => '失败';
+
+  @override
+  String get aiTaskStatusCancelled => '已取消';
+
+  @override
+  String get aiTaskStatusInterrupted => '已中断（未自动重发）';
+
+  @override
+  String get aiTaskKindSummary => '每日总结';
+
+  @override
+  String get aiTaskKindExplain => '选词解释';
+
+  @override
+  String get aiTaskKindTranslate => '全文翻译';
+
+  @override
+  String get aiTaskKindNews => '今日新闻';
+
+  @override
+  String get aiTaskKindOther => '其它任务';
 }

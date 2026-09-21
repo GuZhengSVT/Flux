@@ -7413,6 +7413,1449 @@ class AiModelRecordsCompanion extends UpdateCompanion<AiModelRecord> {
   }
 }
 
+class $AiTasksTable extends AiTasks with TableInfo<$AiTasksTable, AiTask> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AiTasksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _inputSnapshotMeta = const VerificationMeta(
+    'inputSnapshot',
+  );
+  @override
+  late final GeneratedColumn<String> inputSnapshot = GeneratedColumn<String>(
+    'input_snapshot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptHashMeta = const VerificationMeta(
+    'promptHash',
+  );
+  @override
+  late final GeneratedColumn<String> promptHash = GeneratedColumn<String>(
+    'prompt_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelAliasesMeta = const VerificationMeta(
+    'modelAliases',
+  );
+  @override
+  late final GeneratedColumn<String> modelAliases = GeneratedColumn<String>(
+    'model_aliases',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _routeModelIdsMeta = const VerificationMeta(
+    'routeModelIds',
+  );
+  @override
+  late final GeneratedColumn<String> routeModelIds = GeneratedColumn<String>(
+    'route_model_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deadlineMeta = const VerificationMeta(
+    'deadline',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deadline = GeneratedColumn<DateTime>(
+    'deadline',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _consumedTokensMeta = const VerificationMeta(
+    'consumedTokens',
+  );
+  @override
+  late final GeneratedColumn<int> consumedTokens = GeneratedColumn<int>(
+    'consumed_tokens',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _attemptCountMeta = const VerificationMeta(
+    'attemptCount',
+  );
+  @override
+  late final GeneratedColumn<int> attemptCount = GeneratedColumn<int>(
+    'attempt_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _resultTextMeta = const VerificationMeta(
+    'resultText',
+  );
+  @override
+  late final GeneratedColumn<String> resultText = GeneratedColumn<String>(
+    'result_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _finishReasonMeta = const VerificationMeta(
+    'finishReason',
+  );
+  @override
+  late final GeneratedColumn<String> finishReason = GeneratedColumn<String>(
+    'finish_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _providerAliasMeta = const VerificationMeta(
+    'providerAlias',
+  );
+  @override
+  late final GeneratedColumn<String> providerAlias = GeneratedColumn<String>(
+    'provider_alias',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cacheKeyMeta = const VerificationMeta(
+    'cacheKey',
+  );
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+    'cache_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fromCacheMeta = const VerificationMeta(
+    'fromCache',
+  );
+  @override
+  late final GeneratedColumn<bool> fromCache = GeneratedColumn<bool>(
+    'from_cache',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("from_cache" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    taskId,
+    kind,
+    inputSnapshot,
+    promptHash,
+    modelAliases,
+    routeModelIds,
+    status,
+    deadline,
+    consumedTokens,
+    attemptCount,
+    resultText,
+    finishReason,
+    errorKind,
+    providerAlias,
+    cacheKey,
+    fromCache,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ai_tasks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AiTask> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('input_snapshot')) {
+      context.handle(
+        _inputSnapshotMeta,
+        inputSnapshot.isAcceptableOrUnknown(
+          data['input_snapshot']!,
+          _inputSnapshotMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_inputSnapshotMeta);
+    }
+    if (data.containsKey('prompt_hash')) {
+      context.handle(
+        _promptHashMeta,
+        promptHash.isAcceptableOrUnknown(data['prompt_hash']!, _promptHashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_promptHashMeta);
+    }
+    if (data.containsKey('model_aliases')) {
+      context.handle(
+        _modelAliasesMeta,
+        modelAliases.isAcceptableOrUnknown(
+          data['model_aliases']!,
+          _modelAliasesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_modelAliasesMeta);
+    }
+    if (data.containsKey('route_model_ids')) {
+      context.handle(
+        _routeModelIdsMeta,
+        routeModelIds.isAcceptableOrUnknown(
+          data['route_model_ids']!,
+          _routeModelIdsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_routeModelIdsMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('deadline')) {
+      context.handle(
+        _deadlineMeta,
+        deadline.isAcceptableOrUnknown(data['deadline']!, _deadlineMeta),
+      );
+    }
+    if (data.containsKey('consumed_tokens')) {
+      context.handle(
+        _consumedTokensMeta,
+        consumedTokens.isAcceptableOrUnknown(
+          data['consumed_tokens']!,
+          _consumedTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('attempt_count')) {
+      context.handle(
+        _attemptCountMeta,
+        attemptCount.isAcceptableOrUnknown(
+          data['attempt_count']!,
+          _attemptCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('result_text')) {
+      context.handle(
+        _resultTextMeta,
+        resultText.isAcceptableOrUnknown(data['result_text']!, _resultTextMeta),
+      );
+    }
+    if (data.containsKey('finish_reason')) {
+      context.handle(
+        _finishReasonMeta,
+        finishReason.isAcceptableOrUnknown(
+          data['finish_reason']!,
+          _finishReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    if (data.containsKey('provider_alias')) {
+      context.handle(
+        _providerAliasMeta,
+        providerAlias.isAcceptableOrUnknown(
+          data['provider_alias']!,
+          _providerAliasMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cache_key')) {
+      context.handle(
+        _cacheKeyMeta,
+        cacheKey.isAcceptableOrUnknown(data['cache_key']!, _cacheKeyMeta),
+      );
+    }
+    if (data.containsKey('from_cache')) {
+      context.handle(
+        _fromCacheMeta,
+        fromCache.isAcceptableOrUnknown(data['from_cache']!, _fromCacheMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {taskId};
+  @override
+  AiTask map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AiTask(
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      inputSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}input_snapshot'],
+      )!,
+      promptHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt_hash'],
+      )!,
+      modelAliases: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_aliases'],
+      )!,
+      routeModelIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}route_model_ids'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      deadline: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deadline'],
+      ),
+      consumedTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}consumed_tokens'],
+      )!,
+      attemptCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempt_count'],
+      )!,
+      resultText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_text'],
+      ),
+      finishReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}finish_reason'],
+      ),
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+      providerAlias: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_alias'],
+      ),
+      cacheKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cache_key'],
+      ),
+      fromCache: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}from_cache'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AiTasksTable createAlias(String alias) {
+    return $AiTasksTable(attachedDatabase, alias);
+  }
+}
+
+class AiTask extends DataClass implements Insertable<AiTask> {
+  /// 任务标识（本机唯一；不是自增 id，因为它是跨表引用与界面展示用的稳定键）。
+  final String taskId;
+
+  /// 任务类型稳定标识（summary/explain/translate/...，见 AiTaskKind.id）。
+  final String kind;
+
+  /// 输入快照 JSON（消息、模型 ID、语言与参数）。
+  final String inputSnapshot;
+
+  /// 输入提示哈希（缓存键的组成项之一，单独落列便于排查与统计）。
+  final String promptHash;
+
+  /// 参与故障转移的模型别名列表（JSON 数组，含顺序）。
+  final String modelAliases;
+
+  /// 路由用的模型 ID 列表（JSON 数组，含顺序；缓存键的组成项）。
+  final String routeModelIds;
+
+  /// 状态九态（与 core 的 [TaskStatus] 名称一致）。
+  final String status;
+
+  /// 任务总时限的绝对时刻（UTC）；一旦设定不重置。
+  final DateTime? deadline;
+
+  /// 累计消耗 token。
+  final int consumedTokens;
+
+  /// 已发生的 HTTP 尝试次数。
+  final int attemptCount;
+
+  /// 成功（或部分成功）的产出文本；无产出时为 null。
+  final String? resultText;
+
+  /// 服务商给出的结束原因。
+  final String? finishReason;
+
+  /// 失败错误的类别（AppError.kind）；不存错误正文。
+  final String? errorKind;
+
+  /// 产出结果的提供商别名。
+  final String? providerAlias;
+
+  /// 结果缓存键。
+  final String? cacheKey;
+
+  /// 结果是否直接来自缓存（未发出请求）。
+  final bool fromCache;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const AiTask({
+    required this.taskId,
+    required this.kind,
+    required this.inputSnapshot,
+    required this.promptHash,
+    required this.modelAliases,
+    required this.routeModelIds,
+    required this.status,
+    this.deadline,
+    required this.consumedTokens,
+    required this.attemptCount,
+    this.resultText,
+    this.finishReason,
+    this.errorKind,
+    this.providerAlias,
+    this.cacheKey,
+    required this.fromCache,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['task_id'] = Variable<String>(taskId);
+    map['kind'] = Variable<String>(kind);
+    map['input_snapshot'] = Variable<String>(inputSnapshot);
+    map['prompt_hash'] = Variable<String>(promptHash);
+    map['model_aliases'] = Variable<String>(modelAliases);
+    map['route_model_ids'] = Variable<String>(routeModelIds);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || deadline != null) {
+      map['deadline'] = Variable<DateTime>(deadline);
+    }
+    map['consumed_tokens'] = Variable<int>(consumedTokens);
+    map['attempt_count'] = Variable<int>(attemptCount);
+    if (!nullToAbsent || resultText != null) {
+      map['result_text'] = Variable<String>(resultText);
+    }
+    if (!nullToAbsent || finishReason != null) {
+      map['finish_reason'] = Variable<String>(finishReason);
+    }
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    if (!nullToAbsent || providerAlias != null) {
+      map['provider_alias'] = Variable<String>(providerAlias);
+    }
+    if (!nullToAbsent || cacheKey != null) {
+      map['cache_key'] = Variable<String>(cacheKey);
+    }
+    map['from_cache'] = Variable<bool>(fromCache);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AiTasksCompanion toCompanion(bool nullToAbsent) {
+    return AiTasksCompanion(
+      taskId: Value(taskId),
+      kind: Value(kind),
+      inputSnapshot: Value(inputSnapshot),
+      promptHash: Value(promptHash),
+      modelAliases: Value(modelAliases),
+      routeModelIds: Value(routeModelIds),
+      status: Value(status),
+      deadline: deadline == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deadline),
+      consumedTokens: Value(consumedTokens),
+      attemptCount: Value(attemptCount),
+      resultText: resultText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resultText),
+      finishReason: finishReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishReason),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+      providerAlias: providerAlias == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerAlias),
+      cacheKey: cacheKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cacheKey),
+      fromCache: Value(fromCache),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory AiTask.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AiTask(
+      taskId: serializer.fromJson<String>(json['taskId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      inputSnapshot: serializer.fromJson<String>(json['inputSnapshot']),
+      promptHash: serializer.fromJson<String>(json['promptHash']),
+      modelAliases: serializer.fromJson<String>(json['modelAliases']),
+      routeModelIds: serializer.fromJson<String>(json['routeModelIds']),
+      status: serializer.fromJson<String>(json['status']),
+      deadline: serializer.fromJson<DateTime?>(json['deadline']),
+      consumedTokens: serializer.fromJson<int>(json['consumedTokens']),
+      attemptCount: serializer.fromJson<int>(json['attemptCount']),
+      resultText: serializer.fromJson<String?>(json['resultText']),
+      finishReason: serializer.fromJson<String?>(json['finishReason']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+      providerAlias: serializer.fromJson<String?>(json['providerAlias']),
+      cacheKey: serializer.fromJson<String?>(json['cacheKey']),
+      fromCache: serializer.fromJson<bool>(json['fromCache']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'taskId': serializer.toJson<String>(taskId),
+      'kind': serializer.toJson<String>(kind),
+      'inputSnapshot': serializer.toJson<String>(inputSnapshot),
+      'promptHash': serializer.toJson<String>(promptHash),
+      'modelAliases': serializer.toJson<String>(modelAliases),
+      'routeModelIds': serializer.toJson<String>(routeModelIds),
+      'status': serializer.toJson<String>(status),
+      'deadline': serializer.toJson<DateTime?>(deadline),
+      'consumedTokens': serializer.toJson<int>(consumedTokens),
+      'attemptCount': serializer.toJson<int>(attemptCount),
+      'resultText': serializer.toJson<String?>(resultText),
+      'finishReason': serializer.toJson<String?>(finishReason),
+      'errorKind': serializer.toJson<String?>(errorKind),
+      'providerAlias': serializer.toJson<String?>(providerAlias),
+      'cacheKey': serializer.toJson<String?>(cacheKey),
+      'fromCache': serializer.toJson<bool>(fromCache),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  AiTask copyWith({
+    String? taskId,
+    String? kind,
+    String? inputSnapshot,
+    String? promptHash,
+    String? modelAliases,
+    String? routeModelIds,
+    String? status,
+    Value<DateTime?> deadline = const Value.absent(),
+    int? consumedTokens,
+    int? attemptCount,
+    Value<String?> resultText = const Value.absent(),
+    Value<String?> finishReason = const Value.absent(),
+    Value<String?> errorKind = const Value.absent(),
+    Value<String?> providerAlias = const Value.absent(),
+    Value<String?> cacheKey = const Value.absent(),
+    bool? fromCache,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => AiTask(
+    taskId: taskId ?? this.taskId,
+    kind: kind ?? this.kind,
+    inputSnapshot: inputSnapshot ?? this.inputSnapshot,
+    promptHash: promptHash ?? this.promptHash,
+    modelAliases: modelAliases ?? this.modelAliases,
+    routeModelIds: routeModelIds ?? this.routeModelIds,
+    status: status ?? this.status,
+    deadline: deadline.present ? deadline.value : this.deadline,
+    consumedTokens: consumedTokens ?? this.consumedTokens,
+    attemptCount: attemptCount ?? this.attemptCount,
+    resultText: resultText.present ? resultText.value : this.resultText,
+    finishReason: finishReason.present ? finishReason.value : this.finishReason,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+    providerAlias: providerAlias.present
+        ? providerAlias.value
+        : this.providerAlias,
+    cacheKey: cacheKey.present ? cacheKey.value : this.cacheKey,
+    fromCache: fromCache ?? this.fromCache,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  AiTask copyWithCompanion(AiTasksCompanion data) {
+    return AiTask(
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      inputSnapshot: data.inputSnapshot.present
+          ? data.inputSnapshot.value
+          : this.inputSnapshot,
+      promptHash: data.promptHash.present
+          ? data.promptHash.value
+          : this.promptHash,
+      modelAliases: data.modelAliases.present
+          ? data.modelAliases.value
+          : this.modelAliases,
+      routeModelIds: data.routeModelIds.present
+          ? data.routeModelIds.value
+          : this.routeModelIds,
+      status: data.status.present ? data.status.value : this.status,
+      deadline: data.deadline.present ? data.deadline.value : this.deadline,
+      consumedTokens: data.consumedTokens.present
+          ? data.consumedTokens.value
+          : this.consumedTokens,
+      attemptCount: data.attemptCount.present
+          ? data.attemptCount.value
+          : this.attemptCount,
+      resultText: data.resultText.present
+          ? data.resultText.value
+          : this.resultText,
+      finishReason: data.finishReason.present
+          ? data.finishReason.value
+          : this.finishReason,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+      providerAlias: data.providerAlias.present
+          ? data.providerAlias.value
+          : this.providerAlias,
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      fromCache: data.fromCache.present ? data.fromCache.value : this.fromCache,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiTask(')
+          ..write('taskId: $taskId, ')
+          ..write('kind: $kind, ')
+          ..write('inputSnapshot: $inputSnapshot, ')
+          ..write('promptHash: $promptHash, ')
+          ..write('modelAliases: $modelAliases, ')
+          ..write('routeModelIds: $routeModelIds, ')
+          ..write('status: $status, ')
+          ..write('deadline: $deadline, ')
+          ..write('consumedTokens: $consumedTokens, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('resultText: $resultText, ')
+          ..write('finishReason: $finishReason, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('fromCache: $fromCache, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    taskId,
+    kind,
+    inputSnapshot,
+    promptHash,
+    modelAliases,
+    routeModelIds,
+    status,
+    deadline,
+    consumedTokens,
+    attemptCount,
+    resultText,
+    finishReason,
+    errorKind,
+    providerAlias,
+    cacheKey,
+    fromCache,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AiTask &&
+          other.taskId == this.taskId &&
+          other.kind == this.kind &&
+          other.inputSnapshot == this.inputSnapshot &&
+          other.promptHash == this.promptHash &&
+          other.modelAliases == this.modelAliases &&
+          other.routeModelIds == this.routeModelIds &&
+          other.status == this.status &&
+          other.deadline == this.deadline &&
+          other.consumedTokens == this.consumedTokens &&
+          other.attemptCount == this.attemptCount &&
+          other.resultText == this.resultText &&
+          other.finishReason == this.finishReason &&
+          other.errorKind == this.errorKind &&
+          other.providerAlias == this.providerAlias &&
+          other.cacheKey == this.cacheKey &&
+          other.fromCache == this.fromCache &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AiTasksCompanion extends UpdateCompanion<AiTask> {
+  final Value<String> taskId;
+  final Value<String> kind;
+  final Value<String> inputSnapshot;
+  final Value<String> promptHash;
+  final Value<String> modelAliases;
+  final Value<String> routeModelIds;
+  final Value<String> status;
+  final Value<DateTime?> deadline;
+  final Value<int> consumedTokens;
+  final Value<int> attemptCount;
+  final Value<String?> resultText;
+  final Value<String?> finishReason;
+  final Value<String?> errorKind;
+  final Value<String?> providerAlias;
+  final Value<String?> cacheKey;
+  final Value<bool> fromCache;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const AiTasksCompanion({
+    this.taskId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.inputSnapshot = const Value.absent(),
+    this.promptHash = const Value.absent(),
+    this.modelAliases = const Value.absent(),
+    this.routeModelIds = const Value.absent(),
+    this.status = const Value.absent(),
+    this.deadline = const Value.absent(),
+    this.consumedTokens = const Value.absent(),
+    this.attemptCount = const Value.absent(),
+    this.resultText = const Value.absent(),
+    this.finishReason = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.providerAlias = const Value.absent(),
+    this.cacheKey = const Value.absent(),
+    this.fromCache = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AiTasksCompanion.insert({
+    required String taskId,
+    required String kind,
+    required String inputSnapshot,
+    required String promptHash,
+    required String modelAliases,
+    required String routeModelIds,
+    required String status,
+    this.deadline = const Value.absent(),
+    this.consumedTokens = const Value.absent(),
+    this.attemptCount = const Value.absent(),
+    this.resultText = const Value.absent(),
+    this.finishReason = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.providerAlias = const Value.absent(),
+    this.cacheKey = const Value.absent(),
+    this.fromCache = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : taskId = Value(taskId),
+       kind = Value(kind),
+       inputSnapshot = Value(inputSnapshot),
+       promptHash = Value(promptHash),
+       modelAliases = Value(modelAliases),
+       routeModelIds = Value(routeModelIds),
+       status = Value(status),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<AiTask> custom({
+    Expression<String>? taskId,
+    Expression<String>? kind,
+    Expression<String>? inputSnapshot,
+    Expression<String>? promptHash,
+    Expression<String>? modelAliases,
+    Expression<String>? routeModelIds,
+    Expression<String>? status,
+    Expression<DateTime>? deadline,
+    Expression<int>? consumedTokens,
+    Expression<int>? attemptCount,
+    Expression<String>? resultText,
+    Expression<String>? finishReason,
+    Expression<String>? errorKind,
+    Expression<String>? providerAlias,
+    Expression<String>? cacheKey,
+    Expression<bool>? fromCache,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (taskId != null) 'task_id': taskId,
+      if (kind != null) 'kind': kind,
+      if (inputSnapshot != null) 'input_snapshot': inputSnapshot,
+      if (promptHash != null) 'prompt_hash': promptHash,
+      if (modelAliases != null) 'model_aliases': modelAliases,
+      if (routeModelIds != null) 'route_model_ids': routeModelIds,
+      if (status != null) 'status': status,
+      if (deadline != null) 'deadline': deadline,
+      if (consumedTokens != null) 'consumed_tokens': consumedTokens,
+      if (attemptCount != null) 'attempt_count': attemptCount,
+      if (resultText != null) 'result_text': resultText,
+      if (finishReason != null) 'finish_reason': finishReason,
+      if (errorKind != null) 'error_kind': errorKind,
+      if (providerAlias != null) 'provider_alias': providerAlias,
+      if (cacheKey != null) 'cache_key': cacheKey,
+      if (fromCache != null) 'from_cache': fromCache,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AiTasksCompanion copyWith({
+    Value<String>? taskId,
+    Value<String>? kind,
+    Value<String>? inputSnapshot,
+    Value<String>? promptHash,
+    Value<String>? modelAliases,
+    Value<String>? routeModelIds,
+    Value<String>? status,
+    Value<DateTime?>? deadline,
+    Value<int>? consumedTokens,
+    Value<int>? attemptCount,
+    Value<String?>? resultText,
+    Value<String?>? finishReason,
+    Value<String?>? errorKind,
+    Value<String?>? providerAlias,
+    Value<String?>? cacheKey,
+    Value<bool>? fromCache,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return AiTasksCompanion(
+      taskId: taskId ?? this.taskId,
+      kind: kind ?? this.kind,
+      inputSnapshot: inputSnapshot ?? this.inputSnapshot,
+      promptHash: promptHash ?? this.promptHash,
+      modelAliases: modelAliases ?? this.modelAliases,
+      routeModelIds: routeModelIds ?? this.routeModelIds,
+      status: status ?? this.status,
+      deadline: deadline ?? this.deadline,
+      consumedTokens: consumedTokens ?? this.consumedTokens,
+      attemptCount: attemptCount ?? this.attemptCount,
+      resultText: resultText ?? this.resultText,
+      finishReason: finishReason ?? this.finishReason,
+      errorKind: errorKind ?? this.errorKind,
+      providerAlias: providerAlias ?? this.providerAlias,
+      cacheKey: cacheKey ?? this.cacheKey,
+      fromCache: fromCache ?? this.fromCache,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (inputSnapshot.present) {
+      map['input_snapshot'] = Variable<String>(inputSnapshot.value);
+    }
+    if (promptHash.present) {
+      map['prompt_hash'] = Variable<String>(promptHash.value);
+    }
+    if (modelAliases.present) {
+      map['model_aliases'] = Variable<String>(modelAliases.value);
+    }
+    if (routeModelIds.present) {
+      map['route_model_ids'] = Variable<String>(routeModelIds.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (deadline.present) {
+      map['deadline'] = Variable<DateTime>(deadline.value);
+    }
+    if (consumedTokens.present) {
+      map['consumed_tokens'] = Variable<int>(consumedTokens.value);
+    }
+    if (attemptCount.present) {
+      map['attempt_count'] = Variable<int>(attemptCount.value);
+    }
+    if (resultText.present) {
+      map['result_text'] = Variable<String>(resultText.value);
+    }
+    if (finishReason.present) {
+      map['finish_reason'] = Variable<String>(finishReason.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    if (providerAlias.present) {
+      map['provider_alias'] = Variable<String>(providerAlias.value);
+    }
+    if (cacheKey.present) {
+      map['cache_key'] = Variable<String>(cacheKey.value);
+    }
+    if (fromCache.present) {
+      map['from_cache'] = Variable<bool>(fromCache.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiTasksCompanion(')
+          ..write('taskId: $taskId, ')
+          ..write('kind: $kind, ')
+          ..write('inputSnapshot: $inputSnapshot, ')
+          ..write('promptHash: $promptHash, ')
+          ..write('modelAliases: $modelAliases, ')
+          ..write('routeModelIds: $routeModelIds, ')
+          ..write('status: $status, ')
+          ..write('deadline: $deadline, ')
+          ..write('consumedTokens: $consumedTokens, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('resultText: $resultText, ')
+          ..write('finishReason: $finishReason, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('fromCache: $fromCache, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AiResultCacheRecordsTable extends AiResultCacheRecords
+    with TableInfo<$AiResultCacheRecordsTable, AiResultCacheRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AiResultCacheRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cacheKeyMeta = const VerificationMeta(
+    'cacheKey',
+  );
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+    'cache_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _text_Meta = const VerificationMeta('text_');
+  @override
+  late final GeneratedColumn<String> text_ = GeneratedColumn<String>(
+    'result_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerAliasMeta = const VerificationMeta(
+    'providerAlias',
+  );
+  @override
+  late final GeneratedColumn<String> providerAlias = GeneratedColumn<String>(
+    'provider_alias',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modelIdMeta = const VerificationMeta(
+    'modelId',
+  );
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+    'model_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    cacheKey,
+    text_,
+    providerAlias,
+    modelId,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ai_result_cache_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AiResultCacheRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cache_key')) {
+      context.handle(
+        _cacheKeyMeta,
+        cacheKey.isAcceptableOrUnknown(data['cache_key']!, _cacheKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cacheKeyMeta);
+    }
+    if (data.containsKey('result_text')) {
+      context.handle(
+        _text_Meta,
+        text_.isAcceptableOrUnknown(data['result_text']!, _text_Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_text_Meta);
+    }
+    if (data.containsKey('provider_alias')) {
+      context.handle(
+        _providerAliasMeta,
+        providerAlias.isAcceptableOrUnknown(
+          data['provider_alias']!,
+          _providerAliasMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerAliasMeta);
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(
+        _modelIdMeta,
+        modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cacheKey};
+  @override
+  AiResultCacheRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AiResultCacheRecord(
+      cacheKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cache_key'],
+      )!,
+      text_: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result_text'],
+      )!,
+      providerAlias: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_alias'],
+      )!,
+      modelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AiResultCacheRecordsTable createAlias(String alias) {
+    return $AiResultCacheRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class AiResultCacheRecord extends DataClass
+    implements Insertable<AiResultCacheRecord> {
+  /// 缓存键（SHA-256 摘要，主键）。
+  final String cacheKey;
+
+  /// 成功产出的文本。
+  final String text_;
+
+  /// 产出它的提供商别名与模型 ID（排查「这份缓存是谁产的」）。
+  final String providerAlias;
+  final String modelId;
+  final DateTime createdAt;
+  const AiResultCacheRecord({
+    required this.cacheKey,
+    required this.text_,
+    required this.providerAlias,
+    required this.modelId,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cache_key'] = Variable<String>(cacheKey);
+    map['result_text'] = Variable<String>(text_);
+    map['provider_alias'] = Variable<String>(providerAlias);
+    map['model_id'] = Variable<String>(modelId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  AiResultCacheRecordsCompanion toCompanion(bool nullToAbsent) {
+    return AiResultCacheRecordsCompanion(
+      cacheKey: Value(cacheKey),
+      text_: Value(text_),
+      providerAlias: Value(providerAlias),
+      modelId: Value(modelId),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AiResultCacheRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AiResultCacheRecord(
+      cacheKey: serializer.fromJson<String>(json['cacheKey']),
+      text_: serializer.fromJson<String>(json['text_']),
+      providerAlias: serializer.fromJson<String>(json['providerAlias']),
+      modelId: serializer.fromJson<String>(json['modelId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cacheKey': serializer.toJson<String>(cacheKey),
+      'text_': serializer.toJson<String>(text_),
+      'providerAlias': serializer.toJson<String>(providerAlias),
+      'modelId': serializer.toJson<String>(modelId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  AiResultCacheRecord copyWith({
+    String? cacheKey,
+    String? text_,
+    String? providerAlias,
+    String? modelId,
+    DateTime? createdAt,
+  }) => AiResultCacheRecord(
+    cacheKey: cacheKey ?? this.cacheKey,
+    text_: text_ ?? this.text_,
+    providerAlias: providerAlias ?? this.providerAlias,
+    modelId: modelId ?? this.modelId,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  AiResultCacheRecord copyWithCompanion(AiResultCacheRecordsCompanion data) {
+    return AiResultCacheRecord(
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      text_: data.text_.present ? data.text_.value : this.text_,
+      providerAlias: data.providerAlias.present
+          ? data.providerAlias.value
+          : this.providerAlias,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiResultCacheRecord(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('text_: $text_, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('modelId: $modelId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(cacheKey, text_, providerAlias, modelId, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AiResultCacheRecord &&
+          other.cacheKey == this.cacheKey &&
+          other.text_ == this.text_ &&
+          other.providerAlias == this.providerAlias &&
+          other.modelId == this.modelId &&
+          other.createdAt == this.createdAt);
+}
+
+class AiResultCacheRecordsCompanion
+    extends UpdateCompanion<AiResultCacheRecord> {
+  final Value<String> cacheKey;
+  final Value<String> text_;
+  final Value<String> providerAlias;
+  final Value<String> modelId;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const AiResultCacheRecordsCompanion({
+    this.cacheKey = const Value.absent(),
+    this.text_ = const Value.absent(),
+    this.providerAlias = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AiResultCacheRecordsCompanion.insert({
+    required String cacheKey,
+    required String text_,
+    required String providerAlias,
+    required String modelId,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : cacheKey = Value(cacheKey),
+       text_ = Value(text_),
+       providerAlias = Value(providerAlias),
+       modelId = Value(modelId),
+       createdAt = Value(createdAt);
+  static Insertable<AiResultCacheRecord> custom({
+    Expression<String>? cacheKey,
+    Expression<String>? text_,
+    Expression<String>? providerAlias,
+    Expression<String>? modelId,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cacheKey != null) 'cache_key': cacheKey,
+      if (text_ != null) 'result_text': text_,
+      if (providerAlias != null) 'provider_alias': providerAlias,
+      if (modelId != null) 'model_id': modelId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AiResultCacheRecordsCompanion copyWith({
+    Value<String>? cacheKey,
+    Value<String>? text_,
+    Value<String>? providerAlias,
+    Value<String>? modelId,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return AiResultCacheRecordsCompanion(
+      cacheKey: cacheKey ?? this.cacheKey,
+      text_: text_ ?? this.text_,
+      providerAlias: providerAlias ?? this.providerAlias,
+      modelId: modelId ?? this.modelId,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cacheKey.present) {
+      map['cache_key'] = Variable<String>(cacheKey.value);
+    }
+    if (text_.present) {
+      map['result_text'] = Variable<String>(text_.value);
+    }
+    if (providerAlias.present) {
+      map['provider_alias'] = Variable<String>(providerAlias.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AiResultCacheRecordsCompanion(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('text_: $text_, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('modelId: $modelId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7486,6 +8929,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CitationsTable citations = $CitationsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
   late final $AiModelRecordsTable aiModelRecords = $AiModelRecordsTable(this);
+  late final $AiTasksTable aiTasks = $AiTasksTable(this);
+  late final $AiResultCacheRecordsTable aiResultCacheRecords =
+      $AiResultCacheRecordsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -7526,6 +8972,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_ai_models_sort',
     'CREATE INDEX ix_ai_models_sort ON ai_model_records (sort_order)',
   );
+  late final Index ixAiTasksCreated = Index(
+    'ix_ai_tasks_created',
+    'CREATE INDEX ix_ai_tasks_created ON ai_tasks (created_at)',
+  );
+  late final Index ixAiTasksStatus = Index(
+    'ix_ai_tasks_status',
+    'CREATE INDEX ix_ai_tasks_status ON ai_tasks (status)',
+  );
+  late final Index ixAiResultCacheCreated = Index(
+    'ix_ai_result_cache_created',
+    'CREATE INDEX ix_ai_result_cache_created ON ai_result_cache_records (created_at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7555,6 +9013,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     citations,
     settings,
     aiModelRecords,
+    aiTasks,
+    aiResultCacheRecords,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -7565,6 +9025,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixSettingsUpdatedAt,
     uxAiModelsAlias,
     ixAiModelsSort,
+    ixAiTasksCreated,
+    ixAiTasksStatus,
+    ixAiResultCacheCreated,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -11990,6 +13453,701 @@ typedef $$AiModelRecordsTableProcessedTableManager =
       AiModelRecord,
       PrefetchHooks Function()
     >;
+typedef $$AiTasksTableCreateCompanionBuilder = AiTasksCompanion Function({
+  required String taskId,
+  required String kind,
+  required String inputSnapshot,
+  required String promptHash,
+  required String modelAliases,
+  required String routeModelIds,
+  required String status,
+  Value<DateTime?> deadline,
+  Value<int> consumedTokens,
+  Value<int> attemptCount,
+  Value<String?> resultText,
+  Value<String?> finishReason,
+  Value<String?> errorKind,
+  Value<String?> providerAlias,
+  Value<String?> cacheKey,
+  Value<bool> fromCache,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$AiTasksTableUpdateCompanionBuilder = AiTasksCompanion Function({
+  Value<String> taskId,
+  Value<String> kind,
+  Value<String> inputSnapshot,
+  Value<String> promptHash,
+  Value<String> modelAliases,
+  Value<String> routeModelIds,
+  Value<String> status,
+  Value<DateTime?> deadline,
+  Value<int> consumedTokens,
+  Value<int> attemptCount,
+  Value<String?> resultText,
+  Value<String?> finishReason,
+  Value<String?> errorKind,
+  Value<String?> providerAlias,
+  Value<String?> cacheKey,
+  Value<bool> fromCache,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$AiTasksTableFilterComposer
+    extends Composer<_$AppDatabase, $AiTasksTable> {
+  $$AiTasksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get taskId => $composableBuilder(
+    column: $table.taskId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get promptHash => $composableBuilder(
+    column: $table.promptHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelAliases => $composableBuilder(
+    column: $table.modelAliases,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get routeModelIds => $composableBuilder(
+    column: $table.routeModelIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deadline => $composableBuilder(
+    column: $table.deadline,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resultText => $composableBuilder(
+    column: $table.resultText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get finishReason => $composableBuilder(
+    column: $table.finishReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorKind => $composableBuilder(
+    column: $table.errorKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get fromCache => $composableBuilder(
+    column: $table.fromCache,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AiTasksTableOrderingComposer
+    extends Composer<_$AppDatabase, $AiTasksTable> {
+  $$AiTasksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get taskId => $composableBuilder(
+    column: $table.taskId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get promptHash => $composableBuilder(
+    column: $table.promptHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelAliases => $composableBuilder(
+    column: $table.modelAliases,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get routeModelIds => $composableBuilder(
+    column: $table.routeModelIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deadline => $composableBuilder(
+    column: $table.deadline,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resultText => $composableBuilder(
+    column: $table.resultText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get finishReason => $composableBuilder(
+    column: $table.finishReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorKind => $composableBuilder(
+    column: $table.errorKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get fromCache => $composableBuilder(
+    column: $table.fromCache,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AiTasksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AiTasksTable> {
+  $$AiTasksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get taskId =>
+      $composableBuilder(column: $table.taskId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get promptHash => $composableBuilder(
+    column: $table.promptHash,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get modelAliases => $composableBuilder(
+    column: $table.modelAliases,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get routeModelIds => $composableBuilder(
+    column: $table.routeModelIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deadline =>
+      $composableBuilder(column: $table.deadline, builder: (column) => column);
+
+  GeneratedColumn<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resultText => $composableBuilder(
+    column: $table.resultText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get finishReason => $composableBuilder(
+    column: $table.finishReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get errorKind =>
+      $composableBuilder(column: $table.errorKind, builder: (column) => column);
+
+  GeneratedColumn<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<bool> get fromCache =>
+      $composableBuilder(column: $table.fromCache, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$AiTasksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AiTasksTable,
+          AiTask,
+          $$AiTasksTableFilterComposer,
+          $$AiTasksTableOrderingComposer,
+          $$AiTasksTableAnnotationComposer,
+          $$AiTasksTableCreateCompanionBuilder,
+          $$AiTasksTableUpdateCompanionBuilder,
+          (AiTask, BaseReferences<_$AppDatabase, $AiTasksTable, AiTask>),
+          AiTask,
+          PrefetchHooks Function()
+        > {
+  $$AiTasksTableTableManager(_$AppDatabase db, $AiTasksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AiTasksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AiTasksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AiTasksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> taskId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> inputSnapshot = const Value.absent(),
+                Value<String> promptHash = const Value.absent(),
+                Value<String> modelAliases = const Value.absent(),
+                Value<String> routeModelIds = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<DateTime?> deadline = const Value.absent(),
+                Value<int> consumedTokens = const Value.absent(),
+                Value<int> attemptCount = const Value.absent(),
+                Value<String?> resultText = const Value.absent(),
+                Value<String?> finishReason = const Value.absent(),
+                Value<String?> errorKind = const Value.absent(),
+                Value<String?> providerAlias = const Value.absent(),
+                Value<String?> cacheKey = const Value.absent(),
+                Value<bool> fromCache = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AiTasksCompanion(
+                taskId: taskId,
+                kind: kind,
+                inputSnapshot: inputSnapshot,
+                promptHash: promptHash,
+                modelAliases: modelAliases,
+                routeModelIds: routeModelIds,
+                status: status,
+                deadline: deadline,
+                consumedTokens: consumedTokens,
+                attemptCount: attemptCount,
+                resultText: resultText,
+                finishReason: finishReason,
+                errorKind: errorKind,
+                providerAlias: providerAlias,
+                cacheKey: cacheKey,
+                fromCache: fromCache,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String taskId,
+                required String kind,
+                required String inputSnapshot,
+                required String promptHash,
+                required String modelAliases,
+                required String routeModelIds,
+                required String status,
+                Value<DateTime?> deadline = const Value.absent(),
+                Value<int> consumedTokens = const Value.absent(),
+                Value<int> attemptCount = const Value.absent(),
+                Value<String?> resultText = const Value.absent(),
+                Value<String?> finishReason = const Value.absent(),
+                Value<String?> errorKind = const Value.absent(),
+                Value<String?> providerAlias = const Value.absent(),
+                Value<String?> cacheKey = const Value.absent(),
+                Value<bool> fromCache = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => AiTasksCompanion.insert(
+                taskId: taskId,
+                kind: kind,
+                inputSnapshot: inputSnapshot,
+                promptHash: promptHash,
+                modelAliases: modelAliases,
+                routeModelIds: routeModelIds,
+                status: status,
+                deadline: deadline,
+                consumedTokens: consumedTokens,
+                attemptCount: attemptCount,
+                resultText: resultText,
+                finishReason: finishReason,
+                errorKind: errorKind,
+                providerAlias: providerAlias,
+                cacheKey: cacheKey,
+                fromCache: fromCache,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AiTasksTable, AiTask>(table),
+                  BaseReferences<_$AppDatabase, $AiTasksTable, AiTask>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AiTasksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AiTasksTable,
+      AiTask,
+      $$AiTasksTableFilterComposer,
+      $$AiTasksTableOrderingComposer,
+      $$AiTasksTableAnnotationComposer,
+      $$AiTasksTableCreateCompanionBuilder,
+      $$AiTasksTableUpdateCompanionBuilder,
+      (AiTask, BaseReferences<_$AppDatabase, $AiTasksTable, AiTask>),
+      AiTask,
+      PrefetchHooks Function()
+    >;
+typedef $$AiResultCacheRecordsTableCreateCompanionBuilder =
+    AiResultCacheRecordsCompanion Function({
+      required String cacheKey,
+      required String text_,
+      required String providerAlias,
+      required String modelId,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$AiResultCacheRecordsTableUpdateCompanionBuilder =
+    AiResultCacheRecordsCompanion Function({
+      Value<String> cacheKey,
+      Value<String> text_,
+      Value<String> providerAlias,
+      Value<String> modelId,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$AiResultCacheRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $AiResultCacheRecordsTable> {
+  $$AiResultCacheRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get text_ => $composableBuilder(
+    column: $table.text_,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AiResultCacheRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AiResultCacheRecordsTable> {
+  $$AiResultCacheRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+    column: $table.cacheKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get text_ => $composableBuilder(
+    column: $table.text_,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AiResultCacheRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AiResultCacheRecordsTable> {
+  $$AiResultCacheRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<String> get text_ =>
+      $composableBuilder(column: $table.text_, builder: (column) => column);
+
+  GeneratedColumn<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$AiResultCacheRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AiResultCacheRecordsTable,
+          AiResultCacheRecord,
+          $$AiResultCacheRecordsTableFilterComposer,
+          $$AiResultCacheRecordsTableOrderingComposer,
+          $$AiResultCacheRecordsTableAnnotationComposer,
+          $$AiResultCacheRecordsTableCreateCompanionBuilder,
+          $$AiResultCacheRecordsTableUpdateCompanionBuilder,
+          (
+            AiResultCacheRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $AiResultCacheRecordsTable,
+              AiResultCacheRecord
+            >,
+          ),
+          AiResultCacheRecord,
+          PrefetchHooks Function()
+        > {
+  $$AiResultCacheRecordsTableTableManager(
+    _$AppDatabase db,
+    $AiResultCacheRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AiResultCacheRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AiResultCacheRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AiResultCacheRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> cacheKey = const Value.absent(),
+                Value<String> text_ = const Value.absent(),
+                Value<String> providerAlias = const Value.absent(),
+                Value<String> modelId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AiResultCacheRecordsCompanion(
+                cacheKey: cacheKey,
+                text_: text_,
+                providerAlias: providerAlias,
+                modelId: modelId,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String cacheKey,
+                required String text_,
+                required String providerAlias,
+                required String modelId,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => AiResultCacheRecordsCompanion.insert(
+                cacheKey: cacheKey,
+                text_: text_,
+                providerAlias: providerAlias,
+                modelId: modelId,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AiResultCacheRecordsTable, AiResultCacheRecord>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $AiResultCacheRecordsTable,
+                    AiResultCacheRecord
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AiResultCacheRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AiResultCacheRecordsTable,
+      AiResultCacheRecord,
+      $$AiResultCacheRecordsTableFilterComposer,
+      $$AiResultCacheRecordsTableOrderingComposer,
+      $$AiResultCacheRecordsTableAnnotationComposer,
+      $$AiResultCacheRecordsTableCreateCompanionBuilder,
+      $$AiResultCacheRecordsTableUpdateCompanionBuilder,
+      (
+        AiResultCacheRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $AiResultCacheRecordsTable,
+          AiResultCacheRecord
+        >,
+      ),
+      AiResultCacheRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12014,4 +14172,8 @@ class $AppDatabaseManager {
       $$SettingsTableTableManager(_db, _db.settings);
   $$AiModelRecordsTableTableManager get aiModelRecords =>
       $$AiModelRecordsTableTableManager(_db, _db.aiModelRecords);
+  $$AiTasksTableTableManager get aiTasks =>
+      $$AiTasksTableTableManager(_db, _db.aiTasks);
+  $$AiResultCacheRecordsTableTableManager get aiResultCacheRecords =>
+      $$AiResultCacheRecordsTableTableManager(_db, _db.aiResultCacheRecords);
 }

@@ -16,6 +16,24 @@ import 'package:flux/core/core.dart';
 import '../domain/ai_credential_store.dart';
 import '../domain/ai_model_store.dart';
 import '../domain/ai_provider.dart';
+import '../domain/ai_task_store.dart';
+
+/// AI 任务的持久记录端口（T030）。
+///
+/// 与 [aiModelStoreProvider] 同一个理由（默认抛错、由组合根覆盖）；降级启动时由
+/// 组合根接上一份「读返回空、写明确失败」的实现，而不是让这里退化成一个静默的空实现。
+final Provider<AiTaskStore> aiTaskStoreProvider = Provider<AiTaskStore>(
+  (Ref ref) => throw StateError(
+    'aiTaskStoreProvider 未被组合根覆盖：见 lib/app/app_providers.dart',
+  ),
+);
+
+/// AI 结果缓存端口（T030）。
+final Provider<AiResultCache> aiResultCacheProvider = Provider<AiResultCache>(
+  (Ref ref) => throw StateError(
+    'aiResultCacheProvider 未被组合根覆盖：见 lib/app/app_providers.dart',
+  ),
+);
 
 /// 模型记录读写端口。
 final Provider<AiModelStore> aiModelStoreProvider = Provider<AiModelStore>(

@@ -527,5 +527,148 @@ void main() {
         );
       }
     });
+    test('v10 快照新增 AI 任务与结果缓存两张表（T030），且不丢 v9 的任何实体', () {
+      final File v10Snapshot = File('drift_schemas/drift_schema_v10.json');
+      expect(
+        v10Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v10 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v10Decoded =
+          jsonDecode(v10Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v10Entities =
+          (v10Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v10Names = v10Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v9 的全部实体都必须保留：v10 只**新增**两张表与它们的索引。
+      final Map<String, dynamic> v9Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v9.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v9Names = (v9Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v10Names,
+        containsAll(v9Names),
+        reason: 'v10 只新增 AI 任务表与结果缓存表，不得删除 v9 的任何实体',
+      );
+      expect(
+        v10Names.difference(v9Names),
+        <String>{
+          'ai_tasks',
+          'ix_ai_tasks_created',
+          'ix_ai_tasks_status',
+          'ai_result_cache_records',
+          'ix_ai_result_cache_created',
+        },
+        reason:
+            'v10 相对 v9 的新增实体应只有两张表与它们的三个索引'
+            '（表名由类名派生）；索引是独立 schema 实体，漏建时运行时查询照常工作，'
+            '只有结构校验才会发现',
+      );
+
+      // 两张表的列必须齐全：缺一列会让「重启后复盘」丢掉一个事实
+      // （例如缺 deadline，重启后任务就不受同一总时限约束了）。
+      Map<String, dynamic> tableNamed(String name) => v10Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == name,
+      );
+      Set<String> columnsOf(String name) =>
+          ((tableNamed(name)['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+
+      List<String> explicitPrimaryKeyOf(String name) =>
+          ((tableNamed(name)['data'] as Map<String, dynamic>)['explicit_pk']
+                  as List<dynamic>?)
+              ?.cast<String>() ??
+          const <String>[];
+
+      expect(
+        columnsOf('ai_tasks'),
+        containsAll(<String>[
+          'task_id',
+          'kind',
+          'input_snapshot',
+          'prompt_hash',
+          'model_aliases',
+          'route_model_ids',
+          'status',
+          'deadline',
+          'consumed_tokens',
+          'attempt_count',
+          'result_text',
+          'finish_reason',
+          'error_kind',
+          'provider_alias',
+          'cache_key',
+          'from_cache',
+          'created_at',
+          'updated_at',
+        ]),
+      );
+      expect(
+        columnsOf('ai_result_cache_records'),
+        containsAll(<String>[
+          'cache_key',
+          'result_text',
+          'provider_alias',
+          'model_id',
+          'created_at',
+        ]),
+      );
+
+      // 与 v9 同一条硬约束：这两张表也**不得**出现凭据列。
+      // 输入快照里存的是 prompt 与参数，凭据只住 Keychain（SET-031）。
+      for (final String table in <String>[
+        'ai_tasks',
+        'ai_result_cache_records',
+      ]) {
+        final Set<String> columns = columnsOf(table);
+        for (final String forbidden in <String>[
+          'api_key',
+          'key',
+          'token',
+          'secret',
+          'credential',
+          'password',
+        ]) {
+          // 两个例外都是**结构性**列名而不是秘密：
+          //   - consumed_tokens 是 Token 用量计数；
+          //   - cache_key 是缓存键（输入哈希的摘要），不含任何凭据。
+          // 之所以逐个放行而不是放宽断言：漏掉一条「真的叫 api_key」的列时，
+          // 这条检查仍然会失败。
+          final Iterable<String> hit = columns.where(
+            (String name) =>
+                name.contains(forbidden) &&
+                name != 'consumed_tokens' &&
+                name != 'cache_key',
+          );
+          expect(hit, isEmpty, reason: '$table 不得出现凭据列（含「$forbidden」）');
+        }
+      }
+
+      // 主键必须是 task_id / cache_key：用自增 id 会让「按 taskId 取任务」与
+      // 「按缓存键取结果」都需要一次额外的唯一索引，而它们本来就是自然主键。
+      // 快照里的主键在 explicit_pk（列名列表）里，不是 primaryKey。
+      expect(explicitPrimaryKeyOf('ai_tasks'), <String>[
+        'task_id',
+      ], reason: 'task_id 必须是主键：任务记录是「当前态」，同 id 只能有一行');
+      expect(explicitPrimaryKeyOf('ai_result_cache_records'), <String>[
+        'cache_key',
+      ]);
+    });
   });
 }

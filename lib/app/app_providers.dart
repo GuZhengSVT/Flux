@@ -21,6 +21,7 @@ import 'package:flux/features/ai/application/ai_ports.dart';
 import 'package:flux/features/ai/application/model_manager.dart';
 import 'package:flux/features/ai/application/model_manager_controller.dart';
 import 'package:flux/features/ai/domain/ai_model_store.dart';
+import 'package:flux/features/ai/domain/ai_task_store.dart';
 import 'package:flux/features/ai/domain/ai_provider.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_extraction_ports.dart';
@@ -46,6 +47,8 @@ import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
 import 'package:flux/infrastructure/local/ai_model_store.dart';
 import 'package:flux/infrastructure/local/degraded_ai_model_store.dart';
+import 'package:flux/infrastructure/local/ai_task_store.dart';
+import 'package:flux/infrastructure/local/degraded_ai_task_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
@@ -142,6 +145,10 @@ List<Override> bootstrapOverrides(
   // T025：适配器工厂。生产在 T026 接上真实适配器；为空时「测试连接」会明确报
   // 「适配器尚未实现」，而不是静默什么都不做。
   AiProviderFactory? aiProviderFactory,
+  // T030：任务与缓存的存储端口也参数化（理由同 aiModelStore：Riverpod 禁止重复覆盖，
+  // 测试要能构造「任务读取失败」「缓存写入失败」这类无法用内存库直接制造的世界）。
+  AiTaskStore? aiTaskStore,
+  AiResultCache? aiResultCache,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -281,6 +288,14 @@ List<Override> bootstrapOverrides(
       aiModelStoreProvider.overrideWithValue(
         aiModelStore ?? DriftAiModelStore(catalogDatabase),
       ),
+      // T030：AI 任务的持久记录与结果缓存。与模型记录同一个库，因此「数据库不可用」
+      // 时下面的降级分支会给出明确的只读/写入失败语义。
+      aiTaskStoreProvider.overrideWithValue(
+        aiTaskStore ?? DriftAiTaskStore(catalogDatabase),
+      ),
+      aiResultCacheProvider.overrideWithValue(
+        aiResultCache ?? DriftAiResultCache(catalogDatabase),
+      ),
       // T024：提取正文读写。
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
@@ -315,6 +330,14 @@ List<Override> bootstrapOverrides(
       // 任何可用模型），写入明确失败（不假装保存成功）。
       aiModelStoreProvider.overrideWithValue(
         aiModelStore ?? const DegradedAiModelStore(),
+      ),
+      // T030：降级模式下任务列表读作空（本次运行确实没有可读记录），写入明确失败；
+      // 缓存永不命中（这是真实答案，功能照常发起真实请求）。
+      aiTaskStoreProvider.overrideWithValue(
+        aiTaskStore ?? const DegradedAiTaskStore(),
+      ),
+      aiResultCacheProvider.overrideWithValue(
+        aiResultCache ?? const DegradedAiResultCache(),
       ),
     ],
     // ---- T024：静态网页抓取 --------------------------------------------------

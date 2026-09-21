@@ -45,6 +45,8 @@ part 'database.g.dart';
     Citations,
     Settings,
     AiModelRecords,
+    AiTasks,
+    AiResultCacheRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -77,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -287,11 +289,33 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixAiModelsSort);
       }
 
+      if (from < 10) {
+        // v9 → v10：AI 任务的持久记录与结果缓存（T030；架构 5.1 的
+        // AITask / Attempt / Result，架构 4.5 的缓存键）。
+        //
+        // 这一步**不回填任何数据**：升级前不存在「已经跑过的 AI 任务」这个事实，
+        // 空表是诚实的默认状态。特别地，不用「把当前时间填进 createdAt」制造
+        // 一批看起来跑过的历史任务——那会让任务列表在升级后凭空多出记录。
+        //
+        // 两张表都是**新增**，不改写任何已有列：
+        //   - ai_tasks 记录任务本身（状态九态、deadline、累计消耗、结果与错误类别）；
+        //   - ai_result_cache_entries 只存成功产出，键是全部缓存组成项的摘要。
+        //
+        // 与 v1→v2、v8→v9 同一个坑：createTable 只建表，**不**建索引。索引是独立的
+        // schema 实体，漏掉 createIndex 时运行时查询照常工作，只有结构校验才会发现
+        // 差异（T010 的迁移测试曾这样抓到过一次），因此这里逐个显式写出。
+        await m.createTable(aiTasks);
+        await m.createIndex(ixAiTasksCreated);
+        await m.createIndex(ixAiTasksStatus);
+        await m.createTable(aiResultCacheRecords);
+        await m.createIndex(ixAiResultCacheCreated);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 9;
+      const int highestImplemented = 10;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

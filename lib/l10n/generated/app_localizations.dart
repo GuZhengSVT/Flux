@@ -3195,8 +3195,152 @@ abstract class AppLocalizations {
   /// 未实现部分说明
   ///
   /// In zh, this message translates to:
-  /// **'故障转移的跨模型暂停/重试规则（SET-035 的五次无响应）与自动摘要开关（SET-037）属 T029/T034，本页只做提供商与模型配置。'**
+  /// **'自动摘要开关（SET-037）属 T034，本页只做提供商与模型配置；故障转移的五次无响应、总时限与 Token 预算已由 T029 落地（见设置 → AI 任务记录）。'**
   String get aiPlannedNotice;
+
+  /// 任务记录页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 任务记录'**
+  String get aiTaskListTitle;
+
+  /// 设置页入口
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 任务记录'**
+  String get settingsAiTasksEntryTitle;
+
+  /// 设置页入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'查看历史任务与中断记录，可手动重新开始'**
+  String get settingsAiTasksEntrySubtitle;
+
+  /// 空态
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有 AI 任务记录。'**
+  String get aiTaskListEmpty;
+
+  /// 读取失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取 AI 任务列表失败：{reason}'**
+  String aiTaskListLoadFailed(String reason);
+
+  /// 重新开始按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重新开始'**
+  String get aiTaskRestart;
+
+  /// 活跃任务不能重开
+  ///
+  /// In zh, this message translates to:
+  /// **'任务仍在进行中，不能重复发起'**
+  String get aiTaskRestartBlocked;
+
+  /// 重开成功回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已创建新任务并完成，原任务记录保持不变'**
+  String get aiTaskRestartSuccess;
+
+  /// 命中缓存标注
+  ///
+  /// In zh, this message translates to:
+  /// **'命中缓存（未发请求）'**
+  String get aiTaskFromCache;
+
+  /// 任务元信息
+  ///
+  /// In zh, this message translates to:
+  /// **'累计 {tokens} token · {attempts} 次尝试'**
+  String aiTaskMeta(int tokens, int attempts);
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'排队中'**
+  String get aiTaskStatusQueued;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'进行中'**
+  String get aiTaskStatusRunning;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'等待配置'**
+  String get aiTaskStatusWaitingConfiguration;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'等待网络'**
+  String get aiTaskStatusWaitingNetwork;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'成功'**
+  String get aiTaskStatusSucceeded;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'部分完成'**
+  String get aiTaskStatusPartial;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'失败'**
+  String get aiTaskStatusFailed;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消'**
+  String get aiTaskStatusCancelled;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'已中断（未自动重发）'**
+  String get aiTaskStatusInterrupted;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'每日总结'**
+  String get aiTaskKindSummary;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'选词解释'**
+  String get aiTaskKindExplain;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'全文翻译'**
+  String get aiTaskKindTranslate;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'今日新闻'**
+  String get aiTaskKindNews;
+
+  /// 九态与任务类型文案
+  ///
+  /// In zh, this message translates to:
+  /// **'其它任务'**
+  String get aiTaskKindOther;
 }
 
 class _AppLocalizationsDelegate

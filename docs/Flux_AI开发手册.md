@@ -46,7 +46,7 @@
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵），见 R025–R028。下一任务 T029（有预算的队列与跨模型故障转移），前置 T025–T028 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的预设均无凭据，未做真实调用**（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）与 T030（持久任务、结果缓存与中断恢复），见 R025–R030。下一任务 T031（SearchProvider 与 Tavily/Brave/SearXNG 适配），前置 T010/T024 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的预设均无凭据，未做真实调用**（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -61,7 +61,7 @@
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | DOING（**T019 交付正文阅读器**：受控文档树渲染（标题/段落/强调/删除线/引用/列表含任务勾选/链接/图片占位/表格含列对齐/行内代码/围栏代码块+静态高亮+折叠+复制）、LaTeX 单双美元号用 flutter_math_fork 纯自绘（不支持命令显示原式与原因，不留空白）、美元货币转义、正文完整性四态行、目录 h1–h3 侧栏（宽窗）、上下篇按进入时快照（首/尾边界禁用并说明）、页内查找高亮与计数；**T020 交付选区/复制/图片/链接**：SelectionArea 单块选区与自定义选区菜单、复制全文（纯文本重拼）、选词解释入口（未配置提示 + 跳设置，调用属 T034）、图片查看器（全屏/缩放/Esc/保存/分享，SET-012 关闭时占位+点选下载）、外链面板（完整地址 + 复制/打开，危险协议拒绝）、系统分享走 NSSharingServicePicker 且不可用时回退复制；**图片缓存/可控 MIME 与解码限额属 T021、跨块选择属后续（D-15）、卡片三形态与列表虚拟化已由 T019+ 补齐（R019a）、瀑布流与三栏列表面板仍属后续、专注模式属 T051**）|
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**T023 交付阅读统计**：会话追踪（前台可见且交互未超阈才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台立即暂停、关闭开关完全不记录）、按会话时区跨午夜拆分并按本地日期键落库、周期 flush + 结束收尾、写入失败不重复写；年度热力图（周一为列、0 值与年外占位格可辨、5 档图例、逐格日期+分钟提示）、近七日柱状图（柱顶文字分钟数）、年份选择器来自真实数据、清空统计走确认且只清会话表） |
 | 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
-| AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**T027 交付 Anthropic Messages 适配器**：独立建模（不继承 CC），认证走 x-api-key + anthropic-version（用例断言请求头**不含** Authorization）、system 是顶层参数、max_tokens 必填、content 是分量数组（文本块 / base64 图片块）；SSE 按 type 分派并忽略生命周期与未知事件；usage **分两处拼合**（input 在 message_start、output 在 message_delta 且是累计值，覆盖而非累加），协议不给 total_tokens 故如实标本地合计；529 overloaded → **可重试**（不是通用 5xx 的不可重试），200 流内的 error 先用结构化类型名换语义状态码再分类；断流（无 message_stop）明确报错。**T028 交付预设验证矩阵**：7 条预设（OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen）各含 id、显示名、协议、Base URL、认证方式、三档状态与注释，**只有实测才配「已支持」**；本轮仅 DeepSeek = 实测，OpenAI 双协议与 Anthropic = fixture 通过，Qwen/MiMo/Zen = 待验证（**共用 CC 协议不继承状态**）；OpenCode Zen 按授权用无效 Key 探 1 次返回 401 且错误体非 OpenAI 形状，如实记「端点待真实验证」；界面新增预设下拉（自动填协议 + Base URL、不代填 Key、显示最终端点）、三档徽章与验证状态小节。**仍未实现**：有预算的队列与五次无响应/跨模型故障转移与 120s/10min 时限（T029）、结果缓存与中断恢复（T030）、视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入；**除 DeepSeek 外的预设均无真实调用证据（7.3 逐行标 NOT_RUN）**） |
+| AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**T027 交付 Anthropic Messages 适配器**：独立建模（不继承 CC），认证走 x-api-key + anthropic-version（用例断言请求头**不含** Authorization）、system 是顶层参数、max_tokens 必填、content 是分量数组（文本块 / base64 图片块）；SSE 按 type 分派并忽略生命周期与未知事件；usage **分两处拼合**（input 在 message_start、output 在 message_delta 且是累计值，覆盖而非累加），协议不给 total_tokens 故如实标本地合计；529 overloaded → **可重试**（不是通用 5xx 的不可重试），200 流内的 error 先用结构化类型名换语义状态码再分类；断流（无 message_stop）明确报错。**T028 交付预设验证矩阵**：7 条预设（OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen）各含 id、显示名、协议、Base URL、认证方式、三档状态与注释，**只有实测才配「已支持」**；本轮仅 DeepSeek = 实测，OpenAI 双协议与 Anthropic = fixture 通过，Qwen/MiMo/Zen = 待验证（**共用 CC 协议不继承状态**）；OpenCode Zen 按授权用无效 Key 探 1 次返回 401 且错误体非 OpenAI 形状，如实记「端点待真实验证」；界面新增预设下拉（自动填协议 + Base URL、不代填 Key、显示最终端点）、三档徽章与验证状态小节。**T029 交付有预算的队列与五次无响应/跨模型故障转移**：按类型分类失败（只有无响应/超时/断流/连接失败/429 重试后计入五次；认证失败与内容拒绝**既不计数也不换模型**，后者是为避免跨服务商规避内容策略）；预算闸门在每次调用前检查（总时限 deadline 不重置 / HTTP 尝试 30 / Token 预算含调用前预留，无 usage 时按 CJK 1 字 1 token、非 CJK 4 字符 1 token 保守估算并标记）；总时限优先于五次规则（第 3 次后累计超限即停，不等第 5 次）；429 服从 Retry-After 一次且不做退避风暴；单次硬时限 120s 用真实计时器（卡住的流一定被打断），到点只取消这一次尝试并把取消翻译回超时；每次尝试用子取消信号（用户取消经父信号传播）；并发 2 用在途额度对象约束而故障转移保持串行；离线暂停为 waitingNetwork 且不消耗五次额度；断流但已有部分文本 → partial，跨模型的半句话**从不拼接**。**T030 交付持久任务、结果缓存与中断恢复**：schema v10 新增 ai_tasks（18 列，含输入快照、deadline、累计消耗、九态、错误**类别**）与 ai_result_cache_records 两张表及三个索引，**两张表均无凭据列**（逐列断言）；缓存键 = 任务类型 + 输入哈希 + 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此输入/模型/语言任一变化即失效是**结构性**的；命中缓存**一个请求都不发**（用请求计数断言）并标 from_cache；**只写成功结果**（failed/partial/cancelled 不写）；启动把四个活跃态一次性批量标成 interrupted 且**绝不自动重发**（架构 4.5：不为不确定是否计费的请求付两次费），成功版本不被覆盖；interrupted 显示在「设置 → AI 任务记录」并可手动重新开始——新任务承接、旧任务保持 interrupted，活跃态任务拒绝重开。**仍未实现**：视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入；**除 DeepSeek 外的预设均无真实调用证据（7.3 逐行标 NOT_RUN）**） |
 | 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | TODO |
 | 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | TODO |
 | 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | TODO |
@@ -134,8 +134,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T026 | T025 | OpenAI Responses 与 Chat Completions 兼容适配器 | 读取官方协议并记录日期；各自请求、事件、错误、取消、usage、工具参数 fixture；不能只替换路径；最小授权真实调用记录 | DONE（缺失 REVIEW）：两个适配器**分开建模**，夹具与期望文件各自独立（有用例断言两份正常流夹具的形状确实不同，且两种 usage 的字段名不能互相解析——把 Responses 的 usage 喂给 CC 的解析器得到 null）。请求体各自构造：Chat Completions 用 `messages` + `stream_options.include_usage`；Responses 用 `input` 分量数组 + 顶层 `instructions` + `max_output_tokens`（**不是**把 system 塞进 input，也不是改个字段名）。SSE 层共用，但**按字节切行、再解码整行**——这是本轮实测抓到的真缺陷：按收到的块逐块 `utf8.decode` 会把被 TCP 分段切开的中文解成替换字符（「连接」变成带 U+FFFD 的串），中文输出下几乎必然触发；同时显式处理 CRLF 行尾、SSE 注释心跳、多行 data 拼接、单事件与整条流的字节上限。usage 事件在 done **之前**发出（计费记账不能晚于结束）。错误按状态码统一映射：429 → `RateLimitError`（服从 Retry-After；日期形式不猜秒数，交 T029 的退避策略）、401/402/403 → 不可重试的 `AuthError`、400 + **结构化**内容拒绝标记 → 不可重试的 `ContentFilteredError`（架构 4.5 明确不得跨服务商重试规避）、其余 → `NetworkError`；判定只用 error.type/error.code，不做文案匹配——否则会把普通 400 误判成内容拒绝，白白阻止一次本来能成功的重试。取消优先于超时，且**已取消的信号在发出任何字节之前就被拒绝**（不主动制造可能计费的废请求）；首响应 45s / 停滞 30s 用「每次有字节到达就重置」的计时器（用总时长会误杀长输出）。断流（既无 `[DONE]`/`response.completed` 也无结束原因）明确报错并不静默结束——静默结束会把半句话存成完整答案。真实调用 1 次，见 R026 |
 | T027 | T025 | Anthropic Messages 适配器 | 官方认证/版本头、流事件、工具与图片格式分别验证；无模型列表时手填；重试和脱敏行为一致 | DONE（缺失 REVIEW）：适配器**独立建模**（不继承 CC 适配器），四处与两个 OpenAI 协议的差异各有夹具与用例钉住：认证走 x-api-key + anthropic-version（**断言请求头不含 Authorization**——用错头只会得到一个不回显原因的 401）；system 是**顶层参数**（不进 messages，塞进去会被服务商直接拒绝）；max_tokens **必填**（未指定时退回 SET-033 的保守 2048，而不是猜一个大数字）；content 是**分量数组**（text 块 / base64 image 块——图片是 base64 源不是 URL，让服务商去远端取图会把一次请求变成一次不可控出网）。SSE 事件流按 type 分派（message_start / content_block_delta / message_delta / message_stop / error），生命周期事件（content_block_start/stop、ping、input_json_delta）与**未知类型**被忽略——协议会继续加类型，未知事件让整个流失败会把一次正常回答变成错误。usage **分两处到达并拼合**：input 在 message_start、output 在 message_delta 且是**累计值**（覆盖而非累加，累加会把同一段输出算两遍）；协议不给 total_tokens，因此如实标为本地合计而不编造服务商统计。错误经 Anthropic 专属映射：529（overloaded）→ **可重试**的 ProviderError(kind=overloaded)，而不是通用 5xx 的不可重试网络错误；200 流里的 type=error 先用结构化类型名换成语义状态码再分类（否则限流/认证失败会被归成网络错误）。取消在发字节前即被拒绝，首响应 45s / 停滞 30s 复用同一份 ai_stream_guard；断流（无 message_stop）明确报错不静默结束。设置页协议下拉去掉了 Anthropic 的「适配器待实现」占位（判据改成协议自己的数据字段 adapterImplemented，不再是写死的协议名判断） |
 | T028 | T026、T027 | 主流预设验证矩阵 | OpenAI/Anthropic/DeepSeek/Qwen/MiMo/OpenCode 逐个明确端点、协议、能力和真实测试状态；OpenCode 明确 API 服务产品，不拿 CLI 充当 provider；缺凭据不伪称支持 | DONE（缺失 REVIEW）：新增 domain/provider_preset.dart（PresetCatalog，7 条预设：OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen），每条含 id、显示名、协议、Base URL、认证方式、**状态标记**与注释；状态是三档互斥枚举（实测 / fixture 通过 / 待验证），且**只有实测才允许标成「已支持」**（isSupported 就是 status == liveVerified）。**本轮真实状态**：仅 DeepSeek = 实测（R026 的真实调用）；OpenAI 双协议与 Anthropic = fixture 通过（适配器有完整夹具级证据但本轮无凭据、未真实调用）；Qwen / MiMo / OpenCode Zen = 待验证——**共用 CC 协议不等于继承状态**，端点必须逐个验证（有用例断言这三条都是 unverified）。OpenCode Zen 按主代理授权探了 1 次（无效 Key）：POST https://opencode.ai/zen/v1/chat/completions 返回 **401**，响应体是 {"type":"error","error":{"type":"ModelError",...}}——**不是** OpenAI 的 error.type/code 形状，且路径是否带 /v1 未确认，因此如实记为「端点待真实验证」。界面：模型表单新增预设下拉（选中自动填协议 + Base URL，**不代填 Key**，并显示最终端点与注释供核对）、三档状态徽章（实测=accent / fixture=次要色 / 待验证=warning）、AI 服务页新增「预设验证状态」小节逐条列出预设与状态。7.3 矩阵逐行如实更新，**无一行写「已支持」**（除 DeepSeek 的实测范围） |
-| T029 | T025–T028 | 有预算的队列、五次无响应和跨模型故障转移 | 假时钟覆盖 5 次计数/重置/下一模型、45s 首响应/30s 停滞/120s 单次/10min 总限时、并发 2、429、认证失败、内容拒绝及取消；不拼流、不重复无限收费 | TODO |
-| T030 | T029、T009 | 结果缓存/持久任务/中断恢复 | 输入/prompt/模型/语言变化使缓存失效；进程重启显示 interrupted，不自动重发付费请求；成功版本不被草稿覆盖 | TODO |
+| T029 | T025–T028 | 有预算的队列、五次无响应和跨模型故障转移 | 假时钟覆盖 5 次计数/重置/下一模型、45s 首响应/30s 停滞/120s 单次/10min 总限时、并发 2、429、认证失败、内容拒绝及取消；不拼流、不重复无限收费 | DONE（缺失 REVIEW）：新增 application/ai_task_runner.dart 与 application/ai_task_budget.dart、ai_failover.dart，把「有预算的队列」做成**可枚举验证的规则**而不是散在循环里的判断。**五次规则（D-09）**：同一模型连续 5 次无响应才切下一个，成功即清零，换模型后新模型从零攒自己的五次（用假时钟逐条断言「第 5 次才切」「3 失败+1 成功+再 4 失败不切」「跨任务不累积」）。**只有无响应消耗五次额度**：按**类型**分类（超时/断流/连接失败/5xx/429 重试后仍限流 = 无响应；认证/余额/模型不存在 = 配置错误，不换模型；**内容拒绝既不计数也不换模型**，换服务商再问一遍即绕过内容策略，架构 4.5 禁止；解析/格式错误不与无响应混同）。**预算闸门在每次调用前检查**：总时限（deadline 在任务创建时固定、之后不重置，复用 TaskTransition 的既有规则）、HTTP 尝试次数（含 429 重试，SET-062 的 30）、Token（usage 优先，无 usage 时按字符保守估算：CJK 1 字 1 token、非 CJK 4 字符 1 token，并在记录里标为估算）。**总时限优先于五次规则**：第 3 次尝试结束后累计 12 分钟 → 不再发起第 4 次（用例断言 secondary 的请求数为 0）。**429 服从 Retry-After 一次**（每个模型一次，等待计入总时限；第二次 429 计为该模型一次无响应，不做 2/4/8/16 退避风暴）。**取消**：每次尝试用自己的子取消信号（单次硬时限只取消这一次尝试，任务继续故障转移；用户取消经父信号传播到全部子信号），第 2 次尝试中取消 → cancelled 且不再有后续请求。**并发 2（SET-036）**：在途额度用具名对象 AiInFlightLimiter 管理（acquire/release 成对，额度直接转交等待者而不是先减再加，多释放直接抛错），故障转移本身保持**串行**（架构 4.5：先取消上一尝试再重试；并行竞速会同时计费且让产出模型不确定）。**单次硬时限 120s（架构 4.5）**由真实计时器实现（卡住的流不会有任何事件，只靠事件驱动永远等不到），到点只取消这次尝试并翻译回超时错误（不把超时误报成用户取消）。**设备离线**暂停为 waitingNetwork 且**不消耗五次额度**（离线是设备状态，不是模型不响应）。**半句话不当完整答案**：断流但有部分文本 → partial 并带失败原因；跨模型的半句话**从不拼接**（用例断言 text 只等于产出它的那个模型的一条流）。**状态机接线**：queued→running→waitingNetwork/终态，每次迁移经 TaskTransition.apply（非法边只记诊断不抛），deadline 创建时固定。SET-035 的 enabled 关闭时「五次之后只终止不换模型」（把同一份内容发给另一家需要用户明确授权）。29 条假时钟用例覆盖手册 6.3 点名的全部五次规则条目；诊断只记结构事实（别名/次数/token/耗时），有用例断言日志不含 prompt 与 Key |
+| T030 | T029、T009 | 结果缓存/持久任务/中断恢复 | 输入/prompt/模型/语言变化使缓存失效；进程重启显示 interrupted，不自动重发付费请求；成功版本不被草稿覆盖 | DONE（缺失 REVIEW）：新增 domain/ai_task_record.dart（AiTaskKind/AiInputSnapshot/AiResultCacheKey/AiTaskRecord）、domain/ai_task_store.dart（持久任务与结果缓存两个端口）、application/persistent_ai_task_service.dart、infrastructure/local/ai_task_store.dart 与 degraded_ai_task_store.dart、presentation/ai_task_list_page.dart；**schema v10** 新增 ai_tasks（18 列：task_id 主键、kind、输入快照 JSON、prompt_hash、模型别名与路由模型 ID、状态九态、deadline、累计 token、尝试次数、结果、结束原因、**错误类别**、提供商别名、cache_key、from_cache、时间戳）与 ai_result_cache_records（cache_key 主键、result_text、提供商/模型、时间）及三个索引，**两张表都没有任何凭据列**（凭据只住 Keychain，有用例逐列断言）。**结果缓存**：键 = 任务类型 + 输入哈希（工程自实现 SHA-256，不用跨进程不稳定的 String.hashCode）+ 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此「输入/模型/语言任一变化即失效」是**结构性**的（用例逐项验证输入、语言、模型、任务类型、温度五类变化都会重新真实请求）；命中缓存时**一个请求都不发**并有用例用请求计数断言，命中记录带 from_cache 并在界面上标「命中缓存（未发请求）」。**只写成功结果**：failed/cancelled/partial 都不写缓存（否则一次网络抖动会被固化成之后所有同输入任务的结论；partial 本来就承认不完整）。**持久任务**：每次状态迁移都落库（含输入快照，重启后可复盘「当时发出去什么」），输入快照 JSON 往返有无损用例。**中断语义（架构 4.5/手册 T030）**：启动时把 queued/running/waitingConfiguration/waitingNetwork 一次性批量标成 interrupted（一条带 IN 的 UPDATE，避免逐个读改写在中途崩溃时留下混合状态），**绝不自动重发**（用例断言标记后请求次数为 0，理由是不为不确定是否计费的请求付两次费）；已结束的终态任务不被覆盖（**成功版本不被草稿覆盖**的验收落点）；interrupted 任务显示在任务列表（设置 → AI 任务记录），用户手动「重新开始」时**创建新任务承接、旧任务保持 interrupted**，且活跃态任务拒绝 restart（重开会把同一份输入发两次）。启动标记的条数写进 AppBootstrapResult 的 interruptedTaskCount，启动路径在打开数据库后、任何界面读列表之前完成。20 条用例（含真实内存库的缓存持久化、重启标记、失败不写缓存、清缓存不删任务状态） |
 | T031 | T010、T024 | SearchProvider 与 Tavily/Brave/SearXNG 适配 | 依据官方资料确定请求/条款；统一 sourceId、标题、URL、片段、时间、访问类别；结果上限/超时/无凭据/错误/分页；至少一条授权真实搜索全链路通过 | TODO |
 | T032 | T029、T031 | search/fetchPage/inspectImage 受控工具执行器 | schema、域名、私网/DNS/重定向、安全上限强制；无 native tool calling 的文本模型可消费预先检索材料；恶意正文不能读文件、删数据或请求任意端点 | TODO |
 | T033 | T021、T025、T032 | 新闻图像理解与文本降级 | 专用视觉→有能力主模型→跳过图像；上传前采样/尺寸限制/数据告知；图片不支持时文本链路继续，动态网页不截图执行 | TODO |
@@ -2455,6 +2455,245 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       均已 DONE
 
 
+### 7.1.23 轮次记录 R029（T029）
+
+    轮次/日期：R029 / 2026-09-22
+    任务 ID 与状态变化：T029 TODO → DONE（M2 第五项；**缺失 REVIEW**，理由同前几轮：本轮
+      交付的是「故障转移与预算」这一对会真实影响花费与内容去向的规则）
+    相关决策/功能/SET 项：D-09（有序模型列表跨服务商故障转移；连续五次无响应切下一模型，
+      受总时间/Token/请求预算约束；内容拒绝不通过换模型绕过）、架构 4.4/4.5、手册 6.3「五次
+      规则」四条必测、SET-035（故障转移开关）、SET-036（并发 2/首响应 45s/停滞 30s）、
+      SET-059（总时限 10 分钟）、SET-062（HTTP 尝试 30）、SET-063（Token 100000 估算）
+
+    **本轮最关键的一条：把「五次规则」做成可逐条枚举验证的规则，而不是循环里的判断**
+
+      本轮新增三个可单独测试的构件（全部是纯逻辑、无 IO、可注入假时钟）：
+
+      | 构件 | 承担什么 | 为什么必须单独成层 |
+      | --- | --- | --- |
+      | AiFailoverTracker | 连续无响应计数（阈值 5），成功清零、换模型重置 | 手册 6.3 的四条验收全部是**计数语义**；埋进循环变量就只能靠端到端场景间接验证 |
+      | classifyAiFailure | 错误 → {无响应 / 配置 / 内容拒绝 / 格式 / 取消 / 预算 / 未类型化} | 判错的两个方向都有真实代价（把认证失败算成无响应会拿坏 Key 连打五个模型；把超时漏算成不可重试会让用户在一次抖动后直接看到失败） |
+      | AiTaskBudget + AiInFlightLimiter | 三个上限 + 在途额度 | 「到总时限或预算即结束」是**总资源边界**，散读会让「总量控制」变成若干处各自判断（架构明确说仅靠时间不能控制费用） |
+
+      **按类型而不是按文案分类**：判定只用错误的 Dart 类型与结构化字段，不做消息匹配——
+      适配器（T026/T027）已经把协议错误体翻译成类型化错误，这里再按文案猜一次会把两套语义混起来。
+
+    **六条容易做错、因此显式设计并有用例钉住的行为**
+
+      1) **只有「无可用响应」消耗五次额度**。认证失败（坏 Key）、余额不足、模型不存在是
+         **配置错误**：既不计数也不换模型（换一家不会修好一个坏 Key，反而把同一份内容发给
+         另一家）；**内容拒绝既不计数也不换模型**，换服务商再问一遍就是绕过内容策略
+         （架构 4.5 明确禁止）；解析/格式错误不与无响应混同（重试同一模型大概率还是同样的
+         坏格式，按无响应计数会把五次额度耗在一个结构缺陷上）。
+      2) **总时限优先于五次规则**。deadline 在任务创建时固定、之后不重置（复用 TaskTransition
+         的既有规则），排队/退避/断网等待都计入同一时限。用例构造「每次失败耗时 4 分钟」，
+         在第 3 次结束后累计 12 分钟 → **不再发起第 4 次**，并断言下一个模型的请求数为 0。
+      3) **429 服从 Retry-After 一次，不做退避风暴**。每个模型最多服从一次（等待同样计入总
+         时限，并夹到 60 秒与剩余时限以内）；第二次 429 就计为该模型一次无响应。**没有**实现
+         架构 4.5 提到的 2/4/8/16 秒多次退避——那会在真实网络里连打四次，与本任务边界
+         「退避只记录 Retry-After 一次」一致。
+      4) **取消用子信号，不把超时误报成用户取消**。每次尝试有自己的 AiCancellation：单次硬时限
+         到点只取消**这一次**尝试（任务继续走故障转移），用户取消则经父信号传播到全部子信号。
+         这里修掉了一个本轮抓到的缺陷：硬时限触发时先取消再 completeError，取消会同步触发
+         onCancel 回调、抢先用一个取消错误完成 completer，随后 completeError 直接抛
+         「Future already completed」；同时适配器在取消时抛出的取消错误会被翻译成**超时**
+         （否则任务会以「用户取消」这个终态结束，而用户从没点过取消）。
+      5) **设备离线不消耗五次额度**。连接层失败（没有收到任何响应）且网络端口回答「离线」时，
+         任务转为 waitingNetwork 并让出退避时间，**不计数**——离线是设备状态，不是这个模型
+         不响应。HTTP 5xx 不会被判成离线（那说明网络是通的）。
+      6) **半句话不当完整答案，且从不拼接**。断流但已收到部分文本 → partial 并带失败原因；
+         用例断言最终 text **只等于**产出它的那个模型的一条流（架构 4.5 禁止把两个模型的
+         半句话拼起来）。
+
+    **并发与串行这对看似矛盾的设计**：SET-036 的并发 2 约束的是「同任务内同时在途的请求数」，
+    而跨模型故障转移保持**串行**（架构 4.5「先取消上一尝试再重试」）。并行竞速会同时向两家
+    计费，且「先到者胜」让产出模型不确定——同一次任务的成本与内容来源都变得不可复现。
+    在途额度用具名对象管理（acquire/release 成对；额度直接转交给等待者而不是先减再加，否则
+    等待者被唤醒前会短暂出现空闲额度而让第三个请求插队；多释放直接抛错，不静默放大上限）。
+
+    修改文件与主要行为：
+      - 新增 features/ai/application/ai_task_budget.dart：AiTaskBudget（总时限/尝试次数/Token/
+        并发/单次硬时限/故障转移开关 + 从设置读取并回退注册表默认值，三个上限夹到至少 1）、
+        AiInFlightLimiter、AiDelayScheduler 与真实实现；
+      - 新增 features/ai/application/ai_failover.dart：AiFailureClass 与 classifyAiFailure（只按
+        类型）、AiFailoverTracker（五次计数与重置）、estimateAiTokens/estimateRequestTokens
+        （CJK 1 字 1 token、非 CJK 4 字符 1 token，含每条消息的结构开销，一律标为估算）；
+      - 新增 features/ai/application/ai_task_runner.dart：AiTaskRunner 与 AiAttemptRecord/
+        AiTaskOutcome；预算闸门、串行故障转移、子取消、单次硬时限（真实计时器）、429 一次、
+        离线暂停、状态机接线（每次迁移经 TaskTransition.apply 并回调 onSnapshot）；
+      - 新增 test/features/ai/ai_runner_support.dart（脚本化适配器：成功/失败/挂起逐次编排、
+        可注入时钟、可推进的等待调度、可切换离线端口、诊断记录 sink）与
+        test/features/ai/ai_task_runner_test.dart（29 条）。
+
+    数据迁移/删除/依赖变化：无 schema 变化；无删除；**无新增第三方依赖**
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 生成物无变化（本轮无 schema 改动）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1329 通过 / 2 跳过 / 0 失败（相对 T028 的 1300 新增 29 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    费用与秘密：**未发起任何真实网络调用，无费用产生**（本轮全部用脚本化适配器与假时钟）；
+      诊断只记结构事实（别名/尝试序号/连续次数/token/耗时），并有用例断言日志既不含 prompt
+      也不含 Key
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮交付的是会真实影响花费与内容去向的规则（故障转移 + 预算），属复核适用范围；
+      2) **未做真实网络下的五次超时演练**：架构 e2e 的「连续五次无响应」在本轮用假时钟与脚本化
+         适配器验证；真实网络路径（45s 首响应 / 30s 停滞由适配器承担）已有 T026/T027 的夹具与
+         实测证据，但「真等五次超时再换模型」没有跑（手册 6.2 明确说这类纯逻辑不必等真实网络）；
+      3) **120 秒单次硬时限按短时限用例验证**：真实实现是 Timer，测试把硬时限设成 80 ms 来
+         证明「卡住的流一定被打断」，未真实等待 120 秒；
+      4) **SET-036 的三项仍只从注册表默认值读取**（AiTaskBudget.fromSettingsReader 已实现并有
+         用例，但队列层在应用内尚未接上设置读取——见 T041 的同步投影；本轮不引入第二套设置读取路径）；
+      5) **任务队列尚未接上界面**：本轮交付的是 application 层的队列与规则，可被 T034/T035/T036
+         直接复用；SET-035 的五次规则说明文字仍留在 AI 服务页（R025 记录的那条提示）；
+      6) **Token 估算是保守近似**：CJK 1 字 1 token / 非 CJK 4 字符 1 token，与服务商真实
+         分词不同；服务商给出 usage 时以 usage 为准，未给出时才用估算并标记；
+      7) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T029 → DONE，标注
+      缺失 REVIEW）、状态摘要与本轮记录。D-09 与其产品边界（内容拒绝不通过换模型绕过、故障转移
+      只在用户启用且已告知的列表内）未被改动。
+    提交/差异范围：提交 "T029: budgeted AI task runner with five-strike failover and deadline
+      enforcement"；基线为 3c05575（T028）。未 push
+    下一可执行任务及前置条件：T030（结果缓存/持久任务/中断恢复），前置 T029 与 T009 均已 DONE
+
+### 7.1.24 轮次记录 R030（T030）
+
+    轮次/日期：R030 / 2026-09-22
+    任务 ID 与状态变化：T030 TODO → DONE（M2 第六项；**缺失 REVIEW**，理由同前几轮：本轮新增
+      持久化数据结构（schema v10）与「重启后如何对待未完成任务」这一影响计费与数据保留的策略）
+    相关决策/功能/SET 项：架构 4.5（缓存键组成、不能自动重放不确定是否计费的请求、进程终止记
+      interrupted）、架构 5.1（AITask / Attempt / Result 实体：输入/模板版本、阶段、deadline、
+      消耗、错误、成功结果及草稿）、架构 5.3（迁移不得消费用户数据）、手册 T030 的三条验收、
+      D-09；SET-031（凭据只住 Keychain）
+
+    **本轮最关键的一条：把「不自动重发」做成结构性的事实，而不是一句约定**
+
+      架构 4.5 与手册 T030 都要求「进程重启显示 interrupted，不自动重发付费请求」。本轮把它
+      落成三处**可被测试证明**的机制，而不是靠调用点自觉：
+
+      | 机制 | 落点 | 为什么是这一种做法 |
+      | --- | --- | --- |
+      | 启动批量标记 | DriftAiTaskStore.markActiveAsInterrupted（一条带 IN 的 UPDATE） | 逐个读改写在中途再崩溃会留下「一部分 interrupted、一部分仍 running」的混合状态，下次启动无法区分「真的还在跑」与「上次没标完」 |
+      | 只标活跃态 | 显式列出四个活跃态，不用 NOT IN（旧终态列表） | 将来新增一个终态时「NOT IN 旧列表」会把新终态误判成活跃态并覆盖掉它的真实结论 |
+      | 恢复走新任务 | AiTaskRecord 的 status 是终态；restart() 创建新 taskId | 状态机的「终态不可迁移」由 TaskTransition 的表结构保证；用新任务承接让两段历史都能被看到 |
+
+      **实测证据**：用例造一条 running 与一条 waitingNetwork 的记录，推进时钟后调用启动标记，
+      断言两条都变成 interrupted、deadline **未被改动**、并且**请求次数为 0**（没有自动重发）。
+      另有用例断言已成功的记录不会被标记覆盖（成功版本不被草稿覆盖）。
+
+    **缓存：键是全部组成项的摘要，因此失效是结构性的**
+
+      缓存键 = 任务类型 + 输入哈希 + **路由模型链**（含顺序）+ 语言 + 温度 + 输出上限的确定性
+      摘要（SHA-256，用工程自实现的那一份，不用跨进程不稳定的 String.hashCode）。
+      「输入/模型/语言任一变化即失效」因此不依赖任何调用点记得清缓存——变化就是另一个键、
+      在数据上就是查不到那一行。用例逐项验证五类变化都会**重新真实请求**：输入文本、语言、
+      模型列表、任务类型、温度。
+
+      命中缓存的行为被单独钉住：**一个请求都不发**（用适配器工厂的请求计数断言，而不是
+      「返回得快」这种观察），记录里带 from_cache，界面上标「命中缓存（未发请求）」——
+      一次没发请求就完成的任务与一次真实调用看起来一样，会让用户对「到底花没花钱」产生误判。
+
+      **只写成功结果**：failed / cancelled / partial 都不写缓存。把失败固化下来会让一次网络抖动
+      变成之后所有同输入任务的结论；partial 本来就承认不完整，用它命中下一次会让用户以为拿到了
+      完整结果。另有两条边界：缓存读失败**不当命中**（那会返回一份来源不明的内容）也不让任务
+      失败（缓存是优化不是前提），按未命中继续并留诊断；清缓存**不删任务状态**（T047 的边界，
+      有用例断言清空缓存后任务列表长度不变、且下次同输入会重新发请求）。
+
+    **schema v10：** 新增两张表与三个索引，全部是**新增**，不改写任何已有列
+
+      | 表 | 关键列 | 说明 |
+      | --- | --- | --- |
+      | ai_tasks | task_id（主键）、kind、输入快照 JSON、prompt_hash、模型别名与路由模型 ID、状态九态、deadline、累计 token、尝试次数、结果、结束原因、**错误类别**、提供商别名、cache_key、from_cache、created_at/updated_at | 任务「当前态」；分列存错误**类别**而不是错误正文——响应体可能回显请求内容（架构第 8 节） |
+      | ai_result_cache_records | cache_key（主键）、result_text、提供商别名/模型 ID、created_at | 只存成功产出 |
+
+      三条刻意的取舍：
+        1) **两张表都没有任何凭据列**（SET-031：Key 只住 Keychain）。有用例逐列断言不存在
+           含 api_key/key/token/secret 等字样的列，其中 consumed_tokens（用量计数）与 cache_key
+           （输入哈希摘要）作为**结构性列名**逐个显式放行——逐个放行而不是放宽断言，漏掉一条
+           真的叫 api_key 的列时检查仍会失败；
+        2) **输入快照与模型列表存 JSON**：它们是「当时发出去的东西」的完整记录，字段集合会随
+           任务类型变化（T034/T035 的参数不同），拆成固定列会让每加一种任务类型就要一次迁移；
+        3) **不回填任何数据**：升级前不存在「跑过的 AI 任务」这个事实，空表是诚实的默认状态；
+           不用当前时间造一批看起来跑过的历史任务（与 v2→v9 各步同一口径）。
+
+      迁移与结构证据三条：migration_v9_to_v10_test（v9 带旧数据升级：两张新表就绪、索引真的建出、
+      AI 模型记录/订阅/三态与收藏零丢失、新表为空）、schema_snapshot_test 的 v10 快照用例
+      （新增实体恰为两张表 + 三个索引，列名齐全，无凭据列，主键是 task_id/cache_key）、
+      migration_test 的基线推进到 v10（「代码比库新但迁移写坏」的坏实现提到 v11，
+      并修掉了 v1→v2 用例里用 v9 生成类打开的陈旧断言）。
+
+    **界面落点：** 新增「设置 → AI 任务记录」页（application 层的任务列表控制器 + presentation）。
+    页面**不提供「自动恢复」按钮**，只有「重新开始」——它创建新任务、旧记录保持 interrupted；
+    一个叫「恢复」的按钮会让人以为不用重新付费。活跃态任务的重开按钮是禁用态并给出原因
+    （重开会把同一份输入发两次）。重新开始时用**当前**的启用模型而不是旧快照里的模型：
+    旧快照只有别名，而那个模型可能已被停用或删除，用旧配置硬跑会向用户以为已经关掉的端点发请求。
+
+    修改文件与主要行为：
+      - 新增 features/ai/domain/ai_task_record.dart（AiTaskKind/AiInputSnapshot/AiResultCacheKey/
+        AiResultCacheEntry/AiTaskRecord，输入快照的规范化拼接用角色名 + 长度前缀分隔，避免
+        「两条消息拼接后与另一组消息撞成同一串」的边界歧义）；
+      - 新增 features/ai/domain/ai_task_store.dart（AiTaskStore 与 AiResultCache 两个端口；
+        「库里没这条记录」返回 Ok(null) 与「读取失败」返回 Err(storage) 严格分开，混成一个
+        null 会让缓存判定在存储故障时静默变成「没命中」）；
+      - 新增 features/ai/application/persistent_ai_task_service.dart（先查缓存再执行、成功才写缓存、
+        每次迁移落库、启动标中断，「重新开始」创建新任务承接）；
+      - 新增 infrastructure/local/ai_task_store.dart（两个端口的 drift 实现；JSON 解析失败按
+        「没有这条记录」处理并记一条结构性诊断，一条损坏的快照不会让整个任务列表打不开）；
+      - 新增 infrastructure/local/degraded_ai_task_store.dart（数据库不可用时：任务读空、写失败；
+        缓存读作未命中（真实答案，功能照常发真实请求）、写明确失败）；
+      - 修改 infrastructure/local/tables/ai_tables.dart、database.dart（两张表 + 三个索引；schema
+        9 → 10；v9→v10 增量迁移步骤，含「createTable 不建索引」这条既有教训的说明）；
+      - 新增 drift_schemas/drift_schema_v10.json 与 test/generated/schema_v10.dart；
+      - 修改 features/ai/application/ai_ports.dart（aiTaskStoreProvider/aiResultCacheProvider）、
+        lib/app/app_providers.dart（两个端口的两种启动状态分支）、lib/app/app_bootstrap.dart
+        （打开库之后、界面读列表之前完成启动标记，条数写进 AppBootstrapResult.interruptedTaskCount）；
+      - 新增 features/ai/presentation/ai_task_list_page.dart 与设置页入口；
+      - 新增 24 条中英任务记录文案（页面标题与入口、空态与读取失败、重开按钮与其两条边界、
+        命中缓存标注、任务元信息、九态与五种任务类型展示名），l10n 条目数 514 → 538；
+      - 新增 test/features/ai/persistent_ai_task_service_test.dart（20 条）、
+        test/infrastructure/local/migration_v9_to_v10_test.dart（2 条），修改 schema_snapshot_test、
+        migration_test、migration_v1_to_v2_test 与 6 个迁移用例的基线版本号，
+        并重生成 1 张设置页 golden（新增入口导致的预期变化，已逐图核对差异只在新增行与其后的位移）。
+
+    数据迁移/删除/依赖变化：**schema v9 → v10**（新增 ai_tasks 与 ai_result_cache_records
+      两张表与三个索引；无回填、无删除、不改写已有列）；无新增第三方依赖
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 生成物含 v10 表与索引
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS | 新增 drift_schema_v10.json
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 | PASS | 新增 schema_v10.dart（共 11 个文件）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1352 通过 / 2 跳过 / 0 失败（相对 T029 的 1329 新增 23 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    费用与秘密：**未发起任何真实网络调用，无费用产生**；新增的两张表经逐列断言**不含任何凭据列**；
+      任务记录里只存错误的**类别**（AppError.kind），不存错误正文
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增 schema 迁移与「重启后如何对待未完成任务」的策略，属复核适用范围；
+      2) **未做真实的「杀进程 → 重启」演练**：中断判定用真实内存库 + 假时钟验证（造 running/waiting
+         记录后调用启动标记），没有真的在 macOS 上强杀进程再启动核对（那需要一次真实付费任务，
+         本轮未获授权发起）；
+      3) **缓存没有上限与淘汰策略**（属 T047 的清理策略与缓存限额，SET-077–082）：本轮只做
+         正确性（键与写入条件）与「清缓存不删状态」，没有做大小上限、LRU 或保留期；
+      4) **任务列表页是只读 + 重开**：没有取消运行中任务的入口（取消信号在 application 层已就绪，
+         但没有把「正在跑的任务」暴露成可取消的界面状态——运行中任务需要 app 层持有其取消信号）；
+      5) **SET-059 的 deadline 在缓存命中路径上未设定**（命中缓存不占时限，这是刻意的：没有
+         请求发生；记录里 deadline 为 null 是真实状态，不是缺失）；
+      6) **未接入每日总结/翻译等真实任务**（T034–T037）：本轮交付的是通用机制与界面骨架，
+         真实任务的输入快照组成与校验规则由各自任务定义；
+      7) Android 工程仍未初始化；8) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T030 → DONE，标注
+      缺失 REVIEW）、状态摘要、R030 记录与文档索引。三条既定产品边界未被改动（不自动重放不确定
+      是否计费的请求、成功版本不被草稿覆盖、凭据只住 Keychain）。
+    提交/差异范围：提交 "T030: persistent AI tasks, result cache and interrupted semantics"；
+      基线为 T029 的提交。未 push
+    下一可执行任务及前置条件：T031（SearchProvider 与 Tavily/Brave/SearXNG 适配），
+      前置 T010/T024 均已 DONE
+
+
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
 
 | 项目 | 锁定值 | 实测日期/证据 |
@@ -2492,6 +2731,16 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | 全文检索 tokenizer | infrastructure/local/tables/article_search.drift（tokenize='trigram'） | 用 SQLite **内置**的 trigram tokenizer（3.34+；本机运行时 3.53.4 实测可用）。**未引入**第三方分词库（jieba 等），符合任务给定的选型顺序 a 方案 |
 | fts5 的 SQL 分析支持 | build.yaml 的 sql.options.modules: [fts5] | 让 drift 分析器认识 USING fts5(...)。不声明它会让该表落到「快照里没有、运行时有」的漂移上（实测报 Unknown module 且不生成表元素） |
 | AI 适配器的传输层（T026） | infrastructure/network/sse.dart、ai_stream_guard.dart、ai_http.dart | **无第三方依赖**：SSE 切分与整行解码、首响应/停滞计时与取消、错误体的有界读取全部用 dart:async / dart:convert / dart:typed_data；HTTP 用既有 http 1.6.0。**未引入**任何 SSE 或流式解析库——本工程只需要「按行取 data 负载」这一件事，而现成库会带来它自己的一套重连与 Last-Event-ID 语义，与本项目的取消模型冲突 |
+
+### 7.2.2 T029/T030 新增的运行时机制（均无第三方依赖）
+
+| 能力 | 实现位置 | 实测/依据 |
+| --- | --- | --- |
+| 有预算的队列与故障转移（T029） | features/ai/application/ai_task_runner.dart、ai_task_budget.dart、ai_failover.dart | **无第三方依赖**：预算/计数/分类是纯 Dart；单次硬时限用 dart:async 的 Timer（流卡住时不会有任何事件，事件驱动的检查等不到）。29 条假时钟用例逐条验证手册 6.3 的五次规则 |
+| 保守 Token 估算（SET-063） | features/ai/application/ai_failover.dart（estimateAiTokens） | **无第三方依赖**，也不引入分词库：CJK 按 1 字符 1 token、非 CJK 按 4 字符 1 token 向上取整（保守方向），服务商给出 usage 时以 usage 为准并标记来源 |
+| 结果缓存的键（T030） | features/ai/domain/ai_task_record.dart（AiResultCacheKey） | 用 core/digest/sha256.dart 的工程自实现（T013，无 crypto 依赖）做确定性摘要；**不用** String.hashCode——它跨进程不稳定，会让重启后同一输入得到不同的缓存判定 |
+| 任务与缓存的持久化（T030） | infrastructure/local/ai_task_store.dart、tables/ai_tables.dart、schema v10 | 用既有 drift 2.35.0；两张新表 + 三个索引；启动标中断是一条带 IN 的批量 UPDATE（SQLite 原子），不是读-改-写循环 |
+| 任务记录页（T030） | features/ai/presentation/ai_task_list_page.dart | 只用 Flutter 自带组件与既有 l10n 资源；**无第三方依赖** |
 
 FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，完整表见 R022）：
 

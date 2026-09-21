@@ -21,6 +21,7 @@ import 'package:flux/core/app_metadata.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/ai/presentation/ai_services_page.dart';
+import 'package:flux/features/ai/presentation/ai_task_list_page.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
 import 'package:flux/features/statistics/presentation/reading_stats_page.dart';
 import 'package:flux/l10n/l10n.dart';
@@ -116,6 +117,20 @@ class _SettingsBody extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) => const AiServicesPage(),
+            ),
+          ),
+        ),
+        // T030：AI 任务记录（含中断恢复）。与上面那条分开的理由是它们管的事不同：
+        // 上面管**配置**（哪些模型可用），这条管**历史**（跑过什么、有没有中断）。
+        // 中断只有在用户能看到并能手动重新开始时才有意义，因此这条入口是 T030 验收
+        // 「进程重启显示 interrupted」的界面落点。
+        _NavigationRow(
+          title: l10n.settingsAiTasksEntryTitle,
+          subtitle: l10n.settingsAiTasksEntrySubtitle,
+          icon: Icons.history,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const AiTaskListPage(),
             ),
           ),
         ),
