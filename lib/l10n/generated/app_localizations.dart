@@ -1219,6 +1219,246 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'未分类'**
   String get subscriptionReservedGroupName;
+
+  /// OPML 导入导出页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导入与导出 OPML'**
+  String get opmlPageTitle;
+
+  /// OPML 交换范围说明（架构 4.1）
+  ///
+  /// In zh, this message translates to:
+  /// **'导入与导出只交换标准订阅地址、名称与分组；不含 Flux 内部 ID、加精或阅读状态。'**
+  String get opmlPageNotice;
+
+  /// 打开文件选择器
+  ///
+  /// In zh, this message translates to:
+  /// **'选择 OPML 文件'**
+  String get opmlPickFile;
+
+  /// 重新选文件
+  ///
+  /// In zh, this message translates to:
+  /// **'换一个文件'**
+  String get opmlRepick;
+
+  /// 当前选中的文件名
+  ///
+  /// In zh, this message translates to:
+  /// **'文件：{name}'**
+  String opmlFileName(String name);
+
+  /// 预览区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导入预览'**
+  String get opmlPreviewTitle;
+
+  /// 预览统计
+  ///
+  /// In zh, this message translates to:
+  /// **'共 {total} 项：新增 {added}、重复 {duplicate}、无效 {invalid}'**
+  String opmlPreviewSummary(int total, int added, int duplicate, int invalid);
+
+  /// SET-026 分组策略标签
+  ///
+  /// In zh, this message translates to:
+  /// **'分组处理'**
+  String get opmlStrategyLabel;
+
+  /// SET-026 默认策略
+  ///
+  /// In zh, this message translates to:
+  /// **'全部放入未分类'**
+  String get opmlStrategyUncategorized;
+
+  /// SET-026 另一选项
+  ///
+  /// In zh, this message translates to:
+  /// **'保留文件分组'**
+  String get opmlStrategyKeepGroups;
+
+  /// SET-026 说明
+  ///
+  /// In zh, this message translates to:
+  /// **'默认全部放入未分类；保留文件分组会按文件里的层级新建分组。'**
+  String get opmlStrategyHint;
+
+  /// 预览状态：新增
+  ///
+  /// In zh, this message translates to:
+  /// **'新增'**
+  String get opmlStatusAdded;
+
+  /// 预览状态：重复
+  ///
+  /// In zh, this message translates to:
+  /// **'重复'**
+  String get opmlStatusDuplicate;
+
+  /// 预览状态：无效
+  ///
+  /// In zh, this message translates to:
+  /// **'无效'**
+  String get opmlStatusInvalid;
+
+  /// 结果状态：已导入
+  ///
+  /// In zh, this message translates to:
+  /// **'已导入'**
+  String get opmlStatusImported;
+
+  /// 结果状态：失败
+  ///
+  /// In zh, this message translates to:
+  /// **'失败'**
+  String get opmlStatusFailed;
+
+  /// 重复项说明（架构 4.1 不重置状态）
+  ///
+  /// In zh, this message translates to:
+  /// **'重复项已存在，导入时会保留它们原有的分组、加精与刷新设置（不重置状态）。'**
+  String get opmlDuplicatesNote;
+
+  /// 无效项说明
+  ///
+  /// In zh, this message translates to:
+  /// **'无效项无法导入：地址缺失或不是可用的 http/https 地址。'**
+  String get opmlInvalidNote;
+
+  /// 没有可导入项时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这份文件没有可导入的订阅。'**
+  String get opmlNothingToImport;
+
+  /// 确认导入
+  ///
+  /// In zh, this message translates to:
+  /// **'开始导入'**
+  String get opmlStartImport;
+
+  /// 导入进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在导入…'**
+  String get opmlImporting;
+
+  /// 结果区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导入结果'**
+  String get opmlResultTitle;
+
+  /// 结果统计
+  ///
+  /// In zh, this message translates to:
+  /// **'成功 {imported}、重复 {duplicate}、失败 {failed}、无效 {invalid}；导入文章 {articles} 篇'**
+  String opmlResultSummary(
+    int imported,
+    int duplicate,
+    int failed,
+    int invalid,
+    int articles,
+  );
+
+  /// 只重试失败项
+  ///
+  /// In zh, this message translates to:
+  /// **'重试失败项（{count}）'**
+  String opmlRetryFailed(int count);
+
+  /// 重试范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'只重跑失败的条目；已成功的不会被重新请求，也不会新建重复订阅。'**
+  String get opmlRetryHint;
+
+  /// 无需重试
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可重试的失败项'**
+  String get opmlRetryNone;
+
+  /// 导出区标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导出 OPML'**
+  String get opmlExportTitle;
+
+  /// 导出说明
+  ///
+  /// In zh, this message translates to:
+  /// **'把全部订阅导出为标准 OPML 文件，可在其他阅读器里导入。'**
+  String get opmlExportBody;
+
+  /// 触发导出（弹出保存对话框）
+  ///
+  /// In zh, this message translates to:
+  /// **'导出为 OPML'**
+  String get opmlExportAction;
+
+  /// 导出成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已导出 {count} 个订阅到 {path}'**
+  String opmlExportDone(int count, String path);
+
+  /// 导出空清单提示
+  ///
+  /// In zh, this message translates to:
+  /// **'当前没有任何订阅，导出的文件只含空的 body。'**
+  String get opmlExportEmpty;
+
+  /// 秘密排除说明（SET-027）
+  ///
+  /// In zh, this message translates to:
+  /// **'导出会移除地址里明确的秘密参数（token、api_key、password 等）与账号密码；这些订阅在目标设备上需要重新填写凭据。'**
+  String get opmlExportSecretNote;
+
+  /// 导出时确实剥离了秘密参数时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已从 {count} 处地址移除秘密参数（{names}）；这些订阅在其它设备上需要补填凭据。'**
+  String opmlExportSecretRemoved(int count, String names);
+
+  /// 导出失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败：{reason}'**
+  String opmlExportError(String reason);
+
+  /// 导入流程失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'导入失败：{reason}'**
+  String opmlImportError(String reason);
+
+  /// 取消当前导入
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get opmlCancel;
+
+  /// 条目在文件中的序号
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {index} 项'**
+  String opmlEntryIndex(int index);
+
+  /// 条目所属分组路径
+  ///
+  /// In zh, this message translates to:
+  /// **'分组：{path}'**
+  String opmlEntryGroup(String path);
+
+  /// 订阅管理页上的 OPML 入口
+  ///
+  /// In zh, this message translates to:
+  /// **'导入 / 导出 OPML'**
+  String get opmlMenuEntry;
 }
 
 class _AppLocalizationsDelegate

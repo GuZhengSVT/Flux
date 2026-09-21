@@ -890,5 +890,257 @@
   "subscriptionReservedGroupName": "未分类",
   "@subscriptionReservedGroupName": {
     "description": "保留组的显示名；保留组不可改名，因此显示名来自资源而不是数据库"
+  },
+  "opmlPageTitle": "导入与导出 OPML",
+  "@opmlPageTitle": {
+    "description": "OPML 导入导出页标题"
+  },
+  "opmlPageNotice": "导入与导出只交换标准订阅地址、名称与分组；不含 Flux 内部 ID、加精或阅读状态。",
+  "@opmlPageNotice": {
+    "description": "OPML 交换范围说明（架构 4.1）"
+  },
+  "opmlPickFile": "选择 OPML 文件",
+  "@opmlPickFile": {
+    "description": "打开文件选择器"
+  },
+  "opmlRepick": "换一个文件",
+  "@opmlRepick": {
+    "description": "重新选文件"
+  },
+  "opmlFileName": "文件：{name}",
+  "@opmlFileName": {
+    "description": "当前选中的文件名",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "subscriptions.opml"
+      }
+    }
+  },
+  "opmlPreviewTitle": "导入预览",
+  "@opmlPreviewTitle": {
+    "description": "预览区标题"
+  },
+  "opmlPreviewSummary": "共 {total} 项：新增 {added}、重复 {duplicate}、无效 {invalid}",
+  "@opmlPreviewSummary": {
+    "description": "预览统计",
+    "placeholders": {
+      "total": {
+        "type": "int",
+        "example": "6"
+      },
+      "added": {
+        "type": "int",
+        "example": "3"
+      },
+      "duplicate": {
+        "type": "int",
+        "example": "2"
+      },
+      "invalid": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "opmlStrategyLabel": "分组处理",
+  "@opmlStrategyLabel": {
+    "description": "SET-026 分组策略标签"
+  },
+  "opmlStrategyUncategorized": "全部放入未分类",
+  "@opmlStrategyUncategorized": {
+    "description": "SET-026 默认策略"
+  },
+  "opmlStrategyKeepGroups": "保留文件分组",
+  "@opmlStrategyKeepGroups": {
+    "description": "SET-026 另一选项"
+  },
+  "opmlStrategyHint": "默认全部放入未分类；保留文件分组会按文件里的层级新建分组。",
+  "@opmlStrategyHint": {
+    "description": "SET-026 说明"
+  },
+  "opmlStatusAdded": "新增",
+  "@opmlStatusAdded": {
+    "description": "预览状态：新增"
+  },
+  "opmlStatusDuplicate": "重复",
+  "@opmlStatusDuplicate": {
+    "description": "预览状态：重复"
+  },
+  "opmlStatusInvalid": "无效",
+  "@opmlStatusInvalid": {
+    "description": "预览状态：无效"
+  },
+  "opmlStatusImported": "已导入",
+  "@opmlStatusImported": {
+    "description": "结果状态：已导入"
+  },
+  "opmlStatusFailed": "失败",
+  "@opmlStatusFailed": {
+    "description": "结果状态：失败"
+  },
+  "opmlDuplicatesNote": "重复项已存在，导入时会保留它们原有的分组、加精与刷新设置（不重置状态）。",
+  "@opmlDuplicatesNote": {
+    "description": "重复项说明（架构 4.1 不重置状态）"
+  },
+  "opmlInvalidNote": "无效项无法导入：地址缺失或不是可用的 http/https 地址。",
+  "@opmlInvalidNote": {
+    "description": "无效项说明"
+  },
+  "opmlNothingToImport": "这份文件没有可导入的订阅。",
+  "@opmlNothingToImport": {
+    "description": "没有可导入项时的说明"
+  },
+  "opmlStartImport": "开始导入",
+  "@opmlStartImport": {
+    "description": "确认导入"
+  },
+  "opmlImporting": "正在导入…",
+  "@opmlImporting": {
+    "description": "导入进行中"
+  },
+  "opmlResultTitle": "导入结果",
+  "@opmlResultTitle": {
+    "description": "结果区标题"
+  },
+  "opmlResultSummary": "成功 {imported}、重复 {duplicate}、失败 {failed}、无效 {invalid}；导入文章 {articles} 篇",
+  "@opmlResultSummary": {
+    "description": "结果统计",
+    "placeholders": {
+      "imported": {
+        "type": "int",
+        "example": "3"
+      },
+      "duplicate": {
+        "type": "int",
+        "example": "2"
+      },
+      "failed": {
+        "type": "int",
+        "example": "1"
+      },
+      "invalid": {
+        "type": "int",
+        "example": "1"
+      },
+      "articles": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "opmlRetryFailed": "重试失败项（{count}）",
+  "@opmlRetryFailed": {
+    "description": "只重试失败项",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "opmlRetryHint": "只重跑失败的条目；已成功的不会被重新请求，也不会新建重复订阅。",
+  "@opmlRetryHint": {
+    "description": "重试范围说明"
+  },
+  "opmlRetryNone": "没有可重试的失败项",
+  "@opmlRetryNone": {
+    "description": "无需重试"
+  },
+  "opmlExportTitle": "导出 OPML",
+  "@opmlExportTitle": {
+    "description": "导出区标题"
+  },
+  "opmlExportBody": "把全部订阅导出为标准 OPML 文件，可在其他阅读器里导入。",
+  "@opmlExportBody": {
+    "description": "导出说明"
+  },
+  "opmlExportAction": "导出为 OPML",
+  "@opmlExportAction": {
+    "description": "触发导出（弹出保存对话框）"
+  },
+  "opmlExportDone": "已导出 {count} 个订阅到 {path}",
+  "@opmlExportDone": {
+    "description": "导出成功提示",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "path": {
+        "type": "String",
+        "example": "/Users/me/Desktop/flux.opml"
+      }
+    }
+  },
+  "opmlExportEmpty": "当前没有任何订阅，导出的文件只含空的 body。",
+  "@opmlExportEmpty": {
+    "description": "导出空清单提示"
+  },
+  "opmlExportSecretNote": "导出会移除地址里明确的秘密参数（token、api_key、password 等）与账号密码；这些订阅在目标设备上需要重新填写凭据。",
+  "@opmlExportSecretNote": {
+    "description": "秘密排除说明（SET-027）"
+  },
+  "opmlExportSecretRemoved": "已从 {count} 处地址移除秘密参数（{names}）；这些订阅在其它设备上需要补填凭据。",
+  "@opmlExportSecretRemoved": {
+    "description": "导出时确实剥离了秘密参数时的提示",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "names": {
+        "type": "String",
+        "example": "token"
+      }
+    }
+  },
+  "opmlExportError": "导出失败：{reason}",
+  "@opmlExportError": {
+    "description": "导出失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "本地存储失败"
+      }
+    }
+  },
+  "opmlImportError": "导入失败：{reason}",
+  "@opmlImportError": {
+    "description": "导入流程失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "解析失败"
+      }
+    }
+  },
+  "opmlCancel": "取消",
+  "@opmlCancel": {
+    "description": "取消当前导入"
+  },
+  "opmlEntryIndex": "第 {index} 项",
+  "@opmlEntryIndex": {
+    "description": "条目在文件中的序号",
+    "placeholders": {
+      "index": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "opmlEntryGroup": "分组：{path}",
+  "@opmlEntryGroup": {
+    "description": "条目所属分组路径",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "Tech / Nested"
+      }
+    }
+  },
+  "opmlMenuEntry": "导入 / 导出 OPML",
+  "@opmlMenuEntry": {
+    "description": "订阅管理页上的 OPML 入口"
   }
 }

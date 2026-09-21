@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'package:flux/core/core.dart';
+import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
@@ -26,6 +27,7 @@ import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
+import 'package:flux/infrastructure/platform/file_selector_access.dart';
 
 import 'app_bootstrap.dart';
 
@@ -110,6 +112,11 @@ List<Override> bootstrapOverrides(
     // 降级模式下「预览」仍然可用，只有「确认入库」会因存储失败而明确报错，
     // 这比让整个页面不可用更符合实际（用户至少能看到地址是否可解析）。
     feedFetcherProvider.overrideWithValue(feedFetcher ?? HttpFeedFetcher()),
+    // ---- T015：OPML 导入/导出的文件读写端口 --------------------------------
+    // 与数据库无关（它只需要系统文件面板），因此两种启动状态下都给真实实现：
+    // 降级模式下仍可导出当前（可能为空的）清单、仍可读文件做预览，只有入库会
+    // 因存储失败而明确报错。
+    fileAccessProvider.overrideWithValue(const FileSelectorAccess()),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(
         DriftFeedCatalogStore(catalogDatabase),

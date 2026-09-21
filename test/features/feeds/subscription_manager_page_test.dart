@@ -23,6 +23,7 @@ import 'package:http/testing.dart';
 
 import 'package:flux/core/core.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
+import 'package:flux/features/feeds/presentation/opml_page.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
@@ -588,6 +589,22 @@ void main() {
       expect(find.text('Refresh policy'), findsOneWidget);
       expect(find.text('Global automatic refresh'), findsOneWidget);
       expect(find.text('Uncategorized'), findsWidgets);
+    });
+  });
+
+  group('OPML 入口（T015）', () {
+    testWidgets('顶栏有导入/导出入口，点击进入 OPML 页', (WidgetTester tester) async {
+      await seedFeed(name: 'A feed');
+      await pumpPage(tester);
+
+      // 入口必须真的可达：能力做完了却没有入口，用户看到的仍是「没有这个功能」。
+      final Finder entry = find.byTooltip('导入 / 导出 OPML');
+      expect(entry, findsOneWidget);
+
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OpmlPage), findsOneWidget);
     });
   });
 }

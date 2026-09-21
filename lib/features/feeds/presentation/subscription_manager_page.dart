@@ -28,6 +28,7 @@ import '../application/feed_manager_state.dart';
 import '../application/feed_overview.dart';
 import 'feed_dialogs.dart';
 import 'feed_manager_controller.dart';
+import 'opml_page.dart';
 
 /// 订阅管理页。
 /// 分组区块的显示名。
@@ -66,6 +67,18 @@ class SubscriptionManagerPage extends ConsumerWidget {
             tooltip: l10n.subscriptionNewGroup,
             icon: const Icon(Icons.create_new_folder_outlined),
             onPressed: () => _createGroup(context, ref),
+          ),
+          // OPML 导入/导出入口（T015）。放在订阅管理页而不是设置页：架构第 3 节把
+          // 「OPML 导入预览/逐项结果/导出」列在「订阅管理」之下，它是订阅的批量
+          // 增删，与单条添加是同一条工作流的两个粒度。
+          IconButton(
+            tooltip: l10n.opmlMenuEntry,
+            icon: const Icon(Icons.import_export),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => const OpmlPage(),
+              ),
+            ),
           ),
           const SizedBox(width: FluxSpacing.xxs),
         ],

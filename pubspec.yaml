@@ -57,6 +57,17 @@ dependencies:
   #   - 纯 Dart 实现，无原生依赖，不引入 WebView 或网页运行时（架构第 8 节）。
   xml: ^7.0.1
 
+  # 文件选择/保存对话框（T015 的 OPML 导入与导出）。
+  # 选 Flutter 官方维护的 file_selector 而不是 file_picker：
+  #   - file_selector 由 flutter/packages 维护，直接对接 macOS 的 NSOpenPanel/
+  #     NSSavePanel（沙盒下通过 security-scoped bookmark 授权访问用户选中的文件），
+  #     与项目「平台桥接只用于文件/分享等平台边界」的路线一致；
+  #   - file_picker 在 macOS 上同样可用，但它自带的 iOS/Android 权限申请与
+  #     「下载/云盘」入口引入了本项目不需要的抽象层。
+  # 注意：本项目**不**直接把文件路径写进数据库——导入读文件、导出写文件，
+  # 文件内容随后进入 OPML 用例，数据库仍只保存解析后的订阅。
+  file_selector: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

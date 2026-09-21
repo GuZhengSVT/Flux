@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的五项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）与 T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）。现状：可启动真实应用并进入壳层，三个顶层去向均为明确占位且标注计划任务；导航与空态已使用 T012 的原创图标与共享控件；SET-001 语言与 SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6），但**尚未接到界面**（订阅管理 UI 属 T014），因此界面上仍看不到文章。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的七项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）、T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）、T014（单源添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护，订阅管理页）与 T015（OPML 导入预览/逐项结果/重试与导出，URL 秘密参数排除）。现状：可启动真实应用并进入壳层，三个顶层去向均为明确占位且标注计划任务；「我的」页设置区可进入订阅管理页并完成添加/编辑/分组操作，其顶栏另有 OPML 导入/导出入口（本轮补上，此前 T015 只有页面没有入口）；SET-001 语言与 SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6），文章列表与正文阅读仍属 T017–T019，因此界面上还看不到文章。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T013 已完成并有本机证据；下一任务 T014（单源导入、编辑、分组/排序/置顶/加精），前置 T010 与 T013 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T015 已完成并有本机证据；下一任务 T016（刷新调度/并发/网络策略），前置 T014 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -56,7 +56,7 @@
 | --- | --- | --- | --- |
 | 工程/架构/许可证/CI | D-01–05、D-14 | T001–T010 | TODO |
 | 导航、外观、中英和原创图标 | SET-001–009、014、016 | T011、T012、T019、T051 | DOING（T011 交付三个顶层去向与占位页、SET-001/002 真实生效、浅深主题 token、中英资源与即时切换；T012 交付 14 个原创 SVG 图标（20/24 两套尺寸）、三态阅读控件、独立收藏、空态/状态横幅/卡片与八类状态验证，导航与空态已真正使用原创图标；SET-003–009/014/016 仍待 T012 后续/T019/T051） |
-| RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | DOING（T013 已交付并真实源验证：条件请求/304、限并发与超时、大响应与压缩炸弹防护、DTD/实体拒绝、RSS 2.0/Atom 解析、受控文档树清洗、身份去重与正文修订；订阅管理 UI、OPML 与刷新调度属 T014–T016，界面上尚看不到文章） |
+| RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | DOING（T013 已交付并真实源验证：条件请求/304、限并发与超时、大响应与压缩炸弹防护、DTD/实体拒绝、RSS 2.0/Atom 解析、受控文档树清洗、身份去重与正文修订；T014 交付订阅管理页（添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护）；T015 交付 OPML 导入预览/逐项结果/重试与导出，导出排除内部 ID、加精/刷新偏好、阅读状态与 URL 秘密参数；刷新调度属 T016，文章列表与正文仍属 T017–T019，界面上尚看不到文章） |
 | 文章三态/收藏/批量操作 | F-STATE；SET-010、081 | T017、T018、T045 | TODO |
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | TODO |
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | TODO |
@@ -114,8 +114,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | DONE |
 | T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | DONE |
 | T013 | T009 | RSS/Atom 网络、解析、去重与内容清洗 | 同/异源 GUID、URL 参数、正文修订、无日期、304、异常 XML、外部实体、大响应、取消均有 fixture | DONE（取消仅做到抓取层的超时与信号量层面，用户可见的“取消按钮”属 T016/T019；详见第 7.1.6 节的遗留问题）|
-| T014 | T010、T013 | 单源导入、编辑、分组/排序/置顶/加精 | SET-020–028 相应行为、未分类保护、加精不改变新闻选材；失败项可修正，不破坏已有源 | TODO |
-| T015 | T014 | OPML 预览、批量导入、逐项重试与导出 | 默认未分类/可保留分组，重复/无效明细；往返保留标准订阅地址/名称/分组，重复导入匹配已有源且不重置状态；不承诺 OPML 保留内部 ID 或应用专属设置，认证被脱敏/排除 | TODO |
+| T014 | T010、T013 | 单源导入、编辑、分组/排序/置顶/加精 | SET-020–028 相应行为、未分类保护、加精不改变新闻选材；失败项可修正，不破坏已有源 | DONE |
+| T015 | T014 | OPML 预览、批量导入、逐项重试与导出 | 默认未分类/可保留分组，重复/无效明细；往返保留标准订阅地址/名称/分组，重复导入匹配已有源且不重置状态；不承诺 OPML 保留内部 ID 或应用专属设置，认证被脱敏/排除 | DONE |
 | T016 | T014 | 刷新调度/并发/网络策略 | 启动、定时、手动合并；超时/限流/离线保留旧内容；前后台限制有实测与说明，计费网络遵守 SET-013 | TODO |
 | T017 | T009、T012、T013 | 三态阅读/收藏及列表批量操作 | 三选一字段无非法组合；unread 展示后 read、later 不自动 read；收藏独立；筛选、批量范围、撤销测试 | TODO |
 | T018 | T014、T017 | 删除订阅/组与保留收藏策略 | 默认保留收藏、其余含 later 清理；分组移动/删除分支、保留来源快照、清理影响预览与墓碑事件，事务失败可回滚 | TODO |
@@ -932,6 +932,98 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
     下一可执行任务及前置条件：T014（单源导入、编辑、分组/排序/置顶/加精），前置 T010 与 T013 已 DONE；
       需实现 SET-020–028 的相应行为与未分类保护，且不得让加精影响新闻选材。
 
+### 7.1.7 轮次记录 R014（T014）
+
+    轮次/日期：R014 / 2026-09-21（补记：该轮由上一会话交付，本轮只回溯登记；原始证据见提交 811a9e4）
+    任务 ID 与状态变化：T014 TODO → DONE（M1 第六项）
+    相关决策/功能/SET 项：架构 4.1（未分类保护、加精与新闻选材无关、重复地址匹配、稳定 ID）；
+      SET-020（刷新间隔取值）、SET-022（启用开关）、SET-023（加精为独立字段）、SET-024（分组与保留组）、
+      SET-025（折叠状态）
+    修改文件与主要行为：交付单源添加（预览 → 确认两步，预览只读不写）、编辑（改名/移动分组/启用/加精/
+      刷新间隔，未分类不可改名不可删除）、分组管理（建组/排序/置顶/删除分支）、订阅管理读模型与页面
+      （分组卡片 + 订阅行 + 全部单条操作），并在设置页「我的」加了入口。主要文件：
+      lib/features/feeds/application/{add_feed,edit_feed,manage_groups,feed_overview,feed_manager_state,feed_ports}.dart、
+      lib/features/feeds/presentation/{subscription_manager_page,feed_manager_controller,feed_dialogs}.dart、
+      lib/infrastructure/local/{feed_catalog_store,feed_store_adapter}.dart。
+    数据迁移/删除/依赖变化：无 schema 变更（沿用 v3）；无删除；无新增依赖
+    检查：该轮的命令退出码未在本轮回溯核对（R014 由上一会话交付）；本轮在本工作树上重跑了完整命令，
+      结果同 R015。
+    UI/真实端点/双设备测试：订阅管理页有真实内存库组件测试与浅深两张 golden
+      （subscription_manager_light_en.png / _dark_en.png）；未接真实端点；无双设备测试（属 T041+）
+    费用与秘密：未发起任何 AI/搜索调用，无费用产生
+    遗留问题与未运行项：
+      1) **没有删除订阅的入口**：架构 4.1 与 D-11 要求删除时先展示影响范围（收藏 vs 其他，含 later）
+         并让用户选择是否保留收藏，属 T018；该轮只提供删除分组（并明确标注其中订阅的处理方式）；
+      2) Android 工程仍未初始化，flutter build apk 未运行（随 Android 阶段补）；
+      3) 该轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列与功能账本。
+    提交/差异范围：提交 "T014: feed add/edit, groups with sort/pin, featured badge, subscription UI"（811a9e4）；
+      基线为 79ba029（T013）。未 push。
+    下一可执行任务及前置条件：T015（OPML 预览、批量导入、逐项重试与导出），前置 T014 已 DONE。
+
+### 7.1.8 轮次记录 R015（T015）
+
+    轮次/日期：R015 / 2026-09-21
+    任务 ID 与状态变化：T015 TODO → DONE（M1 第七项）
+    相关决策/功能/SET 项：架构 4.1（OPML 导入可选「保留分组/全部未分类」，默认未分类；预览重复/无效/成功项，
+      逐项取消与重试，不因一个失败源撤销全部结果；交换标准地址/名称/分组，不保证保留内部 ID、加精/刷新偏好或
+      阅读状态；重复导入按规范地址匹配已有订阅且不重置其状态）；架构 2.2（features 不得 import infrastructure，
+      平台能力经端口注入）；架构第 8 节（不可信 XML 的边界校验）；SET-026（导入分组策略）、SET-027（URL 秘密参数）
+    修改文件与主要行为：
+      - 新增 lib/core/domain/url_secrets.dart：剥离地址里**明确的**秘密参数（token/api_key/password/auth 等，
+        与日志脱敏共用 SecretRedaction 的同一份清单），并丢弃 userinfo 里的明文凭据；其余业务参数一律保留——
+        架构 4.1 明确要求不随意剥离查询参数，剥掉会让地址失效。移除而非替换成 ***：带占位符的地址在别的阅读器里
+        是永远失败的订阅，用户看不出原因；
+      - 新增 lib/features/feeds/domain/opml.dart：OPML 2.0 解析与生成。安全边界与 T013 的 feed_parser 一致
+        （解析前拒绝 DOCTYPE/ENTITY 含大小写与空白变形、事件流二次确认并限制深度/节点数、文档长度上限），
+        并额外保留分组嵌套路径、逐项报告无效原因（含 outline 序号，与文件顺序一致）；
+      - 新增 lib/features/feeds/application/opml_import_export.dart：预览（**不写任何数据**，逐项判新增/重复/无效）、
+        逐项导入（单源失败不中断其余，失败可重试、无效不可重试）、重试只跑失败项并返回合并后的完整清单、
+        保留文件分组时一次性按路径建组（同名复用，避免不同路径下的同名组被混成一个）、导出用例；
+      - 新增 lib/features/feeds/application/file_access.dart 与 lib/infrastructure/platform/file_selector_access.dart：
+        文件读写端口 + file_selector 适配器（用户取消不是错误，返回 Ok(null)）；
+      - 新增 lib/features/feeds/presentation/opml_controller.dart 与 opml_page.dart：选文件 → 预览 → 导入 → 结果
+        的单一状态机；导出后若确实剥离过秘密参数，页面必须明说「这些订阅需在目标设备补填凭据」（SET-027）；
+      - 组合根补上 fileAccessProvider 的注入；订阅管理页顶栏补上 OPML 入口（详见遗留问题第 1 条）；
+      - 新增依赖 file_selector ^1.1.0（Flutter 官方维护，直连 NSOpenPanel/NSSavePanel）；
+      - 新增测试：test/core/url_secrets_test.dart（8）、test/features/feeds/opml_test.dart（31）与
+        OPML 页 golden 三张（空态浅/深 + 有预览明细的浅色）。
+    数据迁移/删除/依赖变化：无 schema 变更（沿用 v3）；无删除；新增依赖 file_selector（及其平台实现包）
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug 构建
+    检查：flutter pub get | 0 | PASS | 本机
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 该参数已被 build_runner 2.16.1 忽略
+      dart format lib test | 0 | PASS | 8 个新文件有格式差异，已格式化
+      flutter analyze | 0 | PASS | 修复 2 处后 No issues found
+      flutter test | 0 | PASS | 615 通过 / 2 跳过 / 0 失败
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    UI/真实端点/双设备测试：OPML 页有浅深两张空态 golden 与一张含重复/无效/分组的预览 golden；
+      **未在真实 macOS 窗口里点过一次系统文件面板**（本轮只验证到端口契约与页面渲染，未做手工 UI 走查）；
+      无真实端点（导入的抓取走测试替身）；无双设备测试（属 T041+）
+    费用与秘密：未发起任何 AI/搜索调用，无费用产生；无真实网络请求；秘密排除有专门断言
+      （导出内容不含各类秘密参数的值，业务参数必须原样保留）
+    遗留问题与未运行项：
+      1) **本轮修复的两个接线缺口**（前一个代理只完成代码、未提交即结束，故在本轮发现）：
+         a. lib/features/feeds/presentation/opml_page.dart 缺 feed_ports.dart 的 import，导出区引用
+            feedCatalogProvider 编译失败（flutter analyze 报 undefined_identifier）；
+         b. 组合根 app_providers.dart **没有**注入 fileAccessProvider，而该 Provider 的默认实现是抛错；
+            也就是页面一用到（选文件或导出）就会抛 StateError——启动时不会暴露，运行到该功能才失败。
+            已补注入，并在 test/app/app_bootstrap_test.dart 的「overrides 覆盖全部未接线即抛错的 Provider」
+            用例里加了断言，避免再次漏掉；
+      2) **入口可达性**：T015 交付了 OpmlPage 与 l10n 的 opmlMenuEntry（其 description 写明是「订阅管理页上的
+         OPML 入口」），但页面没有任何入口，用户点不到。已在订阅管理页顶栏补入口，并加组件测试断言入口存在且
+         能进入 OPML 页。这是「能力做完了但用户看不到」，与手册第 6.4 节「必要平台操作有证据」的要求相悖；
+      3) 真实 macOS 窗口内的文件面板往返（选文件导入、保存导出）**未做手工验证**，只验证到端口契约与页面渲染；
+        因此 T015 的「平台构建」为 PASS，而「UI/手工验证」这一层未走查；
+      4) 迁移测试版本硬编码与 T013 的同类问题：本轮把 l10n 用例的 ARB 条目数从 187 改为 226（T015 新增 39 条），
+         该断言是「数量变化必须显式改这里」的有意设计，非掩盖失败；
+      5) Android 工程仍未初始化，flutter build apk 未运行（随 Android 阶段补）；
+      6) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要、功能账本、依赖表与本轮记录。
+      OPML 往返口径严格取自架构 4.1，未自行改口径。
+    提交/差异范围：提交 "T015: OPML import with preview/retry and export, round-trip safe"；
+      基线为 811a9e4（T014）。未 push。
+    下一可执行任务及前置条件：T016（刷新调度/并发/网络策略），前置 T014 已 DONE。
+
 ### 7.2 工具链与环境记录（T008 填写）
 
 实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
@@ -948,6 +1040,7 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | SQLite | sqlite3 3.6.0 | pubspec.lock；由 sqlite3 3.x 原生资源机制自带动态库，未使用已 EOL 的 sqlite3_flutter_libs |
 | HTTP / 路径 | http 1.6.0、path_provider 2.1.6、path 1.9.1 | pubspec.lock（T008 读取） |
 | SVG 与 XML（T012/T013 新增） | flutter_svg 2.3.0（转带 vector_graphics 1.2.3、vector_graphics_codec 1.1.13、vector_graphics_compiler 1.3.0、path_parsing 1.1.0）、xml 7.0.1（转带 petitparser 7.0.2） | pubspec.lock（T012/T013 实测）；两者均在任务白名单内。**未引入**第三方代码生成管线：SVG 走 flutter_svg 的运行期解析（macOS 实测可用，见 7.1.4），不依赖 vector_graphics 编译器固化资源 |
+| 文件选择（T015 新增） | file_selector 1.1.0（转带 file_selector_platform_interface 2.7.0、file_selector_macos 0.9.5+1、cross_file 0.3.5+5、mime 2.1.0；另有 android 0.5.2+11 / ios 0.5.3+6 / linux 0.9.4+1 / windows 0.9.3+6 / web 0.9.5 五个未使用的平台实现） | pubspec.lock（T015 实测）；Flutter 官方维护，选它而不是 file_picker 的理由见 pubspec.yaml 注释。macOS 沙盒下经系统文件面板（NSOpenPanel/NSSavePanel）取得用户明确授权的文件，**无需**新增沙盒豁免，因此 macos/Runner/*.entitlements 未改动 |
 | Lint / 图标 | flutter_lints 6.0.0、cupertino_icons 1.0.9 | pubspec.lock（T008 读取） |
 | 最低设备验收 | M1、天玑 9400 级别目标 | 未运行（M0 未做真机验收）；本轮实测机为 Apple M4 |
 | 包体/内存/启动/能耗基线与阈值 | 待 M0 测量并记录批准阈值 | 未运行；本轮只记录构建成功，不含性能基线 |

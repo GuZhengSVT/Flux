@@ -369,5 +369,160 @@
   "subscriptionInvalidGroupName": "Group name cannot be empty",
   "subscriptionInvalidFeedName": "Feed name cannot be empty",
   "subscriptionUngrouped": "No group",
-  "subscriptionReservedGroupName": "Uncategorized"
+  "subscriptionReservedGroupName": "Uncategorized",
+  "opmlPageTitle": "Import and export OPML",
+  "opmlPageNotice": "Import and export exchange standard feed addresses, names and groups only; no Flux internal IDs, featured flags or reading state.",
+  "opmlPickFile": "Choose an OPML file",
+  "opmlRepick": "Choose another file",
+  "opmlFileName": "File: {name}",
+  "@opmlFileName": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "subscriptions.opml"
+      }
+    }
+  },
+  "opmlPreviewTitle": "Import preview",
+  "opmlPreviewSummary": "{total} entries: {added} new, {duplicate} duplicates, {invalid} invalid",
+  "@opmlPreviewSummary": {
+    "placeholders": {
+      "total": {
+        "type": "int",
+        "example": "6"
+      },
+      "added": {
+        "type": "int",
+        "example": "3"
+      },
+      "duplicate": {
+        "type": "int",
+        "example": "2"
+      },
+      "invalid": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "opmlStrategyLabel": "Group handling",
+  "opmlStrategyUncategorized": "Put everything in Uncategorized",
+  "opmlStrategyKeepGroups": "Keep the file groups",
+  "opmlStrategyHint": "The default puts everything in Uncategorized; keeping file groups creates groups from the nesting in the file.",
+  "opmlStatusAdded": "New",
+  "opmlStatusDuplicate": "Duplicate",
+  "opmlStatusInvalid": "Invalid",
+  "opmlStatusImported": "Imported",
+  "opmlStatusFailed": "Failed",
+  "opmlDuplicatesNote": "Duplicates already exist; importing keeps their group, featured flag and refresh settings (no state is reset).",
+  "opmlInvalidNote": "Invalid entries cannot be imported: the address is missing or is not a usable http/https address.",
+  "opmlNothingToImport": "This file has no feeds that can be imported.",
+  "opmlStartImport": "Start import",
+  "opmlImporting": "Importing...",
+  "opmlResultTitle": "Import result",
+  "opmlResultSummary": "{imported} imported, {duplicate} duplicates, {failed} failed, {invalid} invalid; {articles} articles imported",
+  "@opmlResultSummary": {
+    "placeholders": {
+      "imported": {
+        "type": "int",
+        "example": "3"
+      },
+      "duplicate": {
+        "type": "int",
+        "example": "2"
+      },
+      "failed": {
+        "type": "int",
+        "example": "1"
+      },
+      "invalid": {
+        "type": "int",
+        "example": "1"
+      },
+      "articles": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "opmlRetryFailed": "Retry failed entries ({count})",
+  "@opmlRetryFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "opmlRetryHint": "Only failed entries are re-run; successful ones are not requested again and no duplicate subscriptions are created.",
+  "opmlRetryNone": "No failed entries to retry",
+  "opmlExportTitle": "Export OPML",
+  "opmlExportBody": "Export every subscription as a standard OPML file that other readers can import.",
+  "opmlExportAction": "Export as OPML",
+  "opmlExportDone": "Exported {count} subscriptions to {path}",
+  "@opmlExportDone": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "path": {
+        "type": "String",
+        "example": "/Users/me/Desktop/flux.opml"
+      }
+    }
+  },
+  "opmlExportEmpty": "There are no subscriptions, so the exported file has an empty body.",
+  "opmlExportSecretNote": "Export removes explicit secret parameters from addresses (token, api_key, password and similar) plus any account credentials; those subscriptions need their credentials re-entered on the target device.",
+  "opmlExportSecretRemoved": "Removed secret parameters from {count} address(es) ({names}); those subscriptions need credentials re-entered on other devices.",
+  "@opmlExportSecretRemoved": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "names": {
+        "type": "String",
+        "example": "token"
+      }
+    }
+  },
+  "opmlExportError": "Export failed: {reason}",
+  "@opmlExportError": {
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Local storage failed"
+      }
+    }
+  },
+  "opmlImportError": "Import failed: {reason}",
+  "@opmlImportError": {
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Parse failed"
+      }
+    }
+  },
+  "opmlCancel": "Cancel",
+  "opmlEntryIndex": "Entry {index}",
+  "@opmlEntryIndex": {
+    "placeholders": {
+      "index": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "opmlEntryGroup": "Group: {path}",
+  "@opmlEntryGroup": {
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "Tech / Nested"
+      }
+    }
+  },
+  "opmlMenuEntry": "Import / export OPML"
 }

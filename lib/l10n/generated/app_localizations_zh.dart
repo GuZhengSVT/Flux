@@ -621,4 +621,148 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get subscriptionReservedGroupName => '未分类';
+
+  @override
+  String get opmlPageTitle => '导入与导出 OPML';
+
+  @override
+  String get opmlPageNotice => '导入与导出只交换标准订阅地址、名称与分组；不含 Flux 内部 ID、加精或阅读状态。';
+
+  @override
+  String get opmlPickFile => '选择 OPML 文件';
+
+  @override
+  String get opmlRepick => '换一个文件';
+
+  @override
+  String opmlFileName(String name) {
+    return '文件：$name';
+  }
+
+  @override
+  String get opmlPreviewTitle => '导入预览';
+
+  @override
+  String opmlPreviewSummary(int total, int added, int duplicate, int invalid) {
+    return '共 $total 项：新增 $added、重复 $duplicate、无效 $invalid';
+  }
+
+  @override
+  String get opmlStrategyLabel => '分组处理';
+
+  @override
+  String get opmlStrategyUncategorized => '全部放入未分类';
+
+  @override
+  String get opmlStrategyKeepGroups => '保留文件分组';
+
+  @override
+  String get opmlStrategyHint => '默认全部放入未分类；保留文件分组会按文件里的层级新建分组。';
+
+  @override
+  String get opmlStatusAdded => '新增';
+
+  @override
+  String get opmlStatusDuplicate => '重复';
+
+  @override
+  String get opmlStatusInvalid => '无效';
+
+  @override
+  String get opmlStatusImported => '已导入';
+
+  @override
+  String get opmlStatusFailed => '失败';
+
+  @override
+  String get opmlDuplicatesNote => '重复项已存在，导入时会保留它们原有的分组、加精与刷新设置（不重置状态）。';
+
+  @override
+  String get opmlInvalidNote => '无效项无法导入：地址缺失或不是可用的 http/https 地址。';
+
+  @override
+  String get opmlNothingToImport => '这份文件没有可导入的订阅。';
+
+  @override
+  String get opmlStartImport => '开始导入';
+
+  @override
+  String get opmlImporting => '正在导入…';
+
+  @override
+  String get opmlResultTitle => '导入结果';
+
+  @override
+  String opmlResultSummary(
+    int imported,
+    int duplicate,
+    int failed,
+    int invalid,
+    int articles,
+  ) {
+    return '成功 $imported、重复 $duplicate、失败 $failed、无效 $invalid；导入文章 $articles 篇';
+  }
+
+  @override
+  String opmlRetryFailed(int count) {
+    return '重试失败项（$count）';
+  }
+
+  @override
+  String get opmlRetryHint => '只重跑失败的条目；已成功的不会被重新请求，也不会新建重复订阅。';
+
+  @override
+  String get opmlRetryNone => '没有可重试的失败项';
+
+  @override
+  String get opmlExportTitle => '导出 OPML';
+
+  @override
+  String get opmlExportBody => '把全部订阅导出为标准 OPML 文件，可在其他阅读器里导入。';
+
+  @override
+  String get opmlExportAction => '导出为 OPML';
+
+  @override
+  String opmlExportDone(int count, String path) {
+    return '已导出 $count 个订阅到 $path';
+  }
+
+  @override
+  String get opmlExportEmpty => '当前没有任何订阅，导出的文件只含空的 body。';
+
+  @override
+  String get opmlExportSecretNote =>
+      '导出会移除地址里明确的秘密参数（token、api_key、password 等）与账号密码；这些订阅在目标设备上需要重新填写凭据。';
+
+  @override
+  String opmlExportSecretRemoved(int count, String names) {
+    return '已从 $count 处地址移除秘密参数（$names）；这些订阅在其它设备上需要补填凭据。';
+  }
+
+  @override
+  String opmlExportError(String reason) {
+    return '导出失败：$reason';
+  }
+
+  @override
+  String opmlImportError(String reason) {
+    return '导入失败：$reason';
+  }
+
+  @override
+  String get opmlCancel => '取消';
+
+  @override
+  String opmlEntryIndex(int index) {
+    return '第 $index 项';
+  }
+
+  @override
+  String opmlEntryGroup(String path) {
+    return '分组：$path';
+  }
+
+  @override
+  String get opmlMenuEntry => '导入 / 导出 OPML';
 }

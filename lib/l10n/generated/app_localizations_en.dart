@@ -649,4 +649,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionReservedGroupName => 'Uncategorized';
+
+  @override
+  String get opmlPageTitle => 'Import and export OPML';
+
+  @override
+  String get opmlPageNotice =>
+      'Import and export exchange standard feed addresses, names and groups only; no Flux internal IDs, featured flags or reading state.';
+
+  @override
+  String get opmlPickFile => 'Choose an OPML file';
+
+  @override
+  String get opmlRepick => 'Choose another file';
+
+  @override
+  String opmlFileName(String name) {
+    return 'File: $name';
+  }
+
+  @override
+  String get opmlPreviewTitle => 'Import preview';
+
+  @override
+  String opmlPreviewSummary(int total, int added, int duplicate, int invalid) {
+    return '$total entries: $added new, $duplicate duplicates, $invalid invalid';
+  }
+
+  @override
+  String get opmlStrategyLabel => 'Group handling';
+
+  @override
+  String get opmlStrategyUncategorized => 'Put everything in Uncategorized';
+
+  @override
+  String get opmlStrategyKeepGroups => 'Keep the file groups';
+
+  @override
+  String get opmlStrategyHint =>
+      'The default puts everything in Uncategorized; keeping file groups creates groups from the nesting in the file.';
+
+  @override
+  String get opmlStatusAdded => 'New';
+
+  @override
+  String get opmlStatusDuplicate => 'Duplicate';
+
+  @override
+  String get opmlStatusInvalid => 'Invalid';
+
+  @override
+  String get opmlStatusImported => 'Imported';
+
+  @override
+  String get opmlStatusFailed => 'Failed';
+
+  @override
+  String get opmlDuplicatesNote =>
+      'Duplicates already exist; importing keeps their group, featured flag and refresh settings (no state is reset).';
+
+  @override
+  String get opmlInvalidNote =>
+      'Invalid entries cannot be imported: the address is missing or is not a usable http/https address.';
+
+  @override
+  String get opmlNothingToImport =>
+      'This file has no feeds that can be imported.';
+
+  @override
+  String get opmlStartImport => 'Start import';
+
+  @override
+  String get opmlImporting => 'Importing...';
+
+  @override
+  String get opmlResultTitle => 'Import result';
+
+  @override
+  String opmlResultSummary(
+    int imported,
+    int duplicate,
+    int failed,
+    int invalid,
+    int articles,
+  ) {
+    return '$imported imported, $duplicate duplicates, $failed failed, $invalid invalid; $articles articles imported';
+  }
+
+  @override
+  String opmlRetryFailed(int count) {
+    return 'Retry failed entries ($count)';
+  }
+
+  @override
+  String get opmlRetryHint =>
+      'Only failed entries are re-run; successful ones are not requested again and no duplicate subscriptions are created.';
+
+  @override
+  String get opmlRetryNone => 'No failed entries to retry';
+
+  @override
+  String get opmlExportTitle => 'Export OPML';
+
+  @override
+  String get opmlExportBody =>
+      'Export every subscription as a standard OPML file that other readers can import.';
+
+  @override
+  String get opmlExportAction => 'Export as OPML';
+
+  @override
+  String opmlExportDone(int count, String path) {
+    return 'Exported $count subscriptions to $path';
+  }
+
+  @override
+  String get opmlExportEmpty =>
+      'There are no subscriptions, so the exported file has an empty body.';
+
+  @override
+  String get opmlExportSecretNote =>
+      'Export removes explicit secret parameters from addresses (token, api_key, password and similar) plus any account credentials; those subscriptions need their credentials re-entered on the target device.';
+
+  @override
+  String opmlExportSecretRemoved(int count, String names) {
+    return 'Removed secret parameters from $count address(es) ($names); those subscriptions need credentials re-entered on other devices.';
+  }
+
+  @override
+  String opmlExportError(String reason) {
+    return 'Export failed: $reason';
+  }
+
+  @override
+  String opmlImportError(String reason) {
+    return 'Import failed: $reason';
+  }
+
+  @override
+  String get opmlCancel => 'Cancel';
+
+  @override
+  String opmlEntryIndex(int index) {
+    return 'Entry $index';
+  }
+
+  @override
+  String opmlEntryGroup(String path) {
+    return 'Group: $path';
+  }
+
+  @override
+  String get opmlMenuEntry => 'Import / export OPML';
 }

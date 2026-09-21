@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flux/app/app_bootstrap.dart';
 import 'package:flux/app/app_providers.dart';
 import 'package:flux/core/core.dart';
+import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
@@ -211,6 +212,9 @@ void main() {
       expect(container.read(credentialStoreProvider), isNotNull);
       expect(container.read(diagnosticLogProvider), isNotNull);
       expect(container.read(databaseProvider), isNotNull);
+      // T015 的文件读写端口与数据库无关（只要系统文件面板），也必须在这里接好：
+      // 漏接会让 OPML 导入/导出在使用时抛 StateError，而不是在启动时暴露。
+      expect(container.read(fileAccessProvider), isNotNull);
       expect(container.read(appBootstrapStatusProvider).degraded, isFalse);
     });
 
