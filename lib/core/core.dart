@@ -8,6 +8,7 @@ export 'clock.dart';
 export 'error/app_error.dart';
 export 'error/secret_redaction.dart';
 export 'result.dart';
+export 'settings/settings.dart';
 export 'task/task_snapshot.dart';
 export 'task/task_status.dart';
 export 'task/task_transition.dart';

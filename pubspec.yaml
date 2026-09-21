@@ -37,6 +37,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # 平台集成测试（T010 的 Keychain 真机实测必需）。
+  # flutter_test 只跑纯 Dart/组件测试，无法驱动 macOS 原生通道；
+  # integration_test 让测试运行在真实设备/桌面上，才能实际写入并读回 Keychain。
+  integration_test:
+    sdk: flutter
+
   flutter_lints: ^6.0.0
 
   # drift 代码生成。

@@ -1,9 +1,13 @@
-// T009：迁移安全。
+// T009（T010 更新为 v2 基线）：迁移安全。
 //
 // 三条硬要求（架构 5.3「旧版本不能写较新 schema」、手册 6.3「恢复」）：
-//   1) 正常 v1 建库成功；
+//   1) 正常按当前 schemaVersion 建库成功；
 //   2) 库声明的 schemaVersion 比代码新时，打开必须**失败**，且不得删除/重建原库；
 //   3) 迁移步骤自身失败时同样不得重建，原有数据必须保持可回退。
+//
+// T010 把 schemaVersion 提到 2（新增 settings 表）后，本文件里的「当前版本」
+// 相应改为 2，而「代码比库新但迁移写坏」的场景用 v3 的坏实现模拟；
+// 真正的 v1→v2 增量迁移正确性由 migration_v1_to_v2_test.dart 用 drift 快照校验。
 //
 // 测试策略：优先使用内存库与共享的原始 sqlite3 句柄，避免磁盘残留；
 // 另有一条真实文件用例，用于直接证明“磁盘上的文件在失败后未被改动”。
@@ -19,12 +23,12 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flux/core/core.dart';
 import 'package:flux/infrastructure/local/database.dart';
 
-/// 模拟“代码已升级到 v2 但迁移步骤写错/失败”的数据库，用于验证失败不重建。
+/// 模拟“代码已升级到 v3 但迁移步骤写错/失败”的数据库，用于验证失败不重建。
 class _FailingUpgradeDatabase extends AppDatabase {
   _FailingUpgradeDatabase(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   drift.MigrationStrategy get migration => drift.MigrationStrategy(
@@ -62,19 +66,19 @@ void main() {
   });
 
   group('正常建库与升级路径', () {
-    test('v1 空库首次打开：建表并写入 user_version = 1', () async {
+    test('空库首次打开：建表并写入 user_version = 当前版本', () async {
       final AppDatabase db = AppDatabase.memory();
       await db.customSelect('SELECT 1').get();
 
       final drift.QueryRow row = await db
           .customSelect('PRAGMA user_version')
           .getSingle();
-      expect(row.read<int>('user_version'), 1);
+      expect(row.read<int>('user_version'), db.schemaVersion);
 
       await db.close();
     });
 
-    test('v1 库再次打开不重复播种保留组（种子是幂等的）', () async {
+    test('库再次打开不重复播种保留组（种子是幂等的）', () async {
       final sqlite.Database raw = sqlite.sqlite3.openInMemory();
       addTearDown(raw.close);
 
@@ -94,7 +98,7 @@ void main() {
       await second.close();
 
       expect(_rowCount(raw, 'groups'), 1);
-      expect(_userVersion(raw), 1);
+      expect(_userVersion(raw), 2);
     });
   });
 
@@ -192,16 +196,16 @@ void main() {
   });
 
   group('迁移失败不重建数据库', () {
-    test('升级步骤抛错：打开失败，v1 原数据与版本号保持可回退', () async {
+    test('升级步骤抛错：打开失败，原数据与版本号保持可回退', () async {
       final sqlite.Database raw = sqlite.sqlite3.openInMemory();
       addTearDown(raw.close);
 
-      // 先用正常代码建一个 v1 库并写入数据（相当于用户升级前的状态）。
-      final AppDatabase v1 = AppDatabase(
+      // 先用正常代码建当前版本的库并写入数据（相当于用户升级前的状态）。
+      final AppDatabase before = AppDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
       );
-      await v1
-          .into(v1.feeds)
+      await before
+          .into(before.feeds)
           .insert(
             FeedsCompanion.insert(
               syncId: 'existing-feed',
@@ -209,10 +213,10 @@ void main() {
               name: '升级前就有的源',
             ),
           );
-      await v1.close();
-      expect(_userVersion(raw), 1);
+      await before.close();
+      expect(_userVersion(raw), 2);
 
-      // 用“代码已是 v2 但迁移写坏”的版本打开同一库。
+      // 用“代码已是 v3 但迁移写坏”的版本打开同一库。
       final _FailingUpgradeDatabase broken = _FailingUpgradeDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
       );
@@ -221,8 +225,8 @@ void main() {
         throwsA(isA<StorageError>()),
       );
 
-      // 关键断言：不重建。版本号仍是 1，原数据仍在，schema 未被替换成 v2。
-      expect(_userVersion(raw), 1, reason: '迁移失败不得推进版本号');
+      // 关键断言：不重建。版本号不变，原数据仍在，schema 未被替换成 v3。
+      expect(_userVersion(raw), 2, reason: '迁移失败不得推进版本号');
       expect(
         raw.select('SELECT name FROM feeds').single['name'],
         '升级前就有的源',
@@ -232,7 +236,7 @@ void main() {
 
       await broken.close();
 
-      // 失败后仍能用 v1 代码正常打开：原库保持可回退。
+      // 失败后仍能用当前代码正常打开：原库保持可回退。
       final AppDatabase recovered = AppDatabase(
         NativeDatabase.opened(raw, closeUnderlyingOnClose: false),
       );
@@ -254,9 +258,9 @@ void main() {
 
       final File file = File('${dir.path}/flux.sqlite');
 
-      final AppDatabase v1 = AppDatabase.openFile(file);
-      await v1
-          .into(v1.feeds)
+      final AppDatabase before = AppDatabase.openFile(file);
+      await before
+          .into(before.feeds)
           .insert(
             FeedsCompanion.insert(
               syncId: 'file-feed',
@@ -264,7 +268,7 @@ void main() {
               name: '文件源',
             ),
           );
-      await v1.close();
+      await before.close();
 
       final List<int> bytesBefore = file.readAsBytesSync();
 

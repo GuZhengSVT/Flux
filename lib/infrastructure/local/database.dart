@@ -20,6 +20,7 @@ import 'tables/article_tables.dart';
 import 'tables/enums.dart';
 import 'tables/feed_tables.dart';
 import 'tables/reading_tables.dart';
+import 'tables/settings_tables.dart';
 import 'tables/summary_tables.dart';
 
 part 'database.g.dart';
@@ -39,6 +40,7 @@ part 'database.g.dart';
     ReadingSessions,
     SummaryVersions,
     Citations,
+    Settings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -64,7 +66,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -85,15 +87,34 @@ class AppDatabase extends _$AppDatabase {
         );
       }
 
-      // from < to：版本 1 是首个 schema，尚无增量迁移步骤。
-      // 将来新增版本时在这里按 from 逐步补齐，并保留“未知区间直接失败”的兜底，
-      // 避免将来误改成静默重建。
-      throw StorageError(
-        operation: 'openDatabase',
-        detail:
-            'no migration path from schema v$from to v$to; '
-            'refusing to rebuild the database',
-      );
+      // 增量迁移：按 from 逐步补齐到 to。每一步只做「新增」，不改写已有列的语义，
+      // 这样旧数据在升级后保持原样，失败时也容易判断中断在哪一步。
+      //
+      // 为什么坚持增量而不是“删表重建”：用户的历史文章、阅读状态与收藏都在库里，
+      // 重建等于静默丢数据；架构 5.3 明确要求迁移不得消费用户数据。
+      if (from < 2) {
+        // v1 → v2：新增 settings 表（SET 注册表的持久化）。
+        // 不需要回填历史数据：v1 里没有设置表，默认值由注册表在使用时提供。
+        //
+        // 注意：createTable 只建表，**不会**顺带创建该表的索引（索引是独立的
+        // schema 实体）。漏掉 createIndex 时 run-time 查询照常工作，只有结构
+        // 校验才会发现差异——T010 的迁移测试正是这样抓到过一次，所以这一步
+        // 必须显式写出来。
+        await m.createTable(settings);
+        await m.createIndex(ixSettingsUpdatedAt);
+      }
+
+      // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
+      // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
+      const int highestImplemented = 2;
+      if (to > highestImplemented) {
+        throw StorageError(
+          operation: 'openDatabase',
+          detail:
+              'no migration step implemented for schema v$from -> v$to; '
+              'refusing to continue (file left untouched, no rebuild)',
+        );
+      }
     },
     beforeOpen: (OpeningDetails details) async {
       // 外键约束默认关闭；本工程的引用（文章→订阅、会话/引用→文章）依赖它生效。

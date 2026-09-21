@@ -20,6 +20,7 @@ analyzer:
     - macos/**
     - "**/*.g.dart"          # build_runner 生成物
     - "**/*.freezed.dart"    # build_runner 生成物
+    - test/generated/**      # drift_dev schema generate 的迁移校验基线（工具生成）
     - web/**
 
   language:

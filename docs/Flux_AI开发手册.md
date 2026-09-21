@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 首项 T009（SQLite/Drift 实体、索引、事务及迁移）已 DONE，本地数据层可建库/幂等导入/拒绝较新 schema；其余业务功能（T010 起）尚未验收 |
-| macOS / Android 构建及真机测试 | DOING | T008 本机 `flutter build macos --debug` 退出 0（证据见 §7.2）；Android 工程按 D-02 暂缓，未初始化、未构建；两平台真机测试仍 NOT_RUN |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的两项：T009（SQLite/Drift 实体、索引、事务及迁移）与 T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）。本地数据层可建库/幂等导入/拒绝较新 schema；设置项有类型与 C/D/S 分类；凭据走 Keychain 且无明文回退；诊断日志导出无秘密。T011 起的界面与业务功能尚未验收 |
+| macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T009 已完成并有本机证据；下一任务 T010（安全存储、设置注册表和脱敏诊断），前置 T009 已 DONE。当前阻塞：无文档阻塞；Android 工程与两平台真机/正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T010 已完成并有本机证据；下一任务 T011（应用壳、导航、首次引导、主题与语言），前置 T010 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -110,7 +110,7 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | ID | 前置 | 任务与范围 | 交付与验收条件 | 状态 |
 | --- | --- | --- | --- | --- |
 | T009 | T007、T008 | SQLite/Drift 实体、索引、事务及迁移 | 架构第 5 节实体落地；迁移成功/失败和拒绝较新 schema 测试，失败不重建数据库 | DONE |
-| T010 | T009 | 安全存储、设置注册表和脱敏诊断 | SET 类型、范围/默认值、C/D/S 分类校验；Keychain/Keystore 实测，日志/导出无秘密，缺能力不明文回退 | TODO |
+| T010 | T009 | 安全存储、设置注册表和脱敏诊断 | SET 类型、范围/默认值、C/D/S 分类校验；Keychain/Keystore 实测，日志/导出无秘密，缺能力不明文回退 | DONE（macOS Keychain 实测通过；Android Keystore 随 Android 阶段，未实测） |
 | T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | TODO |
 | T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | TODO |
 | T013 | T009 | RSS/Atom 网络、解析、去重与内容清洗 | 同/异源 GUID、URL 参数、正文修订、无日期、304、异常 XML、外部实体、大响应、取消均有 fixture | TODO |
@@ -403,6 +403,117 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       （T007+T008）。未 push。
     下一可执行任务及前置条件：T010（安全存储、设置注册表和脱敏诊断），前置 T009 已 DONE；
       需保持“不提前实现 T011 及以后”的范围边界。
+
+### 7.1.3 轮次记录 R010（T010）
+
+    轮次/日期：R010 / 2026-09-21
+    任务 ID 与状态变化：T010 TODO → DONE（M1 第二项）
+    相关决策/功能/SET 项：架构第 6 节全部设置表（SET-001–084，权威清单：默认值/范围/C·D·S 分类）、
+      第 8 节安全约束（Keychain 不等于整库加密；没有安全存储时提示会话使用或失败，不明文回退；
+      日志/截图/分享/备份不得泄露凭据）、5.3（UTC 存储、迁移不消费用户数据）；
+      手册 1.7（共通项可同步 / API 密钥、私密认证、设备项不同步）、1.10（日志与 AI 输出是不可信资料）；
+      本轮直接实现 SET-082（诊断日志级别/保留）的机制，并在注册表里录入全部 70 个编号
+    修改文件与主要行为：
+      - 新增 lib/core/settings/（4 个文件 + barrel）：setting_id.dart（SET-001..084 具名常量与 all 清单，
+        只收录文档真实存在的 70 个编号、保留 001/020/030/050/070 的空隙）、setting_definition.dart
+        （SettingValueSpec 密封层级：Bool/Int/Double/String/Enum/StringList/Composite/Action，含取值域校验）、
+        settings_registry.dart（70 条定义，逐条录入文档默认值与范围）、settings_validator.dart
+        （validate/validateStorable/decode + JSON 编解码）；core.dart 追加 settings 导出；
+      - 新增 lib/infrastructure/local/tables/settings_tables.dart（settings 窄表：key TEXT PK / value TEXT /
+        updatedAt，key 即 SET 编号）；database.dart 升到 schemaVersion 2 并写**真实增量迁移**
+        （from<2：createTable(settings) + createIndex；to 超出已实现步骤时显式失败，不静默放过）；
+      - 新增 lib/infrastructure/local/settings_repository.dart：类型化读写、未注册编号拒绝、越界/类型错误拒绝、
+        **秘密项与操作类拒绝进普通存储**、readEffective 与 readSyncableCommon（仅 C 类 31 项）投影入口；
+      - 新增 lib/infrastructure/platform/credential_store.dart（CredentialStore 接口、CredentialKey、
+        内存实现与「条目不存在」语义）与 keychain_store.dart（MethodChannel 适配、错误翻译、
+        通道不可用时 isAvailable=false 且明确失败）；
+      - 新增 macos/Runner/KeychainPlugin.swift（SecItemAdd/CopyMatching/Update/Delete，
+        kSecClassGenericPassword，service=io.github.guzhengsvt.flux，
+        accessibility=kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly 即**不同步到 iCloud 钥匙串**）；
+        AppDelegate.swift 注册通道；project.pbxproj 加入该 Swift 源文件与编译阶段；
+      - 新增 lib/infrastructure/local/diagnostics.dart：诊断日志（error/warning/info，内存 ring buffer +
+        可选文件 sink，两层脱敏，默认 7 天 / 10 MiB / 条数上限，超限删最旧，导出前二次脱敏）；
+      - 新增测试：test/core/settings_registry_test.dart、test/infrastructure/local/{settings_repository,
+        diagnostics,migration_v1_to_v2}_test.dart、test/infrastructure/platform/credential_store_test.dart、
+        integration_test/keychain_test.dart；
+      - 新增 drift_schemas/drift_schema_v2.json 与 test/generated/（drift schema generate 的
+        --data-classes --companions 基线，供 SchemaVerifier 校验迁移）；
+      - 更新既有测试以适配 v2 基线：database_schema_test（schemaVersion=2、含 settings 表）、
+        migration_test（「当前版本」改为 2，坏迁移实现改用 v3 模拟）、schema_snapshot_test（v1+v2 快照）；
+      - analysis_options.yaml 排除 test/generated/**（工具生成物）、pubspec.yaml 加 integration_test 开发依赖。
+    数据迁移/删除/依赖变化：**有真实 schema 迁移 v1 → v2**（仅新增 settings 表与索引，不回填、不改写已有列，
+      升级后旧数据完好）；无删除；新增依赖仅 integration_test（SDK 自带，dev）；Swift 只做 Keychain 通道，
+      未引入其他插件或原生库；未修改 lib/core/error/secret_redaction.dart（仅复用，既有测试全绿）。
+    设置注册表口径（本轮核心交付）：
+      条目数 70（文档分段计数：6.1 16 项 / 6.2 9 项 / 6.3 13 项 / 6.4 17 项 / 6.5 15 项）；
+      分类统计 C 31 / D 35 / S 4（S = SET-027、031、039、071）；
+      68 项可持久化（SET-042、SET-079 是文档写明的「操作，不是持久设置」）、64 项可进普通存储；
+      逐条核对的默认值/范围示例：SET-004 20%/8/100%（0–40 / 0–24 / 50–150）、
+      SET-006 桌面 14/手机 16/正文与新闻 18（UI 12–24、正文 14–28）、SET-015 开/5 分钟（1–30）、
+      SET-028 4/30 秒（1–8 / 10–120）、SET-036 2/45/30 秒（1–4 / 10–120 / 10–120）、
+      SET-040 10/20 秒（1–20 / 5–60）、SET-057 默认 20:00（HH:mm 校验）、SET-059 10（1–60）、
+      SET-060 50/10/10（可到 200/30/30）、SET-061 8000、SET-062 30/30、SET-063 100000、SET-064 50、
+      SET-065 开/6/4 MiB、SET-073 30（5–1440）、SET-077 全关 + 30/90/365（1–3650）、SET-080 512（128–4096）、
+      SET-081 每次询问/默认保留、SET-082 error/7 天/10 MiB、SET-083 GitHub/不自动安装。
+      范围口径：文档没给区间的项（颜色、字体名、URL、未列枚举）不臆造上下限；
+      唯一主动补充的是 SET-060 的下界 0（文档只给上界，用 0 表达「该来源不参与」，避免负值）。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；构建类型 debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 105 outputs；无源码冲突；
+        参数已被 build_runner 2.16.1 移除并忽略（同 T008/T009 记录）
+      dart format --output=none --set-exit-if-changed lib test integration_test | 0 | PASS | 59 files（0 changed）
+      flutter analyze | 0 | PASS | No issues found（0 issue）
+      flutter test | 0 | PASS | 257 tests all passed（较 T009 的 142 增加 115 个用例）
+      flutter test integration_test -d macos | 0 | PASS | 4 tests all passed（真实 macOS 设备，
+        build/macos/Build/Products/Debug/Flux.app 现场构建后运行）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS |
+        生成 drift_schema_v2.json（7 表 + 17 索引）
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 | PASS |
+        生成 schema.dart / schema_v1.dart / schema_v2.dart 供 SchemaVerifier 使用
+    测试覆盖要点（T010 验收）：
+      - 注册表：编号集合与文档逐条相同（含「不存在的编号必须查不到」的负例）、70 项数量、分类计数 C31/D35/S4、
+        秘密项恰为 4 个、C 类全部可持久化；默认值与范围逐项断言（覆盖题目点名的 SET-004/006/015/028/036/040/
+        057/059/060/061/062/063/064/065/073/076–082）；校验 API 的边界（含 0/上限/超范围/类型错误）；
+        JSON 编解码往返、「损坏 JSON」与「值越界」错误类型可区分。
+      - 迁移（真实增量）：用 drift 从 v1 快照建库并写入升级前数据（保留组、源、文章含 later+收藏），
+        跑真实 MigrationStrategy 到 v2，再由 SchemaVerifier 逐列比对结构；断言旧数据（正文、三态、收藏、
+        保留标记）完好、user_version=2、settings 可用。**该用例实际抓到过一个真缺陷**：初版迁移只建表未建
+        索引（createTable 不创建表的索引），结构校验失败后已修；这正是不做结构校验就会漏掉的迁移错误。
+      - 设置存储：默认值回落、覆盖写入、删除回落、复合结构往返；未注册编号/越界/类型错误/操作类写入全部被拒
+        且表内无残留；**秘密项写入普通存储必须失败**（逐个验证 4 个 S 项），并断言明文表始终为空；
+        损坏行读数报解析错误；readEffective 覆盖全部 70 项；readSyncableCommon 只含 C 类 31 项且不含任何秘密。
+      - 凭据：CredentialKey 拼接与转义可逆；「条目不存在」与「读取失败」两种结果可区分；内存实现不落盘；
+        Keychain 适配的错误翻译（itemNotFound→isMissing、其他 OSStatus→失败、平台原始 message 不透出、
+        通道缺失时不回退且 isAvailable=false）。
+      - 诊断：含假 API key / Bearer / URL token、key、password 的输入，内存条目与导出均不含完整秘密串；
+        标签同样脱敏、行内无换行（防伪造多条记录）、导出幂等；级别过滤（error 默认丢弃 warning/info 且计数可见）；
+        按条数/字节上限删最旧；按保留天数删超期；文件 sink 的三项裁剪与脱敏。
+    UI/真实端点/双设备测试：无 UI（属 T011）。真实平台测试：macOS 本机 Keychain 真实往返 4 条通过，
+      覆盖 write→read 一致→update→read→delete→read 报 notFound、多凭据互不覆盖、删除幂等、通道可用性；
+      测试后清理了创建的全部条目（以 flux-test-t010 前缀标识，事后用 security 命令确认未残留）。
+      Android Keystore 未实测（android/ 未初始化，随 Android 阶段补）。
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用产生；**未写入任何真实凭据**，Keychain 用例只用带
+      flux-test-fake- 前缀的时间戳假值；测试用的假 key 形态（sk-/ghp_）只出现在夹具与断言里，
+      不来自用户配置；导出内容已断言不含这些假值。
+    遗留问题与未运行项：
+      1) **Android Keystore 未实测**，android/ 工程仍未初始化；T010 的「Keystore 实测」一项按平台延后，
+         不记为通过；
+      2) SET 注册表本轮只落库「定义与校验」，**设置页/入口属 T011、同步投影属 T041、备份排除秘密属 T046**；
+         本轮不改动任何验收条件文字，也不提前实现这些后续任务；
+      3) 凭据与设置的**运行时装配**（选择用 Keychain 还是会话内存、按 SET-082 实例化 DiagnosticLog）
+         未接线到应用启动流程——T010 交付能力与实测，装配点属 T011 组合根；
+      4) 诊断日志目前由单元测试覆盖内存与文件两种 sink 的策略；接入真实运行时的文件位置轮转（磁盘满、
+         只读目录等）待 T047/T048 与存储分类一起处理；
+      5) SET-030/032/033/034/054/055/066/070/084 等「用户可编辑的自由文本或列表」只做了类型与形态校验，
+         其业务语义（协议有效性、端点可达、模型引用不悬空）属 T025/T028/T031/T036/T053；
+      6) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要与本轮记录。
+      设置注册表的默认值/范围/C·D·S 分类严格取自架构第 6 节，未自行改口径。
+    提交/差异范围：提交 "T010: secure storage, typed settings registry, sanitized diagnostics"；
+      基线为 08a7baf（T009）。未 push。
+    下一可执行任务及前置条件：T011（应用壳、导航、首次引导、主题与语言），前置 T010 已 DONE；
+      需保持“不提前实现 T012 及以后”的范围边界，并复用本轮注册表与凭据接口。
 
 ### 7.2 工具链与环境记录（T008 填写）
 

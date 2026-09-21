@@ -147,8 +147,8 @@ void main() {
     });
   });
 
-  group('v1 schema 快照', () {
-    test('已导出 drift_schemas/drift_schema_v1.json，供未来迁移测试使用', () {
+  group('schema 快照', () {
+    test('v1 与 v2 快照都已导出，供迁移测试使用', () {
       final File snapshot = File('drift_schemas/drift_schema_v1.json');
       expect(
         snapshot.existsSync(),
@@ -184,6 +184,36 @@ void main() {
           'summary_versions',
           'citations',
         ]),
+      );
+
+      // v2 快照是 T010 的真实增量迁移基线：它必须存在，且包含 settings 表。
+      final File v2Snapshot = File('drift_schemas/drift_schema_v2.json');
+      expect(
+        v2Snapshot.existsSync(),
+        isTrue,
+        reason: 'schemaVersion 提到 2 后必须导出 v2 快照，否则无法验证 v1→v2 迁移。',
+      );
+      final Map<String, dynamic> v2Decoded =
+          jsonDecode(v2Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final Set<String> v2Names = (v2Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(v2Names, contains('settings'));
+      expect(
+        v2Names,
+        containsAll(<String>[
+          'groups',
+          'feeds',
+          'articles',
+          'reading_sessions',
+          'summary_versions',
+          'citations',
+        ]),
+        reason: 'v2 只新增 settings，不得删除 v1 已有实体',
       );
     });
   });
