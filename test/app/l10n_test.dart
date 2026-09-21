@@ -150,8 +150,10 @@ void main() {
       // 未解析块提示、作者行、返回按钮）。
       // T019+ 新增 2 条列表分批加载文案（已加载计数、加载更多）。
       // T020 新增 25 条选区/复制全文/链接面板/图片查看与保存/系统分享文案。
-      expect(_messageKeys(zh).length, 360);
-      expect(_messageKeys(en).length, 360);
+      // T021 新增 3 条图片缓存文案（重试、内网地址被拦、超过单图上限），并把
+      // T019 的图片占位说明改为「按需加载并缓存」的当前口径。
+      expect(_messageKeys(zh).length, 363);
+      expect(_messageKeys(en).length, 363);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

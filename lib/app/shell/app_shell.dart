@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/articles/presentation/reader/article_image_view.dart';
 import 'package:flux/features/feeds/presentation/refresh_automation.dart';
 import 'package:flux/features/settings/application/settings_navigation.dart';
 import 'package:flux/l10n/l10n.dart';
@@ -70,46 +71,51 @@ class AppShell extends ConsumerWidget {
         // 自动刷新宿主包在 Scaffold **之外**：它不渲染任何东西，只负责在启动时
         // （SET-021）与按间隔（SET-020）触发刷新。包在这里意味着刷新与「用户此刻
         // 在哪个去向」无关——刷新是后台行为。
-        return RefreshAutomationHost(
-          child: Scaffold(
-            body: useRail
-                ? Row(
-                    children: <Widget>[
-                      _ShellNavigationRail(selected: selected),
-                      const VerticalDivider(width: 1),
-                      Expanded(child: _ShellBody(status: status)),
-                    ],
-                  )
-                : _ShellBody(status: status),
-            bottomNavigationBar: useRail
-                ? null
-                : NavigationBar(
-                    selectedIndex: appDestinations.indexOf(selected),
-                    onDestinationSelected: (int index) => _select(ref, index),
-                    destinations: <Widget>[
-                      for (final AppDestination destination in appDestinations)
-                        NavigationDestination(
-                          icon: FluxSvgIcon(
-                            destination.icon,
-                            // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
-                            // 24 在底栏会显得比文字标签重。
-                            size: FluxIconSize.small,
-                            // 标签已经由 NavigationDestination 播报，图标重复报一次
-                            // 会让读屏念两遍。
-                            excludeFromSemantics: true,
+        // 媒体缓存上限宿主同样包在这里（T021）：它只读 SET-080 并套用到图片加载器，
+        // 与刷新宿主一样对「当前在哪个去向」无感。
+        return MediaCacheLimitHost(
+          child: RefreshAutomationHost(
+            child: Scaffold(
+              body: useRail
+                  ? Row(
+                      children: <Widget>[
+                        _ShellNavigationRail(selected: selected),
+                        const VerticalDivider(width: 1),
+                        Expanded(child: _ShellBody(status: status)),
+                      ],
+                    )
+                  : _ShellBody(status: status),
+              bottomNavigationBar: useRail
+                  ? null
+                  : NavigationBar(
+                      selectedIndex: appDestinations.indexOf(selected),
+                      onDestinationSelected: (int index) => _select(ref, index),
+                      destinations: <Widget>[
+                        for (final AppDestination destination
+                            in appDestinations)
+                          NavigationDestination(
+                            icon: FluxSvgIcon(
+                              destination.icon,
+                              // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
+                              // 24 在底栏会显得比文字标签重。
+                              size: FluxIconSize.small,
+                              // 标签已经由 NavigationDestination 播报，图标重复报一次
+                              // 会让读屏念两遍。
+                              excludeFromSemantics: true,
+                            ),
+                            selectedIcon: FluxSvgIcon(
+                              destination.selectedIcon,
+                              size: FluxIconSize.small,
+                              color: Theme.of(context).colorScheme.primary,
+                              excludeFromSemantics: true,
+                            ),
+                            label: destination.label(
+                              AppLocalizations.of(context),
+                            ),
                           ),
-                          selectedIcon: FluxSvgIcon(
-                            destination.selectedIcon,
-                            size: FluxIconSize.small,
-                            color: Theme.of(context).colorScheme.primary,
-                            excludeFromSemantics: true,
-                          ),
-                          label: destination.label(
-                            AppLocalizations.of(context),
-                          ),
-                        ),
-                    ],
-                  ),
+                      ],
+                    ),
+            ),
           ),
         );
       },

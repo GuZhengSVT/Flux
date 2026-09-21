@@ -18,12 +18,15 @@ import 'package:flux/app/app_providers.dart';
 import 'package:flux/app/theme/flux_theme.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
+import 'package:flux/features/articles/application/article_image_ports.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/settings_repository.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/l10n/l10n.dart';
+
+import 'fake_article_image_loader.dart';
 
 /// 一个测试用的装配结果，绑定到内存数据库。
 final class TestBootstrap {
@@ -97,6 +100,7 @@ final class TestBootstrap {
     ExternalLinkOpener? externalLinkOpener,
     ImageSaveService? imageSaveService,
     SystemShareService? systemShareService,
+    ArticleImageLoader? articleImageLoader,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -121,6 +125,17 @@ final class TestBootstrap {
       externalLinkOpener: externalLinkOpener,
       imageSaveService: imageSaveService,
       systemShareService: systemShareService,
+      // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
+      // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
+      // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），
+      // 既慢又依赖网络、还会给测试留下 pending timer。需要验证缓存行为的用例
+      // 自己传入真实或替身加载器。
+      // 刻意**每次新建**一个加载器实例（不用 const）：图片 Provider 的缓存键包含
+      // 加载器身份，而 ImageCache 是全局的、跨用例存活的。若各用例共用同一个常量
+      // 实例，同一地址的键就会在用例之间相同，上一个用例被拆掉后残留的 pending
+      // completer 会被下一个用例复用——而它已经不会再产出结果，于是失败会被报成
+      // 「未处理的图像异常」并算到下一个用例头上（实测到的连锁失败）。
+      articleImageLoader: articleImageLoader ?? OfflineArticleImageLoader(),
     );
   }
 

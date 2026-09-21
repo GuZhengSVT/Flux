@@ -2059,11 +2059,29 @@ abstract class AppLocalizations {
   /// **'图片占位'**
   String get readingImagePlaceholder;
 
-  /// 图片占位的范围说明
+  /// 图片位的范围说明（T021 起为真实缓存加载）
   ///
   /// In zh, this message translates to:
-  /// **'远程图片加载与缓存属 T021，当前仅显示占位框。'**
+  /// **'远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。'**
   String get readingImageNotice;
+
+  /// 图片加载失败后的重试按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重新加载这张图片'**
+  String get readingImageRetry;
+
+  /// 图片地址指向内网时的占位说明（不发起请求）
+  ///
+  /// In zh, this message translates to:
+  /// **'已拦截：这个图片地址指向本机或私有网络。'**
+  String get readingImageBlockedPrivate;
+
+  /// 图片超过单图字节上限时的占位说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这张图片超过单图上限，未下载。'**
+  String get readingImageTooLarge;
 
   /// 危险协议链接在正文里的可见标注（不静默丢弃）
   ///

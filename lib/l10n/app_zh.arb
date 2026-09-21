@@ -1703,9 +1703,21 @@
   "@readingImagePlaceholder": {
     "description": "图片占位框；远程图片缓存属 T021，本期不加载"
   },
-  "readingImageNotice": "远程图片加载与缓存属 T021，当前仅显示占位框。",
+  "readingImageNotice": "远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。",
   "@readingImageNotice": {
-    "description": "图片占位的范围说明"
+    "description": "图片位的范围说明（T021 起为真实缓存加载）"
+  },
+  "readingImageRetry": "重新加载这张图片",
+  "@readingImageRetry": {
+    "description": "图片加载失败后的重试按钮"
+  },
+  "readingImageBlockedPrivate": "已拦截：这个图片地址指向本机或私有网络。",
+  "@readingImageBlockedPrivate": {
+    "description": "图片地址指向内网时的占位说明（不发起请求）"
+  },
+  "readingImageTooLarge": "这张图片超过单图上限，未下载。",
+  "@readingImageTooLarge": {
+    "description": "图片超过单图字节上限时的占位说明"
   },
   "readingLinkBlocked": "已拦截：{reason}",
   "@readingLinkBlocked": {

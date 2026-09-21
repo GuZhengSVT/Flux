@@ -1122,7 +1122,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingImagePlaceholder => '图片占位';
 
   @override
-  String get readingImageNotice => '远程图片加载与缓存属 T021，当前仅显示占位框。';
+  String get readingImageNotice => '远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。';
+
+  @override
+  String get readingImageRetry => '重新加载这张图片';
+
+  @override
+  String get readingImageBlockedPrivate => '已拦截：这个图片地址指向本机或私有网络。';
+
+  @override
+  String get readingImageTooLarge => '这张图片超过单图上限，未下载。';
 
   @override
   String readingLinkBlocked(String reason) {

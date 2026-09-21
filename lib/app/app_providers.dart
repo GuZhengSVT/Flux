@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
+import 'package:flux/features/articles/application/article_image_ports.dart';
 import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/feeds/application/refresh_providers.dart';
@@ -25,12 +26,15 @@ import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/article_catalog_store.dart';
+import 'package:flux/infrastructure/local/article_image_loader.dart';
+import 'package:flux/infrastructure/local/image_cache_service.dart';
 import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
+import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/infrastructure/platform/external_link_opener.dart';
@@ -102,6 +106,7 @@ List<Override> bootstrapOverrides(
   ExternalLinkOpener? externalLinkOpener,
   ImageSaveService? imageSaveService,
   SystemShareService? systemShareService,
+  ArticleImageLoader? articleImageLoader,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -140,8 +145,14 @@ List<Override> bootstrapOverrides(
     externalLinkOpenerProvider.overrideWithValue(
       externalLinkOpener ?? const UrlLauncherLinkOpener(),
     ),
-    imageSaveServiceProvider.overrideWithValue(
-      imageSaveService ?? const HttpImageSaveService(),
+    // 保存图片同样走受控管线：它必须在管线建好之后才能构造（见下方 articleImageLoader
+    // 的说明），因此这里用一个「读同一容器里的加载器」的装配，而不是就地 new 一个。
+    imageSaveServiceProvider.overrideWith(
+      (Ref ref) =>
+          imageSaveService ??
+          HttpImageSaveService(
+            imageLoader: ref.watch(articleImageLoaderProvider),
+          ),
     ),
     // macOS 原生 NSSharingServicePicker 通道；通道不存在时 isAvailable() 返回 false，
     // 上层回退复制（架构 4.2），因此这里不需要按平台分支。
@@ -155,6 +166,28 @@ List<Override> bootstrapOverrides(
     // 不用 true 假装遵守 SET-013）。
     networkConditionsProvider.overrideWithValue(
       networkConditions ?? const DesktopNetworkConditions(),
+    ),
+    // ---- T021：远程图片缓存管线 --------------------------------------------
+    // 图片加载器（守卫 + MIME/体积/魔数校验 + 磁盘 LRU 缓存）。两种启动状态下都给
+    // 真实实现：数据目录不可用时 cache 传 null（本次运行不落盘），而不是把图片功能
+    // 整个关掉——「降级」的语义是不持久化，不是功能不可用。
+    //
+    // SET-080 的上限在这里读取（异步），因此缓存目录对象先建好、上限由读取结果在
+    // 首次使用时应用；读取失败退回注册表默认值 512 MiB。
+    articleImageLoaderProvider.overrideWith(
+      (Ref ref) =>
+          articleImageLoader ??
+          CachedArticleImageLoader(
+            fetcher: HttpMediaFetcher(),
+            cache: result.mediaCacheDirectory == null
+                ? null
+                : ImageCacheService(root: result.mediaCacheDirectory!),
+            policy: SettingsMediaDownloadPolicy(
+              settings: result.settingsStore,
+              networkConditions:
+                  networkConditions ?? const DesktopNetworkConditions(),
+            ),
+          ),
     ),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(

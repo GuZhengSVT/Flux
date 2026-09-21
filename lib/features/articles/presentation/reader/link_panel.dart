@@ -15,6 +15,8 @@ import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
+import 'article_image_view.dart';
+
 /// 链接动作（面板上由按钮触发）。
 enum LinkPanelAction {
   /// 复制地址。
@@ -246,29 +248,22 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
                 minScale: 0.5,
                 maxScale: 6,
                 child: Center(
-                  child: Image.network(
-                    widget.url,
+                  // T021：查看器与卡片/正文走**同一条**受控管线（MIME 白名单、单图
+                  // 上限、魔数校验、私网守卫、磁盘 LRU）。此前这里直接用 Image.network，
+                  // 等于给「点开大图」开了一条绕过全部校验的旁路。
+                  child: ArticleImageView(
+                    url: widget.url,
+                    alt: widget.alt,
                     fit: BoxFit.contain,
-                    semanticLabel: widget.alt.isEmpty ? null : widget.alt,
-                    loadingBuilder:
-                        (
-                          BuildContext context,
-                          Widget child,
-                          ImageChunkEvent? progress,
-                        ) => progress == null
-                        ? child
-                        : const Center(child: FluxLoadingIndicator()),
-                    errorBuilder:
-                        (
-                          BuildContext context,
-                          Object error,
-                          StackTrace? stack,
-                        ) => Center(
-                          child: Text(
-                            l10n.readingImageLoadFailed,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                        ),
+                    // 查看器要的是原图细节，因此不限制解码尺寸（仍受 50 MP 上限保护）。
+                    loadingBuilder: (BuildContext context) =>
+                        const Center(child: FluxLoadingIndicator()),
+                    errorBuilder: (BuildContext context) => Center(
+                      child: Text(
+                        l10n.readingImageLoadFailed,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ),
                   ),
                 ),
               ),

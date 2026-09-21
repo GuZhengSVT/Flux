@@ -333,7 +333,8 @@ void main() {
       );
       await pumpDetail(tester, articleId: id);
 
-      expect(find.textContaining('远程图片加载与缓存属 T021'), findsOneWidget);
+      // T021 起图片位走真实缓存管线：说明文案改为「按需加载并缓存」。
+      expect(find.textContaining('远程图片按需加载并缓存在本机'), findsOneWidget);
       await tester.tap(find.textContaining('说明文字').first);
       await tester.pumpAndSettle();
       expect(find.byType(ImageViewerPage), findsOneWidget);

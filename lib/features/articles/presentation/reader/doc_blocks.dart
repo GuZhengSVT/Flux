@@ -15,6 +15,7 @@ import 'package:flux/ui/ui.dart';
 import 'code_highlighter.dart';
 import 'doc_inline.dart';
 import 'doc_theme.dart';
+import 'article_image_view.dart';
 
 /// 无序列表的圆点标记。
 const String bulletMarker = '\u2022';
@@ -273,16 +274,16 @@ class CopyCodeButton extends StatelessWidget {
   }
 }
 
-/// 图片位（T020：可点击打开查看器；是否真的加载远程图受 SET-012 控制）。
+/// 图片位（T020 可点开查看器；T021 起走受控缓存管线）。
 ///
-/// 三条与产品规则对应的选择：
+/// 四条与产品规则对应的选择：
 ///   1) **保留版位**（架构 4.2）：一张没有加载的图仍然占住它该占的位置，并显示替代
 ///      文字与地址，使正文不会莫名其妙地断掉；
 ///   2) **SET-012 关闭时不自动加载**（架构 4.2 的「远端图片开关」）：画占位框而不是
 ///      发起请求，并说明「点击可单独下载」——关掉自动加载不等于不能看这一张；
-///   3) **可点**：无论是否加载了图，点击都打开查看器（全屏可缩放、可保存）。
-///
-/// 远程图片的缓存、可控 MIME 与解码限额属 T021。
+///   3) **可点**：无论是否加载了图，点击都打开查看器（全屏可缩放、可保存）；
+///   4) **失败不阻塞文章**（T021）：加载失败只画这一张的占位与重试按钮，正文其余
+///      部分与其它图片继续渲染。
 class ImageBlockView extends StatelessWidget {
   /// 构造图片占位。
   const ImageBlockView({
@@ -324,35 +325,29 @@ class ImageBlockView extends StatelessWidget {
       alignment: Alignment.center,
       clipBehavior: Clip.antiAlias,
       child: autoLoad
-          // 真实加载：失败时退回占位的内容（图标 + 替代文字 + 说明），而不是留一个破图标。
-          ? Image.network(
-              url,
+          // 真实加载：经 T021 的受控缓存管线（MIME/体积/魔数/私网校验 + 磁盘 LRU）。
+          // 失败时退回占位的内容（图标 + 替代文字 + 说明）与重试按钮，而不是破图标。
+          ? ArticleImageView(
+              url: url,
+              alt: alt,
               width: double.infinity,
               height: 140,
               fit: BoxFit.cover,
-              semanticLabel: alt.isEmpty ? null : alt,
-              loadingBuilder:
-                  (
-                    BuildContext context,
-                    Widget child,
-                    ImageChunkEvent? progress,
-                  ) => progress == null
-                  ? child
-                  // 加载中仍显示替代文字（叠加一个进度指示），而不是只给一个转圈：
-                  // 一块没有文字的空框会让读者以为这张图没有说明，而替代文字在图片
-                  // 到达之前正是他判断「这里是什么」的唯一依据。
-                  : Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        _placeholder(l10n, theme, failed: false),
-                        const FluxLoadingIndicator(size: 16),
-                      ],
-                    ),
-              errorBuilder: (
-                BuildContext context,
-                Object error,
-                StackTrace? stack,
-              ) => _placeholder(l10n, theme, failed: true),
+              // 正文图最多显示到约 720 逻辑宽（架构第 7 节的正文最大宽），按它解码
+              // 即可覆盖常见缩放；更大的解码只白占内存。
+              decodeTargetWidth: 720,
+              // 加载中仍显示替代文字（叠加一个进度指示），而不是只给一个转圈：
+              // 一块没有文字的空框会让读者以为这张图没有说明，而替代文字在图片
+              // 到达之前正是他判断「这里是什么」的唯一依据。
+              loadingBuilder: (BuildContext context) => Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  _placeholder(l10n, theme, failed: false),
+                  const FluxLoadingIndicator(size: 16),
+                ],
+              ),
+              errorBuilder: (BuildContext context) =>
+                  _placeholder(l10n, theme, failed: true),
             )
           : _placeholder(l10n, theme, failed: false),
     );

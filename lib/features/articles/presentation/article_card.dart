@@ -21,8 +21,12 @@ import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 
 import '../application/article_card_view.dart';
+import 'reader/article_image_view.dart';
 
 /// 卡片图片位：有图且允许加载时画图，否则按「没有图」处理。
+///
+/// 加载走 T021 的受控缓存管线（[ArticleImageView]）：卡片列表里同一地址只下载一次，
+/// 失败只影响这一张缩略图（卡片本身仍可点进详情）。
 class ArticleCardImage extends StatelessWidget {
   /// 构造图片位。
   const ArticleCardImage({
@@ -59,37 +63,36 @@ class ArticleCardImage extends StatelessWidget {
       child: SizedBox(
         width: width,
         height: height,
-        child: Image.network(
-          url,
+        child: ArticleImageView(
+          url: url,
+          alt: alt,
           width: width,
           height: height,
           fit: BoxFit.cover,
-          // 替代文字进语义树：读屏用户同样需要知道这里有一张什么图。
           semanticLabel: alt.isEmpty ? null : alt,
+          // 缩略图尺寸即解码目标：卡片上的 96×72 没必要按原图解码。
+          decodeTargetWidth: width,
+          decodeTargetHeight: height,
+          // 卡片上的失败不给重试按钮：缩略图只有 96×72，再塞一个热区会让「重试这张
+          // 图」与「点进这篇文章」抢同一个位置。重试留在正文图片位（那里空间足够）。
+          showRetry: false,
           // 加载中不留白框：用一个与卡片底色同系的占位，让「正在加载」与「底色」
           // 在视觉上连续，避免卡片在图片到达时跳动。
-          loadingBuilder:
-              (BuildContext context, Widget child, ImageChunkEvent? progress) =>
-                  progress == null
-                  ? child
-                  : ColoredBox(
-                      color: scheme.surfaceContainerHigh,
-                      child: const SizedBox.expand(),
-                    ),
-          // 远程图片加载/缓存与 MIME/尺寸安全属 T021；这里加载失败就退回「没有图」
-          // 的样子 + 一条说明，而不是留一个破图标。
-          errorBuilder:
-              (BuildContext context, Object error, StackTrace? stack) =>
-                  ColoredBox(
-                    color: scheme.surfaceContainerHigh,
-                    child: Center(
-                      child: Icon(
-                        Icons.broken_image_outlined,
-                        size: 18,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
+          loadingBuilder: (BuildContext context) => ColoredBox(
+            color: scheme.surfaceContainerHigh,
+            child: const SizedBox.expand(),
+          ),
+          // 加载失败退回「没有图」的样子，而不是留一个破图标。
+          errorBuilder: (BuildContext context) => ColoredBox(
+            color: scheme.surfaceContainerHigh,
+            child: Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         ),
       ),
     );

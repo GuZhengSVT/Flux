@@ -1174,7 +1174,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingImageNotice =>
-      'Remote image loading and caching ship in T021; only a placeholder box is shown for now.';
+      'Remote images load on demand and are cached on this device (SET-080 limit); tap to open the viewer.';
+
+  @override
+  String get readingImageRetry => 'Reload this image';
+
+  @override
+  String get readingImageBlockedPrivate =>
+      'Blocked: this image address points at your device or private network.';
+
+  @override
+  String get readingImageTooLarge =>
+      'This image exceeds the per-image size limit and was not downloaded.';
 
   @override
   String readingLinkBlocked(String reason) {

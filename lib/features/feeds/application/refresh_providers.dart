@@ -86,6 +86,40 @@ Future<bool> readMeteredAllowed(SettingsStore settings) async {
   return raw is bool ? raw : definition?.defaultValue == true;
 }
 
+/// SET-013 的媒体下载守卫（T021）。
+///
+/// 与刷新调度的守卫**共用**同一条设置与同一套判断顺序，但入口不同：
+///   - 调度守卫在触发一次刷新之前问「能不能联网」；
+///   - 这里在真正要为一**张图**发请求之前问同一件事。
+///
+/// 为什么要一个独立的实现而不是复用调度里的那个：那个守卫是「一次刷新」级别的一次性
+/// 判断（含日程与离线语义），而图片是逐张发生的——把它塞进调度会得到一条「每张图都
+/// 检查一遍日程」的奇怪路径。两处共用的是**判据**（SET-013 + isMetered），不是流程。
+final class SettingsMediaDownloadPolicy implements MediaDownloadPolicy {
+  /// 构造策略。
+  const SettingsMediaDownloadPolicy({
+    required this.settings,
+    required this.networkConditions,
+  });
+
+  /// 设置读取端口。
+  final SettingsStore settings;
+
+  /// 网络状况探测。
+  final NetworkConditionPort networkConditions;
+
+  @override
+  Future<bool> allowsImageDownload() async {
+    final bool metered = await networkConditions.isMetered();
+    if (!metered) {
+      // 非计费网络不放行是「没有证据表明受限」的正常情形，直接允许。
+      return true;
+    }
+    // 计费网络下才需要看 SET-013：未允许时**不发出请求**。
+    return readMeteredAllowed(settings);
+  }
+}
+
 /// 刷新调度器（长期存活）。
 final Provider<RefreshScheduler> refreshSchedulerProvider =
     Provider<RefreshScheduler>((Ref ref) {

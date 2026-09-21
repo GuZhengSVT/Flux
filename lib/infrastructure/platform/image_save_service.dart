@@ -21,6 +21,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flux/core/core.dart';
+import 'package:flux/features/articles/application/article_image_ports.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 
 /// 单张图片的下载上限。
@@ -39,10 +40,18 @@ const XTypeGroup imageTypeGroup = XTypeGroup(
 /// 下载并按用户选择的位置保存图片。
 final class HttpImageSaveService implements ImageSaveService {
   /// 构造适配器。
-  const HttpImageSaveService({this.client});
+  ///
+  /// [imageLoader] 非空时，下载走 T021 的受控缓存管线（守卫、MIME 白名单、单图上限、
+  /// 魔数校验、磁盘缓存）：**保存路径不得绕开这些限制**，否则「点保存」就成了一条
+  /// 可以取回任意大小文件的旁路。为空时退回本文件的直接下载（保持 T020 的行为，
+  /// 也给不装配缓存管线的测试用）。
+  const HttpImageSaveService({this.client, this.imageLoader});
 
   /// 注入的 HTTP 客户端（测试用 MockClient 替换；生产用默认客户端）。
   final http.Client? client;
+
+  /// 受控图片加载端口（T021）。
+  final ArticleImageLoader? imageLoader;
 
   @override
   Future<Result<String?>> saveImage({
@@ -58,13 +67,23 @@ final class HttpImageSaveService implements ImageSaveService {
     final http.Client? injected = client;
     final http.Client effective = injected ?? http.Client();
     try {
-      final Uint8List bytes = await _download(effective, url);
+      // 先拿到字节（优先走缓存管线），再让用户选位置——顺序与 T020 一致：
+      // 反过来会出现「文件还没落地就提示成功」。
+      final Uint8List bytes;
+      if (imageLoader case final ArticleImageLoader loader) {
+        final Result<LoadedImage> loaded = await loader.load(url);
+        if (loaded.isErr) {
+          return Err<String?>(loaded.errorOrNull!);
+        }
+        bytes = loaded.unwrap().bytes;
+      } else {
+        bytes = await _download(effective, url);
+      }
       if (bytes.isEmpty) {
         return Err<String?>(
           StorageError(operation: 'imageSave', detail: '响应为空'),
         );
       }
-      // 先让用户选位置**再**写文件：顺序反过来会出现「文件还没落地就提示成功」。
       final FileSaveLocation? location = await getSaveLocation(
         suggestedName: suggestedName,
         acceptedTypeGroups: const <XTypeGroup>[imageTypeGroup],

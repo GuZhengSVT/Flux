@@ -40,6 +40,13 @@ const String fluxDatabaseFileName = 'flux.sqlite';
 /// 诊断日志文件名。
 const String fluxDiagnosticLogFileName = 'diagnostics.log';
 
+/// 媒体缓存目录名（T021；与数据库同放在应用数据目录下）。
+///
+/// 与数据库并列而不是放进系统临时目录：缓存要跨启动保留（「离线可读」依赖它），
+/// 而临时目录会被系统清理。放在同一个数据目录下也让「一键清缓存」与「彻底卸载」
+/// 有一个明确的边界（T047 处理清理策略）。
+const String fluxMediaCacheDirectoryName = 'media';
+
 /// 启动装配结果：可用依赖，以及「哪些能力被降级」的明确记录。
 final class AppBootstrapResult {
   /// 构造装配结果。
@@ -51,6 +58,7 @@ final class AppBootstrapResult {
     required this.credentialStore,
     required this.diagnosticLog,
     required this.dataDirectoryPath,
+    this.mediaCacheDirectory,
   });
 
   /// 已打开的数据库；启动失败时为 null。
@@ -73,6 +81,12 @@ final class AppBootstrapResult {
 
   /// 实际使用的数据目录路径；未能解析时为 null。
   final String? dataDirectoryPath;
+
+  /// 媒体缓存目录（T021）；数据目录不可用时为 null。
+  ///
+  /// 为 null 时图片仍然可用（每次都重新取，不落盘），因为「本次运行不持久化」不等于
+  /// 「图片功能不可用」。
+  final Directory? mediaCacheDirectory;
 
   /// 数据库是否不可用（界面据此显示「本次运行不保存改动」）。
   bool get isDegraded => database == null;
@@ -170,6 +184,9 @@ Future<AppBootstrapResult> bootstrapApp({
     credentialStore: credentialStore,
     diagnosticLog: diagnostics,
     dataDirectoryPath: dataDirectory?.path,
+    mediaCacheDirectory: dataDirectory == null
+        ? null
+        : Directory(p.join(dataDirectory.path, fluxMediaCacheDirectoryName)),
   );
 }
 
