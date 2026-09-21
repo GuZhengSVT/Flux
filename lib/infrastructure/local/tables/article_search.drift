@@ -1,0 +1,81 @@
+import 'article_tables.dart';
+
+-- 文章全文检索索引（T022；架构 4.2「本地全库搜索标题/作者/来源/摘要/已存正文」）。
+--
+-- 用 .drift 而不是 Dart 表类：FTS5 是**虚拟表**，建表语句必须带 USING fts5(...) 与
+-- tokenizer 参数，Dart 表 DSL 表达不了；本表也不被 drift 的类型化查询直接读写，检索由
+-- 专门的 SQL 构造器完成（见 infrastructure/local/article_search_store.dart）。
+-- 写在 .drift 里并加入 database.dart 的 include，是为了让它进入 **drift 知道的 schema**：
+-- createAll 会建出它，迁移校验与 drift_schemas 快照也都包含它。否则这些对象对 drift
+-- 是隐形的，迁移校验会在「快照里没有、运行时有」之间摇摆。
+--
+-- 为什么 tokenize='trigram'（本任务最关键的选型；先写探针实测再决定，结论记入手册 7.2）。
+-- 默认的 unicode61 **对中文几乎不可用**：实测正文含「离线阅读」时，整段中文被当作
+-- **一个** token（词表里就是「离线阅读与ai摘要功能」这样一整串），于是 MATCH '离线'
+-- 与 MATCH '离' 都**零命中**。中文没有空格分词，默认 tokenizer 又没有 CJK 支持，
+-- 二者叠加就是这个结果——这正是架构 4.2 要求「不能假设默认 tokenizer 已解决中文」的原因。
+--
+-- trigram 把文本切成每 3 个字符一段（跨越标点），实测语义因此是确定的：
+--   * 连续 ≥3 字的片段用 MATCH 短语命中（'离线阅' 命中「离线阅读」；ASCII 同样成立）；
+--   * 任意长度（含 1–2 字）可用 LIKE 命中，且 pattern ≥3 字时 SQLite 会把 LIKE
+--     下推到 trigram 索引（实测查询计划 SCAN ... VIRTUAL TABLE INDEX 0:L0/L1，
+--     不是全表扫描）；1–2 字的 pattern 无法下推，退化为扫描（仍正确，只是不快）；
+--   * ASCII 大小写不敏感（MATCH 'off' 与 'OFF' 都命中 'Offline'；LIKE 同理）。
+-- 1–2 字查询**无法**用 MATCH：trigram 索引里根本不存在长度小于 3 的项。这不是实现
+-- 缺陷而是该 tokenizer 的定义，因此检索层对两种长度走两条路径（见 search 用例说明）。
+--
+-- content='articles'（external content 模式）：索引不复制正文，只存倒排表，需要原文时
+-- 回查 articles。正文常有每篇几 KB，双存会让库体积接近翻倍。
+--
+-- 索引列**只放 articles 里逐字存在的列**（title/author/summary/body），这是刻意的：
+--   * fts5 的 'rebuild' 命令直接从 content 表重新扫描，**不会**执行任何触发器逻辑。
+--     若索引列里存的是经过变换的值（例如 COALESCE 出来的来源名），触发器插入的行与
+--     rebuild 出来的行就会**不一致**（实测：重建后 feed_title 全为 null，来源名搜索
+--     整个失效）。只放逐字列，则「触发器同步」与「rebuild 恢复」两条路径的结果严格相同。
+--   * 来源名不进索引还有一个好处：源改名后不需要维护索引——检索时按 articles.feed_id
+--     现查 feeds.name（与列表页显示来源名的规则同一条），改名即时生效，也不会因为忘了
+--     更新索引而出现「列表显示 A 源、搜 A 源搜不到」。
+CREATE VIRTUAL TABLE IF NOT EXISTS articles_fts USING fts5(
+  title,
+  author,
+  summary,
+  body,
+  content='articles',
+  content_rowid='id',
+  tokenize='trigram'
+);
+
+-- 同步走触发器，因此**任何**写入路径都不会漏建索引：drift 的类型化插入、迁移里的
+-- 批量写入、T018 删除订阅时的 UPDATE，都会经过触发器。不用「应用层记得在写文章后调
+-- 一次 index()」的做法——那是最容易被漏掉的一类同步。
+
+-- 新增文章。
+CREATE TRIGGER articles_fts_ai AFTER INSERT ON articles BEGIN
+  INSERT INTO articles_fts(rowid, title, author, summary, body)
+  VALUES (new.id, new.title, new.author, new.summary, new.body);
+END;
+
+-- 删除文章：external content 模式要求显式 delete 命令，且必须带原来的列值，
+-- fts5 要用它们定位倒排项。
+CREATE TRIGGER articles_fts_ad AFTER DELETE ON articles BEGIN
+  INSERT INTO articles_fts(articles_fts, rowid, title, author, summary, body)
+  VALUES ('delete', old.id, old.title, old.author, old.summary, old.body);
+END;
+
+-- 更新文章：按旧值删除、再插入新值。
+--
+-- 为什么不是 UPDATE SET：索引列的内容不在本表里（external content），UPDATE 只改
+-- 列取值而**不重排倒排索引**，旧词仍会被搜到（实测：改名前命中、改名后仍命中）。
+-- delete + insert 才是真正的重建。
+--
+-- 触发列限定为 title/author/summary/body：只在这四列变化时重建索引项。阅读状态与收藏
+-- 的写入**不**触发重建——那是用户最高频的写入路径，让它顺带重排索引既是浪费也会明显
+-- 拖慢「标为已读」。
+CREATE TRIGGER articles_fts_au
+AFTER UPDATE OF title, author, summary, body ON articles
+BEGIN
+  INSERT INTO articles_fts(articles_fts, rowid, title, author, summary, body)
+  VALUES ('delete', old.id, old.title, old.author, old.summary, old.body);
+  INSERT INTO articles_fts(rowid, title, author, summary, body)
+  VALUES (new.id, new.title, new.author, new.summary, new.body);
+END;

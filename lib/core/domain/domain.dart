@@ -7,6 +7,7 @@ library;
 
 export 'article_identity.dart';
 export 'article_catalog.dart';
+export 'article_search.dart';
 export 'article_import.dart';
 export 'citation_access.dart';
 export 'document_tree.dart';

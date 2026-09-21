@@ -78,3 +78,22 @@ final class DegradedArticleCatalogStore implements ArticleCatalogStore {
     ),
   );
 }
+
+/// 数据库不可用时的检索端口（T022 的降级启动路径）。
+///
+/// 与 [DegradedArticleCatalogStore] 同一口径：**返回类型化失败**，而不是空结果。
+/// 这一条与列表的降级**有意不同**：列表读不到时返回空集合，因为「列表是空的」在
+/// 数据库不可用时可解释（用户看到空态 + 顶部横幅）；而检索返回空结果会让用户以为
+/// 「库里没有这篇文章」，从而去改查询词——那是在为一个环境问题找错方向。
+final class DegradedArticleSearchStore implements ArticleSearchPort {
+  /// 构造降级实现。
+  const DegradedArticleSearchStore();
+
+  @override
+  Future<Result<SearchPage>> search(SearchQuery query) async =>
+      Err(StorageError(operation: 'search', detail: '本次运行数据库不可用，检索无法执行'));
+
+  @override
+  Future<Result<int>> rebuildIndex() async =>
+      Err(StorageError(operation: 'rebuildIndex', detail: '本次运行数据库不可用'));
+}

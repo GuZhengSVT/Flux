@@ -26,6 +26,7 @@ import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/article_catalog_store.dart';
+import 'package:flux/infrastructure/local/article_search_store.dart';
 import 'package:flux/infrastructure/local/article_image_loader.dart';
 import 'package:flux/infrastructure/local/image_cache_service.dart';
 import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
@@ -200,6 +201,10 @@ List<Override> bootstrapOverrides(
       articleCatalogProvider.overrideWithValue(
         DriftArticleCatalogStore(catalogDatabase),
       ),
+      // T022：全文检索端口（同一份数据上的 fts5 索引）。
+      articleSearchProvider.overrideWithValue(
+        DriftArticleSearchStore(catalogDatabase),
+      ),
       groupCollapseStoreProvider.overrideWithValue(
         GroupCollapseRepository(catalogDatabase),
       ),
@@ -212,6 +217,11 @@ List<Override> bootstrapOverrides(
       // 不返回假的成功，理由与另外两个端口一致（见 feed_store_adapter 的说明）。
       articleCatalogProvider.overrideWithValue(
         const DegradedArticleCatalogStore(),
+      ),
+      // 降级模式下检索退到明确失败：没有库就没有索引，假装「没搜到」会把
+      // 「数据库不可用」演成「库里没有这篇文章」。
+      articleSearchProvider.overrideWithValue(
+        const DegradedArticleSearchStore(),
       ),
       // 折叠状态在降级模式下退到会话内存：记不住不算错误（见端口说明）。
       groupCollapseStoreProvider.overrideWithValue(

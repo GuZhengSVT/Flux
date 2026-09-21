@@ -44,6 +44,13 @@ part 'database.g.dart';
     Citations,
     Settings,
   ],
+  // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
+  // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
+  // include 让这些对象成为 **drift 知道的** schema 的一部分，因此：
+  //   - onCreate/createAll 会一并建出（新库不需要额外步骤）；
+  //   - 迁移校验会比较它们（不会出现「代码建的索引与快照不一致」这类静默漂移）；
+  //   - drift_schemas 快照会记录它们，后续迁移测试能验证。
+  include: <String>{'tables/article_search.drift'},
 )
 class AppDatabase extends _$AppDatabase {
   /// 用外部提供的执行器构造（测试注入内存库、生产注入文件库）。
@@ -68,7 +75,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -195,11 +202,42 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
+      if (from < 7) {
+        // v6 → v7：新增全文检索索引（T022；架构 4.2 的 F-SEARCH）。
+        //
+        // 这一步做三件事，顺序有意义：
+        //   1) 建 FTS5 虚拟表（external content 模式，不复制正文）；
+        //   2) 建同步触发器（插入/删除/更新文章、订阅改名）；
+        //   3) **重建索引**，把已有文章灌进倒排表。
+        //
+        // 第 3 步不能省：触发器只对**此后**的写入生效，升级前库里已有的文章不会自己
+        // 出现在索引里——漏掉它，用户升级后搜自己的历史文章会是零结果，而界面上完全
+        // 没有线索指向这次迁移。
+        //
+        // 为什么用 customStatement 而不是 m.createAll 或 m.createTable：include 里的
+        // 对象（虚拟表与触发器）已经进入 drift 的 schema，但 m.createAll 会连带建全部
+        // 表与索引（对已存在的表执行 CREATE TABLE IF NOT EXISTS 虽然安全，却把「这一步
+        // 只新增检索对象」这件事模糊掉了）。这里逐条创建，来源与顺序都写在眼前。
+        // 逐条建出「检索相关的 schema 对象」。之所以不 m.createAll()：那会连带建全部
+        // 表与索引（对已存在的对象虽安全，却把「本步只新增检索对象」这件事模糊掉）。
+        // 这里显式列出四个对象，来源与顺序都在眼前。
+        await m.create(articlesFts);
+        await m.create(articlesFtsAi);
+        await m.create(articlesFtsAd);
+        await m.create(articlesFtsAu);
+        // 全量重建索引。用 fts5 内置的 'rebuild' 命令而不是逐行 INSERT：rebuild 直接
+        // 从 content 表（articles）重新扫描，速度最快，也不需要在这里重复 COALESCE
+        // 的取名字规则——那套规则已经在触发器里写过一遍。
+        await customStatement(
+          "INSERT INTO articles_fts(articles_fts) VALUES('rebuild')",
+        );
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 6;
+      const int highestImplemented = 7;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

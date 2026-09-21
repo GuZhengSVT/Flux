@@ -351,5 +351,33 @@ void main() {
       // v6 必须保留 v5 已有的来源快照两列：只加列不等于可以丢列。
       expect(v6ArticleColumns, containsAll(<String>['feed_title', 'feed_url']));
     });
+
+    test('v7 快照包含全文检索对象（T022 的 FTS5 虚拟表与触发器）', () {
+      final File v7Snapshot = File('drift_schemas/drift_schema_v7.json');
+      expect(
+        v7Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v7 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> decoded =
+          jsonDecode(v7Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> entities =
+          (decoded['entities'] as List<dynamic>).cast<Map<String, dynamic>>();
+      final Map<String, String> byName = <String, String>{
+        for (final Map<String, dynamic> e in entities)
+          (e['data'] as Map<String, dynamic>)['name'] as String: jsonEncode(
+            e['data'],
+          ),
+      };
+
+      expect(byName.keys, contains('articles_fts'));
+      expect(byName.keys, contains('articles_fts_ai'));
+      expect(byName.keys, contains('articles_fts_ad'));
+      expect(byName.keys, contains('articles_fts_au'));
+      // 检索列的 tokenizer 与 external content 参数必须写进快照：它们是中文检索语义的
+      // 全部依据，快照里没有的话后续迁移测试就验证不到「有没有被改掉」。
+      expect(byName['articles_fts'], contains('trigram'));
+      expect(byName['articles_fts'], contains('content_rowid'));
+    });
   });
 }

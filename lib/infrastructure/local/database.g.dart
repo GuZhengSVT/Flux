@@ -3038,6 +3038,323 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   }
 }
 
+class ArticlesFts extends Table
+    with
+        TableInfo<ArticlesFts, ArticlesFt>,
+        VirtualTableInfo<ArticlesFts, ArticlesFt> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  ArticlesFts(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _authorMeta = const VerificationMeta('author');
+  late final GeneratedColumn<String> author = GeneratedColumn<String>(
+    'author',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+    'summary',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [title, author, summary, body];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'articles_fts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArticlesFt> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('author')) {
+      context.handle(
+        _authorMeta,
+        author.isAcceptableOrUnknown(data['author']!, _authorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_authorMeta);
+    }
+    if (data.containsKey('summary')) {
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_summaryMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => const {};
+  @override
+  ArticlesFt map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArticlesFt(
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      author: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author'],
+      )!,
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+    );
+  }
+
+  @override
+  ArticlesFts createAlias(String alias) {
+    return ArticlesFts(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+  @override
+  String get moduleAndArgs =>
+      'fts5(title, author, summary, body, content=\'articles\', content_rowid=\'id\', tokenize=\'trigram\')';
+}
+
+class ArticlesFt extends DataClass implements Insertable<ArticlesFt> {
+  final String title;
+  final String author;
+  final String summary;
+  final String body;
+  const ArticlesFt({
+    required this.title,
+    required this.author,
+    required this.summary,
+    required this.body,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['title'] = Variable<String>(title);
+    map['author'] = Variable<String>(author);
+    map['summary'] = Variable<String>(summary);
+    map['body'] = Variable<String>(body);
+    return map;
+  }
+
+  ArticlesFtsCompanion toCompanion(bool nullToAbsent) {
+    return ArticlesFtsCompanion(
+      title: Value(title),
+      author: Value(author),
+      summary: Value(summary),
+      body: Value(body),
+    );
+  }
+
+  factory ArticlesFt.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArticlesFt(
+      title: serializer.fromJson<String>(json['title']),
+      author: serializer.fromJson<String>(json['author']),
+      summary: serializer.fromJson<String>(json['summary']),
+      body: serializer.fromJson<String>(json['body']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'title': serializer.toJson<String>(title),
+      'author': serializer.toJson<String>(author),
+      'summary': serializer.toJson<String>(summary),
+      'body': serializer.toJson<String>(body),
+    };
+  }
+
+  ArticlesFt copyWith({
+    String? title,
+    String? author,
+    String? summary,
+    String? body,
+  }) => ArticlesFt(
+    title: title ?? this.title,
+    author: author ?? this.author,
+    summary: summary ?? this.summary,
+    body: body ?? this.body,
+  );
+  ArticlesFt copyWithCompanion(ArticlesFtsCompanion data) {
+    return ArticlesFt(
+      title: data.title.present ? data.title.value : this.title,
+      author: data.author.present ? data.author.value : this.author,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      body: data.body.present ? data.body.value : this.body,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticlesFt(')
+          ..write('title: $title, ')
+          ..write('author: $author, ')
+          ..write('summary: $summary, ')
+          ..write('body: $body')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(title, author, summary, body);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArticlesFt &&
+          other.title == this.title &&
+          other.author == this.author &&
+          other.summary == this.summary &&
+          other.body == this.body);
+}
+
+class ArticlesFtsCompanion extends UpdateCompanion<ArticlesFt> {
+  final Value<String> title;
+  final Value<String> author;
+  final Value<String> summary;
+  final Value<String> body;
+  final Value<int> rowid;
+  const ArticlesFtsCompanion({
+    this.title = const Value.absent(),
+    this.author = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.body = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArticlesFtsCompanion.insert({
+    required String title,
+    required String author,
+    required String summary,
+    required String body,
+    this.rowid = const Value.absent(),
+  }) : title = Value(title),
+       author = Value(author),
+       summary = Value(summary),
+       body = Value(body);
+  static Insertable<ArticlesFt> custom({
+    Expression<String>? title,
+    Expression<String>? author,
+    Expression<String>? summary,
+    Expression<String>? body,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (title != null) 'title': title,
+      if (author != null) 'author': author,
+      if (summary != null) 'summary': summary,
+      if (body != null) 'body': body,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArticlesFtsCompanion copyWith({
+    Value<String>? title,
+    Value<String>? author,
+    Value<String>? summary,
+    Value<String>? body,
+    Value<int>? rowid,
+  }) {
+    return ArticlesFtsCompanion(
+      title: title ?? this.title,
+      author: author ?? this.author,
+      summary: summary ?? this.summary,
+      body: body ?? this.body,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (author.present) {
+      map['author'] = Variable<String>(author.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArticlesFtsCompanion(')
+          ..write('title: $title, ')
+          ..write('author: $author, ')
+          ..write('summary: $summary, ')
+          ..write('body: $body, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DeletionEventsTable extends DeletionEvents
     with TableInfo<$DeletionEventsTable, DeletionEvent> {
   @override
@@ -5730,30 +6047,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GroupsTable groups = $GroupsTable(this);
   late final $FeedsTable feeds = $FeedsTable(this);
   late final $ArticlesTable articles = $ArticlesTable(this);
-  late final $DeletionEventsTable deletionEvents = $DeletionEventsTable(this);
-  late final $ReadingSessionsTable readingSessions = $ReadingSessionsTable(
-    this,
+  late final ArticlesFts articlesFts = ArticlesFts(this);
+  late final Trigger articlesFtsAi = Trigger(
+    'CREATE TRIGGER articles_fts_ai AFTER INSERT ON articles BEGIN INSERT INTO articles_fts ("rowid", title, author, summary, body) VALUES (new.id, new.title, new.author, new.summary, new.body);END',
+    'articles_fts_ai',
   );
-  late final $SummaryVersionsTable summaryVersions = $SummaryVersionsTable(
-    this,
+  late final Trigger articlesFtsAd = Trigger(
+    'CREATE TRIGGER articles_fts_ad AFTER DELETE ON articles BEGIN INSERT INTO articles_fts (articles_fts, "rowid", title, author, summary, body) VALUES (\'delete\', old.id, old.title, old.author, old.summary, old.body);END',
+    'articles_fts_ad',
   );
-  late final $CitationsTable citations = $CitationsTable(this);
-  late final $SettingsTable settings = $SettingsTable(this);
-  late final Index uxGroupsSyncId = Index(
-    'ux_groups_sync_id',
-    'CREATE UNIQUE INDEX ux_groups_sync_id ON "groups" (sync_id)',
-  );
-  late final Index uxFeedsSyncId = Index(
-    'ux_feeds_sync_id',
-    'CREATE UNIQUE INDEX ux_feeds_sync_id ON feeds (sync_id)',
-  );
-  late final Index uxFeedsNormalizedUrl = Index(
-    'ux_feeds_normalized_url',
-    'CREATE UNIQUE INDEX ux_feeds_normalized_url ON feeds (normalized_url)',
-  );
-  late final Index ixFeedsGroupSort = Index(
-    'ix_feeds_group_sort',
-    'CREATE INDEX ix_feeds_group_sort ON feeds (group_id, sort_order)',
+  late final Trigger articlesFtsAu = Trigger(
+    'CREATE TRIGGER articles_fts_au AFTER UPDATE OF title, author, summary, body ON articles BEGIN INSERT INTO articles_fts (articles_fts, "rowid", title, author, summary, body) VALUES (\'delete\', old.id, old.title, old.author, old.summary, old.body);INSERT INTO articles_fts ("rowid", title, author, summary, body) VALUES (new.id, new.title, new.author, new.summary, new.body);END',
+    'articles_fts_au',
   );
   late final Index uxArticlesFeedGuid = Index(
     'ux_articles_feed_guid',
@@ -5783,6 +6088,31 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ix_articles_body_hash',
     'CREATE INDEX ix_articles_body_hash ON articles (body_hash)',
   );
+  late final Index uxGroupsSyncId = Index(
+    'ux_groups_sync_id',
+    'CREATE UNIQUE INDEX ux_groups_sync_id ON "groups" (sync_id)',
+  );
+  late final Index uxFeedsSyncId = Index(
+    'ux_feeds_sync_id',
+    'CREATE UNIQUE INDEX ux_feeds_sync_id ON feeds (sync_id)',
+  );
+  late final Index uxFeedsNormalizedUrl = Index(
+    'ux_feeds_normalized_url',
+    'CREATE UNIQUE INDEX ux_feeds_normalized_url ON feeds (normalized_url)',
+  );
+  late final Index ixFeedsGroupSort = Index(
+    'ix_feeds_group_sort',
+    'CREATE INDEX ix_feeds_group_sort ON feeds (group_id, sort_order)',
+  );
+  late final $DeletionEventsTable deletionEvents = $DeletionEventsTable(this);
+  late final $ReadingSessionsTable readingSessions = $ReadingSessionsTable(
+    this,
+  );
+  late final $SummaryVersionsTable summaryVersions = $SummaryVersionsTable(
+    this,
+  );
+  late final $CitationsTable citations = $CitationsTable(this);
+  late final $SettingsTable settings = $SettingsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -5823,15 +6153,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     groups,
     feeds,
     articles,
-    deletionEvents,
-    readingSessions,
-    summaryVersions,
-    citations,
-    settings,
-    uxGroupsSyncId,
-    uxFeedsSyncId,
-    uxFeedsNormalizedUrl,
-    ixFeedsGroupSort,
+    articlesFts,
+    articlesFtsAi,
+    articlesFtsAd,
+    articlesFtsAu,
     uxArticlesFeedGuid,
     uxArticlesFeedNormalizedLink,
     uxArticlesFeedFingerprint,
@@ -5839,6 +6164,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixArticlesReadingState,
     ixArticlesFavorite,
     ixArticlesBodyHash,
+    uxGroupsSyncId,
+    uxFeedsSyncId,
+    uxFeedsNormalizedUrl,
+    ixFeedsGroupSort,
+    deletionEvents,
+    readingSessions,
+    summaryVersions,
+    citations,
+    settings,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -5850,6 +6184,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'articles',
+        limitUpdateKind: UpdateKind.insert,
+      ),
+      result: [TableUpdate('articles_fts', kind: UpdateKind.insert)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'articles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('articles_fts', kind: UpdateKind.insert)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'articles',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('articles_fts', kind: UpdateKind.insert)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'articles',
@@ -7755,6 +8110,187 @@ typedef $$ArticlesTableProcessedTableManager =
         bool citationsRefs,
       })
     >;
+typedef $ArticlesFtsCreateCompanionBuilder = ArticlesFtsCompanion Function({
+  required String title,
+  required String author,
+  required String summary,
+  required String body,
+  Value<int> rowid,
+});
+typedef $ArticlesFtsUpdateCompanionBuilder = ArticlesFtsCompanion Function({
+  Value<String> title,
+  Value<String> author,
+  Value<String> summary,
+  Value<String> body,
+  Value<int> rowid,
+});
+
+class $ArticlesFtsFilterComposer extends Composer<_$AppDatabase, ArticlesFts> {
+  $ArticlesFtsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get author => $composableBuilder(
+    column: $table.author,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $ArticlesFtsOrderingComposer
+    extends Composer<_$AppDatabase, ArticlesFts> {
+  $ArticlesFtsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get author => $composableBuilder(
+    column: $table.author,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $ArticlesFtsAnnotationComposer
+    extends Composer<_$AppDatabase, ArticlesFts> {
+  $ArticlesFtsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get author =>
+      $composableBuilder(column: $table.author, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+}
+
+class $ArticlesFtsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          ArticlesFts,
+          ArticlesFt,
+          $ArticlesFtsFilterComposer,
+          $ArticlesFtsOrderingComposer,
+          $ArticlesFtsAnnotationComposer,
+          $ArticlesFtsCreateCompanionBuilder,
+          $ArticlesFtsUpdateCompanionBuilder,
+          (ArticlesFt, BaseReferences<_$AppDatabase, ArticlesFts, ArticlesFt>),
+          ArticlesFt,
+          PrefetchHooks Function()
+        > {
+  $ArticlesFtsTableManager(_$AppDatabase db, ArticlesFts table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $ArticlesFtsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $ArticlesFtsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $ArticlesFtsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> title = const Value.absent(),
+                Value<String> author = const Value.absent(),
+                Value<String> summary = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArticlesFtsCompanion(
+                title: title,
+                author: author,
+                summary: summary,
+                body: body,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String title,
+                required String author,
+                required String summary,
+                required String body,
+                Value<int> rowid = const Value.absent(),
+              }) => ArticlesFtsCompanion.insert(
+                title: title,
+                author: author,
+                summary: summary,
+                body: body,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<ArticlesFts, ArticlesFt>(table),
+                  BaseReferences<_$AppDatabase, ArticlesFts, ArticlesFt>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $ArticlesFtsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      ArticlesFts,
+      ArticlesFt,
+      $ArticlesFtsFilterComposer,
+      $ArticlesFtsOrderingComposer,
+      $ArticlesFtsAnnotationComposer,
+      $ArticlesFtsCreateCompanionBuilder,
+      $ArticlesFtsUpdateCompanionBuilder,
+      (ArticlesFt, BaseReferences<_$AppDatabase, ArticlesFts, ArticlesFt>),
+      ArticlesFt,
+      PrefetchHooks Function()
+    >;
 typedef $$DeletionEventsTableCreateCompanionBuilder =
     DeletionEventsCompanion Function({
       Value<int> id,
@@ -9505,6 +10041,8 @@ class $AppDatabaseManager {
       $$FeedsTableTableManager(_db, _db.feeds);
   $$ArticlesTableTableManager get articles =>
       $$ArticlesTableTableManager(_db, _db.articles);
+  $ArticlesFtsTableManager get articlesFts =>
+      $ArticlesFtsTableManager(_db, _db.articlesFts);
   $$DeletionEventsTableTableManager get deletionEvents =>
       $$DeletionEventsTableTableManager(_db, _db.deletionEvents);
   $$ReadingSessionsTableTableManager get readingSessions =>

@@ -18,3 +18,12 @@ targets:
       drift_dev:
         options:
           store_date_time_values_as_text: true
+          # 启用 fts5 模块的 SQL 分析（T022）：本工程有一张 fts5 虚拟表
+          # （lib/infrastructure/local/tables/article_search.drift）。不声明它，
+          # drift 的分析器不认识 USING fts5(...)，会把该表报成
+          # 「Unknown module "fts5", did you register it?」并且**不生成**该表元素——
+          # 于是迁移校验会一边认为表不存在、一边在运行时看到它。
+          sql:
+            options:
+              modules:
+                - fts5

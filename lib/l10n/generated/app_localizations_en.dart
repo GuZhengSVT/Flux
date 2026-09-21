@@ -1312,4 +1312,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingBackToList => 'Back to list';
+
+  @override
+  String get searchFieldHint => 'Search all articles';
+
+  @override
+  String get searchFieldLabel => 'Search';
+
+  @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchClose => 'Close search';
+
+  @override
+  String get searchOpen => 'Search articles';
+
+  @override
+  String get searchIdleTitle => 'Type a keyword to search';
+
+  @override
+  String get searchIdleBody =>
+      'Search covers titles, authors, sources, summaries and stored bodies. Chinese and English both match as case-insensitive substrings.';
+
+  @override
+  String get searchEmptyTitle => 'No matching articles';
+
+  @override
+  String get searchEmptyBody =>
+      'Try a shorter keyword. Search only looks at articles already stored on this device and never visits web pages.';
+
+  @override
+  String searchFailed(String reason) {
+    return 'Search failed: $reason';
+  }
+
+  @override
+  String get searchRetry => 'Retry';
+
+  @override
+  String searchResultsCount(int count) {
+    return '$count matches';
+  }
+
+  @override
+  String get searchScopeAll => 'All articles';
+
+  @override
+  String get searchScopeFiltered => 'Current filter';
+
+  @override
+  String get searchScopeLabel => 'Scope';
 }

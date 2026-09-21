@@ -1253,4 +1253,53 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingBackToList => '返回列表';
+
+  @override
+  String get searchFieldHint => '搜索全部文章';
+
+  @override
+  String get searchFieldLabel => '搜索';
+
+  @override
+  String get searchClear => '清除搜索';
+
+  @override
+  String get searchClose => '关闭搜索';
+
+  @override
+  String get searchOpen => '搜索文章';
+
+  @override
+  String get searchIdleTitle => '输入关键词开始检索';
+
+  @override
+  String get searchIdleBody => '搜索范围包括标题、作者、来源、摘要与已存正文。中文与英文都按子串匹配（大小写不敏感）。';
+
+  @override
+  String get searchEmptyTitle => '没有匹配的文章';
+
+  @override
+  String get searchEmptyBody => '试试更短的关键词。检索只在本地已收录的文章里进行，不会访问网页。';
+
+  @override
+  String searchFailed(String reason) {
+    return '检索失败：$reason';
+  }
+
+  @override
+  String get searchRetry => '重试';
+
+  @override
+  String searchResultsCount(int count) {
+    return '命中 $count 篇';
+  }
+
+  @override
+  String get searchScopeAll => '全部文章';
+
+  @override
+  String get searchScopeFiltered => '当前筛选';
+
+  @override
+  String get searchScopeLabel => '范围';
 }

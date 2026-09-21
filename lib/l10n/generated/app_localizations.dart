@@ -2286,6 +2286,96 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'返回列表'**
   String get readingBackToList;
+
+  /// RSS 列表的搜索框提示
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索全部文章'**
+  String get searchFieldHint;
+
+  /// 搜索框的无障碍标签
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索'**
+  String get searchFieldLabel;
+
+  /// 清除搜索按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'清除搜索'**
+  String get searchClear;
+
+  /// 关闭搜索框并回到浏览列表
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭搜索'**
+  String get searchClose;
+
+  /// 打开搜索框的按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索文章'**
+  String get searchOpen;
+
+  /// 还没输入查询词时的空态标题
+  ///
+  /// In zh, this message translates to:
+  /// **'输入关键词开始检索'**
+  String get searchIdleTitle;
+
+  /// 搜索范围与匹配语义的说明（架构 4.2 要求语义确定）
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索范围包括标题、作者、来源、摘要与已存正文。中文与英文都按子串匹配（大小写不敏感）。'**
+  String get searchIdleBody;
+
+  /// 有查询词但无结果的空态标题
+  ///
+  /// In zh, this message translates to:
+  /// **'没有匹配的文章'**
+  String get searchEmptyTitle;
+
+  /// 无结果时的说明（不访问未收录网页）
+  ///
+  /// In zh, this message translates to:
+  /// **'试试更短的关键词。检索只在本地已收录的文章里进行，不会访问网页。'**
+  String get searchEmptyBody;
+
+  /// 检索失败提示（与无结果区分）
+  ///
+  /// In zh, this message translates to:
+  /// **'检索失败：{reason}'**
+  String searchFailed(String reason);
+
+  /// 检索失败后的重试按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'重试'**
+  String get searchRetry;
+
+  /// 结果计数
+  ///
+  /// In zh, this message translates to:
+  /// **'命中 {count} 篇'**
+  String searchResultsCount(int count);
+
+  /// 检索范围：全库
+  ///
+  /// In zh, this message translates to:
+  /// **'全部文章'**
+  String get searchScopeAll;
+
+  /// 检索范围：跟随列表当前的筛选
+  ///
+  /// In zh, this message translates to:
+  /// **'当前筛选'**
+  String get searchScopeFiltered;
+
+  /// 范围选择器的标签
+  ///
+  /// In zh, this message translates to:
+  /// **'范围'**
+  String get searchScopeLabel;
 }
 
 class _AppLocalizationsDelegate

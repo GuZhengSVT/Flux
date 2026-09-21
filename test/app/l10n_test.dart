@@ -152,8 +152,9 @@ void main() {
       // T020 新增 25 条选区/复制全文/链接面板/图片查看与保存/系统分享文案。
       // T021 新增 3 条图片缓存文案（重试、内网地址被拦、超过单图上限），并把
       // T019 的图片占位说明改为「按需加载并缓存」的当前口径。
-      expect(_messageKeys(zh).length, 363);
-      expect(_messageKeys(en).length, 363);
+      // T022 新增 15 条检索文案（搜索框、范围、三种空态、失败与重试、命中计数）。
+      expect(_messageKeys(zh).length, 378);
+      expect(_messageKeys(en).length, 378);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

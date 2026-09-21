@@ -12,10 +12,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flux/core/core.dart';
 
+import 'article_search_use_case.dart';
+
 /// 文章阅读端口（列表、状态写入）。
 final Provider<ArticleCatalogStore> articleCatalogProvider =
     Provider<ArticleCatalogStore>(
       (Ref ref) => throw StateError(
         'articleCatalogProvider 未被组合根覆盖：见 lib/app/app_providers.dart',
+      ),
+    );
+
+/// 全文检索端口（T022）。
+final Provider<ArticleSearchPort> articleSearchProvider =
+    Provider<ArticleSearchPort>(
+      (Ref ref) => throw StateError(
+        'articleSearchProvider 未被组合根覆盖：见 lib/app/app_providers.dart',
+      ),
+    );
+
+/// 检索用例（由检索端口 + 整行读取端口组成）。
+final Provider<SearchArticlesUseCase> searchArticlesUseCaseProvider =
+    Provider<SearchArticlesUseCase>(
+      (Ref ref) => SearchArticlesUseCase(
+        search: ref.watch(articleSearchProvider),
+        articles: ref.watch(articleCatalogProvider),
       ),
     );

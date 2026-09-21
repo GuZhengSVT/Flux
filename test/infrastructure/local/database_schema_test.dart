@@ -53,8 +53,8 @@ void main() {
       await db.close();
     });
 
-    test('schemaVersion 为当前版本（T019+ 起为 6）', () {
-      expect(db.schemaVersion, 6);
+    test('schemaVersion 为当前版本（T022 起为 7）', () {
+      expect(db.schemaVersion, 7);
     });
 
     test('架构 5.1 的核心表全部建出', () async {
@@ -116,6 +116,38 @@ void main() {
         fpIndex.toUpperCase(),
         contains('WHERE FALLBACK_FINGERPRINT IS NOT NULL'),
       );
+    });
+
+    test('全文检索对象建出（T022：fts5 虚拟表 + 同步触发器）', () async {
+      final Set<String> objects = await _schemaObjects(db);
+      expect(
+        objects,
+        containsAll(<String>[
+          'articles_fts',
+          'articles_fts_ai',
+          'articles_fts_ad',
+          'articles_fts_au',
+        ]),
+        reason: '索引表与三个同步触发器都必须落库',
+      );
+
+      // 虚拟表的建表语句必须带 tokenizer 与 external content 参数——它们是本任务
+      // 中文检索语义的全部依据，被改掉就等于换了一套检索行为。
+      final String fts = await _objectSql(db, 'articles_fts');
+      expect(fts.toUpperCase(), contains('VIRTUAL TABLE'));
+      expect(fts.toLowerCase(), contains('fts5'));
+      expect(fts.toLowerCase(), contains("tokenize='trigram'"));
+      expect(fts.toLowerCase(), contains("content='articles'"));
+      expect(fts.toLowerCase(), contains("content_rowid='id'"));
+      // 索引列必须是 articles 里逐字存在的列（rebuild 与触发器两条路径才一致）。
+      expect(fts, isNot(contains('feed_title')));
+    });
+
+    test('全文索引初始为空（新建库没有文章，也没有多余索引项）', () async {
+      final QueryRow row = await db
+          .customSelect('SELECT COUNT(*) AS c FROM articles_fts')
+          .getSingle();
+      expect(row.read<int>('c'), 0);
     });
 
     test('reading_state 落库为 CHECK 约束，而不是只靠 Dart 类型', () async {
