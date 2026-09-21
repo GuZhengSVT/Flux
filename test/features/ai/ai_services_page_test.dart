@@ -207,6 +207,132 @@ void main() {
     });
   });
 
+  group('预设联动与状态徽章（T028）', () {
+    testWidgets('选预设自动填协议与 Base URL，Key 仍手填', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 1600));
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: const AiServicesPage(),
+          overrides: bootstrap.overrides(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('添加模型').first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String?>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Anthropic').last);
+      await tester.pumpAndSettle();
+
+      // Base URL 被自动填入（预设的 Base URL 是适配器前缀，带 /v1）。
+      expect(
+        find.widgetWithText(TextField, 'https://api.anthropic.com/v1'),
+        findsOneWidget,
+        reason: '预设应把 Base URL 填进表单',
+      );
+      // 最终端点写在界面上供核对。
+      expect(
+        find.textContaining('https://api.anthropic.com/v1/messages'),
+        findsWidgets,
+      );
+      // Key 输入框仍然是空的（预设不代填 Key）。
+      final TextField keyField = tester.widget<TextField>(
+        find.widgetWithText(TextField, '替换 Key'),
+      );
+      expect(keyField.controller?.text ?? '', isEmpty);
+      expect(find.text('尚未配置'), findsOneWidget);
+    });
+
+    testWidgets('选中预设后徽章显示，三档文案都在预设下拉里可选', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 2000));
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: const AiServicesPage(),
+          overrides: bootstrap.overrides(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('添加模型').first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String?>));
+      await tester.pumpAndSettle();
+      // DeepSeek 是唯一实测的预设；Anthropic 是 fixture 通过；MiMo 待验证。
+      expect(find.text('实测'), findsWidgets);
+      expect(find.text('fixture 通过'), findsWidgets);
+      expect(find.text('待验证'), findsWidgets);
+    });
+
+    testWidgets('保存时把预设的稳定标识落库', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      final ModelManager manager = _managerFor(bootstrap);
+      await setSurfaceSize(tester, const Size(1200, 1600));
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: const AiServicesPage(),
+          overrides: bootstrap.overrides(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('添加模型').first);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<String?>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Anthropic').last);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.widgetWithText(TextField, '提供商别名'),
+        'anthropic',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextField, '模型 ID'),
+        'claude-fixture',
+      );
+      await tester.tap(find.widgetWithText(FilledButton, '保存'));
+      await tester.pumpAndSettle();
+
+      final AiModel saved = (await manager.loadModels()).unwrap().single;
+      expect(saved.preset, 'anthropic.messages', reason: '落库的是稳定标识，不是显示名');
+      expect(saved.protocol, AiProtocol.anthropicMessages);
+      expect(saved.baseUrl, 'https://api.anthropic.com/v1');
+    });
+
+    testWidgets('AI 服务页列出预设验证状态（不夸大成已支持）', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 2400));
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: const AiServicesPage(),
+          overrides: bootstrap.overrides(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('预设验证状态'), findsOneWidget);
+      expect(
+        find.textContaining('fixture 通过不等于真实可用'),
+        findsOneWidget,
+        reason: '界面必须说明「fixture 通过」不等于真实可用',
+      );
+      expect(find.text('DeepSeek'), findsWidgets);
+      expect(find.text('MiMo（小米开放平台）'), findsOneWidget);
+      expect(find.text('OpenCode Zen'), findsOneWidget);
+    });
+  });
+
   group('列表操作', () {
     testWidgets('停用开关写库，且记录仍在列表里', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap();

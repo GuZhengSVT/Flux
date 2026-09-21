@@ -159,8 +159,10 @@ void main() {
       // JS 站提示、外开、无地址、无脚本说明）——两者同轮交付，因此一起计入。
       // T025 新增 75 条 AI 服务文案（入口、页面、模型表单四项 SET、能力五项、
       // 预算说明、Key 遮盖与状态、费用确认、12 类失败文案、删除与引用确认）。
-      expect(_messageKeys(zh).length, 501);
-      expect(_messageKeys(en).length, 501);
+      // T028 新增 13 条预设文案（预设下拉与自定义项、端点预览、三档状态徽章与
+      // 各自说明、验证矩阵标题与「不夸大状态」提示、无实测提示）。
+      expect(_messageKeys(zh).length, 514);
+      expect(_messageKeys(en).length, 514);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

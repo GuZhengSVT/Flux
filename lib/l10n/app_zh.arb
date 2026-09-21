@@ -2054,6 +2054,58 @@
   "@aiProtocolPendingSuffix": {
     "description": "协议选项后缀：适配器尚未实现"
   },
+  "aiPresetLabel": "提供商预设",
+  "@aiPresetLabel": {
+    "description": "预设选择标签"
+  },
+  "aiPresetCustom": "自定义（不套预设）",
+  "@aiPresetCustom": {
+    "description": "预设下拉的自定义选项"
+  },
+  "aiPresetHint": "预设只填协议与 Base URL，不代填 Key；Key 始终手填，只保存在安全存储里。",
+  "@aiPresetHint": {
+    "description": "预设选择说明：不含凭据"
+  },
+  "aiPresetEndpointLabel": "将请求",
+  "@aiPresetEndpointLabel": {
+    "description": "显示预设最终端点"
+  },
+  "aiPresetStatusLive": "实测",
+  "@aiPresetStatusLive": {
+    "description": "预设状态徽章：已真实调用成功"
+  },
+  "aiPresetStatusFixture": "fixture 通过",
+  "@aiPresetStatusFixture": {
+    "description": "预设状态徽章：夹具级证据"
+  },
+  "aiPresetStatusUnverified": "待验证",
+  "@aiPresetStatusUnverified": {
+    "description": "预设状态徽章：未验证"
+  },
+  "aiPresetStatusLiveHint": "本机真的对真实端点发起过调用并成功（见手册轮次记录）。",
+  "@aiPresetStatusLiveHint": {
+    "description": "实测徽章说明"
+  },
+  "aiPresetStatusFixtureHint": "该协议的适配器有完整夹具级证据，但本轮没有对真实端点发起过调用。",
+  "@aiPresetStatusFixtureHint": {
+    "description": "fixture 徽章说明"
+  },
+  "aiPresetStatusUnverifiedHint": "本端点尚未做任何真实调用（通常是没有凭据）；不要把它当成已验证可用。",
+  "@aiPresetStatusUnverifiedHint": {
+    "description": "待验证徽章说明"
+  },
+  "aiPresetMatrixTitle": "预设验证状态",
+  "@aiPresetMatrixTitle": {
+    "description": "AI 服务页的预设状态小节标题"
+  },
+  "aiPresetMatrixHint": "「已支持」只写实测过的范围；fixture 通过不等于真实可用。",
+  "@aiPresetMatrixHint": {
+    "description": "验证矩阵说明：不夸大状态"
+  },
+  "aiPresetNoLiveNotice": "本机尚无任何实测通过的预设。",
+  "@aiPresetNoLiveNotice": {
+    "description": "没有任何实测预设时的提示"
+  },
   "aiAliasLabel": "提供商别名",
   "@aiAliasLabel": {
     "description": "别名标签"

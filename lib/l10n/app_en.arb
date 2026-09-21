@@ -770,6 +770,58 @@
   "@aiProtocolPendingSuffix": {
     "description": "Protocol option suffix: adapter not implemented"
   },
+  "aiPresetLabel": "Provider preset",
+  "@aiPresetLabel": {
+    "description": "Preset selector label"
+  },
+  "aiPresetCustom": "Custom (no preset)",
+  "@aiPresetCustom": {
+    "description": "Custom option in the preset dropdown"
+  },
+  "aiPresetHint": "A preset fills in only the protocol and Base URL, never a key; the key is always typed by hand and stored only in secure storage.",
+  "@aiPresetHint": {
+    "description": "Preset explanation: carries no credentials"
+  },
+  "aiPresetEndpointLabel": "Will request",
+  "@aiPresetEndpointLabel": {
+    "description": "Shows the preset's final endpoint"
+  },
+  "aiPresetStatusLive": "live-tested",
+  "@aiPresetStatusLive": {
+    "description": "Preset status badge: a real call succeeded"
+  },
+  "aiPresetStatusFixture": "fixture passed",
+  "@aiPresetStatusFixture": {
+    "description": "Preset status badge: fixture-level evidence only"
+  },
+  "aiPresetStatusUnverified": "unverified",
+  "@aiPresetStatusUnverified": {
+    "description": "Preset status badge: not verified"
+  },
+  "aiPresetStatusLiveHint": "A real call to this endpoint was made from this machine and succeeded (see the round record).",
+  "@aiPresetStatusLiveHint": {
+    "description": "Live badge explanation"
+  },
+  "aiPresetStatusFixtureHint": "The protocol adapter has full fixture-level evidence, but no real call was made to this endpoint this round.",
+  "@aiPresetStatusFixtureHint": {
+    "description": "Fixture badge explanation"
+  },
+  "aiPresetStatusUnverifiedHint": "No real call has been made to this endpoint (usually because there is no credential); do not treat it as verified.",
+  "@aiPresetStatusUnverifiedHint": {
+    "description": "Unverified badge explanation"
+  },
+  "aiPresetMatrixTitle": "Preset verification status",
+  "@aiPresetMatrixTitle": {
+    "description": "Heading of the preset status section on the AI services page"
+  },
+  "aiPresetMatrixHint": "Only live-tested scope is claimed as supported; fixture-passed does not mean really usable.",
+  "@aiPresetMatrixHint": {
+    "description": "Verification matrix explanation: no overclaiming"
+  },
+  "aiPresetNoLiveNotice": "No preset has been live-tested on this machine yet.",
+  "@aiPresetNoLiveNotice": {
+    "description": "Shown when no preset is live-tested"
+  },
   "aiAliasLabel": "Provider alias",
   "@aiAliasLabel": {
     "description": "Alias label"

@@ -24,8 +24,10 @@ import '../application/model_manager.dart';
 import '../application/model_manager_controller.dart';
 import '../domain/ai_model.dart';
 import '../domain/ai_model_references.dart';
+import '../domain/provider_preset.dart';
 import 'ai_failure_text.dart';
 import 'ai_model_form.dart';
+import 'preset_status_badge.dart';
 
 /// AI 服务页。
 class AiServicesPage extends ConsumerWidget {
@@ -300,8 +302,54 @@ class _Body extends StatelessWidget {
                 onSetDefault(state.models[index], value),
           ),
         const SizedBox(height: FluxSpacing.md),
+        Text(l10n.aiPresetMatrixTitle, style: theme.textTheme.titleSmall),
+        const SizedBox(height: FluxSpacing.xxs),
+        Text(l10n.aiPresetMatrixHint, style: theme.textTheme.bodySmall),
+        const SizedBox(height: FluxSpacing.xs),
+        if (!PresetCatalog.hasLiveVerified)
+          _Banner(text: l10n.aiPresetNoLiveNotice, isError: false),
+        // 逐条列出预设与状态：这一节就是 7.3 的验证矩阵在界面上的入口——用户可以
+        // 直接看到「哪些是实测、哪些只有夹具、哪些还没验证」，而不是靠文档。
+        for (final ProviderPreset preset in PresetCatalog.all)
+          _PresetRow(preset: preset),
+        const SizedBox(height: FluxSpacing.md),
         Text(l10n.aiPlannedNotice, style: theme.textTheme.bodySmall),
       ],
+    );
+  }
+}
+
+/// 一行预设状态（名称 + 协议/端点 + 状态徽章 + 注释）。
+class _PresetRow extends StatelessWidget {
+  const _PresetRow({required this.preset});
+
+  final ProviderPreset preset;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: FluxSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(preset.displayName, style: theme.textTheme.bodyMedium),
+                Text(
+                  '${preset.protocol.label} · ${preset.endpoint}',
+                  style: theme.textTheme.labelSmall,
+                ),
+                Text(preset.note, style: theme.textTheme.labelSmall),
+              ],
+            ),
+          ),
+          const SizedBox(width: FluxSpacing.xs),
+          PresetStatusBadge(status: preset.status),
+        ],
+      ),
     );
   }
 }

@@ -2731,6 +2731,84 @@ abstract class AppLocalizations {
   /// **'（适配器待实现）'**
   String get aiProtocolPendingSuffix;
 
+  /// 预设选择标签
+  ///
+  /// In zh, this message translates to:
+  /// **'提供商预设'**
+  String get aiPresetLabel;
+
+  /// 预设下拉的自定义选项
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义（不套预设）'**
+  String get aiPresetCustom;
+
+  /// 预设选择说明：不含凭据
+  ///
+  /// In zh, this message translates to:
+  /// **'预设只填协议与 Base URL，不代填 Key；Key 始终手填，只保存在安全存储里。'**
+  String get aiPresetHint;
+
+  /// 显示预设最终端点
+  ///
+  /// In zh, this message translates to:
+  /// **'将请求'**
+  String get aiPresetEndpointLabel;
+
+  /// 预设状态徽章：已真实调用成功
+  ///
+  /// In zh, this message translates to:
+  /// **'实测'**
+  String get aiPresetStatusLive;
+
+  /// 预设状态徽章：夹具级证据
+  ///
+  /// In zh, this message translates to:
+  /// **'fixture 通过'**
+  String get aiPresetStatusFixture;
+
+  /// 预设状态徽章：未验证
+  ///
+  /// In zh, this message translates to:
+  /// **'待验证'**
+  String get aiPresetStatusUnverified;
+
+  /// 实测徽章说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本机真的对真实端点发起过调用并成功（见手册轮次记录）。'**
+  String get aiPresetStatusLiveHint;
+
+  /// fixture 徽章说明
+  ///
+  /// In zh, this message translates to:
+  /// **'该协议的适配器有完整夹具级证据，但本轮没有对真实端点发起过调用。'**
+  String get aiPresetStatusFixtureHint;
+
+  /// 待验证徽章说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本端点尚未做任何真实调用（通常是没有凭据）；不要把它当成已验证可用。'**
+  String get aiPresetStatusUnverifiedHint;
+
+  /// AI 服务页的预设状态小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'预设验证状态'**
+  String get aiPresetMatrixTitle;
+
+  /// 验证矩阵说明：不夸大状态
+  ///
+  /// In zh, this message translates to:
+  /// **'「已支持」只写实测过的范围；fixture 通过不等于真实可用。'**
+  String get aiPresetMatrixHint;
+
+  /// 没有任何实测预设时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'本机尚无任何实测通过的预设。'**
+  String get aiPresetNoLiveNotice;
+
   /// 别名标签
   ///
   /// In zh, this message translates to:

@@ -1575,6 +1575,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiProtocolPendingSuffix => ' (adapter pending)';
 
   @override
+  String get aiPresetLabel => 'Provider preset';
+
+  @override
+  String get aiPresetCustom => 'Custom (no preset)';
+
+  @override
+  String get aiPresetHint =>
+      'A preset fills in only the protocol and Base URL, never a key; the key is always typed by hand and stored only in secure storage.';
+
+  @override
+  String get aiPresetEndpointLabel => 'Will request';
+
+  @override
+  String get aiPresetStatusLive => 'live-tested';
+
+  @override
+  String get aiPresetStatusFixture => 'fixture passed';
+
+  @override
+  String get aiPresetStatusUnverified => 'unverified';
+
+  @override
+  String get aiPresetStatusLiveHint =>
+      'A real call to this endpoint was made from this machine and succeeded (see the round record).';
+
+  @override
+  String get aiPresetStatusFixtureHint =>
+      'The protocol adapter has full fixture-level evidence, but no real call was made to this endpoint this round.';
+
+  @override
+  String get aiPresetStatusUnverifiedHint =>
+      'No real call has been made to this endpoint (usually because there is no credential); do not treat it as verified.';
+
+  @override
+  String get aiPresetMatrixTitle => 'Preset verification status';
+
+  @override
+  String get aiPresetMatrixHint =>
+      'Only live-tested scope is claimed as supported; fixture-passed does not mean really usable.';
+
+  @override
+  String get aiPresetNoLiveNotice =>
+      'No preset has been live-tested on this machine yet.';
+
+  @override
   String get aiAliasLabel => 'Provider alias';
 
   @override

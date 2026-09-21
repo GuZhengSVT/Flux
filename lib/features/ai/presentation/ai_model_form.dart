@@ -29,8 +29,10 @@ import '../application/model_manager_controller.dart';
 import '../domain/ai_message.dart';
 import '../domain/ai_model.dart';
 import '../domain/ai_protocol.dart';
+import '../domain/provider_preset.dart';
 import '../domain/model_capability.dart';
 import 'ai_failure_text.dart';
+import 'preset_status_badge.dart';
 
 /// 对话框宽度上限（桌面）；窄窗时自动收窄。
 const double aiDialogMaxWidth = 560;
@@ -122,6 +124,12 @@ class _AiModelFormDialogState extends State<AiModelFormDialog> {
   final TextEditingController _apiKey = TextEditingController();
 
   late AiProtocol _protocol;
+
+  /// 当前选中的预设；null 表示自定义（不套预设）。
+  ///
+  /// 由初始记录的 preset 标识还原（未知标识按自定义处理：预设目录可能在版本间
+  /// 调整，一条旧记录不该因为找不到它的预设就显示错误的协议/地址）。
+  ProviderPreset? _preset;
   late bool _text;
   late bool _vision;
   late bool _streaming;
@@ -156,6 +164,7 @@ class _AiModelFormDialogState extends State<AiModelFormDialog> {
       text: initial?.capability.maxOutput?.toString() ?? '',
     );
     _protocol = initial?.protocol ?? AiProtocol.openAiChatCompletions;
+    _preset = PresetCatalog.byId(initial?.preset);
     final ModelCapability capability =
         initial?.capability ?? const ModelCapability();
     _text = capability.text;
@@ -201,6 +210,49 @@ class _AiModelFormDialogState extends State<AiModelFormDialog> {
                 _Notice(text: _testSummary!, isError: false),
                 const SizedBox(height: FluxSpacing.sm),
               ],
+              // ---- SET-030：预设 / 协议 / 别名 / Base URL --------------
+              // 预设在最前：它的作用就是「替用户填好协议与 Base URL」，放在协议选择
+              // 之后会让用户先选一遍协议、再被预设覆盖一次，白做一步。
+              Text(l10n.aiPresetLabel, style: theme.textTheme.labelLarge),
+              const SizedBox(height: FluxSpacing.xxs),
+              DropdownButtonFormField<String?>(
+                initialValue: _preset?.id,
+                isExpanded: true,
+                items: <DropdownMenuItem<String?>>[
+                  DropdownMenuItem<String?>(child: Text(l10n.aiPresetCustom)),
+                  for (final ProviderPreset preset in PresetCatalog.all)
+                    DropdownMenuItem<String?>(
+                      value: preset.id,
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              preset.displayName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: FluxSpacing.xs),
+                          PresetStatusBadge(status: preset.status),
+                        ],
+                      ),
+                    ),
+                ],
+                onChanged: _busy ? null : _applyPreset,
+              ),
+              const SizedBox(height: FluxSpacing.xxs),
+              Text(l10n.aiPresetHint, style: theme.textTheme.bodySmall),
+              if (_preset != null) ...<Widget>[
+                const SizedBox(height: FluxSpacing.xxs),
+                // 最终端点写在界面上：预设里的 Base URL 与「厂商官网列出的主机」
+                // 在 OpenAI 上不同（需要 /v1），用户需要能当场核对实际会请求哪里。
+                Text(
+                  '${l10n.aiPresetEndpointLabel} ${_preset!.endpoint}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: FluxSpacing.xxs),
+                Text(_preset!.note, style: theme.textTheme.labelSmall),
+              ],
+              const SizedBox(height: FluxSpacing.sm),
               // ---- SET-030：协议 / 别名 / Base URL --------------------
               Text(l10n.aiProtocolLabel, style: theme.textTheme.labelLarge),
               const SizedBox(height: FluxSpacing.xxs),
@@ -415,6 +467,22 @@ class _AiModelFormDialogState extends State<AiModelFormDialog> {
     onSelected: _busy ? null : onChange,
   );
 
+  /// 应用一个预设（null 表示切回自定义）。
+  ///
+  /// 只覆盖**协议与 Base URL**——预设的职责就是把这两项填对。别名与模型 ID 不覆盖：
+  /// 用户可能已经手填过（别名还是本机唯一键，悄悄改掉会让凭据写入另一个名字下），
+  /// 而模型 ID 因账号/地域而异，预设给不出一个正确的默认值（猜一个反而更糟）。
+  void _applyPreset(String? id) {
+    final ProviderPreset? preset = PresetCatalog.byId(id);
+    setState(() {
+      _preset = preset;
+      if (preset != null) {
+        _protocol = preset.protocol;
+        _baseUrl.text = preset.baseUrl;
+      }
+    });
+  }
+
   /// 查询当前别名的 Key 状态；别名为空时不显示「已配置」。
   Future<void> _refreshCredentialState() async {
     final String alias = _alias.text.trim();
@@ -534,7 +602,9 @@ class _AiModelFormDialogState extends State<AiModelFormDialog> {
     final AiModel draft = AiModel(
       id: initial?.id,
       alias: _alias.text.trim(),
-      preset: initial?.preset,
+      // 落库的是预设的稳定标识（不是显示名）：显示名会翻译、会改措辞，而记录里的
+      // 这个值必须能被后续版本重新识别。
+      preset: _preset?.id,
       protocol: _protocol,
       baseUrl: _baseUrl.text.trim(),
       modelId: _modelId.text.trim(),

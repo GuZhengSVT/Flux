@@ -1503,6 +1503,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiProtocolPendingSuffix => '（适配器待实现）';
 
   @override
+  String get aiPresetLabel => '提供商预设';
+
+  @override
+  String get aiPresetCustom => '自定义（不套预设）';
+
+  @override
+  String get aiPresetHint => '预设只填协议与 Base URL，不代填 Key；Key 始终手填，只保存在安全存储里。';
+
+  @override
+  String get aiPresetEndpointLabel => '将请求';
+
+  @override
+  String get aiPresetStatusLive => '实测';
+
+  @override
+  String get aiPresetStatusFixture => 'fixture 通过';
+
+  @override
+  String get aiPresetStatusUnverified => '待验证';
+
+  @override
+  String get aiPresetStatusLiveHint => '本机真的对真实端点发起过调用并成功（见手册轮次记录）。';
+
+  @override
+  String get aiPresetStatusFixtureHint => '该协议的适配器有完整夹具级证据，但本轮没有对真实端点发起过调用。';
+
+  @override
+  String get aiPresetStatusUnverifiedHint =>
+      '本端点尚未做任何真实调用（通常是没有凭据）；不要把它当成已验证可用。';
+
+  @override
+  String get aiPresetMatrixTitle => '预设验证状态';
+
+  @override
+  String get aiPresetMatrixHint => '「已支持」只写实测过的范围；fixture 通过不等于真实可用。';
+
+  @override
+  String get aiPresetNoLiveNotice => '本机尚无任何实测通过的预设。';
+
+  @override
   String get aiAliasLabel => '提供商别名';
 
   @override
