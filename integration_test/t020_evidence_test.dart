@@ -29,6 +29,7 @@ import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/presentation/article_detail_page.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
+
 /// 每个状态停留的时长：要覆盖外部脚本的轮询间隔与截图耗时。
 const Duration stateHold = Duration(seconds: 6);
 
@@ -218,10 +219,7 @@ void main() {
   testWidgets('图片查看器（全屏、可缩放）', (WidgetTester tester) async {
     await tester.binding.setSurfaceSize(const Size(1200, 800));
     await pumpApp(tester, openDetail: true);
-    await tester.tap(
-      find.textContaining('采集用图片').first,
-      warnIfMissed: false,
-    );
+    await tester.tap(find.textContaining('采集用图片').first, warnIfMissed: false);
     await tester.pumpAndSettle();
     await announce(tester, 'image_viewer_light_zh_wide');
   });

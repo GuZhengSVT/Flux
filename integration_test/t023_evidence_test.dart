@@ -85,9 +85,8 @@ void main() {
 
   /// 把一个状态名写给外部脚本，并停留等待截图。
   Future<void> announce(WidgetTester tester, String state) async {
-    File('${evidenceDir.path}/state.txt').writeAsStringSync(
-      jsonEncode(<String, Object?>{'state': state}),
-    );
+    File('${evidenceDir.path}/state.txt')
+        .writeAsStringSync(jsonEncode(<String, Object?>{'state': state}));
     final DateTime deadline = DateTime.now().add(stateHold);
     while (DateTime.now().isBefore(deadline)) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -144,10 +143,7 @@ void main() {
         continue;
       }
       final int minutes = 5 + (i * 7) % 55;
-      final DateTime startedAt = _utcFor(
-        localDateKey(day),
-        9,
-      );
+      final DateTime startedAt = _utcFor(localDateKey(day), 9);
       drafts.add(
         ReadingSessionDraft(
           articleId: articleId,

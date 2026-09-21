@@ -58,9 +58,7 @@ Future<AppDatabase> seed() async {
             guid: Value<String?>('evidence-$i'),
             guidPresent: const Value<bool>(true),
             summary: const Value<String?>('摘要：本文讨论离线缓存的实现。'),
-            body: Value<String?>(
-              '正文第 $i 篇：本文说明离线阅读的完整实现方式，涵盖缓存与同步设计。',
-            ),
+            body: Value<String?>('正文第 $i 篇：本文说明离线阅读的完整实现方式，涵盖缓存与同步设计。'),
           ),
         );
   }

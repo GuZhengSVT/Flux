@@ -186,13 +186,15 @@ void main() {
 
   testWidgets('已保存的提取正文在重开时直接可用（不再抓取）', (WidgetTester tester) async {
     final _SpyFetcher fetcher = _SpyFetcher(html: kOriginalHtml);
-    await bootstrap.database.update(bootstrap.database.articles).write(
-      ArticlesCompanion(
-        extractedBody: const Value<String?>('# 上次提取'),
-        extractedBodyHash: const Value<String?>('hash-1'),
-        extractedAt: Value<DateTime?>(DateTime.utc(2026, 9, 21)),
-      ),
-    );
+    await bootstrap.database
+        .update(bootstrap.database.articles)
+        .write(
+          ArticlesCompanion(
+            extractedBody: const Value<String?>('# 上次提取'),
+            extractedBodyHash: const Value<String?>('hash-1'),
+            extractedAt: Value<DateTime?>(DateTime.utc(2026, 9, 21)),
+          ),
+        );
     await setSurfaceSize(tester, const Size(1200, 900));
     await tester.pumpWidget(
       wrapFluxApp(
