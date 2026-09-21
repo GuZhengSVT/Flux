@@ -394,6 +394,8 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
     lastCheckedAt: row.lastCheckedAt,
     lastRefreshResult: row.lastRefreshResult,
     lastRefreshErrorKind: row.lastRefreshErrorKind,
+    httpEtag: row.httpEtag,
+    httpLastModified: row.httpLastModified,
   );
 
   static StorageError _storage(

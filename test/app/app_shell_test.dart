@@ -117,7 +117,10 @@ void main() {
       // 切到 RSS 阅读：显示「无订阅」空态（架构第 7 节要求分别提示）。
       await tester.tap(find.text('RSS 阅读').first);
       await tester.pumpAndSettle();
-      expect(find.text('还没有订阅'), findsOneWidget);
+      // T016 起该去向不再是纯占位页：它有真实的刷新按钮与真实未读计数，
+      // 但明确说明文章列表属 T017（不画一个看起来能用的假列表）。
+      expect(find.text('刷新'), findsOneWidget);
+      expect(find.textContaining('属 T017'), findsOneWidget);
 
       // 切到「我的」：进入真正的设置页（T011 已生效的部分）。
       await tester.tap(find.text('我的').first);

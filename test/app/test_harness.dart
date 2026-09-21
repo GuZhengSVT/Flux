@@ -87,7 +87,13 @@ final class TestBootstrap {
   /// [feedFetcher] 让订阅管理相关的测试注入固定的抓取响应（不联网）；为空时用
   /// 生产实现。放在这里而不是让测试各自 override：Riverpod 不允许同一容器内
   /// 重复覆盖一个 Provider，而这里正是生产装配路径上的那个位置。
-  List<Override> overrides({FeedFetcher? feedFetcher}) {
+  /// [networkConditions] 让阅读/刷新相关的测试构造「计费网络 / 离线」两种世界。
+  /// 与 [feedFetcher] 一样走生产装配路径的那一个位置，避免「测试自己再覆盖一次」
+  /// 触发 Riverpod 的重复覆盖断言。
+  List<Override> overrides({
+    FeedFetcher? feedFetcher,
+    NetworkConditionPort? networkConditions,
+  }) {
     return bootstrapOverrides(
       AppBootstrapResult(
         database: degraded ? null : database,
@@ -107,6 +113,7 @@ final class TestBootstrap {
         dataDirectoryPath: null,
       ),
       feedFetcher: feedFetcher,
+      networkConditions: networkConditions,
     );
   }
 

@@ -12,6 +12,8 @@ library;
 
 import '../result.dart';
 
+import 'feed_fetch.dart';
+
 /// 一个订阅分组（架构 5.1 的 Folder）。
 class GroupRecord {
   /// 构造分组记录。
@@ -71,6 +73,8 @@ class FeedRecord {
     this.lastCheckedAt,
     this.lastRefreshResult,
     this.lastRefreshErrorKind,
+    this.httpEtag,
+    this.httpLastModified,
   });
 
   /// 本机自增 id。
@@ -112,6 +116,20 @@ class FeedRecord {
   /// 最后一次失败类别。
   final String? lastRefreshErrorKind;
 
+  /// 条件请求缓存：ETag（T016 的调度必须把它交给抓取层）。
+  ///
+  /// 为什么必须有这两个字段：架构 4.1 要求刷新使用条件请求。若调度只拿到
+  /// normalizedUrl 而没有校验值，每次刷新都会退化成全量下载——「304 不更新任何
+  /// 文章」那条规则就永远不可能在真实调度路径上发生，只在抓取层的测试里成立。
+  final String? httpEtag;
+
+  /// 条件请求缓存：Last-Modified 原文（HTTP 规范要求原样回送）。
+  final String? httpLastModified;
+
+  /// 该源本次可用的条件请求校验值。
+  FeedCacheValidator get cacheValidator =>
+      FeedCacheValidator(etag: httpEtag, lastModified: httpLastModified);
+
   /// 复制并覆盖部分字段。
   FeedRecord copyWith({
     String? name,
@@ -139,6 +157,8 @@ class FeedRecord {
     lastCheckedAt: lastCheckedAt,
     lastRefreshResult: lastRefreshResult,
     lastRefreshErrorKind: lastRefreshErrorKind,
+    httpEtag: httpEtag,
+    httpLastModified: httpLastModified,
   );
 }
 

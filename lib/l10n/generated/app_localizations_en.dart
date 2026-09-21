@@ -801,4 +801,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get opmlMenuEntry => 'Import / export OPML';
+
+  @override
+  String get readingRefresh => 'Refresh';
+
+  @override
+  String get readingRefreshing => 'Refreshing…';
+
+  @override
+  String readingRefreshDone(int inserted, int checked) {
+    return 'Refresh complete: $inserted new articles ($checked feeds checked)';
+  }
+
+  @override
+  String readingRefreshNotModified(int checked) {
+    return 'Refresh complete: no updates ($checked feeds checked)';
+  }
+
+  @override
+  String readingRefreshPartial(int inserted, int failed) {
+    return 'Refresh complete: $inserted new articles, $failed feeds failed (existing content kept)';
+  }
+
+  @override
+  String get readingRefreshOffline =>
+      'No network connection, so nothing was fetched; Flux will retry when you are back online';
+
+  @override
+  String get readingRefreshMetered =>
+      'You are on a metered network and metered downloads are disabled in settings, so nothing was fetched';
+
+  @override
+  String readingRefreshFailed(String reason) {
+    return 'Refresh failed: $reason';
+  }
+
+  @override
+  String readingPlaceholderUnread(int count) {
+    return '$count unread';
+  }
+
+  @override
+  String get readingPlaceholderCounting => 'Counting unread articles…';
+
+  @override
+  String get readingPlaceholderCountFailed => 'Could not read the unread count';
+
+  @override
+  String get readingPlaceholderBody =>
+      'The article list, reading states, favorites, filters and batch actions ship in T017; this page only shows the real unread count and the real refresh result, without drawing a list placeholder.';
 }

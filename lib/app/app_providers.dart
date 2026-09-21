@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flux/core/core.dart';
 import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
+import 'package:flux/features/feeds/application/refresh_providers.dart';
 import 'package:flux/features/onboarding/application/onboarding_state.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/infrastructure/local/database.dart';
@@ -26,6 +27,7 @@ import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
+import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/infrastructure/platform/file_selector_access.dart';
 
@@ -81,6 +83,7 @@ final Provider<AppBootstrapStatus> appBootstrapStatusProvider =
 /// 这是唯一的装配点：main.dart 调用它，测试也用同一函数（换成内存数据库或替身），
 /// 因此测试走的就是生产注入路径，不会出现「测试里能过、真实启动漏接线」。
 /// [feedFetcher] 只给测试注入替身用：生产不传，默认就是真实的 HTTP 抓取器。
+/// [networkConditions] 同理：测试用它构造「当前是计费网络 / 无网络」的世界。
 ///
 /// 为什么参数化而不是让测试自己 override：Riverpod 不允许在同一容器里覆盖同一个
 /// Provider 两次，因此「测试再覆盖一次」会在运行时断言失败；而把抓取端口从这里
@@ -88,6 +91,7 @@ final Provider<AppBootstrapStatus> appBootstrapStatusProvider =
 List<Override> bootstrapOverrides(
   AppBootstrapResult result, {
   FeedFetcher? feedFetcher,
+  NetworkConditionPort? networkConditions,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -96,6 +100,9 @@ List<Override> bootstrapOverrides(
         failureKind: result.databaseFailure?.kind,
       ),
     ),
+    // features 层不得 import lib/app，因此「降级启动」以 features 自己的 Provider
+    // 暴露给它（见 degradedStartupProvider 的说明）。这里把两者对齐。
+    degradedStartupProvider.overrideWithValue(result.isDegraded),
     settingsStoreProvider.overrideWithValue(result.settingsStore),
     onboardingStoreProvider.overrideWithValue(result.onboardingStore),
     credentialStoreProvider.overrideWithValue(result.credentialStore),
@@ -117,6 +124,14 @@ List<Override> bootstrapOverrides(
     // 降级模式下仍可导出当前（可能为空的）清单、仍可读文件做预览，只有入库会
     // 因存储失败而明确报错。
     fileAccessProvider.overrideWithValue(const FileSelectorAccess()),
+    // ---- T016：网络状况探测（计费/离线） -----------------------------------
+    // 与数据库无关（它只需要本机网络接口信息），因此两种启动状态下都给真实实现。
+    // 桌面实现的边界写在 infrastructure/platform/network_conditions.dart：
+    // macOS 没有公开的计费网络 API，因此 isMetered 始终为 false（如实记为未实现，
+    // 不用 true 假装遵守 SET-013）。
+    networkConditionsProvider.overrideWithValue(
+      networkConditions ?? const DesktopNetworkConditions(),
+    ),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(
         DriftFeedCatalogStore(catalogDatabase),

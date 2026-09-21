@@ -38,4 +38,22 @@ abstract interface class FeedArticleStore {
     String? etag,
     String? lastModified,
   });
+
+  /// 记录一次**未联网就跳过**的调度结果（T016：离线 / 计费网络守卫）。
+  ///
+  /// 与 [recordRefreshOutcome] 的唯一区别是：**不推进** lastCheckedAt。
+  ///
+  /// 为什么要单独一个方法而不是加一个 bool 参数：
+  ///   「推进检查时间」在 [recordRefreshOutcome] 里是一条有理由的规则（一次真实
+  ///   请求发生过，无论成败都算检查过），而这里的情况恰好相反——一个字节都没发出去。
+  ///   用参数切换含义会让两个语义共用一个名字，调用点看起来一模一样却行为不同；
+  ///   分成两个方法后，「这次没联网」在类型上就是另一件事。
+  ///
+  /// 为什么不干脆什么都不写：结果类别与错误类别仍要如实记录，否则界面上没有任何
+  /// 痕迹表明调度跑过并因网络守卫停下，用户会以为刷新坏了。
+  Future<Result<void>> recordDeferredOutcome({
+    required int feedId,
+    required FeedRefreshOutcome outcome,
+    String? errorKind,
+  });
 }

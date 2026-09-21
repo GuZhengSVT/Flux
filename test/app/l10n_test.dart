@@ -141,8 +141,9 @@ void main() {
       // 数量变化必须显式改这里，避免 ARB 被误删条目而无人察觉。
       // T014 新增 82 条订阅管理文案（添加/预览/分组/刷新策略/排序可达性/保留组名）。
       // T015 新增 39 条 OPML 导入/导出文案（选文件/预览/策略/结果/重试/导出/秘密提示）。
-      expect(_messageKeys(zh).length, 226);
-      expect(_messageKeys(en).length, 226);
+      // T016 新增 18 条刷新与占位文案（刷新结果分类、未读计数、范围说明）。
+      expect(_messageKeys(zh).length, 238);
+      expect(_messageKeys(en).length, 238);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

@@ -1459,6 +1459,78 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'导入 / 导出 OPML'**
   String get opmlMenuEntry;
+
+  /// RSS 页顶部的刷新按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新'**
+  String get readingRefresh;
+
+  /// 刷新进行中的按钮状态
+  ///
+  /// In zh, this message translates to:
+  /// **'正在刷新…'**
+  String get readingRefreshing;
+
+  /// 刷新成功提示
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新完成：新增 {inserted} 篇（检查 {checked} 个源）'**
+  String readingRefreshDone(int inserted, int checked);
+
+  /// 刷新完成但没有新内容
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新完成：源暂无更新（检查 {checked} 个源）'**
+  String readingRefreshNotModified(int checked);
+
+  /// 刷新结果含失败源
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新完成：新增 {inserted} 篇，{failed} 个源失败（旧内容已保留）'**
+  String readingRefreshPartial(int inserted, int failed);
+
+  /// 离线时的刷新提示（不伪造成功）
+  ///
+  /// In zh, this message translates to:
+  /// **'当前无网络，未发起刷新；网络恢复后会自动重试'**
+  String get readingRefreshOffline;
+
+  /// SET-013 守卫命中时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'当前是计费网络，已在设置中关闭计费网络请求，因此未刷新'**
+  String get readingRefreshMetered;
+
+  /// 刷新整体失败
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新失败：{reason}'**
+  String readingRefreshFailed(String reason);
+
+  /// T016 占位页上的未读计数（真实统计）
+  ///
+  /// In zh, this message translates to:
+  /// **'当前未读 {count} 篇'**
+  String readingPlaceholderUnread(int count);
+
+  /// 未读计数读取中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在读取未读计数…'**
+  String get readingPlaceholderCounting;
+
+  /// 未读计数读取失败（不显示 0 假装没有未读）
+  ///
+  /// In zh, this message translates to:
+  /// **'未读计数读取失败'**
+  String get readingPlaceholderCountFailed;
+
+  /// T016 RSS 去向的范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。'**
+  String get readingPlaceholderBody;
 }
 
 class _AppLocalizationsDelegate

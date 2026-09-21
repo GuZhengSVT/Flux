@@ -71,6 +71,39 @@ final class DriftFeedArticleStore implements FeedArticleStore {
       );
     }
   }
+
+  @override
+  Future<Result<void>> recordDeferredOutcome({
+    required int feedId,
+    required FeedRefreshOutcome outcome,
+    String? errorKind,
+  }) async {
+    try {
+      // 有意**不写** lastCheckedAt：这次没有发出任何请求（离线/计费网络守卫），
+      // 推进「上次检查」会让用户在恢复网络后白等一个完整间隔。
+      // updatedAt 也不动：这一行并没有被用户操作或新内容改变。
+      await (_db.update(
+        _db.feeds,
+      )..where((Feeds t) => t.id.equals(feedId))).write(
+        FeedsCompanion(
+          lastRefreshResult: Value<String?>(outcome.name),
+          lastRefreshErrorKind: Value<String?>(errorKind),
+        ),
+      );
+      return const Ok<void>(null);
+    } on AppError catch (error) {
+      return Err<void>(error);
+    } on Exception catch (error, stackTrace) {
+      return Err<void>(
+        StorageError(
+          operation: 'recordDeferredOutcome',
+          detail: error.runtimeType.toString(),
+          cause: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
+  }
 }
 
 /// 把 T010 的 DiagnosticLog 接到 core 的 [DiagnosticSink] 端口。
@@ -133,6 +166,18 @@ final class DegradedFeedArticleStore implements FeedArticleStore {
     StorageError(
       operation: 'recordRefreshOutcome',
       detail: '本次运行数据库不可用，抓取结果不会记录',
+    ),
+  );
+
+  @override
+  Future<Result<void>> recordDeferredOutcome({
+    required int feedId,
+    required FeedRefreshOutcome outcome,
+    String? errorKind,
+  }) async => Err<void>(
+    StorageError(
+      operation: 'recordDeferredOutcome',
+      detail: '本次运行数据库不可用，调度结果不会记录',
     ),
   );
 }

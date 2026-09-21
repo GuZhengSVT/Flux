@@ -765,4 +765,51 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get opmlMenuEntry => '导入 / 导出 OPML';
+
+  @override
+  String get readingRefresh => '刷新';
+
+  @override
+  String get readingRefreshing => '正在刷新…';
+
+  @override
+  String readingRefreshDone(int inserted, int checked) {
+    return '刷新完成：新增 $inserted 篇（检查 $checked 个源）';
+  }
+
+  @override
+  String readingRefreshNotModified(int checked) {
+    return '刷新完成：源暂无更新（检查 $checked 个源）';
+  }
+
+  @override
+  String readingRefreshPartial(int inserted, int failed) {
+    return '刷新完成：新增 $inserted 篇，$failed 个源失败（旧内容已保留）';
+  }
+
+  @override
+  String get readingRefreshOffline => '当前无网络，未发起刷新；网络恢复后会自动重试';
+
+  @override
+  String get readingRefreshMetered => '当前是计费网络，已在设置中关闭计费网络请求，因此未刷新';
+
+  @override
+  String readingRefreshFailed(String reason) {
+    return '刷新失败：$reason';
+  }
+
+  @override
+  String readingPlaceholderUnread(int count) {
+    return '当前未读 $count 篇';
+  }
+
+  @override
+  String get readingPlaceholderCounting => '正在读取未读计数…';
+
+  @override
+  String get readingPlaceholderCountFailed => '未读计数读取失败';
+
+  @override
+  String get readingPlaceholderBody =>
+      '文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。';
 }

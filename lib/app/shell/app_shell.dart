@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/feeds/presentation/refresh_automation.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
@@ -50,43 +51,50 @@ class AppShell extends ConsumerWidget {
         // 导航位置按**整体窗口宽度**判断：侧栏本身占用宽度，若用内容区宽度判断，
         // 侧栏会在临界点附近与自己竞争空间，出现「切到侧栏后立刻又切回底栏」。
         final bool useRail = constraints.maxWidth >= FluxBreakpoints.twoColumn;
-        return Scaffold(
-          body: useRail
-              ? Row(
-                  children: <Widget>[
-                    _ShellNavigationRail(selected: selected),
-                    const VerticalDivider(width: 1),
-                    Expanded(child: _ShellBody(status: status)),
-                  ],
-                )
-              : _ShellBody(status: status),
-          bottomNavigationBar: useRail
-              ? null
-              : NavigationBar(
-                  selectedIndex: appDestinations.indexOf(selected),
-                  onDestinationSelected: (int index) => _select(ref, index),
-                  destinations: <Widget>[
-                    for (final AppDestination destination in appDestinations)
-                      NavigationDestination(
-                        icon: FluxSvgIcon(
-                          destination.icon,
-                          // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
-                          // 24 在底栏会显得比文字标签重。
-                          size: FluxIconSize.small,
-                          // 标签已经由 NavigationDestination 播报，图标重复报一次
-                          // 会让读屏念两遍。
-                          excludeFromSemantics: true,
+        // 自动刷新宿主包在 Scaffold **之外**：它不渲染任何东西，只负责在启动时
+        // （SET-021）与按间隔（SET-020）触发刷新。包在这里意味着刷新与「用户此刻
+        // 在哪个去向」无关——刷新是后台行为。
+        return RefreshAutomationHost(
+          child: Scaffold(
+            body: useRail
+                ? Row(
+                    children: <Widget>[
+                      _ShellNavigationRail(selected: selected),
+                      const VerticalDivider(width: 1),
+                      Expanded(child: _ShellBody(status: status)),
+                    ],
+                  )
+                : _ShellBody(status: status),
+            bottomNavigationBar: useRail
+                ? null
+                : NavigationBar(
+                    selectedIndex: appDestinations.indexOf(selected),
+                    onDestinationSelected: (int index) => _select(ref, index),
+                    destinations: <Widget>[
+                      for (final AppDestination destination in appDestinations)
+                        NavigationDestination(
+                          icon: FluxSvgIcon(
+                            destination.icon,
+                            // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
+                            // 24 在底栏会显得比文字标签重。
+                            size: FluxIconSize.small,
+                            // 标签已经由 NavigationDestination 播报，图标重复报一次
+                            // 会让读屏念两遍。
+                            excludeFromSemantics: true,
+                          ),
+                          selectedIcon: FluxSvgIcon(
+                            destination.selectedIcon,
+                            size: FluxIconSize.small,
+                            color: Theme.of(context).colorScheme.primary,
+                            excludeFromSemantics: true,
+                          ),
+                          label: destination.label(
+                            AppLocalizations.of(context),
+                          ),
                         ),
-                        selectedIcon: FluxSvgIcon(
-                          destination.selectedIcon,
-                          size: FluxIconSize.small,
-                          color: Theme.of(context).colorScheme.primary,
-                          excludeFromSemantics: true,
-                        ),
-                        label: destination.label(AppLocalizations.of(context)),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
+          ),
         );
       },
     );

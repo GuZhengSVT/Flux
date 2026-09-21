@@ -1142,5 +1142,153 @@
   "opmlMenuEntry": "导入 / 导出 OPML",
   "@opmlMenuEntry": {
     "description": "订阅管理页上的 OPML 入口"
+  },
+  "readingRefresh": "刷新",
+  "@readingRefresh": {
+    "description": "RSS 页顶部的刷新按钮"
+  },
+  "readingRefreshing": "正在刷新…",
+  "@readingRefreshing": {
+    "description": "刷新进行中的按钮状态"
+  },
+  "readingRefreshDone": "刷新完成：新增 {inserted} 篇（检查 {checked} 个源）",
+  "@readingRefreshDone": {
+    "description": "刷新成功提示",
+    "placeholders": {
+      "inserted": {
+        "type": "int",
+        "example": "12"
+      },
+      "checked": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "readingRefreshNotModified": "刷新完成：源暂无更新（检查 {checked} 个源）",
+  "@readingRefreshNotModified": {
+    "description": "刷新完成但没有新内容",
+    "placeholders": {
+      "checked": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "readingRefreshPartial": "刷新完成：新增 {inserted} 篇，{failed} 个源失败（旧内容已保留）",
+  "@readingRefreshPartial": {
+    "description": "刷新结果含失败源",
+    "placeholders": {
+      "inserted": {
+        "type": "int",
+        "example": "3"
+      },
+      "failed": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "readingRefreshOffline": "当前无网络，未发起刷新；网络恢复后会自动重试",
+  "@readingRefreshOffline": {
+    "description": "离线时的刷新提示（不伪造成功）"
+  },
+  "readingRefreshMetered": "当前是计费网络，已在设置中关闭计费网络请求，因此未刷新",
+  "@readingRefreshMetered": {
+    "description": "SET-013 守卫命中时的提示"
+  },
+  "readingRefreshFailed": "刷新失败：{reason}",
+  "readingPlaceholderUnread": "当前未读 {count} 篇",
+  "@readingPlaceholderUnread": {
+    "description": "T016 占位页上的未读计数（真实统计）",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "readingPlaceholderCounting": "正在读取未读计数…",
+  "@readingPlaceholderCounting": {
+    "description": "未读计数读取中"
+  },
+  "readingPlaceholderCountFailed": "未读计数读取失败",
+  "@readingPlaceholderCountFailed": {
+    "description": "未读计数读取失败（不显示 0 假装没有未读）"
+  },
+  "readingPlaceholderBody": "文章列表、三态、收藏、筛选与批量操作属 T017；本页当前只显示真实未读计数与真实刷新结果，不画列表占位。",
+  "@readingPlaceholderBody": {
+    "description": "T016 RSS 去向的范围说明"
+  },
+  "@readingRefreshFailed": {
+    "description": "刷新整体失败",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "存储失败"
+      }
+    }
+  },
+  "@readingPageIndicator": {
+    "description": "分页指示",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "1"
+      },
+      "pages": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "120"
+      }
+    }
+  },
+  "@readingBatchSelectedCount": {
+    "description": "已选数量",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "@readingBatchScopeSelected": {
+    "description": "范围：所选行",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "@readingBatchDone": {
+    "description": "批量操作完成",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "@readingActionError": {
+    "description": "单条/批量操作失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "文章不存在"
+      }
+    }
+  },
+  "@readingLoadFailed": {
+    "description": "列表读取失败",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "存储失败"
+      }
+    }
   }
 }

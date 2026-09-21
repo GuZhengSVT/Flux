@@ -524,5 +524,17 @@
       }
     }
   },
-  "opmlMenuEntry": "Import / export OPML"
+  "opmlMenuEntry": "Import / export OPML",
+  "readingRefresh": "Refresh",
+  "readingRefreshing": "Refreshing…",
+  "readingRefreshDone": "Refresh complete: {inserted} new articles ({checked} feeds checked)",
+  "readingRefreshNotModified": "Refresh complete: no updates ({checked} feeds checked)",
+  "readingRefreshPartial": "Refresh complete: {inserted} new articles, {failed} feeds failed (existing content kept)",
+  "readingRefreshOffline": "No network connection, so nothing was fetched; Flux will retry when you are back online",
+  "readingRefreshMetered": "You are on a metered network and metered downloads are disabled in settings, so nothing was fetched",
+  "readingRefreshFailed": "Refresh failed: {reason}",
+  "readingPlaceholderUnread": "{count} unread",
+  "readingPlaceholderCounting": "Counting unread articles…",
+  "readingPlaceholderCountFailed": "Could not read the unread count",
+  "readingPlaceholderBody": "The article list, reading states, favorites, filters and batch actions ship in T017; this page only shows the real unread count and the real refresh result, without drawing a list placeholder."
 }

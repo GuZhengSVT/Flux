@@ -14,6 +14,7 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/feeds/presentation/reading_refresh_placeholder.dart';
 import 'package:flux/features/settings/presentation/settings_page.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
@@ -38,10 +39,10 @@ class PlaceholderDestinationPage extends StatelessWidget {
         titleKey: _PlaceholderTitle.today,
         emptyState: _EmptyStateKind.today,
       ),
-      AppDestination.reading => const _ShellPlaceholderPage(
-        titleKey: _PlaceholderTitle.reading,
-        emptyState: _EmptyStateKind.noFeeds,
-      ),
+      // RSS 去向从 T016 起有**真实的**刷新按钮与未读计数（来自数据库，不是写死的 0），
+      // 但列表、三态、收藏与筛选仍属 T017，因此这里明确说明范围而不画一个假列表。
+      // T017 会用真正的阅读页替换本行。
+      AppDestination.reading => const ReadingRefreshPlaceholder(),
     };
   }
 }
