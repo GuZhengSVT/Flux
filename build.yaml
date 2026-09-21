@@ -1,0 +1,20 @@
+# drift 代码生成选项（T009）。
+#
+# store_date_time_values_as_text: true
+#   drift 默认把 DateTime 存成 **Unix 秒**，读回时再转成**本地** DateTime，
+#   于是丢失两件事：原始时区标记（UTC 变成 local）与亚秒精度。这与架构 5.1
+#   「UTC 存储，保留原始时间」冲突，也会让「重复导入是否变化」这类比较在
+#   时区/精度上产生误判。
+#
+#   改为存储 ISO-8601 文本（UTC 值带 `Z`，含微秒）后：
+#     - 时刻可无损往返，比较可靠；
+#     - 明文备份（架构 5.3）里时间是可直接阅读的 ISO 字符串；
+#     - 按 UTC ISO 字符串排序与按时间排序结果一致（同为 `Z` 后缀，字典序即时间序）。
+#
+# 这是 v1 建库前就必须定下的选择：一旦发布，改回来需要数据迁移。
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          store_date_time_values_as_text: true

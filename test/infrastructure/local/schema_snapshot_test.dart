@@ -1,0 +1,190 @@
+// T009：时间存储约定 + v1 schema 快照一致性。
+//
+// 为什么单独测时间存储：drift 默认把 DateTime 存成 Unix 秒并读回本地时间，
+// 会同时丢失原始时区与亚秒精度，与架构 5.1「UTC 存储，保留原始时间」冲突。
+// 本工程在 build.yaml 里改为 ISO-8601 文本存储；这里用往返测试把它钉住，
+// 避免将来有人无意中改回默认值而静默降低数据质量。
+import 'dart:convert';
+import 'dart:io';
+
+// drift 也导出 `isNull`，与本文件用到的 matcher 同名，显式隐藏以避免歧义。
+import 'package:drift/drift.dart' hide isNull;
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:flux/infrastructure/local/database.dart';
+import 'package:flux/infrastructure/local/tables/enums.dart';
+
+void main() {
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
+  group('DateTime 存储约定（架构 5.1：UTC 存储、保留原始时间）', () {
+    late AppDatabase db;
+    late int feedId;
+
+    setUp(() async {
+      db = AppDatabase.memory();
+      await db.customSelect('SELECT 1').get();
+      feedId = await db
+          .into(db.feeds)
+          .insert(
+            FeedsCompanion.insert(
+              syncId: 'f-dt',
+              normalizedUrl: 'https://dt.example.com/feed.xml',
+              name: '时间测试',
+            ),
+          );
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    test('UTC 时刻往返无损：时区标记与亚秒精度都保留', () async {
+      final DateTime original = DateTime.utc(2026, 9, 21, 12, 34, 56, 789);
+      await db
+          .into(db.articles)
+          .insert(
+            ArticlesCompanion.insert(
+              feedId: feedId,
+              title: '时间往返',
+              identityBasis: IdentityBasis.guid,
+              publishedAt: Value<DateTime?>(original),
+            ),
+          );
+
+      final Article read = (await db.select(db.articles).get()).single;
+      expect(read.publishedAt!.isUtc, isTrue, reason: '必须仍是 UTC');
+      expect(read.publishedAt, original, reason: '时刻与亚秒精度都必须无损往返');
+    });
+
+    test('时间以 ISO-8601 文本落库，明文备份可直接阅读', () async {
+      await db
+          .into(db.articles)
+          .insert(
+            ArticlesCompanion.insert(
+              feedId: feedId,
+              title: '文本存储',
+              identityBasis: IdentityBasis.guid,
+              publishedAt: Value<DateTime?>(DateTime.utc(2026, 9, 21, 1, 2, 3)),
+            ),
+          );
+
+      final String raw =
+          (await db
+                  .customSelect('SELECT published_at AS p FROM articles')
+                  .getSingle())
+              .read<String>('p');
+      // UTC 文本以 Z 结尾，字典序排序即时间序。
+      expect(raw, startsWith('2026-09-21T01:02:03'));
+      expect(raw, endsWith('Z'));
+    });
+
+    test('UTC 文本的字典序与时间序一致（便于按时间排序）', () async {
+      final List<DateTime> times = <DateTime>[
+        DateTime.utc(2026, 1, 5),
+        DateTime.utc(2025, 12, 31),
+        DateTime.utc(2026, 1, 5, 0, 0, 1),
+      ];
+      for (final DateTime t in times) {
+        await db
+            .into(db.articles)
+            .insert(
+              ArticlesCompanion.insert(
+                feedId: feedId,
+                title: t.toIso8601String(),
+                identityBasis: IdentityBasis.guid,
+                publishedAt: Value<DateTime?>(t),
+              ),
+            );
+      }
+
+      final List<String> sortedBySql =
+          (await db
+                  .customSelect(
+                    'SELECT published_at AS p FROM articles ORDER BY published_at',
+                  )
+                  .get())
+              .map((QueryRow r) => r.read<String>('p'))
+              .toList();
+
+      final List<DateTime> sorted = times.toList()..sort();
+      expect(
+        sortedBySql,
+        sorted.map((DateTime d) => d.toIso8601String()).toList(),
+      );
+    });
+
+    test('会话的本地日期键与时区可落库（跨午夜统计基础）', () async {
+      final int articleId = await db
+          .into(db.articles)
+          .insert(
+            ArticlesCompanion.insert(
+              feedId: feedId,
+              title: '会话',
+              identityBasis: IdentityBasis.guid,
+            ),
+          );
+
+      await db
+          .into(db.readingSessions)
+          .insert(
+            ReadingSessionsCompanion.insert(
+              articleId: articleId,
+              startedAt: DateTime.utc(2026, 9, 21, 15, 30),
+              timeZone: 'Asia/Shanghai',
+              localDate: '2026-09-21',
+            ),
+          );
+
+      final ReadingSession session =
+          (await db.select(db.readingSessions).get()).single;
+      expect(session.timeZone, 'Asia/Shanghai');
+      expect(session.localDate, '2026-09-21');
+      expect(session.effectiveSeconds, 0, reason: '默认有效时长为 0');
+      expect(session.endedAt, isNull, reason: '进行中的会话没有结束时间');
+    });
+  });
+
+  group('v1 schema 快照', () {
+    test('已导出 drift_schemas/drift_schema_v1.json，供未来迁移测试使用', () {
+      final File snapshot = File('drift_schemas/drift_schema_v1.json');
+      expect(
+        snapshot.existsSync(),
+        isTrue,
+        reason:
+            '缺少 v1 快照。可用 `dart run drift_dev schema dump '
+            'lib/infrastructure/local/database.dart drift_schemas/` 重新导出，'
+            '它是后续版本验证迁移正确性的基线。',
+      );
+
+      final Map<String, dynamic> decoded =
+          jsonDecode(snapshot.readAsStringSync()) as Map<String, dynamic>;
+      expect(
+        decoded['options'],
+        containsPair('store_date_time_values_as_text', true),
+        reason: '快照必须记录时间存储方式，否则未来迁移测试会按错误的映射比对',
+      );
+
+      final Set<String> names = (decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        names,
+        containsAll(<String>[
+          'groups',
+          'feeds',
+          'articles',
+          'reading_sessions',
+          'summary_versions',
+          'citations',
+        ]),
+      );
+    });
+  });
+}

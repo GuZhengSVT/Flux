@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪（分层目录、类型化错误、任务状态机、夹具与 CI 契约）；业务功能自 T009 起实现，尚无已验收的软件功能 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 首项 T009（SQLite/Drift 实体、索引、事务及迁移）已 DONE，本地数据层可建库/幂等导入/拒绝较新 schema；其余业务功能（T010 起）尚未验收 |
 | macOS / Android 构建及真机测试 | DOING | T008 本机 `flutter build macos --debug` 退出 0（证据见 §7.2）；Android 工程按 D-02 暂缓，未初始化、未构建；两平台真机测试仍 NOT_RUN |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M0 收尾，T001–T008 已完成并有本机证据；下一任务 T009（SQLite/Drift 实体、索引、事务及迁移），前置 T007、T008 均已 DONE。当前阻塞：无文档阻塞；Android 工程与两平台真机/正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T009 已完成并有本机证据；下一任务 T010（安全存储、设置注册表和脱敏诊断），前置 T009 已 DONE。当前阻塞：无文档阻塞；Android 工程与两平台真机/正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -109,7 +109,7 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 
 | ID | 前置 | 任务与范围 | 交付与验收条件 | 状态 |
 | --- | --- | --- | --- | --- |
-| T009 | T007、T008 | SQLite/Drift 实体、索引、事务及迁移 | 架构第 5 节实体落地；迁移成功/失败和拒绝较新 schema 测试，失败不重建数据库 | TODO |
+| T009 | T007、T008 | SQLite/Drift 实体、索引、事务及迁移 | 架构第 5 节实体落地；迁移成功/失败和拒绝较新 schema 测试，失败不重建数据库 | DONE |
 | T010 | T009 | 安全存储、设置注册表和脱敏诊断 | SET 类型、范围/默认值、C/D/S 分类校验；Keychain/Keystore 实测，日志/导出无秘密，缺能力不明文回退 | TODO |
 | T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | TODO |
 | T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | TODO |
@@ -327,6 +327,82 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       基线为 066c08d（T006）。未 push。
     下一可执行任务及前置条件：T009（SQLite/Drift 实体、索引、事务及迁移），前置 T007、T008 已 DONE；
       需保持“不提前实现 T010 及以后”的范围边界，并复用 test/fixtures 与本轮错误/时钟/结果类型。
+
+### 7.1.2 轮次记录 R009（T009）
+
+    轮次/日期：R009 / 2026-09-21
+    任务 ID 与状态变化：T009 TODO → DONE（M1 首项）
+    相关决策/功能/SET 项：D-10（三态单一枚举、收藏独立）、D-07（时区固化）、架构 4.1（身份与三态）、
+      4.2（正文四态）、4.4（日期/时区与引用材料）、4.5（九态任务状态）、5.1（实体清单，表结构权威来源）、5.2（跨设备键）、
+      5.3（UTC 存储、WAL、拒绝旧版本写新 schema）；本轮不涉及 SET 注册表（属 T010）
+    修改文件与主要行为：
+      - 新增 lib/infrastructure/local/：database.dart（AppDatabase v1 装配、迁移策略与 openAppDatabase）、
+        database.g.dart（drift 生成物，入库）、article_store.dart（幂等批量 upsert 事务）、
+        tables/{enums,feed_tables,article_tables,reading_tables,summary_tables}.dart（按域拆分的表定义）；
+      - 新增 build.yaml：drift_dev 生成选项 store_date_time_values_as_text: true；
+      - 新增 drift_schemas/drift_schema_v1.json（v1 快照，供后续迁移比对）；
+      - 新增 test/infrastructure/local/ 四个测试文件（schema/约束、身份与幂等、迁移安全、快照与时间存储）。
+    表结构与关键约束（架构 5.1 + 4.1 补齐）：
+      groups（syncId 唯一、sortOrder、pinned、isReserved 保留组标记、时间戳）；
+      feeds（syncId 唯一、normalizedUrl 唯一、名称/源名分离、分组引用、favorite 加精、刷新间隔覆盖、
+        ETag/Last-Modified 条件请求缓存、credentialRef 仅存引用、时间戳）；
+      articles（feed 引用、guid + guidPresent、normalizedLink 与 sourceUrl 分开且保留 URL 参数、
+        fallbackFingerprint + fingerprintReliability、identityBasis、标题/作者/发布时间/抓取时间、
+        正文 + bodyCompleteness 四态 + bodyHash、摘要、readingState 单枚举 + CHECK、favorite 独立布尔、时间戳）；
+      reading_sessions（本机会话 id、文章键、开始/结束、有效秒数、时区、本地日期键）；
+      summary_versions（日期 + 时区、输入快照引用与哈希、providerAlias/modelId、taskStatus 复用 core 九态、
+        isCurrent 且 CHECK 限制仅 succeeded/partial 可为当前版本）；
+      citations（summary 引用、sourceId、标题/URL/时间、最小摘录、材料哈希、accessMethod rss/fetch/search、
+        文章引用 ON DELETE SET NULL）。
+    索引与对应查询场景：articles(feed,publishedAt) 时间序列表；articles(feed,guid)/(feed,normalizedLink)/
+      (feed,fallbackFingerprint) 三个**条件唯一**索引（WHERE 列 IS NOT NULL）实现 Feed 内身份识别又不让
+      多行 NULL 互相冲突；articles(readingState) 未读筛选；articles(favorite) 收藏列表；articles(bodyHash)
+      正文修订比对；sessions(articleId,startedAt) 与 sessions(startedAt) 统计聚合；summary(localDate,timeZone)
+      按日查询；citations(summaryVersionId)/(sourceId) 引用校验；feeds(groupId,sortOrder) 分组排序。
+    数据迁移/删除/依赖变化：无数据迁移（v1 为初始 schema）、无删除；**未新增第三方依赖**；
+      未修改 lib/core 既有文件；未实现 UI/网络/同步（T011+/T013+/T041+）；未建 FTS5 虚拟表（T022）。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；构建类型 debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 22 outputs；无冲突；参数已被
+        build_runner 2.16.1 移除并忽略（同 T008 记录）
+      dart format --output=none --set-exit-if-changed lib test | 0 | PASS | 40 files (0 changed)
+      flutter analyze | 0 | PASS | No issues found（0 issue）
+      flutter test | 0 | PASS | 142 tests all passed（较 T008 的 106 增加 36 个数据层用例）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS |
+        生成 drift_schema_v1.json（6 表 + 16 索引，options 记录 store_date_time_values_as_text=true）
+    测试覆盖要点（T009 验收）：
+      - 建库：schemaVersion=1；6 张核心表与全部索引落库；三态列在 DDL 中带 CHECK；summary 当前版本约束；
+        保留组播种；PRAGMA foreign_keys 实际为 ON 且孤儿文章被拒。
+      - 约束：用原始 SQL 绕过 Dart 类型写入非法 readingState/bodyCompleteness 必须失败（证明是数据库层拒绝，
+        而非编译期类型）；非法值被拒后表内无残留行。
+      - 身份（手册 6.3）：同 Feed 同 GUID 重复导入不新增；两 Feed 同 GUID 不合并；无 GUID 按规范化链接；
+        两者皆无时按指纹兜底并记录可靠度；带参数原始 URL 完整保留不被规范化结果覆盖；多行 NULL 不互相冲突。
+      - 幂等与状态保留：正文哈希变化才更新正文；不携带哈希的刷新不擦除已存正文；later + favorite 在正文更新后
+        保持原值；重复导入同一批次行数与 updatedAt 均不变；批次中任一条违反外键则整批回滚（事务原子性）。
+      - 迁移安全：构造 user_version=99 的“未来库”打开必须失败，且原数据、版本号与磁盘文件字节均未被改动，
+        也未被重建成新 schema；迁移步骤抛错时不推进版本号、不清空原数据，失败后仍可用 v1 代码打开（可回退）；
+        失败后重试仍失败，不因重试绕过版本检查。
+      - 时间存储：UTC 时刻往返无损（保留 Z 标记与亚秒），落库为 ISO-8601 文本，字典序与时间序一致。
+    本轮发现并修复的实现风险（重要）：drift 默认把 DateTime 存成 Unix 秒并读回**本地**时间，会同时丢失原始
+      时区与亚秒精度，与架构 5.1「UTC 存储，保留原始时间」冲突。已在 build.yaml 改为 ISO-8601 文本存储
+      （v1 建库前定下，避免日后需数据迁移），并用往返测试钉住该约定。
+    UI/真实端点/双设备测试：无。本轮只交付本地数据层，未接网络、未做真机与双设备测试。
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用产生；未读取或写入任何真实凭据；数据库仅存凭据引用
+      （credentialRef）而非秘密本身。
+    遗留问题与未运行项：
+      1) 本机无 Android runner，android/ 仍未初始化，`flutter build apk` 未运行（随 Android 阶段补）；
+      2) 迁移测试目前覆盖“v1 → 较新版本”与“较新库 → 旧代码”两条路径；v2 之后的**真实增量迁移步骤**尚未存在，
+         等 Bump schemaVersion 时须用 drift_schemas/ 快照补 `SchemaVerifier.migrateAndValidate` 用例；
+      3) article_store 的 upsert 目前按“逐条查找 + 更新”实现，足够满足 T009 的幂等验收；大批量导入的
+         性能优化（如按批预取已存在行）留待 T013 按真实数据量评估；
+      4) 尚未建立 FTS5（T022）和同步 schema 列（T041）；相关表已预留本机键，跨设备键仍待定；
+      5) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要与本轮记录。
+    提交/差异范围：提交 "T009: drift entities, indexes, transactions and migration safety"；基线为 3a7544a
+      （T007+T008）。未 push。
+    下一可执行任务及前置条件：T010（安全存储、设置注册表和脱敏诊断），前置 T009 已 DONE；
+      需保持“不提前实现 T011 及以后”的范围边界。
 
 ### 7.2 工具链与环境记录（T008 填写）
 
