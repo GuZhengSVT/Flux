@@ -23,9 +23,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/ai/application/ai_availability.dart';
+import 'package:flux/features/ai/application/vision_ports.dart';
+import 'package:flux/features/ai/application/visual_router.dart';
+import 'package:flux/features/ai/domain/ai_message.dart';
+import 'package:flux/features/ai/domain/vision_consent.dart';
+import 'package:flux/features/ai/domain/vision_routing.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/features/settings/application/settings_navigation.dart';
+import 'package:flux/features/settings/application/settings_store.dart';
 import 'package:flux/features/statistics/application/reading_session_tracker.dart';
 import 'package:flux/features/statistics/application/reading_stats_ports.dart';
 import 'package:flux/features/statistics/presentation/session_interaction_listener.dart';
@@ -38,6 +44,7 @@ import '../application/fetch_original_article.dart';
 import '../application/article_platform_ports.dart';
 import '../application/article_state.dart';
 import '../application/article_text_actions.dart';
+import '../application/article_vision_analysis.dart';
 import '../application/reader_outline.dart';
 import '../domain/markdown_to_document.dart';
 import 'article_list_controller.dart';
@@ -125,6 +132,12 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
   /// 它需要读到**最新**的选区。一个 setState 驱动的字段也能工作，但那会让每次拖动选区
   /// 都重建整篇正文（拖动是连续事件）；ValueNotifier 让读取与正文重建解耦。
   final ValueNotifier<String> _selection = ValueNotifier<String>('');
+
+  /// 正在进行/已完成的图像分析状态（T033）。null 表示没有面板。
+  VisionPanelState? _visionPanel;
+
+  /// 进行中的图像分析取消信号；非空表示正在跑。
+  AiCancellation? _visionCancellation;
 
   /// 每个顶层块的位置 key（目录跳转用）。
   List<GlobalKey> _blockKeys = <GlobalKey>[];
@@ -569,10 +582,158 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
           alt: alt,
           onSave: () => _saveImage(url),
           onShare: () => _shareText(url),
+          // T033：分析入口在查看器上，结果落在详情页的底部面板。
+          onAnalyze: () async {
+            Navigator.of(context).maybePop();
+            await _analyzeImage(url, alt);
+          },
         ),
       ),
     );
   }
+
+  /// 「分析这张图」（T033）。
+  ///
+  /// 三条与架构条文对应的行为：
+  ///   1) **首次发送前告知**：链路返回 needsConsent 时弹对话框说明「图像将发送至 <端点>」，
+  ///      用户确认后带 VisionSendConfirmation 重跑一次，并把确认记录落本机（架构第 8 节）；
+  ///   2) **没有视觉模型时跳过而不失败**：面板显示明确的跳过说明，正文与其它功能不受影响；
+  ///   3) **取消不改原文**：取消只中止分析，面板给出「已取消」并保留原样。
+  Future<void> _analyzeImage(String url, String alt) async {
+    final String ref = _visionRefFor(url);
+    final ArticleVisionAnalyzer analyzer = _visionAnalyzer();
+    final AiCancellation cancellation = AiCancellation();
+    setState(() {
+      _visionCancellation = cancellation;
+      _visionPanel = VisionPanelRunning(imageRef: ref);
+    });
+    ArticleVisionInsight insight = await analyzer.analyze(
+      imageUrl: url,
+      imageRef: ref,
+      cancellation: cancellation,
+    );
+    if (!mounted) {
+      return;
+    }
+    // 首次发送告知：弹对话框，确认后带凭据重跑。取消时**一个字节都没有发出**。
+    if (insight case ArticleVisionInsightNeedsConsent(:final String endpoint)) {
+      final bool agreed = await _confirmVisionSend(endpoint);
+      if (!mounted) {
+        return;
+      }
+      if (!agreed) {
+        setState(() {
+          _visionCancellation = null;
+          _visionPanel = const VisionPanelResult(
+            imageRef: '',
+            insight: ArticleVisionInsightSkipped(
+              reason: ArticleVisionSkipReason.disabledBySetting,
+              detail: 'userDeclined',
+            ),
+          );
+        });
+        return;
+      }
+      setState(() => _visionPanel = VisionPanelRunning(imageRef: ref));
+      insight = await analyzer.analyze(
+        imageUrl: url,
+        imageRef: ref,
+        confirmation: VisionSendConfirmation(
+          acknowledgedAtUtc: DateTime.now().toUtc(),
+        ),
+        cancellation: cancellation,
+      );
+      if (!mounted) {
+        return;
+      }
+    }
+    setState(() {
+      _visionCancellation = null;
+      _visionPanel = VisionPanelResult(imageRef: ref, insight: insight);
+    });
+  }
+
+  /// 首次发送告知对话框：返回用户是否同意。
+  ///
+  /// 说清三件事，缺一不可：发给谁（端点）、发什么（这张图片）、以及「只保存在本机、端点
+  /// 变化会再问一次」。只说「是否允许发送图片」会让用户无法判断这次数据出境的去向。
+  Future<bool> _confirmVisionSend(String endpoint) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool? agreed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(l10n.visionConsentTitle),
+        content: Text(l10n.visionConsentBody(endpoint)),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.visionConsentCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.visionConsentConfirm),
+          ),
+        ],
+      ),
+    );
+    return agreed ?? false;
+  }
+
+  /// 取消进行中的图像分析（取消**不改动正文**）。
+  void _cancelVisionAnalysis() {
+    final AiCancellation? cancellation = _visionCancellation;
+    if (cancellation == null) {
+      return;
+    }
+    cancellation.cancel(reason: 'userCancelled');
+    final VisionPanelState? panel = _visionPanel;
+    setState(() {
+      _visionCancellation = null;
+      _visionPanel = VisionPanelResult(
+        imageRef: panel is VisionPanelRunning ? panel.imageRef : '',
+        insight: const ArticleVisionInsightSkipped(
+          reason: ArticleVisionSkipReason.imageUnavailable,
+          detail: 'cancelled',
+        ),
+      );
+    });
+    _notify(AppLocalizations.of(context).visionAnalysisCancelled);
+  }
+
+  /// 图像分析用例（由 Provider 组装）。
+  ArticleVisionAnalyzer _visionAnalyzer() => ArticleVisionAnalyzer(
+    analyzeImage: AnalyzeImageUseCase(ref.read(visualRouterProvider)),
+    settingsWriter: _writeVisionEnabled,
+  );
+
+  /// 把 SET-065 的开关位写回 true（只覆盖开关位）。
+  ///
+  /// 先读现值再合并：SET-065 是复合项，整项覆盖会把用户设过的数量与单图上限抹成默认值——
+  /// 那正是架构 5.3 禁止的「一次功能动作消费用户配置」。读不到现值时按**注册表默认值**合并
+  /// （它们本来就是默认值，所以这是如实的结果，而不是猜）。
+  Future<Result<void>> _writeVisionEnabled(bool enabled) async {
+    final SettingsStore store = ref.read(settingsStoreProvider);
+    final Result<Object?> current = await store.readSetting(SettingId.set065);
+    final Object? raw = current.isOk ? current.valueOrNull : null;
+    final ImageInputLimits limits = ImageInputLimits.fromSetting(raw);
+    final Result<Object?> written = await store.writeSetting(
+      SettingId.set065,
+      <String, Object?>{
+        'enabled': enabled,
+        'maxImages': limits.maxImages,
+        'maxImageMiB': limits.maxImageMiB,
+      },
+    );
+    // 写设置返回的是「写进去的值」，这里只关心成败。
+    return written.isErr ? Err<void>(written.errorOrNull!) : okUnit();
+  }
+
+  /// 为一张图取一个稳定的客户端引用（同一地址得到同一引用）。
+  ///
+  /// 用地址摘要而不是自增序号：引用会进任务 id（诊断里能看到「哪张图」），而序号在每次
+  /// 打开文章时都从头开始，两条历史记录看起来会是同一张图。
+  static String _visionRefFor(String url) =>
+      'article-${sha256HexOfString(url.trim()).substring(0, 12)}';
 
   /// 保存图片（下载 + 让用户选位置）。
   Future<void> _saveImage(String url) async {
@@ -692,6 +853,13 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
                       onChanged: (String value) =>
                           setState(() => _findQuery = value),
                       onClose: _toggleFind,
+                    ),
+                  // 图像分析结果面板（T033）：浮在正文上方的一块可关闭区域，正文本身不动。
+                  if (_visionPanel case final VisionPanelState panel)
+                    VisionAnalysisPanel(
+                      state: panel,
+                      onCancel: _cancelVisionAnalysis,
+                      onClose: () => setState(() => _visionPanel = null),
                     ),
                   Expanded(
                     child: LayoutBuilder(
@@ -1099,4 +1267,156 @@ class _DocumentBody extends StatelessWidget {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(SnackBar(content: Text(l10n.readingLinkCopied)));
   }
+}
+
+/// 图像分析结果面板（T033）。
+///
+/// 放在正文上方而不是弹一个对话框：结果是「关于这篇文章里这张图」的一段内容，用户常常要
+/// 边看正文边读它；对话框会挡住正文，而且关掉之后就没有了。
+///
+/// 三种结局各自有明确的呈现（架构 4.3 与第 8 节）：
+///   - 成功：描述文本 + 数据去向（发送至哪个端点）+ 降采样说明；
+///   - 跳过：**不是错误**（没有视觉模型 / 图片拿不到），用中性样式并说明文本链路不受影响；
+///   - 失败：错误样式与可核对的原因。
+class VisionAnalysisPanel extends StatelessWidget {
+  /// 构造面板。
+  const VisionAnalysisPanel({
+    super.key,
+    required this.state,
+    required this.onCancel,
+    required this.onClose,
+  });
+
+  /// 面板状态。
+  final VisionPanelState state;
+
+  /// 取消进行中的分析。
+  final VoidCallback onCancel;
+
+  /// 关闭面板。
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final bool running = state is VisionPanelRunning;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+        FluxSpacing.md,
+        FluxSpacing.sm,
+        FluxSpacing.md,
+        0,
+      ),
+      padding: const EdgeInsets.all(FluxSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(FluxRadius.card),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text(l10n.visionAnalysisTitle, style: theme.textTheme.titleSmall),
+              const Spacer(),
+              if (running)
+                TextButton(
+                  onPressed: onCancel,
+                  child: Text(l10n.visionAnalysisCancelAction),
+                ),
+              IconButton(
+                tooltip: l10n.visionAnalysisClose,
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: onClose,
+              ),
+            ],
+          ),
+          if (running)
+            Row(
+              children: <Widget>[
+                const FluxLoadingIndicator(size: 16),
+                const SizedBox(width: FluxSpacing.sm),
+                Expanded(child: Text(l10n.visionAnalysisRunning)),
+              ],
+            )
+          else if (state case VisionPanelResult(
+            :final ArticleVisionInsight insight,
+          ))
+            _ResultBody(insight: insight),
+        ],
+      ),
+    );
+  }
+}
+
+/// 结果正文（按结局分支）。
+class _ResultBody extends StatelessWidget {
+  /// 构造正文。
+  const _ResultBody({required this.insight});
+
+  /// 结局。
+  final ArticleVisionInsight insight;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    switch (insight) {
+      case ArticleVisionInsightText(
+        :final String text,
+        :final bool downsampled,
+        :final String? endpoint,
+      ):
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SelectableText(text),
+            if (downsampled) ...<Widget>[
+              const SizedBox(height: FluxSpacing.xs),
+              // 「降采样仍说明」（架构 4.3）：不说的话用户会以为模型看到的是原图。
+              Text(
+                l10n.visionAnalysisDownsampled,
+                style: theme.textTheme.labelSmall,
+              ),
+            ],
+            if (endpoint case final String value) ...<Widget>[
+              const SizedBox(height: FluxSpacing.xs),
+              Text(
+                l10n.visionAnalysisSentTo(value),
+                style: theme.textTheme.labelSmall,
+              ),
+            ],
+          ],
+        );
+      case ArticleVisionInsightSkipped(:final ArticleVisionSkipReason reason):
+        // 跳过用中性说明：它不是错误，把它画成错误会让用户去排查一个并不存在的问题。
+        return Text(_skipText(l10n, reason), style: theme.textTheme.bodyMedium);
+      case ArticleVisionInsightFailed(:final AppError error):
+        return Text(
+          l10n.visionAnalysisFailed(error.kind),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.error,
+          ),
+        );
+      case ArticleVisionInsightNeedsConsent():
+        // 需要告知时面板不呈现结论（对话框由页面负责）；如实说明当前没有结论。
+        return Text(
+          l10n.visionAnalysisImageUnavailable,
+          style: theme.textTheme.bodyMedium,
+        );
+    }
+  }
+
+  static String _skipText(
+    AppLocalizations l10n,
+    ArticleVisionSkipReason reason,
+  ) => switch (reason) {
+    ArticleVisionSkipReason.noVisionModel => l10n.visionAnalysisNoModel,
+    ArticleVisionSkipReason.disabledBySetting => l10n.visionAnalysisDisabled,
+    ArticleVisionSkipReason.imageUnavailable =>
+      l10n.visionAnalysisImageUnavailable,
+  };
 }

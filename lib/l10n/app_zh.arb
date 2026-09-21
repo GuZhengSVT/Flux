@@ -1782,6 +1782,92 @@
   "@readingSelectionExplainPending": {
     "description": "选词解释：已配置 AI 时的占位说明（不发起调用）"
   },
+  "readingImageAnalyzeAction": "分析这张图",
+  "@readingImageAnalyzeAction": {
+    "description": "图片查看器：分析这张图的入口"
+  },
+  "visionConsentTitle": "首次向该服务发送图片",
+  "@visionConsentTitle": {
+    "description": "首次视觉分析前的告知对话框标题"
+  },
+  "visionConsentBody": "这张图片将被发送至 {endpoint} 进行分析。图片会离开本机，发送后无法撤回；分析结果由对方模型生成，可能有误。确认记录只保存在本机，端点变化时会再次询问。",
+  "@visionConsentBody": {
+    "description": "首次视觉分析前的告知正文（架构第 8 节：绑定端点与能力）",
+    "placeholders": {
+      "endpoint": {
+        "type": "String",
+        "example": "https://api.example.com"
+      }
+    }
+  },
+  "visionConsentConfirm": "同意并分析",
+  "@visionConsentConfirm": {
+    "description": "首次视觉分析告知：确认按钮"
+  },
+  "visionConsentCancel": "取消",
+  "@visionConsentCancel": {
+    "description": "首次视觉分析告知：取消按钮（不发任何请求）"
+  },
+  "visionAnalysisTitle": "图像分析",
+  "@visionAnalysisTitle": {
+    "description": "图像分析结果面板标题"
+  },
+  "visionAnalysisRunning": "正在分析这张图…",
+  "@visionAnalysisRunning": {
+    "description": "图像分析进行中"
+  },
+  "visionAnalysisDownsampled": "（这张图超过单图上传上限，已降采样后发送：细节可能已经丢失。）",
+  "@visionAnalysisDownsampled": {
+    "description": "图像分析结果中的降采样说明"
+  },
+  "visionAnalysisSentTo": "发送至 {endpoint}",
+  "@visionAnalysisSentTo": {
+    "description": "图像分析结果面板：数据去向",
+    "placeholders": {
+      "endpoint": {
+        "type": "String",
+        "example": "https://api.example.com"
+      }
+    }
+  },
+  "visionAnalysisNoModel": "本机没有声明视觉能力的模型，已跳过图像分析；正文与文本任务不受影响。可在设置中为某个模型打开视觉能力。",
+  "@visionAnalysisNoModel": {
+    "description": "图像分析：没有视觉模型时的跳过说明（不是失败）"
+  },
+  "visionAnalysisDisabled": "图像分析开关当前是关闭的，且这次没能写回设置；请在设置中打开后再试。",
+  "@visionAnalysisDisabled": {
+    "description": "图像分析：开关关闭且写回失败"
+  },
+  "visionAnalysisImageUnavailable": "这张图片无法加载或未通过校验，因此没有送去分析。",
+  "@visionAnalysisImageUnavailable": {
+    "description": "图像分析：图片拿不到"
+  },
+  "visionAnalysisFailed": "图像分析失败：{reason}",
+  "@visionAnalysisFailed": {
+    "description": "图像分析失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
+  },
+  "visionAnalysisClose": "关闭",
+  "@visionAnalysisClose": {
+    "description": "图像分析结果面板：关闭按钮"
+  },
+  "visionAnalysisCancelAction": "取消分析",
+  "@visionAnalysisCancelAction": {
+    "description": "图像分析结果面板：取消进行中的分析"
+  },
+  "visionAnalysisCancelled": "已取消图像分析，正文没有改动。",
+  "@visionAnalysisCancelled": {
+    "description": "用户取消图像分析后的提示"
+  },
+  "aiVisionSettingHint": "图像分析的开关、单张上限与专用视觉模型在设置中；未配置视觉模型时会跳过图像分析，正文与文本任务照常。",
+  "@aiVisionSettingHint": {
+    "description": "AI 服务页：视觉能力说明"
+  },
   "readingSelectionCopy": "复制",
   "@readingSelectionCopy": {
     "description": "选区菜单里的复制"

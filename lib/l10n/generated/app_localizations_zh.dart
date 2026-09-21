@@ -1177,6 +1177,65 @@ class AppLocalizationsZh extends AppLocalizations {
       '选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。';
 
   @override
+  String get readingImageAnalyzeAction => '分析这张图';
+
+  @override
+  String get visionConsentTitle => '首次向该服务发送图片';
+
+  @override
+  String visionConsentBody(String endpoint) {
+    return '这张图片将被发送至 $endpoint 进行分析。图片会离开本机，发送后无法撤回；分析结果由对方模型生成，可能有误。确认记录只保存在本机，端点变化时会再次询问。';
+  }
+
+  @override
+  String get visionConsentConfirm => '同意并分析';
+
+  @override
+  String get visionConsentCancel => '取消';
+
+  @override
+  String get visionAnalysisTitle => '图像分析';
+
+  @override
+  String get visionAnalysisRunning => '正在分析这张图…';
+
+  @override
+  String get visionAnalysisDownsampled => '（这张图超过单图上传上限，已降采样后发送：细节可能已经丢失。）';
+
+  @override
+  String visionAnalysisSentTo(String endpoint) {
+    return '发送至 $endpoint';
+  }
+
+  @override
+  String get visionAnalysisNoModel =>
+      '本机没有声明视觉能力的模型，已跳过图像分析；正文与文本任务不受影响。可在设置中为某个模型打开视觉能力。';
+
+  @override
+  String get visionAnalysisDisabled => '图像分析开关当前是关闭的，且这次没能写回设置；请在设置中打开后再试。';
+
+  @override
+  String get visionAnalysisImageUnavailable => '这张图片无法加载或未通过校验，因此没有送去分析。';
+
+  @override
+  String visionAnalysisFailed(String reason) {
+    return '图像分析失败：$reason';
+  }
+
+  @override
+  String get visionAnalysisClose => '关闭';
+
+  @override
+  String get visionAnalysisCancelAction => '取消分析';
+
+  @override
+  String get visionAnalysisCancelled => '已取消图像分析，正文没有改动。';
+
+  @override
+  String get aiVisionSettingHint =>
+      '图像分析的开关、单张上限与专用视觉模型在设置中；未配置视觉模型时会跳过图像分析，正文与文本任务照常。';
+
+  @override
   String get readingSelectionCopy => '复制';
 
   @override

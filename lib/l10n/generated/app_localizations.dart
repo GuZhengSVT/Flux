@@ -2155,6 +2155,108 @@ abstract class AppLocalizations {
   /// **'选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。'**
   String get readingSelectionExplainPending;
 
+  /// 图片查看器：分析这张图的入口
+  ///
+  /// In zh, this message translates to:
+  /// **'分析这张图'**
+  String get readingImageAnalyzeAction;
+
+  /// 首次视觉分析前的告知对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'首次向该服务发送图片'**
+  String get visionConsentTitle;
+
+  /// 首次视觉分析前的告知正文（架构第 8 节：绑定端点与能力）
+  ///
+  /// In zh, this message translates to:
+  /// **'这张图片将被发送至 {endpoint} 进行分析。图片会离开本机，发送后无法撤回；分析结果由对方模型生成，可能有误。确认记录只保存在本机，端点变化时会再次询问。'**
+  String visionConsentBody(String endpoint);
+
+  /// 首次视觉分析告知：确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'同意并分析'**
+  String get visionConsentConfirm;
+
+  /// 首次视觉分析告知：取消按钮（不发任何请求）
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get visionConsentCancel;
+
+  /// 图像分析结果面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'图像分析'**
+  String get visionAnalysisTitle;
+
+  /// 图像分析进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在分析这张图…'**
+  String get visionAnalysisRunning;
+
+  /// 图像分析结果中的降采样说明
+  ///
+  /// In zh, this message translates to:
+  /// **'（这张图超过单图上传上限，已降采样后发送：细节可能已经丢失。）'**
+  String get visionAnalysisDownsampled;
+
+  /// 图像分析结果面板：数据去向
+  ///
+  /// In zh, this message translates to:
+  /// **'发送至 {endpoint}'**
+  String visionAnalysisSentTo(String endpoint);
+
+  /// 图像分析：没有视觉模型时的跳过说明（不是失败）
+  ///
+  /// In zh, this message translates to:
+  /// **'本机没有声明视觉能力的模型，已跳过图像分析；正文与文本任务不受影响。可在设置中为某个模型打开视觉能力。'**
+  String get visionAnalysisNoModel;
+
+  /// 图像分析：开关关闭且写回失败
+  ///
+  /// In zh, this message translates to:
+  /// **'图像分析开关当前是关闭的，且这次没能写回设置；请在设置中打开后再试。'**
+  String get visionAnalysisDisabled;
+
+  /// 图像分析：图片拿不到
+  ///
+  /// In zh, this message translates to:
+  /// **'这张图片无法加载或未通过校验，因此没有送去分析。'**
+  String get visionAnalysisImageUnavailable;
+
+  /// 图像分析失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'图像分析失败：{reason}'**
+  String visionAnalysisFailed(String reason);
+
+  /// 图像分析结果面板：关闭按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get visionAnalysisClose;
+
+  /// 图像分析结果面板：取消进行中的分析
+  ///
+  /// In zh, this message translates to:
+  /// **'取消分析'**
+  String get visionAnalysisCancelAction;
+
+  /// 用户取消图像分析后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消图像分析，正文没有改动。'**
+  String get visionAnalysisCancelled;
+
+  /// AI 服务页：视觉能力说明
+  ///
+  /// In zh, this message translates to:
+  /// **'图像分析的开关、单张上限与专用视觉模型在设置中；未配置视觉模型时会跳过图像分析，正文与文本任务照常。'**
+  String get aiVisionSettingHint;
+
   /// 选区菜单里的复制
   ///
   /// In zh, this message translates to:

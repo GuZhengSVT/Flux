@@ -21,9 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/l10n/l10n.dart';
 
-import '../application/ai_task_budget.dart';
-import '../application/ai_task_runner.dart';
-import '../application/ai_ports.dart';
+import '../application/ai_task_providers.dart';
 import '../application/model_manager_controller.dart';
 import '../application/persistent_ai_task_service.dart';
 import '../domain/ai_model.dart';
@@ -125,41 +123,8 @@ aiTaskListControllerProvider =
       AiTaskListController.new,
     );
 
-/// 持久任务用例 Provider（由组合根装配端口）。
-final Provider<PersistentAiTaskService> persistentAiTaskServiceProvider =
-    Provider<PersistentAiTaskService>((Ref ref) {
-      final AiTaskBudget budget = ref.watch(aiTaskBudgetProvider);
-      return PersistentAiTaskService(
-        tasks: ref.watch(aiTaskStoreProvider),
-        cache: ref.watch(aiResultCacheProvider),
-        clock: ref.watch(aiTaskClockProvider),
-        diagnostics: ref.watch(aiDiagnosticSinkProvider),
-        budget: budget,
-        runnerFactory: (void Function(TaskSnapshot snapshot) onSnapshot) =>
-            AiTaskRunner(
-              credentials: ref.watch(aiCredentialStoreProvider),
-              factory: ref.watch(aiProviderFactoryProvider)!,
-              diagnostics: ref.watch(aiDiagnosticSinkProvider),
-              budget: budget,
-              clock: ref.watch(aiTaskClockProvider),
-              onSnapshot: onSnapshot,
-            ),
-      );
-    });
-
-/// 任务预算 Provider（T029 的 SET-035/036/059/062/063 从注册表默认值起步）。
-///
-/// 从设置读值是异步的，而 Provider 的构造是同步的；因此这里用注册表默认值，
-/// 由组合根或后续任务在需要时覆盖成「读用户值」的实现（读设置并生效属 T041 的
-/// 同步投影范围，本任务不引入第二套设置读取路径）。
-final Provider<AiTaskBudget> aiTaskBudgetProvider = Provider<AiTaskBudget>(
-  (Ref ref) => const AiTaskBudget(),
-);
-
-/// 任务使用的时钟（测试覆盖成假时钟；生产用系统时钟）。
-final Provider<Clock> aiTaskClockProvider = Provider<Clock>(
-  (Ref ref) => const SystemClock(),
-);
+// 任务预算 / 时钟 / 持久任务服务 / 队列的 Provider 已经在 T033 挪到
+// application/ai_task_providers.dart（视觉与选词解释也要装配队列，不该 import 一个页面）。
 
 /// AI 任务记录页。
 class AiTaskListPage extends ConsumerWidget {

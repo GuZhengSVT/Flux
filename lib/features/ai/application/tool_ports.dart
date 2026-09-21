@@ -95,6 +95,75 @@ abstract interface class ToolImageInspector {
   Future<Result<InspectedImage>> inspect(String url);
 }
 
+/// 一次视觉分析的产出（T033：inspectImage 的真正分析）。
+final class VisionAnalysisResult {
+  /// 构造产出。
+  const VisionAnalysisResult({
+    this.description,
+    this.skippedReason,
+    this.error,
+    this.downsampled = false,
+    this.endpoint,
+  });
+
+  /// 分析文本；被跳过或失败时为 null。
+  final String? description;
+
+  /// 跳过原因（**不是失败**）：没有视觉模型、图像分析开关关闭、需要用户先确认发送。
+  final VisionSkipKind? skippedReason;
+
+  /// 失败原因（已经决定要发之后发生的失败）。
+  final AppError? error;
+
+  /// 这张图是否降采样后送出。
+  final bool downsampled;
+
+  /// 实际接收端点（界面与回填文本都用它说明「发给了谁」）。
+  final String? endpoint;
+
+  /// 是否拿到了可用的分析文本。
+  bool get ok => description != null && description!.isNotEmpty;
+
+  /// 是否因为「跳过」而没有分析（与失败区分：跳过不该被画成错误）。
+  bool get skipped => skippedReason != null;
+}
+
+/// 跳过视觉分析的原因（T033）。
+///
+/// 与 domain 的 VisionSkipReason 分开：那个回答「为什么没有可用的视觉模型」，这个回答
+/// 「这次调用为什么没有产出分析」——后者还包含「开关关闭」与「等待用户确认发送」这两件与
+/// 模型能力无关的事。合成一个枚举会让界面必须对同一个取值做两种解释。
+enum VisionSkipKind {
+  /// 没有可用的视觉模型（架构 4.3 的「跳过图像分析并明确标签」）。
+  noVisionModel,
+
+  /// SET-065 的图像分析开关关闭。
+  disabledBySetting,
+
+  /// 该端点还没有本机的首次发送告知确认（架构第 8 节）。
+  awaitingConsent,
+
+  /// 这张图拿不到（加载/校验失败）。
+  imageUnavailable,
+}
+
+/// 受控视觉分析端口（T033）。
+///
+/// 执行器只依赖这个窄接口，不直接持有 VisualRouter：
+///   - 路由与限额规则在 features/ai/domain 里是纯函数、在 application 里是组装，
+///     tool_executor 只应该关心「给我这张图的分析结果」；
+///   - 端口让 T032 的既有用例与 T033 的新用例可以在**同一份执行器代码**上分别验证。
+abstract interface class ToolVisionAnalyzer {
+  /// 分析 [url] 指向的图片；[imageRef] 是客户端材料引用（回填与诊断用）。
+  ///
+  /// 实现必须遵守：没有视觉模型时返回 skippedReason 而**不是**抛错；一张图失败不影响
+  /// 其它图；需要首次发送告知时返回 awaitingConsent 且**一个字节都不发**。
+  Future<Result<VisionAnalysisResult>> analyze({
+    required String imageRef,
+    required String url,
+  });
+}
+
 /// 受控网页抓取端口 Provider。
 final Provider<ControlledPageFetcher> controlledPageFetcherProvider =
     Provider<ControlledPageFetcher>(

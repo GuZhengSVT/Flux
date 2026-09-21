@@ -87,6 +87,7 @@ final class ToolExecutor {
     required this.pageFetcher,
     required this.imageInspector,
     required this.diagnostics,
+    this.visionAnalyzer,
     this.materials,
   });
 
@@ -102,11 +103,18 @@ final class ToolExecutor {
   /// 受控网页抓取。
   final ControlledPageFetcher pageFetcher;
 
-  /// 受控图片查看。
+  /// 受控图片查看（元数据：MIME/尺寸/体积，已过 T021 的校验）。
   final ToolImageInspector imageInspector;
 
   /// 诊断记录。
   final DiagnosticSink diagnostics;
+
+  /// 受控视觉分析（T033）；为空时 inspectImage 仍然可用，但只给元数据（不分析）。
+  ///
+  /// 允许为空而不是必需：T032 的「只给元数据」是一条仍然成立的降级路径（例如只配了
+  /// 纯文本模型的场景），而把分析器做成必需参数会让执行器无法在 T033 的链路未接线时
+  /// 独立使用。为空时的回填文本明确写「本次没有分析」。
+  final ToolVisionAnalyzer? visionAnalyzer;
 
   /// 图片材料集合；为空时新建一个（同一次任务内共享同一个注册表）。
   final ImageMaterialRegistry? materials;
@@ -351,6 +359,7 @@ final class ToolExecutor {
       );
     }
 
+    // 元数据仍然先取：它是「这张图确实存在且合法」的判据，视觉分析只是它的附加产出。
     final Result<InspectedImage> inspected = await imageInspector.inspect(
       material.sourceUrl,
     );
@@ -358,7 +367,37 @@ final class ToolExecutor {
       return ToolResult.failed(callId: call.id, error: inspected.errorOrNull!);
     }
     final InspectedImage image = inspected.unwrap();
-    _logSuccess(call, 'inspectImage', note: image.mimeType);
+
+    // ---- T033：接上视觉路由做真正的分析 ----
+    //
+    // 没有分析器（未接线）或没有视觉模型时**不失败**：给一条明确的「本次没有分析」说明
+    // （见 InspectImageToolPayload.toModelContent），文本链路照常继续。这条路径是架构 4.3
+    // 「均无视觉能力时跳过图像分析并明确标签」在执行器里的落点。
+    final ToolVisionAnalyzer? analyzer = visionAnalyzer;
+    VisionAnalysisResult? analysis;
+    if (analyzer != null) {
+      final Result<VisionAnalysisResult> result = await analyzer.analyze(
+        imageRef: args.imageRef,
+        url: material.sourceUrl,
+      );
+      if (result.isErr) {
+        // 分析链路本身失败（不是「没有视觉模型」）：如实回填失败原因，让模型据此停止重试。
+        return ToolResult.failed(callId: call.id, error: result.errorOrNull!);
+      }
+      analysis = result.unwrap();
+      if (analysis.error != null) {
+        return ToolResult.failed(callId: call.id, error: analysis.error!);
+      }
+    }
+    _logSuccess(
+      call,
+      'inspectImage',
+      note: analysis == null
+          ? image.mimeType
+          : analysis.ok
+          ? '${image.mimeType} analyzed'
+          : '${image.mimeType} skipped=${analysis.skippedReason?.name ?? 'unknown'}',
+    );
     return ToolResult.ok(
       callId: call.id,
       payload: InspectImageToolPayload(
@@ -367,6 +406,12 @@ final class ToolExecutor {
         width: image.width,
         height: image.height,
         byteLength: image.byteLength,
+        description: analysis?.description,
+        skippedReason: analysis == null
+            ? 'visionNotWired'
+            : analysis.skippedReason?.name,
+        downsampled: analysis?.downsampled ?? false,
+        endpoint: analysis?.endpoint,
       ),
     );
   }

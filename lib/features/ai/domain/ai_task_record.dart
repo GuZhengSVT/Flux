@@ -68,6 +68,7 @@ final class AiInputSnapshot {
     this.language,
     this.temperature,
     this.maxTokens,
+    this.imageCount = 0,
   });
 
   /// 从一次请求构造快照。
@@ -78,6 +79,10 @@ final class AiInputSnapshot {
         language: language,
         temperature: request.temperature,
         maxTokens: request.maxTokens,
+        imageCount: request.messages.fold(
+          0,
+          (int sum, AiMessage m) => sum + m.images.length,
+        ),
       );
 
   /// 消息序列（顺序即上下文顺序）。
@@ -95,10 +100,25 @@ final class AiInputSnapshot {
   /// 输出上限。
   final int? maxTokens;
 
+  /// 输入里的图片数量（T033）。
+  ///
+  /// **单独落一列字段而不是从 messages 现算**：图片的字节不落库（见 [toJson]），因此
+  /// 从库里读回来的快照的 messages 里没有任何图片，「这次任务带过图」这个事实只能靠
+  /// 一个显式的数字保留下来。没有它，「重新开始」会把一次带图任务静默当成纯文本任务
+  /// 重放——那等于用另一份输入去请求，而用户看到的是一个「重新开始」按钮。
+  final int imageCount;
+
+  /// 输入里是否包含图片。
+  bool get hasImages => imageCount > 0;
+
   /// 输入侧正文的规范化拼接（用于哈希与 Token 估算）。
   ///
   /// 用角色名与长度前缀做分隔，避免「两条消息拼接后与另一组消息撞成同一串」这类
   /// 边界歧义：把 AB + C 与 A + BC 区分开。
+  ///
+  /// **图片的内容摘要也进这里**（T033）：一次带图的请求与一次不带图的请求必须是两个
+  /// 缓存键。用**内容摘要**而不是地址或字节：地址会变而图不变（不该让缓存失效），
+  /// 字节会把整张图写进哈希输入与落库 JSON（几十 MiB 的文本列）。
   String get canonicalText {
     final StringBuffer buffer = StringBuffer();
     for (final AiMessage message in messages) {
@@ -109,6 +129,14 @@ final class AiInputSnapshot {
         ..write(':')
         ..write(message.content)
         ..write('\u0000');
+      for (final AiImagePart image in message.images) {
+        buffer
+          ..write('img:')
+          ..write(image.mimeType)
+          ..write(':')
+          ..write(image.digest)
+          ..write('\u0000');
+      }
     }
     return buffer.toString();
   }
@@ -120,16 +148,34 @@ final class AiInputSnapshot {
   String get promptHash => sha256HexOfString(canonicalText);
 
   /// 落库形态（JSON）。
+  ///
+  /// 图片**只落摘要，不落字节**：快照是「当时发出去什么」的记录，而一张 4 MiB 的图
+  /// 写进这一列会让任务表被图片撑大，也会把用户的图片内容复制进明文备份与同步包
+  /// （架构第 8 节）。摘要足以回答「这次任务带了图吗、图变了吗」，而重放带图任务由
+  /// [hasImages] 明确拦住。
   Map<String, Object?> toJson() => <String, Object?>{
     'modelId': modelId,
     if (language != null) 'language': language,
     if (temperature != null) 'temperature': temperature,
     if (maxTokens != null) 'maxTokens': maxTokens,
+    if (imageCount > 0) 'imageCount': imageCount,
     'messages': <Object?>[
       for (final AiMessage message in messages)
         <String, Object?>{
           'role': message.role.wireName,
           'content': message.content,
+          if (message.images.isNotEmpty)
+            'imageDigests': <Object?>[
+              for (final AiImagePart image in message.images)
+                <String, Object?>{
+                  'mimeType': image.mimeType,
+                  'digest': image.digest,
+                  'width': image.width,
+                  'height': image.height,
+                  'downsampled': image.downsampled,
+                  'byteLength': image.byteLength,
+                },
+            ],
         },
     ],
   };
@@ -163,12 +209,16 @@ final class AiInputSnapshot {
     final Object? temperature = json['temperature'];
     final Object? maxTokens = json['maxTokens'];
     final Object? language = json['language'];
+    // 图片数量只在库里那一份里有（字节与摘要都不还原）：这不影响「这次任务带过图吗」
+    // 这个判断，而它对「重新开始」是必需的（见 [imageCount] 的说明）。
+    final Object? imageCount = json['imageCount'];
     return AiInputSnapshot(
       messages: messages,
       modelId: modelId,
       language: language is String ? language : null,
       temperature: temperature is num ? temperature.toDouble() : null,
       maxTokens: maxTokens is int ? maxTokens : null,
+      imageCount: imageCount is int && imageCount > 0 ? imageCount : 0,
     );
   }
 

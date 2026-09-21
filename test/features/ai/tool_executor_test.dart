@@ -487,7 +487,7 @@ void main() {
       expect(content, isNot(contains('https://example.com/a.png')));
     });
 
-    test('inspectImage 用网页里给出的引用可以成功，且只返回元数据（不分析）', () async {
+    test('inspectImage 用网页里给出的引用可以成功；未接视觉分析时明确说「没有分析」', () async {
       pageFetcher.result = const FetchedPage(
         finalUri: 'https://example.com/page',
         title: 'Page',
@@ -520,7 +520,14 @@ void main() {
       expect(payload.width, 640);
       expect(imageInspector.calls, 1);
       final String content = payload.toModelContent();
-      expect(content, contains('待分析'), reason: '本期做占位：视觉分析属 T033');
+      // T033：执行器未注入视觉分析器时（本用例），必须**如实**说「这次没有分析」，
+      // 而不是给一段看起来像结论的文本。真正的分析由 visionAnalyzer 注入后产生
+      // （见 visual_router_test / vision_analysis_test）。
+      expect(payload.hasDescription, isFalse);
+      expect(payload.skippedReason, 'visionNotWired');
+      expect(content, contains('跳过图像分析'));
+      expect(content, contains('visionNotWired'));
+      expect(content, isNot(contains('待分析')), reason: 'T032 的占位文案在 T033 已被替换');
     });
 
     test('图像查看关闭时 inspectImage 被拒（开关位生效）', () async {

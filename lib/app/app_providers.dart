@@ -26,6 +26,7 @@ import 'package:flux/features/ai/domain/ai_provider.dart';
 import 'package:flux/features/ai/domain/search_provider.dart';
 import 'package:flux/features/ai/domain/search_service_store.dart';
 import 'package:flux/features/ai/application/tool_ports.dart';
+import 'package:flux/features/ai/application/vision_ports.dart';
 import 'package:flux/features/articles/application/article_platform_ports.dart';
 import 'package:flux/features/articles/application/article_extraction_ports.dart';
 import 'package:flux/features/articles/application/article_image_ports.dart';
@@ -45,6 +46,7 @@ import 'package:flux/infrastructure/local/degraded_article_catalog_store.dart';
 import 'package:flux/infrastructure/local/degraded_article_extraction_store.dart';
 import 'package:flux/infrastructure/local/degraded_reading_stats_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
+import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -61,6 +63,7 @@ import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
 import 'package:flux/infrastructure/network/ai_provider_factory.dart';
 import 'package:flux/infrastructure/network/search_provider_factory.dart';
 import 'package:flux/infrastructure/network/tool_port_adapters.dart';
+import 'package:flux/infrastructure/network/vision_adapters.dart';
 import 'package:flux/infrastructure/network/media_fetcher.dart';
 import 'package:flux/infrastructure/platform/network_conditions.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
@@ -396,6 +399,32 @@ List<Override> bootstrapOverrides(
     // 单材料预算（SET-061）由设置读取；接线到这里之后执行器就能拿到用户配置的值。
     toolBudgetSettingsProvider.overrideWithValue(
       SettingsStoreToolBudgetReader(result.settingsStore),
+    ),
+    // ---- T033：视觉链路 ------------------------------------------------------
+    //
+    // 图片加载**复用 T021 的受控加载器**（地址守卫 + MIME/魔数/体积校验 + 磁盘缓存），
+    // 并在超出 SET-065 单图上限时降采样：另起一条「只给视觉用」的下载路径会让两条路径的
+    // 判据各自漂移，而漂移的后果是「阅读时挡住了一张图、发给模型时没挡住」。
+    visionImageLoaderProvider.overrideWith(
+      (Ref ref) => CachedVisionImageLoader(
+        loader: ref.watch(articleImageLoaderProvider),
+      ),
+    ),
+    // SET-034 / SET-065 的只读读取。
+    visionSettingsReaderProvider.overrideWithValue(
+      SettingsStoreVisionSettings(result.settingsStore),
+    ),
+    // 发送告知的确认记录：属于本机运行授权状态，不用 SET 编号（架构第 8 节）。
+    // 数据库不可用时给 null（读取按「未确认」处理，因此**不会**发出图片）——这是 fail-closed
+    // 的方向：功能暂时用不了，而不是未经授权发送一次。
+    visionConsentStoreProvider.overrideWithValue(
+      result.database == null
+          ? null
+          : DeviceStateVisionConsent(DeviceStateRepository(result.database!)),
+    ),
+    // 工具执行器的视觉分析端口（T033）：把视觉链路接到 inspectImage 上。
+    toolVisionAnalyzerProvider.overrideWith(
+      (Ref ref) => VisualRouterToolAnalyzer(ref.watch(visualRouterProvider)),
     ),
   ];
 }

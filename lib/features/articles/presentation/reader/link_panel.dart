@@ -107,6 +107,7 @@ class ImageViewerPage extends StatefulWidget {
     required this.alt,
     required this.onSave,
     required this.onShare,
+    this.onAnalyze,
     this.saveEnabled = true,
   });
 
@@ -121,6 +122,12 @@ class ImageViewerPage extends StatefulWidget {
 
   /// 分享回调。
   final Future<void> Function() onShare;
+
+  /// 「分析这张图」回调（T033）。为 null 时不出这个入口。
+  ///
+  /// 分析结果的展示落在**详情页**（底部面板）而不是查看器里：查看器是全屏深底看图的
+  /// 地方，在那里塞一段文字会把「看图」这件事本身挤走；而结果面板需要能滚动阅读。
+  final Future<void> Function()? onAnalyze;
 
   /// 是否允许保存。
   ///
@@ -200,6 +207,13 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         actions: <Widget>[
+          // 「分析这张图」（T033）：首次使用时会先弹发送告知（架构第 8 节）。
+          if (widget.onAnalyze case final Future<void> Function() analyze)
+            IconButton(
+              tooltip: l10n.readingImageAnalyzeAction,
+              icon: const Icon(Icons.auto_awesome),
+              onPressed: () => _run(analyze),
+            ),
           if (widget.saveEnabled)
             IconButton(
               tooltip: l10n.readingImageSaveAction,

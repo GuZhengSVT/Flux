@@ -75,6 +75,22 @@ Map<String, Object?> chatCompletionsMessage(AiMessage message) {
       'content': message.content,
     };
   }
+  // 带图消息的 content 从**字符串变成分量数组**（T033）：这不是「在字符串里塞点别的」，
+  // 而是协议要求的形状差异——把图片塞进字符串会让服务商把 base64 当正文朗读。
+  if (message.hasImages) {
+    return <String, Object?>{
+      'role': message.role.wireName,
+      'content': <Map<String, Object?>>[
+        if (message.content.isNotEmpty)
+          <String, Object?>{'type': 'text', 'text': message.content},
+        for (final AiImagePart image in message.images)
+          <String, Object?>{
+            'type': 'image_url',
+            'image_url': <String, Object?>{'url': image.dataUrl},
+          },
+      ],
+    };
+  }
   return <String, Object?>{
     'role': message.role.wireName,
     'content': message.content,
@@ -114,6 +130,11 @@ Map<String, Object?> responsesRequestBody(AiRequest request, String modelId) {
       'role': message.role.wireName,
       'content': <Map<String, Object?>>[
         <String, Object?>{'type': 'input_text', 'text': message.content},
+        // Responses 的图片分量形状与 Chat Completions 不同（T033）：这里的分量类型叫
+        // input_image 且 image_url 是一个**平铺的字符串**，而 Chat Completions 是
+        // {'type':'image_url','image_url':{'url': ...}} 的嵌套对象。两处各有夹具钉住。
+        for (final AiImagePart image in message.images)
+          <String, Object?>{'type': 'input_image', 'image_url': image.dataUrl},
       ],
     });
   }
@@ -243,7 +264,18 @@ Map<String, Object?> anthropicMessagesRequestBody(
     }
     messages.add(<String, Object?>{
       'role': anthropicRoleOf(message.role),
-      'content': <Map<String, Object?>>[anthropicTextBlock(message.content)],
+      // 文本块在前、图片块在后（T033）：Anthropic 的图片是 base64 源
+      // （source.type = "base64"），**不能**给 URL——协议不接受让服务商去远端取图。
+      // 文字在前是因为这些图是「关于这段文字的配图」，倒过来读会让模型先看到图再知道
+      // 要它做什么。
+      'content': <Map<String, Object?>>[
+        if (message.content.isNotEmpty) anthropicTextBlock(message.content),
+        for (final AiImagePart image in message.images)
+          anthropicImageBlock(
+            mediaType: image.mimeType,
+            base64Data: image.base64Data,
+          ),
+      ],
     });
   }
   return <String, Object?>{
@@ -272,10 +304,10 @@ String anthropicRoleOf(AiRole role) => switch (role) {
   AiRole.system => 'user',
   AiRole.user => 'user',
   AiRole.assistant => 'assistant',
-  // 规范的 tool_result 是 user 消息里的一个内容块，且必须带 tool_use_id；
-  // AiMessage 目前不承载这个 id（消息模型的多模态/工具扩展属 T032/T033），
-  // 因此先把工具结果作为文本交回。静默丢弃它会让多轮工具对话丢失上下文，
-  // 而「丢一半上下文」比「多带一段文本」危险得多。
+  // 规范的 tool_result 是 user 消息里的一个内容块且必须带 tool_use_id，工具结果在
+  // 上面那条分支里已经按这个形状构造过了；走到这里只可能是「有人直接构造了一条
+  // role=tool 的消息又没走工具分支」，按 user 兜底而不是抛错——静默丢弃会让多轮
+  // 工具对话丢上下文，而「多带一段文本」远比「丢一半上下文」安全。
   AiRole.tool => 'user',
 };
 

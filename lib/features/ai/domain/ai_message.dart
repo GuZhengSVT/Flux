@@ -1,4 +1,4 @@
-// AI 请求、消息与事件（T025；架构 4.3、4.5）。
+// AI 请求、消息与事件（T025；架构 4.3、4.5；多模态图像分量属 T033）。
 //
 // 这一层刻意**只描述统一语义**，不含任何一家服务商的字段名：
 //   - Chat Completions 的 `messages[{role, content}]` 与
@@ -10,6 +10,11 @@
 // 为什么不在这里放 HTTP 细节（状态码、头、body 文本）：那是适配器的职责；
 // 领域层带上一半的传输语义会让「换协议不改业务」这条设计目标失效。
 library;
+
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flux/core/core.dart';
 
 import 'tool_call.dart';
 
@@ -31,23 +36,36 @@ enum AiRole {
   String get wireName => name;
 }
 
-/// 一条消息（文本形态；图片等多模态分量属 T033）。
+/// 一条消息（文本 + 可选的图像分量；图像的多模态输入属 T033）。
 final class AiMessage {
   /// 构造一条消息。
-  const AiMessage({required this.role, required this.content, this.toolCallId});
+  const AiMessage({
+    required this.role,
+    required this.content,
+    this.toolCallId,
+    this.images = const <AiImagePart>[],
+  });
 
   /// 便捷构造：系统指令。
   const AiMessage.system(this.content)
     : role = AiRole.system,
-      toolCallId = null;
+      toolCallId = null,
+      images = const <AiImagePart>[];
 
   /// 便捷构造：用户输入。
-  const AiMessage.user(this.content) : role = AiRole.user, toolCallId = null;
+  ///
+  /// [images] 是本条消息要发送的图片（T033）。**空列表表示纯文本消息**，适配器据此
+  /// 决定把 content 发成字符串还是分量数组；三个协议都不接受一个空的图片数组，因此
+  /// 「没有图」在类型上用空列表表达比 null 更不容易在某处漏判。
+  const AiMessage.user(this.content, {this.images = const <AiImagePart>[]})
+    : role = AiRole.user,
+      toolCallId = null;
 
   /// 便捷构造：模型输出。
   const AiMessage.assistant(this.content)
     : role = AiRole.assistant,
-      toolCallId = null;
+      toolCallId = null,
+      images = const <AiImagePart>[];
 
   /// 便捷构造：工具结果。
   ///
@@ -58,7 +76,9 @@ final class AiMessage {
   /// 三者字段名不同但语义一致，因此统一到这一个字段（T027 当初把它记为「T032 要做的
   /// 事」，本轮补上）。为 null 表示这条工具结果没有对应的调用 id（例如历史数据或
   /// 手工构造），此时按「没有 id 可填」如实处理，而不是编一个。
-  const AiMessage.tool(this.content, {this.toolCallId}) : role = AiRole.tool;
+  const AiMessage.tool(this.content, {this.toolCallId})
+    : role = AiRole.tool,
+      images = const <AiImagePart>[];
 
   /// 角色。
   final AiRole role;
@@ -69,8 +89,84 @@ final class AiMessage {
   /// 工具调用 id（仅 role=tool 时使用；其余角色为 null）。
   final String? toolCallId;
 
+  /// 本条消息携带的图片（T033 的多模态输入）。
+  ///
+  /// 只在 role=user 上有意义：三个协议的图片分量都挂在**用户消息**上，把图挂在助手/
+  /// 工具消息上既没有协议支持，也会让「这段文字是谁说的」变得含糊。因此 assistant 与
+  /// tool 的便捷构造把这里写死为空列表，而不是各留一个可填参数。
+  final List<AiImagePart> images;
+
+  /// 是否携带图片（适配器据此选择 content 形状）。
+  bool get hasImages => images.isNotEmpty;
+
   @override
-  String toString() => 'AiMessage(${role.wireName}, ${content.length} chars)';
+  String toString() =>
+      'AiMessage(${role.wireName}, ${content.length} chars'
+      '${images.isEmpty ? '' : ', ${images.length} images'})';
+}
+
+/// 一条消息里的一张图片（T033）。
+///
+/// 为什么领域层持有**字节**而不是地址：三个协议的图片分量都是「把图交给服务商」，
+/// 而 Anthropic 只接受 base64（不接受让服务商去远端取图）；OpenAI 两协议虽然接受
+/// URL，但让服务商去取图会把一次受控请求变成一次我们看不到的出网。本工程已用 T021 的
+/// 受控管线把图取到本机并校验过（MIME 白名单 + 魔数 + 体积上限 + 解码像素上限），因此
+/// 统一以字节形态进入请求，由三个适配器各自编码成自己协议的形状。
+///
+/// 同时给出 [base64Data] 与 [dataUrl] 而不是在领域层挑一个形状：Anthropic 需要分开的
+/// media_type 与 data 两字段，两个 OpenAI 协议需要 data URL。领域层替某一家的形状做
+/// 决定，会让「换协议不改业务」这条目标在这一处失效。
+final class AiImagePart {
+  /// 构造图片分量。
+  const AiImagePart({
+    required this.bytes,
+    required this.mimeType,
+    required this.width,
+    required this.height,
+    this.downsampled = false,
+    this.sourceRef,
+  });
+
+  /// 图片字节（已过 T021 的 MIME/体积/魔数校验）。
+  final Uint8List bytes;
+
+  /// MIME（由魔数嗅探并与其他声明交叉校验后的类型）。
+  final String mimeType;
+
+  /// 宽（像素，原始图的尺寸）。
+  final int width;
+
+  /// 高（像素，原始图的尺寸）。
+  final int height;
+
+  /// 是否为降采样后的产物（SET-065 的单图上限被触发过）。
+  ///
+  /// 这个标记必须跟着图片一起走到界面与诊断：用户看到「图已缩过」与「图原样送出」是
+  /// 两件不同的事，而两者的结果文本会长得一样。
+  final bool downsampled;
+
+  /// 图片引用（客户端的材料引用或正文地址）；**只用于诊断与结果标注，不进请求**。
+  final String? sourceRef;
+
+  /// 字节数。
+  int get byteLength => bytes.length;
+
+  /// base64 数据（Anthropic 的 source.data）。
+  String get base64Data => base64Encode(bytes);
+
+  /// data URL（两个 OpenAI 协议的 image_url.url）。
+  String get dataUrl => 'data:$mimeType;base64,$base64Data';
+
+  /// 内容摘要：缓存键与「输入变了」的判据用它，而不是地址。
+  ///
+  /// 用内容哈希而不是地址：同一张图换一个 CDN 地址仍是同一张图（不该让缓存整体失效），
+  /// 而同一个地址换了内容则必须失效（否则会把旧图的结论复用到新图上）。
+  String get digest => sha256Hex(bytes);
+
+  @override
+  String toString() =>
+      'AiImagePart($mimeType, ${width}x$height, $byteLength bytes'
+      '${downsampled ? ', downsampled' : ''})';
 }
 
 /// 一次生成请求。

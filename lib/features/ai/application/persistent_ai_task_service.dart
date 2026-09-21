@@ -331,6 +331,18 @@ final class PersistentAiTaskService {
         ),
       );
     }
+    // 带图任务**拒绝重放**（T033）：图片的字节不进快照（见 AiInputSnapshot.toJson），
+    // 因此这里没有图可发。按纯文本重放等于用另一份输入去请求——用户看到的是「重新开始」
+    // 按钮，花掉的却是一次与原来不同的调用。如实拒绝，让用户在原处重新发起。
+    if (previous.snapshot.hasImages) {
+      return Err<AiTaskRunResult>(
+        ValidationError(
+          field: 'aiTask.restart',
+          reason: '这次任务包含图片，图片不进任务快照，无法原样重新开始',
+          value: '${previous.snapshot.imageCount} images',
+        ),
+      );
+    }
     return run(
       AiTaskRequest(
         taskId: newTaskId,
