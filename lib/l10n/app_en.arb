@@ -1,0 +1,131 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-09-21",
+
+  "appName": "Flux",
+  "appTagline": "Local-first news & RSS reader",
+  "milestoneShellNotice": "This build is the M0 app shell: navigation, theme, language and first-run setup only. No product feature is implemented yet.",
+  "placeholderBadge": "Placeholder",
+  "placeholderPageBody": "This page is an app-shell placeholder with no data or interaction. Planned tasks: {tasks}.",
+  "@placeholderPageBody": {
+    "placeholders": {
+      "tasks": {
+        "type": "String",
+        "example": "T036–T040"
+      }
+    }
+  },
+  "layoutPaneSource": "Feed pane",
+  "layoutPaneList": "Article list",
+  "layoutPaneBody": "Body pane",
+  "layoutBreakpointSingle": "Single column (window width < 600)",
+  "layoutBreakpointDouble": "Two columns (600–1099)",
+  "layoutBreakpointTriple": "Three columns (≥1100)",
+  "layoutShellNote": "This milestone is shell only: every area below is a placeholder panel with no data, no interaction, and no claim that the region is implemented.",
+  "navToday": "Today",
+  "navReading": "Reading",
+  "navMine": "Mine",
+  "emptyNoFeedsTitle": "No subscriptions yet",
+  "emptyNoFeedsBody": "Articles will appear here once you add a feed or import OPML. The subscription UI and use cases ship in T013–T016.",
+  "emptyAllReadTitle": "Everything is read",
+  "emptyAllReadBody": "No unread articles match the current filter. Switch to Later or Favorites to review what you already handled.",
+  "emptyNoResultsTitle": "No matching results",
+  "emptyNoResultsBody": "Try another keyword, or adjust the search scope and filters. Local full-text search ships in T022.",
+  "todayEmptyTitle": "No news for today yet",
+  "todayEmptyBody": "Daily news needs configured AI and search services plus a first-send acknowledgement. Sources, prompt, generation and verification ship in T036–T040; while unconfigured this page stays empty instead of inventing content.",
+  "shellDatabaseFailedTitle": "The local database cannot be opened",
+  "shellDatabaseFailedBody": "This run can only show the shell: language and theme changes will not be saved. The original database file is left untouched — check disk space and file permissions, then restart.",
+  "onboardingStepIndicator": "Step {current} of {total}",
+  "@onboardingStepIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "1"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "onboardingSkip": "Skip",
+  "onboardingBack": "Back",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get started",
+  "onboardingWelcomeTitle": "Welcome to Flux",
+  "onboardingWelcomeBody": "Subscriptions, article text, reading state and summaries all stay on your own device. Flux has no account and no backend service; AI, web search and WebDAV are configured by you at your own cost. Before data is first sent to a service, Flux tells you the recipient and the allowed capabilities item by item.",
+  "onboardingOfflineNote": "Offline reading and local search do not depend on AI and keep working without a network.",
+  "onboardingFeedsTitle": "Add subscriptions",
+  "onboardingFeedsBody": "Single-feed add/edit, groups and OPML batch import ship in T013–T016. There is no usable import UI yet, so this step creates nothing and fabricates no sample data; skip it and add feeds later inside the app.",
+  "onboardingFeedsSkipNote": "Skipping changes no future behaviour and writes no subscription.",
+  "onboardingAiTitle": "AI and search (optional)",
+  "onboardingAiBody": "Offline reading, local search and reading statistics work fully without AI or search services. Provider protocols, model management, credentials, connectivity tests and cost warnings ship in T025/T031; until then this step asks for no credential and sends no request.",
+  "onboardingAiSkipNote": "You can start without configuring AI: every local feature is unaffected.",
+  "onboardingAppearanceNote": "Interface language and theme stay editable in Mine → Reading & appearance. Changing the language never rewrites AI output that was already generated.",
+  "settingsTitle": "Mine",
+  "settingsSectionShell": "Reading & appearance",
+  "settingsSectionAppearancePlanned": "Reading & appearance settings not implemented yet",
+  "settingsSectionAbout": "About",
+  "settingsLanguageLabel": "Interface language",
+  "settingsLanguageId": "SET-001",
+  "settingsLanguageHint": "Following the system resolves per device; when nothing matches, English is used. Articles are never auto-translated.",
+  "settingsThemeLabel": "Theme",
+  "settingsThemeId": "SET-002",
+  "settingsThemeHint": "Light, dark or follow the system; following the system resolves independently on each device.",
+  "settingsOptionFollowSystem": "Follow system",
+  "settingsOptionChinese": "简体中文",
+  "settingsOptionEnglish": "English",
+  "settingsOptionLight": "Light",
+  "settingsOptionDark": "Dark",
+  "settingsWriteFailed": "The change was not saved (write failed or the value was rejected). The displayed value is still the stored one.",
+  "settingsPlannedNotice": "The settings below are not implemented. To avoid fake working switches, only their name, ID and classification are listed and they cannot be changed; each UI ships in its own task.",
+  "settingsPlannedBadge": "Coming soon",
+  "settingsClassificationCommon": "Common · syncable",
+  "settingsClassificationDevice": "This device",
+  "settingsClassificationSecret": "Secret · local only",
+  "settingsItemSet003": "Theme background images",
+  "settingsItemSet004": "Background opacity, blur and brightness",
+  "settingsItemSet005": "UI, article and news fonts",
+  "settingsItemSet006": "UI, article and news font sizes",
+  "settingsItemSet007": "Paper background, reading font and scale",
+  "settingsItemSet008": "List view and desktop column width",
+  "settingsItemSet009": "List sorting, filter and return position",
+  "settingsItemSet010": "Mark read after the article body is shown",
+  "settingsItemSet011": "Translation target and generation language",
+  "settingsItemSet012": "Load remote images automatically",
+  "settingsItemSet013": "Allow media download on metered networks",
+  "settingsItemSet014": "Reduce motion",
+  "settingsItemSet015": "Reading statistics and idle pause",
+  "settingsItemSet016": "Focus reading layout",
+  "settingsItemPlannedTask": "Planned task {task}",
+  "@settingsItemPlannedTask": {
+    "placeholders": {
+      "task": {
+        "type": "String",
+        "example": "T019"
+      }
+    }
+  },
+  "aboutVersionLabel": "Version",
+  "aboutVersionValue": "{version} (M0 skeleton version placeholder; the release version is fixed in T054)",
+  "@aboutVersionValue": {
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.2.0+1"
+      }
+    }
+  },
+  "aboutLicenseLabel": "License",
+  "aboutLicenseValue": "MIT License",
+  "aboutLicenseNote": "The repository LICENSE is MIT; the full third-party and original-asset notices land in T054.",
+  "aboutRepositoryLabel": "GitHub repository",
+  "aboutRepositoryValue": "https://github.com/GuZhengSVT/Flux",
+  "aboutIssueLabel": "Issue tracker",
+  "aboutIssueValue": "https://github.com/GuZhengSVT/Flux/issues",
+  "aboutDeveloperLabel": "Developer",
+  "aboutDeveloperValue": "GuZhengSVT",
+  "aboutNotConfigured": "Not configured",
+  "aboutReadOnlyNote": "About shows read-only release metadata (SET-084).",
+  "aboutUnverifiedNote": "The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub's public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053."
+}

@@ -1,0 +1,17 @@
+# Flutter 官方 gen_l10n 配置（T011，架构第 2.1 节「类型化设置 + zh-CN/en 资源」）。
+#
+# 为什么用官方方案而不是第三方 i18n 包：
+#   - 生成物是强类型 Dart 类（AppLocalizations.of(context).xxx），拼错 key 在
+#     编译期暴露，而不是运行时回退成空串；
+#   - flutter_localizations 自带 Material/Cupertino 中文文案，对话框、日期选择器
+#     等框架控件不需要我们自己翻；
+#   - 与 pubspec 的 generate: true 配合，ARB 与生成物不会不同步。
+#
+# template-arb-file 固定为中文：本项目的产品文案以中文为原文，英文为译文。
+# 未翻译的英文 key 会让 gen_l10n 失败，因此英文 ARB 必须与中文同步维护。
+arb-dir: lib/l10n
+template-arb-file: app_zh.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n/generated
+nullable-getter: false

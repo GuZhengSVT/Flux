@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的两项：T009（SQLite/Drift 实体、索引、事务及迁移）与 T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）。本地数据层可建库/幂等导入/拒绝较新 schema；设置项有类型与 C/D/S 分类；凭据走 Keychain 且无明文回退；诊断日志导出无秘密。T011 起的界面与业务功能尚未验收 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的三项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）与 T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）。现状：可启动真实应用并进入壳层，三个顶层去向均为明确占位且标注计划任务；SET-001 语言与 SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；真实 macOS 窗口（1200×832 内容区）已截图入证据。T012 起的界面与业务功能尚未验收 |
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T010 已完成并有本机证据；下一任务 T011（应用壳、导航、首次引导、主题与语言），前置 T010 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：M1 进行中，T001–T011 已完成并有本机证据；下一任务 T012（SVG 图标/设计 token 与通用控件），前置 T011 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -55,7 +55,7 @@
 | 功能组 | 要求/对应设置 | 关联任务 | 当前状态 |
 | --- | --- | --- | --- |
 | 工程/架构/许可证/CI | D-01–05、D-14 | T001–T010 | TODO |
-| 导航、外观、中英和原创图标 | SET-001–009、014、016 | T011、T012、T019、T051 | TODO |
+| 导航、外观、中英和原创图标 | SET-001–009、014、016 | T011、T012、T019、T051 | DOING（T011 已交付三个顶层去向与占位页、SET-001/002 真实生效、浅深主题 token、中英资源与即时切换；SET-003–009/014/016 与原创 SVG 图标仍待 T012/T019/T051） |
 | RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | TODO |
 | 文章三态/收藏/批量操作 | F-STATE；SET-010、081 | T017、T018、T045 | TODO |
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | TODO |
@@ -111,7 +111,7 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | --- | --- | --- | --- | --- |
 | T009 | T007、T008 | SQLite/Drift 实体、索引、事务及迁移 | 架构第 5 节实体落地；迁移成功/失败和拒绝较新 schema 测试，失败不重建数据库 | DONE |
 | T010 | T009 | 安全存储、设置注册表和脱敏诊断 | SET 类型、范围/默认值、C/D/S 分类校验；Keychain/Keystore 实测，日志/导出无秘密，缺能力不明文回退 | DONE（macOS Keychain 实测通过；Android Keystore 随 Android 阶段，未实测） |
-| T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | TODO |
+| T011 | T010 | 应用壳、导航、首次引导、主题与语言 | 三个顶层去向、空态、设备布局与返回位置；未配置 AI 可跳过；中英/浅深切换不改原文，SET-001–016 基础入口 | DONE |
 | T012 | T011 | SVG 图标/设计 token 与通用控件 | 原创资源/许可证、三态控件单一占位、收藏独立；控件八类状态/焦点/触控目标，两平台样稿与截图 | TODO |
 | T013 | T009 | RSS/Atom 网络、解析、去重与内容清洗 | 同/异源 GUID、URL 参数、正文修订、无日期、304、异常 XML、外部实体、大响应、取消均有 fixture | TODO |
 | T014 | T010、T013 | 单源导入、编辑、分组/排序/置顶/加精 | SET-020–028 相应行为、未分类保护、加精不改变新闻选材；失败项可修正，不破坏已有源 | TODO |
@@ -512,8 +512,177 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       设置注册表的默认值/范围/C·D·S 分类严格取自架构第 6 节，未自行改口径。
     提交/差异范围：提交 "T010: secure storage, typed settings registry, sanitized diagnostics"；
       基线为 08a7baf（T009）。未 push。
-    下一可执行任务及前置条件：T011（应用壳、导航、首次引导、主题与语言），前置 T010 已 DONE；
+   下一可执行任务及前置条件：T011（应用壳、导航、首次引导、主题与语言），前置 T010 已 DONE；
       需保持“不提前实现 T012 及以后”的范围边界，并复用本轮注册表与凭据接口。
+
+### 7.1.4 轮次记录 R011（T011）
+
+    轮次/日期：R011 / 2026-09-21
+    任务 ID 与状态变化：T011 TODO → DONE（M1 第三项，界面首个任务）
+    相关决策/功能/SET 项：架构第 3 节（页面与功能树：首次启动 / 今日新闻 / RSS 阅读 / 我的-设置）、
+      第 7 节全部 UI 标准（token 表、间距 4/8/12/16/24/32/48、圆角 8/12/16、正文 18/行高 1.7/段间距 0.8em、
+      断点 600/1100、窗口 720×560、正文最大宽 720、卡片规范、每页八类状态、动效 120–200ms、
+      「所有 UI 文案来自国际化资源」「界面语言变化不重写历史 AI 输出」）、第 2.1 节（类型化设置 + zh-CN/en 资源）、
+      第 2.2 节（app 层负责启动/导航/主题/国际化/依赖组装；组合入口注入具体实现）、第 8 节（无明文回退、日志/截图无凭据）；
+      直接落地 SET-001（界面语言三选一）与 SET-002（主题三选一）；SET-003–016 以禁用态入口呈现（不做假开关）；
+      SET-084 只读元数据与 SET-082 的诊断日志装配；本轮不触碰 SET-020 及以后的业务设置
+    修改文件与主要行为：
+      - 新增 lib/core/design/design_tokens.dart：FluxPalette（浅/深两套，逐项对应架构第 7 节 token 表：
+        浅 #F6F7F9/#FFFFFF/#20242B/#596273/#D9DEE7/#315E52/#E8F0EC/#B42318/#8A5700/#F4EEDC，
+        深 #15181C/#1C2127/#E7EBF0/#A7B0BE/#39424F/#8EC9B1/#233A32/#FF9F94/#E8BE6F/#20221F）、
+        FluxSpacing/FluxRadius/FluxBreakpoints/FluxTypography/FluxMotion 常量；
+      - 新增 lib/core/app_metadata.dart：版本/许可/仓库/Issue/开发者/核实日期常量（SET-084 当前取值）；
+      - 新增 lib/app/theme/flux_theme.dart：由 token 生成浅/深 ThemeData（显式构造 ColorScheme 而非 fromSeed，
+        使色值可被断言；token 以 FluxColors ThemeExtension 暴露；resolveMode 解析 system/light/dark）；
+      - 新增 lib/app/app_bootstrap.dart + app_providers.dart：组合根，完成 T010 遗留第 3 条——装配数据目录、
+        AppDatabase、SettingsRepository、DeviceStateRepository、CredentialStore（Keychain 或会话内存）与
+        DiagnosticLog，并以 bootstrapOverrides 一次性注入；数据库不可用时进入显式降级（读默认值、写入必失败）；
+      - app.dart 与 main.dart 改造：MaterialApp（theme/darkTheme/themeMode/locale/supportedLocales/
+        localizationsDelegates/localeResolutionCallback）与「首启向导 or 应用壳」分支；退出时关闭数据库；
+      - 新增 lib/app/shell/：app_destination.dart（三个顶层去向枚举）、app_shell.dart（NavigationRail/NavigationBar
+        按 600 断点自适应）、placeholder_page.dart（1/2/3 栏占位结构 + 明确空态与计划任务标注）、shell_layout.dart
+        （分栏判定纯函数：>=1100 且正文余量 >=560 才三栏，否则退回双栏）；
+      - 新增 lib/l10n/app_zh.arb + app_en.arb（各 90 条）与仓库根 l10n.yaml（gen_l10n 官方方案，默认 zh-CN）；
+        l10n.dart 提供 AppLanguageSetting.resolveLocale、supportedLocales 与 fallbackLocale=en；
+      - 新增 lib/features/settings/application/{settings_store,settings_controller}.dart（端口 + AsyncNotifier，
+        写入失败可见且不乐观改内存值）与 presentation/settings_page.dart（SET-001/002 真实生效；SET-003–016 禁用态占位；
+        关于区显示版本/MIT/仓库与 Issue，地址为空时显示「未配置」）；
+      - 新增 lib/features/onboarding/{application/onboarding_state,presentation/onboarding_page}.dart：
+        三步向导（欢迎/离线说明 → 添加订阅占位 T013–T016 → 可选 AI/搜索占位 T025/T031，明确未配置可跳过），
+        任一步可跳过；完成标记写入本机状态 device.onboardingCompleted；
+      - 新增 lib/infrastructure/local/device_state_repository.dart：复用 settings 窄表但以 device. 前缀命名空间
+        存放本机状态（不扩张 SET 编号清单，也不进入同步/备份投影）；
+      - macos/Runner/MainFlutterWindow.swift：默认内容尺寸 1200×800、contentMinSize 720×560、isRestorable=false；
+      - pubspec.yaml：加 flutter_localizations（SDK）与 intl，并启用 generate: true（官方 i18n 必需依赖）；
+      - 新增测试：test/app/{test_harness,design_tokens_test,shell_layout_test,app_shell_test,onboarding_test,
+        settings_page_test,l10n_test,app_bootstrap_test,app_metadata_test}.dart 与 test/app/golden/shell_golden_test.dart
+        （5 张 golden 入库）；删除 T007 遗留的 test/widget_test.dart（其断言「首屏含 T007 占位」已被真实壳取代）；
+      - 更新 test/core/architecture_layering_test.dart：新增「features 不得 import lib/app」守卫（见下「本轮发现」）。
+    数据迁移/删除/依赖变化：**无 schema 迁移**（沿用 T009/T010 的 v2；本机状态复用 settings 窄表，未新增表）；
+      删除仅一处：test/widget_test.dart（T007 骨架冒烟测试，断言内容已被本轮真实壳取代，属替换而非减少覆盖）；
+      新增依赖仅 flutter_localizations（SDK 自带）与 intl（官方 l10n 生成物依赖，本任务白名单允许 flutter_localizations，
+      intl 是其传递依赖，这里显式声明以满足直接使用要求）；未修改 lib/core 既有文件的公开 API（仅新增 design/ 与导出）。
+    主题与 token 实现要点：
+      - 两套 ThemeData 逐项由 token 表生成，未使用 ColorScheme.fromSeed：seed 生成会做色调映射，
+        得到「接近但不等于」文档色值，无法通过色值与对比度断言；
+      - 对比度实际校验：测试内实现 WCAG 相对亮度，断言两套配色的 textPrimary/background、
+        textPrimary/surface、textSecondary/background 三组均 >= 4.5:1（架构第 7 节普通文字要求）；
+      - SET-002 的 system 语义：resolveMode 对 system **返回 ThemeMode.system** 而非预判亮度，
+        由 Flutter 依据 platformBrightness 解析，保证「各设备独立解析」；
+      - 动效：FluxMotion 为 120/160/200ms 阶梯；FluxMotionDurations.standard 在 MediaQuery.disableAnimations
+        为真时返回 Duration.zero（先落地 SET-014 的「跟随系统」部分）；
+      - 中英文文案全部来自 ARB（含导航标签、向导、空态、设置、关于），无硬编码界面字符串。
+    国际化条目数与语言切换：
+      - ARB 条目 90 条（zh/en 各 90，占位符集合逐条一致，由测试断言）；覆盖应用名、三去向标签、
+        首启三步文案、主题/语言设置文案、四类空态（无订阅/全部已读/无结果/今日无新闻）、
+        SET-001–016 基础设置文案、关于区、M0 占位提示与布局标注；
+      - SET-001 解析：system → locale=null（交给系统）、zh-Hans → Locale('zh')、en → Locale('en')，
+        未知取值按 system 处理；无匹配语言回退英文；
+      - 「切换不改历史 AI 输出」本轮的范围：语言切换只影响 Localizations，不触碰任何存储写入路径；
+        文章/总结原文保留属 T035，本轮不提前实现。
+    导航与断点行为（实测）：
+      - 三个顶层去向：今日新闻 / RSS 阅读 / 我的；前两者为带空态的占位页（标注 T036–T040 与 T013–T024），
+        「我的」进入真实设置页（T011 已生效部分）；
+      - 导航形态按内容区宽度（LayoutBuilder）判定：>=600 用侧边 NavigationRail，<600 退化为底部 NavigationBar；
+        断点取内容区而非整屏，避免有侧栏时把 600 判早（组件测试覆盖 599/600 两个边界值）；
+      - 内容区分栏：<600 单栏、600–1099 双栏（来源栏）、>=1100 三栏（来源 220 + 列表 300 + 正文余量 >=560），
+        余量不足自动退回双栏（判定抽成 shell_layout.dart 纯函数并有边界测试）；
+      - 真实 macOS 窗口：默认内容区 1200×800（截图实测窗口 1200×832 含标题栏），contentMinSize=720×560；
+        **已知限制**：内容区最小 720 意味着桌面窗口不允许 <600，单栏在 macOS 上无法靠缩放窗口到达，
+        该分支由组件测试与 golden 覆盖；
+      - SET-009「返回位置按页面保留」本轮只保证选中去向由容器持有（不随页面重建丢失），
+        真正的滚动/筛选位置恢复属 T019。
+    首启流程说明：
+      - 三步向导，任一步均可「跳过」，第 3 步明确「没有配置 AI 也可以直接开始使用」；
+      - 第 2/3 步**不提供任何可提交控件**（无「添加订阅」按钮、无凭据输入），避免做出假完成态：
+        一个能点但什么都不做的导入按钮会被当成订阅已生效，也会掩盖 T013–T016 尚未开始；
+      - 完成标记写 device.onboardingCompleted（本机状态，不进同步/备份投影）；读不到或读失败按「未完成」处理
+        （宁可多看一次说明，也不在状态未知时直接落到空主页）；二次启动直接进主页；
+      - 第 1 步内置语言/主题快捷设置，复用同一设置控制器，不产生第二个状态源。
+    设置页边界（本题重点）：SET-001/002 真实读写存储（切语言写库并即时改界面、切主题写库并即时改明暗，
+      均由测试断言落库值）；SET-003–016 共 14 项以禁用态卡片呈现，只显示名称 + 编号 + 分类 + 计划任务；
+      全页控件计数被测试钉住：恰好 2 个 SegmentedButton、无 Switch/Slider/Checkbox/Radio、无伪装动作按钮；
+      写入失败时显示「改动没有保存」且不乐观更新选中态（降级启动路径已测）。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；构建类型 debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      `dart run build_runner build --delete-conflicting-outputs` | 0 | PASS | 32 outputs（drift 生成物无冲突）
+      `dart format --output=none --set-exit-if-changed lib test integration_test` | 0 | PASS | 87 files（0 changed）
+      `flutter analyze` | 0 | PASS | No issues found（0 issue）
+      `flutter test` | 0 | PASS | 337 tests all passed（较 T010 的 257 增加 80 个用例，含 5 张 golden）
+      `flutter test integration_test/t011_evidence_test.dart -d macos` | 0 | PASS | 7 tests all passed（真实 macOS
+        设备；该用例同时承担截图协调职责，见下）
+      `flutter build macos --debug` | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      `flutter build apk --debug --target-platform android-arm64` | NOT_RUN | android/ 按 D-02 仍未初始化，
+        不伪造绿色
+      capture_t011.sh（证据采集脚本） | 0 | PASS | shots=6，integration test exit=0（真实窗口截图，窗口 id 12325，
+        实测尺寸 1200×832）
+    测试覆盖要点（T011 验收）：
+      - token/主题：浅深两套 10 个色值逐项与文档比对；间距/圆角/断点/栏宽/正文/动效常量逐项断言；
+        ThemeData 的 brightness、ColorScheme 主色与 onPrimary（浅色白字、深色深字）、正文 18/1.7、
+        卡片圆角 12 与按钮圆角 8；两套配色三组对比度 >= 4.5:1；resolveMode 对 system/light/dark/未知值的行为。
+      - 壳与断点：三个去向与本地化标签；599/600 边界分别用底栏/侧栏；<600 单栏只有一个内容面板、
+        双栏有来源栏、>=1100 有三栏；「内容区跨过 1100 才变三栏」（窗口 1180 双栏 / 1200 三栏，
+        钉住断点判的是内容区而非整屏）；占位页明确标注占位与计划任务；数据库不可用时显示降级说明、正常启动不显示。
+      - 分栏纯函数边界：599/600/1099/1100 逐点，以及「宽度达标但正文余量不足时退回双栏」与
+        「恰好 560 视为满足」；双栏来源栏在极窄时按三分之一压缩。
+      - 首启：三步内容与进度、可回上一步、跳过始终可用、第 2/3 步无假控件；跳过与「开始使用」都写入
+        本机状态（真实仓储 + 内存库验证落库）；二次启动直接进主页；未完成时启动进入向导。
+      - 设置：切语言写库并立即切换界面文案（切英文后再切回中文，两次都断言落库值）；切主题写库且
+        themeMode 与实际亮度变为 dark；system 模式由 platformBrightness 决定实际明暗；未设置时 locale 为 null
+        且按系统无匹配回退英文；禁用态项数量与「无任何开关控件」；写入失败显示提示且选中态不乐观更新；
+        关于区显示版本/MIT/仓库/Issue。
+      - i18n：中英 key 集合一致、同 key 占位符一致、条目数 90、SET-003–016 文案齐备、占位/空态/关于/首启
+        文案齐备、SET-001 三种取值解析与未知值回退。
+      - 组合根：真实临时目录上建库并落盘、设置可写可读回、未写过的项读默认值、引导标记默认未完成；
+        诊断日志已接文件 sink 且默认级别 error；凭据用注入实现且数据目录内不留任何凭据文件；
+        数据目录不可用时进入降级、写入必失败；overrides 覆盖全部「未接线即抛错」的 Provider；
+        降级时不注入 databaseProvider 且读取报装配错误。
+      - golden：浅色中文宽窗三栏、深色英文宽窗三栏、浅色中文窄窗单栏（底栏导航）、深色英文设置页、
+        浅色中文首启第一步，共 5 张入库（更新需人工确认符合架构第 7 节）。
+    本轮发现并修复的实现风险（重要）：
+      1) **目录级循环依赖**：设置页最初 import package:flux/app/theme 取主题扩展，而 lib/app 又负责渲染设置页，
+         形成 features 与 app 的目录循环。已改为：app 层把 token 映射到标准 ColorScheme（含把 warning 映射到
+         tertiary），features 只读 ColorScheme；并在 architecture_layering_test.dart 增加守卫测试，
+         防止后续任务为「顺手拿个颜色」再次引入循环。
+      2) **设置控制器不响应端口替换**：build() 最初用 ref.read 取端口，替换 override 后控制器不重建，
+         表现是「把 SET-001 写成 en 后界面仍是中文」。已改为 build() 用 ref.watch、写入动作仍用 ref.read；
+         该缺陷正是被本题的证据采集流程实际触发出来的。
+      3) **macOS 窗口尺寸被系统恢复覆盖**：代码 setContentSize(1200×800) 后窗口确实先变成 1200×800，
+         但约 1.5 秒后被窗口状态恢复机制改回 nib 的 800×600（用写文件诊断逐帧确认过）。
+         已设 isRestorable=false 修复，并实测窗口稳定为 1200×832（含标题栏）。
+    本机无法完成、如实记录的限制：
+      - 本机 macOS 辅助功能权限被禁用（osascript 报 -1719，屏幕出现 universalAccessAuthWarn），
+        因此无法用脚本点击或缩放真实窗口。截图改为：由 Flutter integration_test 在应用内部切换页面，
+        外部脚本按窗口 id 做 screencapture -l（只抓该窗口、不受遮挡影响）；
+      - 由上述两条（最小窗 720 与无法脚本缩放）叠加，真实 macOS 窗口无法产生 <600 的内容宽度。
+        窄窗单栏因此没有「真实窗口截图」，改由组件测试（<600 单栏断言）与 golden
+        （test/app/golden/shell_light_zh_narrow.png）提供可见证据，并在证据目录 done.txt 写明原因；
+      - 采集过程中曾产生一张「视口 560」的窄窗截图，事后比对发现它与上一张深色设置页**字节完全相同**
+        （tester.view.physicalSize 只改逻辑视口、不改真实窗口，抓到的是旧画面）。该错误证据已删除，
+        对应用例改为纯断言不产出截图；保留此记录以便复核者理解窄窗为何没有截图。
+    UI/真实端点/双设备测试：有真实 UI 截图 6 张（见下方证据清单）；**未接任何真实端点**（本轮无网络功能，
+      RSS/AI/搜索均属后续任务）；无同步与双设备测试（属 T041+）。
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用产生；未读取或写入任何真实凭据（测试中的凭据路径只用
+      内存实现，或在临时目录中验证「不留凭据文件」）；截图仅含壳层占位文案与设置项名称，不含用户文章或凭据。
+    遗留问题与未运行项：
+      1) Android 工程仍未初始化，flutter build apk 未运行（随 Android 阶段补）；
+      2) SET-003–016 共 14 项本轮只做禁用态入口，真正实现在 T012（外观/字体/字号）、T017（自动标已读）、
+         T019（列表视图/返回位置/专注阅读）、T021（远程图片）、T023（统计）等任务；本轮不改变这些任务的
+         验收条件，也不把它们记为已完成；
+      3) SET-014「减少动态效果」本轮只实现「跟随系统」部分（MediaQuery.disableAnimations），
+         用户可强制开启的开关属 T012/T051；
+      4) 版本号取自 lib/core/app_metadata.dart 常量并由测试与 pubspec.yaml 比对（本轮不引入 package_info_plus）；
+         仓库/Issue 地址于 2026-09-21 经 GitHub 公开接口核实存在、未归档、has_issues=true 后才展示，
+         地址留空时界面显示「未配置」；检查更新与 Release 页属 T053；
+      5) 主题切换目前只切换 token 生成的主题，背景图/不透明度/自定义字体（SET-003–007）未实现，
+         相关内容在设置页明确标注为「即将推出」；
+      6) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要、功能账本与本轮记录。
+      主题色值、间距/圆角/断点/正文字号/动效时长严格取自架构第 7 节，未自行改口径。
+    提交/差异范围：提交 "T011: app shell, navigation, onboarding, theme and i18n"；
+      基线为 6ff4556（T010）。未 push。
+    下一可执行任务及前置条件：T012（SVG 图标/设计 token 与通用控件），前置 T011 已 DONE；
+      需保持“不提前实现 T013 及以后”的范围边界，并复用本轮 design token、主题扩展与 i18n 资源。
 
 ### 7.2 工具链与环境记录（T008 填写）
 

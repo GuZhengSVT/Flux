@@ -1,0 +1,393 @@
+{
+  "@@locale": "zh",
+  "@@last_modified": "2026-09-21",
+
+  "appName": "Flux",
+  "@appName": {
+    "description": "应用名（导航与窗口标题）"
+  },
+  "appTagline": "本地优先的新闻与 RSS 阅读器",
+  "@appTagline": {
+    "description": "应用定位一句话说明"
+  },
+  "milestoneShellNotice": "当前构建是 M0 应用壳：只包含导航、主题、语言与首次引导，没有业务功能。",
+  "@milestoneShellNotice": {
+    "description": "壳层顶部说明，避免被误解为已交付功能"
+  },
+  "placeholderBadge": "占位",
+  "@placeholderBadge": {
+    "description": "占位页标记"
+  },
+  "placeholderPageBody": "本页目前只有应用壳占位，没有接入数据与交互。计划任务：{tasks}。",
+  "@placeholderPageBody": {
+    "description": "占位页正文；tasks 为任务编号列表",
+    "placeholders": {
+      "tasks": {
+        "type": "String",
+        "example": "T036–T040"
+      }
+    }
+  },
+  "layoutPaneSource": "订阅源栏",
+  "@layoutPaneSource": {
+    "description": "响应式布局占位：来源栏"
+  },
+  "layoutPaneList": "文章列表",
+  "@layoutPaneList": {
+    "description": "响应式布局占位：列表栏"
+  },
+  "layoutPaneBody": "正文区",
+  "@layoutPaneBody": {
+    "description": "响应式布局占位：正文栏"
+  },
+  "layoutBreakpointSingle": "单栏布局（窗口宽度 <600）",
+  "@layoutBreakpointSingle": {
+    "description": "当前布局模式标注：单栏"
+  },
+  "layoutBreakpointDouble": "双栏布局（600–1099）",
+  "@layoutBreakpointDouble": {
+    "description": "当前布局模式标注：双栏"
+  },
+  "layoutBreakpointTriple": "三栏布局（≥1100）",
+  "@layoutBreakpointTriple": {
+    "description": "当前布局模式标注：三栏"
+  },
+  "layoutShellNote": "本期只做壳：以下区域都是占位面板，没有数据、没有交互，也不代表已实现这些区域的功能。",
+  "@layoutShellNote": {
+    "description": "响应式布局说明"
+  },
+  "navToday": "今日新闻",
+  "@navToday": {
+    "description": "顶层导航去向：今日新闻"
+  },
+  "navReading": "RSS 阅读",
+  "@navReading": {
+    "description": "顶层导航去向：RSS 阅读"
+  },
+  "navMine": "我的",
+  "@navMine": {
+    "description": "顶层导航去向：我的/设置"
+  },
+  "emptyNoFeedsTitle": "还没有订阅",
+  "@emptyNoFeedsTitle": {
+    "description": "空态：无订阅"
+  },
+  "emptyNoFeedsBody": "添加订阅或导入 OPML 之后，文章会出现在这里。订阅相关的界面与用例由 T013–T016 交付。",
+  "@emptyNoFeedsBody": {
+    "description": "空态：无订阅说明"
+  },
+  "emptyAllReadTitle": "所有文章已读",
+  "@emptyAllReadTitle": {
+    "description": "空态：全部已读"
+  },
+  "emptyAllReadBody": "当前筛选条件下没有未读文章。可以切到稍后再读或收藏查看已处理的内容。",
+  "@emptyAllReadBody": {
+    "description": "空态：全部已读说明"
+  },
+  "emptyNoResultsTitle": "没有匹配结果",
+  "@emptyNoResultsTitle": {
+    "description": "空态：搜索/筛选无结果"
+  },
+  "emptyNoResultsBody": "换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。",
+  "@emptyNoResultsBody": {
+    "description": "空态：无结果说明"
+  },
+  "todayEmptyTitle": "今天还没有新闻",
+  "@todayEmptyTitle": {
+    "description": "今日页空态"
+  },
+  "todayEmptyBody": "每日新闻需要先配置 AI 与搜索服务并完成首次数据发送告知。来源、prompt、生成与核验由 T036–T040 交付；未配置时本页保持空白，不会编造内容。",
+  "@todayEmptyBody": {
+    "description": "今日页空态说明"
+  },
+  "shellDatabaseFailedTitle": "本地数据库打不开",
+  "@shellDatabaseFailedTitle": {
+    "description": "启动失败态标题"
+  },
+  "shellDatabaseFailedBody": "本次运行只能显示壳层：语言与主题改动不会被保存。原始数据库文件保持不动，请检查磁盘空间与文件权限后重启。",
+  "@shellDatabaseFailedBody": {
+    "description": "启动失败态说明（不掩盖失败，也不重建数据库）"
+  },
+  "onboardingStepIndicator": "第 {current} 步 / 共 {total} 步",
+  "@onboardingStepIndicator": {
+    "description": "向导进度",
+    "placeholders": {
+      "current": {
+        "type": "int",
+        "example": "1"
+      },
+      "total": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "onboardingSkip": "跳过",
+  "@onboardingSkip": {
+    "description": "向导跳过按钮"
+  },
+  "onboardingBack": "上一步",
+  "@onboardingBack": {
+    "description": "向导返回按钮"
+  },
+  "onboardingNext": "下一步",
+  "@onboardingNext": {
+    "description": "向导前进按钮"
+  },
+  "onboardingStart": "开始使用",
+  "@onboardingStart": {
+    "description": "向导完成按钮"
+  },
+  "onboardingWelcomeTitle": "欢迎使用 Flux",
+  "@onboardingWelcomeTitle": {
+    "description": "向导第 1 步标题"
+  },
+  "onboardingWelcomeBody": "订阅、正文、阅读状态和总结都保存在你自己的设备上。Flux 没有账号，也没有业务后端；AI、联网搜索和 WebDAV 由你自行配置并自行承担费用。首次向某个服务发送数据前，都会逐项告知接收者与允许的能力。",
+  "@onboardingWelcomeBody": {
+    "description": "向导第 1 步：离线与数据边界说明"
+  },
+  "onboardingOfflineNote": "离线阅读与本地搜索不依赖 AI，可以长期离线使用。",
+  "@onboardingOfflineNote": {
+    "description": "向导第 1 步补充说明"
+  },
+  "onboardingFeedsTitle": "添加订阅",
+  "@onboardingFeedsTitle": {
+    "description": "向导第 2 步标题"
+  },
+  "onboardingFeedsBody": "单条添加、编辑、分组与 OPML 批量导入由 T013–T016 交付。现在还没有可用的导入界面，因此本步骤不创建任何订阅，也不会伪造示例数据；你可以直接跳过，进入应用后再添加。",
+  "@onboardingFeedsBody": {
+    "description": "向导第 2 步：订阅导入占位说明"
+  },
+  "onboardingFeedsSkipNote": "跳过不会影响后续功能，也不会写入任何订阅。",
+  "@onboardingFeedsSkipNote": {
+    "description": "向导第 2 步补充说明"
+  },
+  "onboardingAiTitle": "AI 与搜索（可选）",
+  "@onboardingAiTitle": {
+    "description": "向导第 3 步标题"
+  },
+  "onboardingAiBody": "未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。提供商协议、模型管理、凭据、连通性测试与费用提醒由 T025/T031 交付；在此之前本步骤不请求任何凭据，也不发起任何请求。",
+  "@onboardingAiBody": {
+    "description": "向导第 3 步：可跳过的 AI 配置说明"
+  },
+  "onboardingAiSkipNote": "没有配置 AI 也可以直接开始使用：所有本地功能都不受影响。",
+  "@onboardingAiSkipNote": {
+    "description": "向导第 3 步补充说明"
+  },
+  "onboardingAppearanceNote": "界面语言与主题可以随时在「我的 → 阅读与外观」修改；切换语言不会改写已经生成的 AI 输出。",
+  "@onboardingAppearanceNote": {
+    "description": "向导中指向设置入口的提示"
+  },
+  "settingsTitle": "我的",
+  "@settingsTitle": {
+    "description": "我的/设置页标题"
+  },
+  "settingsSectionShell": "阅读与外观",
+  "@settingsSectionShell": {
+    "description": "设置分段：T011 已接线的外观项"
+  },
+  "settingsSectionAppearancePlanned": "尚未实现的阅读与外观设置",
+  "@settingsSectionAppearancePlanned": {
+    "description": "设置分段：T012 起的占位项"
+  },
+  "settingsSectionAbout": "关于",
+  "@settingsSectionAbout": {
+    "description": "设置分段：关于"
+  },
+  "settingsLanguageLabel": "界面语言",
+  "@settingsLanguageLabel": {
+    "description": "SET-001 标题"
+  },
+  "settingsLanguageId": "SET-001",
+  "@settingsLanguageId": {
+    "description": "SET-001 编号（界面显示编号便于对照文档）"
+  },
+  "settingsLanguageHint": "跟随系统时按各设备的系统语言解析，无匹配时回退英文。文章不会自动翻译。",
+  "@settingsLanguageHint": {
+    "description": "SET-001 说明"
+  },
+  "settingsThemeLabel": "主题",
+  "@settingsThemeLabel": {
+    "description": "SET-002 标题"
+  },
+  "settingsThemeId": "SET-002",
+  "@settingsThemeId": {
+    "description": "SET-002 编号"
+  },
+  "settingsThemeHint": "浅色、深色与跟随系统；跟随系统时各设备独立解析。",
+  "@settingsThemeHint": {
+    "description": "SET-002 说明"
+  },
+  "settingsOptionFollowSystem": "跟随系统",
+  "@settingsOptionFollowSystem": {
+    "description": "语言/主题选项：跟随系统"
+  },
+  "settingsOptionChinese": "简体中文",
+  "@settingsOptionChinese": {
+    "description": "语言选项：简体中文"
+  },
+  "settingsOptionEnglish": "English",
+  "@settingsOptionEnglish": {
+    "description": "语言选项：English"
+  },
+  "settingsOptionLight": "浅色",
+  "@settingsOptionLight": {
+    "description": "主题选项：浅色"
+  },
+  "settingsOptionDark": "深色",
+  "@settingsOptionDark": {
+    "description": "主题选项：深色"
+  },
+  "settingsWriteFailed": "改动没有保存（写入失败或值被拒绝）。当前显示的仍是已保存的值。",
+  "@settingsWriteFailed": {
+    "description": "设置写入失败的可见提示，不静默失败"
+  },
+  "settingsPlannedNotice": "以下设置项尚未实现。为避免做成假的可用开关，这里只列出名称、编号与分类，不能修改；对应界面在各自任务中交付。",
+  "@settingsPlannedNotice": {
+    "description": "占位设置项说明"
+  },
+  "settingsPlannedBadge": "即将推出",
+  "@settingsPlannedBadge": {
+    "description": "占位设置项标记"
+  },
+  "settingsClassificationCommon": "共通·可同步",
+  "@settingsClassificationCommon": {
+    "description": "C 类设置"
+  },
+  "settingsClassificationDevice": "设备专属",
+  "@settingsClassificationDevice": {
+    "description": "D 类设置"
+  },
+  "settingsClassificationSecret": "秘密·仅本机",
+  "@settingsClassificationSecret": {
+    "description": "S 类设置"
+  },
+  "settingsItemSet003": "主题背景图",
+  "@settingsItemSet003": {
+    "description": "SET-003 标题"
+  },
+  "settingsItemSet004": "背景不透明度、模糊与亮度",
+  "@settingsItemSet004": {
+    "description": "SET-004 标题"
+  },
+  "settingsItemSet005": "界面、正文与新闻字体",
+  "@settingsItemSet005": {
+    "description": "SET-005 标题"
+  },
+  "settingsItemSet006": "界面、正文与新闻字号",
+  "@settingsItemSet006": {
+    "description": "SET-006 标题"
+  },
+  "settingsItemSet007": "纸张背景、阅读字体与字号倍率",
+  "@settingsItemSet007": {
+    "description": "SET-007 标题"
+  },
+  "settingsItemSet008": "列表视图与桌面栏宽",
+  "@settingsItemSet008": {
+    "description": "SET-008 标题"
+  },
+  "settingsItemSet009": "列表排序、筛选与返回位置",
+  "@settingsItemSet009": {
+    "description": "SET-009 标题"
+  },
+  "settingsItemSet010": "显示正文后自动标为已读",
+  "@settingsItemSet010": {
+    "description": "SET-010 标题"
+  },
+  "settingsItemSet011": "翻译目标语言与生成语言",
+  "@settingsItemSet011": {
+    "description": "SET-011 标题"
+  },
+  "settingsItemSet012": "自动加载远程图片",
+  "@settingsItemSet012": {
+    "description": "SET-012 标题"
+  },
+  "settingsItemSet013": "允许在计费网络下载媒体",
+  "@settingsItemSet013": {
+    "description": "SET-013 标题"
+  },
+  "settingsItemSet014": "减少动态效果",
+  "@settingsItemSet014": {
+    "description": "SET-014 标题"
+  },
+  "settingsItemSet015": "阅读统计与空闲暂停时间",
+  "@settingsItemSet015": {
+    "description": "SET-015 标题"
+  },
+  "settingsItemSet016": "专注阅读布局",
+  "@settingsItemSet016": {
+    "description": "SET-016 标题"
+  },
+  "settingsItemPlannedTask": "计划任务 {task}",
+  "@settingsItemPlannedTask": {
+    "description": "占位设置项的对应任务",
+    "placeholders": {
+      "task": {
+        "type": "String",
+        "example": "T019"
+      }
+    }
+  },
+  "aboutVersionLabel": "版本",
+  "@aboutVersionLabel": {
+    "description": "关于：版本"
+  },
+  "aboutVersionValue": "{version}（M0 骨架版本号占位，发行版本在 T054 确定）",
+  "@aboutVersionValue": {
+    "description": "关于：版本显示；version 来自 pubspec",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "0.2.0+1"
+      }
+    }
+  },
+  "aboutLicenseLabel": "许可",
+  "@aboutLicenseLabel": {
+    "description": "关于：许可"
+  },
+  "aboutLicenseValue": "MIT License",
+  "@aboutLicenseValue": {
+    "description": "关于：许可名称"
+  },
+  "aboutLicenseNote": "仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明在 T054 落地。",
+  "@aboutLicenseNote": {
+    "description": "关于：许可说明"
+  },
+  "aboutRepositoryLabel": "GitHub 仓库",
+  "@aboutRepositoryLabel": {
+    "description": "关于：仓库链接"
+  },
+  "aboutRepositoryValue": "https://github.com/GuZhengSVT/Flux",
+  "@aboutRepositoryValue": {
+    "description": "关于：仓库地址（2026-09-21 经 api.github.com 核实存在且公开）"
+  },
+  "aboutIssueLabel": "问题反馈",
+  "@aboutIssueLabel": {
+    "description": "关于：Issue 链接"
+  },
+  "aboutIssueValue": "https://github.com/GuZhengSVT/Flux/issues",
+  "@aboutIssueValue": {
+    "description": "关于：Issue 地址（同上核实 has_issues=true）"
+  },
+  "aboutDeveloperLabel": "开发者",
+  "@aboutDeveloperLabel": {
+    "description": "关于：开发者"
+  },
+  "aboutDeveloperValue": "GuZhengSVT",
+  "@aboutDeveloperValue": {
+    "description": "关于：开发者名称"
+  },
+  "aboutNotConfigured": "未配置",
+  "@aboutNotConfigured": {
+    "description": "关于：未配置的链接（不伪造 URL）"
+  },
+  "aboutReadOnlyNote": "关于信息为只读发布元数据（SET-084）。仓库与 Issue 地址尚未在本机配置，因此显示「未配置」，不提供猜测的地址；检查更新由 T053 交付。",
+  "@aboutReadOnlyNote": {
+    "description": "关于：只读说明"
+  },
+  "aboutUnverifiedNote": "仓库与 Issue 地址取自本机内置的发布元数据，并在 2026-09-21 用 GitHub 公开接口核实存在、未归档且已开启 Issue；地址为空时显示「未配置」，不猜测。检查更新与 Release 链接由 T053 交付。",
+  "@aboutUnverifiedNote": {
+    "description": "关于：地址来源与核实说明（不伪造 URL）"
+  }
+}

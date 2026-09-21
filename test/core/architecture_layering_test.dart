@@ -130,6 +130,28 @@ void main() {
       expect(violations, isEmpty, reason: violations.join('\n'));
     });
 
+    test('features 层不 import lib/app（app 渲染 features，反向依赖会成环）', () {
+      // T011 实际抓到过一次：设置页曾 import package:flux/app/theme 取主题扩展，
+      // 而 lib/app 又负责渲染设置页，形成目录级循环。正确做法是由 app 层把 token
+      // 映射到标准 ColorScheme，features 只读 ColorScheme。
+      // 这条测试把该约束固化，避免后续任务为了「顺手拿个颜色」再次引入循环。
+      final List<String> violations = <String>[];
+      for (final String root in _upperLayerDirs) {
+        for (final File file in _dartFiles(root)) {
+          for (final String target in _directiveTargets(file)) {
+            if (target.startsWith('package:flux/app/')) {
+              violations.add('$file.path -> $target');
+            }
+          }
+        }
+      }
+      expect(
+        violations,
+        isEmpty,
+        reason: 'features 不得反向依赖 lib/app：\n${violations.join('\n')}',
+      );
+    });
+
     test('core 层保持纯净：不依赖 features/infrastructure/Flutter 之外的层', () {
       // core 是跨模块基础件，被所有层依赖；它反过来依赖上层会造成循环。
       final List<String> violations = <String>[];

@@ -15,6 +15,14 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # 官方国际化（T011）。flutter_localizations 提供 Material/Cupertino 自带的
+  # 中文/英文文案与 LocalizationsDelegate 基础设施；gen_l10n 生成物依赖 intl
+  # （flutter_localizations 本身也依赖它）。这两项是 Flutter 官方 i18n 的必需依赖，
+  # 不是第三方插件。
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
   # Material 图标字体，模板默认依赖。
   cupertino_icons: ^1.0.9
 
@@ -51,5 +59,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # 生成 AppLocalizations（T011）。generate: true 让 flutter pub get / build /
+  # test 自动跑 gen_l10n，ARB 与生成物不会不同步。配置见仓库根 l10n.yaml。
+  generate: true
 
   # 资源与字体在 T012（原创 SVG/设计 token）落地后补充，此处不预置不存在的路径。
