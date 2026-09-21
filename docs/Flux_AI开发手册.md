@@ -41,12 +41,12 @@
 | DOC-002 编号任务/评估流程 | DONE（仅文档） | 本文件；不代表任务已经执行 |
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
-| 新工程脚手架/依赖/工具链锁定 | TODO | 本轮没有创建或验证 Flutter 工程 |
-| 新版软件功能实现 | TODO | 当前没有已验收的软件功能 |
-| macOS / Android 构建及真机测试 | NOT_RUN | 本轮只改文档 |
+| 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
+| 新版软件功能实现 | DOING | M0 骨架已就绪（分层目录、类型化错误、任务状态机、夹具与 CI 契约）；业务功能自 T009 起实现，尚无已验收的软件功能 |
+| macOS / Android 构建及真机测试 | DOING | T008 本机 `flutter build macos --debug` 退出 0（证据见 §7.2）；Android 工程按 D-02 暂缓，未初始化、未构建；两平台真机测试仍 NOT_RUN |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：准备进入 M0。下一任务：在用户明确开启实现后执行 T001；此前只可继续编辑文档。当前阻塞：无文档阻塞；旧工程写入授权、远端封存事实、工具链版本及真实凭据到各自任务处理，不伪造完成记录。
+当前阶段：M0 收尾，T001–T008 已完成并有本机证据；下一任务 T009（SQLite/Drift 实体、索引、事务及迁移），前置 T007、T008 均已 DONE。当前阻塞：无文档阻塞；Android 工程与两平台真机/正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -96,14 +96,14 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 
 | ID | 前置 | 任务与范围 | 交付与验收条件 | 状态 |
 | --- | --- | --- | --- | --- |
-| T001 | 用户开启实现 | 核对工作目录/Git 远端/分支/未提交与未跟踪内容，列出旧版封存和删除边界 | 只读清单，标出 .git、用户数据、密钥、当前文档和必须保留文件；未开始删文件，未读取秘密值 | TODO |
-| T002 | T001；外部写入及清理授权 | 保存旧版 GitHub 最后版本和本地独有内容 | 验证远端 SHA；创建约定 legacy 标记/归档与独立可恢复备份，保留完整历史。不要归档整个准备继续使用的仓库为只读；回读远端引用、试验恢复、记录证据后才批准精确文件清理；禁止删除 .git 或直接 git clean/reset | TODO |
-| T003 | T001 | 在独立临时原型目录验证“RSS 阅读 + 新闻总结” | 真实解析 fixture RSS、打开正文；假服务和经授权的最小真实模型生成有引用总结，两平台构建。没有真实凭据只记部分通过，不写完整通过 | TODO |
-| T004 | T003 | 验证 Markdown/常用 LaTeX 非 WebView 渲染 | 固化语法 fixture、美元转义、混排、大字/深色/错误回退、代码复制；两平台截图及依赖检查，无 WebView/远程公式服务；跨块选区和分页不作选型门槛 | TODO |
-| T005 | T003、T004 | 冻结 Flutter 技术栈/工具链和资源基线 | 记录 Flutter/Dart/Xcode/JDK/SDK/插件精确版本、最低平台可配置性、包体/内存初始数据；四项通过才固定。无法支持目标 SDK 时记录阻碍，不降低需求 | TODO |
-| T006 | T002、T005；执行授权 | 在当前 Flux 路径清理列明旧文件并创建新工程 | 保留 .git/归档/用户文件；初始化 macos/android，确定包 ID 不意外升级覆盖旧数据；落地 MIT LICENSE、忽略规则，复制三份文档并更新相对链接；不迁移旧业务代码 | TODO |
-| T007 | T006 | 建立最小模块、类型化错误和任务状态 | 依赖方向可检验、UI 无直接 SQL/付费调用；queued/running/waitingConfiguration/waitingNetwork/succeeded/partial/failed/cancelled/interrupted 及 deadline 不重置有测试 | TODO |
-| T008 | T007 | 建立测试夹具与 CI 检查契约 | 格式/分析/单元/组件测试、本机两平台构建基线；CI 禁秘密与付费请求，记录未有可用 runner 的检查，不伪造绿色 | TODO |
+| T001 | 用户开启实现 | 核对工作目录/Git 远端/分支/未提交与未跟踪内容，列出旧版封存和删除边界 | 只读清单，标出 .git、用户数据、密钥、当前文档和必须保留文件；未开始删文件，未读取秘密值 | DONE |
+| T002 | T001；外部写入及清理授权 | 保存旧版 GitHub 最后版本和本地独有内容 | 验证远端 SHA；创建约定 legacy 标记/归档与独立可恢复备份，保留完整历史。不要归档整个准备继续使用的仓库为只读；回读远端引用、试验恢复、记录证据后才批准精确文件清理；禁止删除 .git 或直接 git clean/reset | DONE（封存与备份 DONE；文件清理在 T006 执行） |
+| T003 | T001 | 在独立临时原型目录验证“RSS 阅读 + 新闻总结” | 真实解析 fixture RSS、打开正文；假服务和经授权的最小真实模型生成有引用总结，两平台构建。没有真实凭据只记部分通过，不写完整通过 | DONE |
+| T004 | T003 | 验证 Markdown/常用 LaTeX 非 WebView 渲染 | 固化语法 fixture、美元转义、混排、大字/深色/错误回退、代码复制；两平台截图及依赖检查，无 WebView/远程公式服务；跨块选区和分页不作选型门槛 | DONE（语法 fixture 由 T008 固化到 test/fixtures/markdown_math_sample.md） |
+| T005 | T003、T004 | 冻结 Flutter 技术栈/工具链和资源基线 | 记录 Flutter/Dart/Xcode/JDK/SDK/插件精确版本、最低平台可配置性、包体/内存初始数据；四项通过才固定。无法支持目标 SDK 时记录阻碍，不降低需求 | DONE（版本记录见 §7.2；Android JDK/SDK 尚未核对，随 Android 阶段补） |
+| T006 | T002、T005；执行授权 | 在当前 Flux 路径清理列明旧文件并创建新工程 | 保留 .git/归档/用户文件；初始化 macos/android，确定包 ID 不意外升级覆盖旧数据；落地 MIT LICENSE、忽略规则，复制三份文档并更新相对链接；不迁移旧业务代码 | DONE（macos 已初始化；android 按 D-02 暂缓，未初始化） |
+| T007 | T006 | 建立最小模块、类型化错误和任务状态 | 依赖方向可检验、UI 无直接 SQL/付费调用；queued/running/waitingConfiguration/waitingNetwork/succeeded/partial/failed/cancelled/interrupted 及 deadline 不重置有测试 | DONE |
+| T008 | T007 | 建立测试夹具与 CI 检查契约 | 格式/分析/单元/组件测试、本机两平台构建基线；CI 禁秘密与付费请求，记录未有可用 runner 的检查，不伪造绿色 | DONE（本机 macOS 构建通过；Android 无 runner 且未初始化，记为未运行） |
 
 ### M1：本地阅读闭环
 
@@ -276,16 +276,80 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 
 日期：2026-09-21。任务：DOC-001–DOC-003。产物：三份中文 Markdown 规划文档。已执行：读取审阅清单、合并规则、建立任务与验证模板；文档检查确认 60 个任务编号唯一且依赖无循环、70 组设置编号唯一、相邻文件链接有效，原审阅稿 SHA-256 保持不变。未执行：读取/修改旧项目业务代码、封存/清理/GitHub 写入、生成 Flutter 工程、任何新版本构建或真实 AI API 调用。软件实现状态仍为 TODO。
 
-### 7.2 工具链与环境记录（待 T005/T008 填充）
+### 7.1.1 轮次记录 R006（T007 + T008）
+
+    轮次/日期：R006 / 2026-09-21
+    任务 ID 与状态变化：T007 TODO → DONE；T008 TODO → DONE；T001–T006 状态列同步为 DONE
+    相关决策/功能/SET 项：架构 2.2（模块与依赖方向）、5.1（实体概念）；手册 6.2（命令基线）、6.4（评估结论）；
+      SET-056/057/059/062/063（任务与预算语义：等待配置不联网、总时限、尝试与 Token 上限）
+    修改文件与主要行为：
+      - 新增 lib/core：error/app_error.dart（sealed AppError + 9 个具体子类 + StateTransitionError）、
+        error/secret_redaction.dart（URL/凭据脱敏）、result.dart（Result<T>/Ok/Err/Unit）、
+        clock.dart（Clock/SystemClock/FakeClock）、task/task_status.dart（TaskStatus 九态枚举）、
+        task/task_snapshot.dart（不可变快照 + deadline 判定）、task/task_transition.dart（迁移表与规则）；
+      - 新增分层占位：lib/app、lib/features/{feeds,articles,news,ai,settings,sync,statistics}、
+        lib/infrastructure/{local,network,platform}、lib/l10n，每个目录含 barrel/占位说明与后续任务 TODO；
+      - lib/main.dart 改为薄入口（ProviderScope + FluxApp），lib/app/app.dart 提供 M0 占位壳；
+      - 新增 test/core 五个测试文件与 test/fixtures 夹具及完整性测试；
+      - .github/workflows/ci.yml：Flutter 版本锁定 3.47.0、pub get 加 --enforce-lockfile、
+        格式检查范围收敛为 lib test、补充分析加严说明。
+    数据迁移/删除/依赖变化：无数据迁移、无删除；**未新增第三方依赖**（仅使用已有 riverpod/drift/sqlite3/http/path/path_provider/flutter_lints）；
+      未修改 macos/ 平台目录；未提前实现 T009 及以后的数据库实体或迁移。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 (stable) / Dart 3.13.0；
+      Xcode 27.0 (27A5237l)；构建类型 debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）：
+      dart run build_runner build --delete-conflicting-outputs | 0 | PASS | 生成物仅写入 .dart_tool/build/（已忽略），无源码冲突；
+        工具链提示该参数已被移除并忽略
+      dart format --output=none --set-exit-if-changed lib test | 0 | PASS | 28 files (0 changed)
+      flutter analyze | 0 | PASS | No issues found（0 issue；不含 --fatal-infos，见 ci.yml 注释）
+      flutter test | 0 | PASS | 106 tests all passed（test/core 89；test/fixtures 15；test/widget_test 2）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      flutter build apk --debug --target-platform android-arm64 | NOT_RUN | Android 工程按 D-02 未初始化、无可用 runner，不伪造绿色
+    测试覆盖要点（T007 验收）：
+      - 状态机：全对组合（9×9）枚举合法/非法迁移；deadline 不重置（推后拒绝、相等与提前允许、等待往返不顺延）；
+        五个终态不可迁移（含自身）；cancelled 从四个活跃态均可达；revision 并发冲突优先报出；
+        另有一份与实现分离的期望规则表做交叉验证，防止实现被悄悄放宽。
+      - 错误与脱敏：9 个错误子类构造与语义；含 token/API Key/Bearer 的输入经脱敏后 message 不含秘密；
+        sealed 层级可穷尽 switch；cause 不进入默认字符串输出。
+      - 依赖方向烟测：features 不 import infrastructure、不直接依赖 drift/sqlite3/http/path_provider；
+        core 不反向依赖上层、不依赖 Flutter UI 与 Riverpod；含“扫描器自身有效性”的元测试防止空转。
+      - 夹具完整性：RSS 2.0 / Atom / Atom-XHTML / OPML / Markdown-LaTeX / 假 AI 响应结构校验，仅用保留域名。
+    UI/真实端点/双设备测试：无。本轮为骨架与规则层，未接真实端点、未做真机与双设备测试。
+    费用与秘密：未发起任何真实 AI/搜索调用，无费用产生；未读取或写入任何真实凭据；CI 与夹具中无秘密（已扫描）。
+    遗留问题与未运行项：
+      1) Android 工程未初始化、JDK/SDK/Gradle 版本未核对，`flutter build apk` 未运行（随 Android 阶段补）；
+      2) 两平台真机测试与正式签名未执行（属 T049/T050/T054）；
+      3) 依赖方向目前由源码扫描测试保证，未工具化为 analyzer/custom_lint 规则；引入别名或 part 跨层用法时需升级（测试文件内已注明）；
+      4) 包体/内存/能耗基线未测量，阈值未批准；
+      5) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列、状态摘要、工具链表与本轮记录。
+    提交/差异范围：提交 "T007+T008: core module skeleton, typed errors, task state machine, fixtures and CI contract"；
+      基线为 066c08d（T006）。未 push。
+    下一可执行任务及前置条件：T009（SQLite/Drift 实体、索引、事务及迁移），前置 T007、T008 已 DONE；
+      需保持“不提前实现 T010 及以后”的范围边界，并复用 test/fixtures 与本轮错误/时钟/结果类型。
+
+### 7.2 工具链与环境记录（T008 填写）
+
+实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
+依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
 
 | 项目 | 锁定值 | 实测日期/证据 |
 | --- | --- | --- |
-| Flutter / Dart | 未锁定 | 未运行 |
-| macOS SDK / Xcode / deployment target | 产品要求 macOS 27；具体工具链待验证 | 未运行 |
-| Android SDK API / JDK / Gradle / AGP | 产品要求 Android 17；数值及版本待核对 | 未运行 |
-| Riverpod / Drift / HTTP / 渲染包 | 已选路线，版本待锁定 | 未运行 |
-| 最低设备验收 | M1、天玑 9400 级别目标 | 未运行 |
-| 包体/内存/启动/能耗基线与阈值 | 待 M0 测量并记录批准阈值 | 未运行 |
+| Flutter / Dart | Flutter 3.47.0 (stable, revision 4cf2416426) / Dart 3.13.0 | 2026-09-21，本机 `flutter --version`、`dart --version`；CI 同版本（.github/workflows/ci.yml） |
+| macOS SDK / Xcode / deployment target | Xcode 27.0 (27A5237l)；`MACOSX_DEPLOYMENT_TARGET = 13.0` | 2026-09-21，`xcodebuild -version`、macos/Runner.xcodeproj/project.pbxproj；注意 deployment target 是工程可配置下限，**不等于** D-02 的 macOS 27 验收支持声明 |
+| 宿主系统 | macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64 | 2026-09-21，`sw_vers`、`sysctl` |
+| Android SDK API / JDK / Gradle / AGP | 未核对（android/ 尚未初始化） | NOT_RUN；随 Android 阶段（T050 前）补齐，不在此处用猜测值占位 |
+| Riverpod | flutter_riverpod 3.4.3 | pubspec.lock（T008 读取） |
+| Drift / 代码生成 | drift 2.35.0、drift_dev 2.35.0、build_runner 2.16.1 | pubspec.lock（T008 读取） |
+| SQLite | sqlite3 3.6.0 | pubspec.lock；由 sqlite3 3.x 原生资源机制自带动态库，未使用已 EOL 的 sqlite3_flutter_libs |
+| HTTP / 路径 | http 1.6.0、path_provider 2.1.6、path 1.9.1 | pubspec.lock（T008 读取） |
+| Lint / 图标 | flutter_lints 6.0.0、cupertino_icons 1.0.9 | pubspec.lock（T008 读取） |
+| 最低设备验收 | M1、天玑 9400 级别目标 | 未运行（M0 未做真机验收）；本轮实测机为 Apple M4 |
+| 包体/内存/启动/能耗基线与阈值 | 待 M0 测量并记录批准阈值 | 未运行；本轮只记录构建成功，不含性能基线 |
+
+构建产物（T008 实测）：`flutter build macos --debug` 退出 0，产物 `build/macos/Build/Products/Debug/Flux.app`（debug 类型，非正式签名包，不代表可分发）。
+
+已知工具链行为：build_runner 2.16.1 已移除 `--delete-conflicting-outputs`（运行时会提示 "These options have been removed and were ignored"，退出码仍为 0）。手册 6.2 的命令基线保留该参数以兼容旧版本；它不再改变行为，生成物只写入 git 忽略的 `.dart_tool/build/`。
 
 ### 7.3 提供商验证矩阵（实现前不得写“已支持”）
 

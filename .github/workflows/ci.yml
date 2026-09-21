@@ -1,4 +1,4 @@
-# Flux CI 基线（T006 草稿）
+# Flux CI 基线（T006 建立，T008 锁定工具链）
 #
 # 设计取舍：
 # - matrix 仅 macos-latest。Android 按 D-02/D-03 暂缓，等 Android 阶段再补 runner。
@@ -7,6 +7,12 @@
 # - 工作流不引用任何秘密（无 API Key、无签名证书、无付费服务）。若某步骤需要
 #   凭据才能运行，则该步骤不应出现在这里。
 # - 强制使用已提交的 pubspec.lock，保证 CI 与本地依赖一致。
+#
+# T008 变更：
+#   1) Flutter 版本由占位 x.y.z 锁定为 3.47.0（T005 工具链记录的实际版本）；
+#   2) pub get 加 --enforce-lockfile，lock 与 pubspec.yaml 不一致时直接失败；
+#   3) 格式检查范围由 `.` 收敛为 `lib test`，与手册 6.2 的命令基线一致，
+#      避免把平台工程与构建产物一并纳入格式要求。
 
 name: CI
 
@@ -48,18 +54,14 @@ jobs:
         uses: actions/checkout@v4
 
       # ------------------------------------------------------------------
-      # Flutter 版本：占位，待主代理在 T005 锁定工具链后填入并固定。
-      # 目前写 x.y.z，说明如下：
-      #   1) 到 toolchain 记录（T005 产出）中读取精确版本与 channel；
-      #   2) 把下面的 x.y.z 替换为锁定版本号，例如 3.2x.y；
-      #   3) 若工程使用 FVM 或 .flutter-version，改为从该文件读取，避免两处漂移。
-      #   4) 锁定后不要使用 channel: stable 的“漂移”写法而不写版本，
-      #      否则 CI 会随上游升级而改变行为。
+      # Flutter 版本：已按 T005 工具链记录锁定为 3.47.0（对应 Dart 3.13.0）。
+      # 固定精确版本而不是只写 channel: stable，避免 CI 随上游升级而改变行为。
+      # 升级时须同步更新本文件与手册 7.2 的工具链表，并重跑本地命令基线。
       # ------------------------------------------------------------------
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: x.y.z   # TODO(T005): 替换为锁定版本
+          flutter-version: 3.47.0
           channel: stable
           cache: true
 
@@ -69,21 +71,22 @@ jobs:
           dart --version
 
       # pubspec.lock 已提交（见 .gitignore 的说明），因此正常路径是复现同一份依赖。
-      # 如已确认 lock 可用，可加 --enforce-lockfile 让 lock 与 pubspec.yaml 不一致
-      # 时直接失败而不是静默升级；工程刚 scaffold 完、lock 尚未产生时不要加。
+      # --enforce-lockfile：lock 与 pubspec.yaml 不一致时直接失败，而不是静默升级。
+      # 这样 CI 与本地、以及不同时间的构建都使用完全相同的依赖版本。
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
-      # 格式检查只读、不修改；
-      # 目录范围待工程落地后按 build_runner 生成物情况收敛
-      # （生成代码通常需要排除，届时用 --output=none 配合路径列表）。
+      # 格式检查只读、不修改；范围与手册 6.2 的命令基线一致（lib test）。
+      # build_runner 生成物（*.g.dart）不手写格式，因此不把 build/ 纳入范围。
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed lib test
 
       - name: Analyze
         run: flutter analyze
         # 若希望 info 级提示也阻断合并，可在稳定后改为 flutter analyze --fatal-infos；
-        # 现在保持默认，避免初期脚手架信息噪音造成假红。
+        # 现在保持默认（不加 --fatal-infos），避免初期脚手架信息噪音造成假红。
+        # T008 本机基线：flutter analyze 退出 0、0 issue。后续引入 lint 噪音应修代码
+        # 而不是长期放宽；待无新增噪音并稳定后再评估加严。
 
       # 单元与组件测试。默认不触网：需要外部服务的用例应使用本地 fixture/mock。
       - name: Test

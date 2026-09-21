@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xml:lang="en">
+  <title>Flux Fixture Atom Feed</title>
+  <subtitle>虚构样本，仅用于解析测试</subtitle>
+  <link href="https://example.com/atom" rel="alternate" type="text/html"/>
+  <link href="https://example.com/atom.xml" rel="self" type="application/atom+xml"/>
+  <id>urn:uuid:00000000-0000-4000-8000-000000000001</id>
+  <updated>2026-09-21T04:00:00Z</updated>
+  <author>
+    <name>Fixture Author</name>
+    <email>fixture-author@example.com</email>
+  </author>
+  <entry>
+    <title>Atom fixture entry one</title>
+    <link href="https://example.com/atom/one" rel="alternate" type="text/html"/>
+    <id>urn:uuid:00000000-0000-4000-8000-000000000002</id>
+    <updated>2026-09-20T22:15:00Z</updated>
+    <published>2026-09-20T21:00:00Z</published>
+    <summary>Summary of the first Atom entry.</summary>
+    <content type="html">&lt;p&gt;Body of the &lt;em&gt;first&lt;/em&gt; Atom entry.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Atom fixture entry two</title>
+    <link href="https://example.com/atom/two" rel="alternate" type="text/html"/>
+    <id>urn:uuid:00000000-0000-4000-8000-000000000003</id>
+    <updated>2026-09-20T23:45:00Z</updated>
+    <summary>Second Atom summary.</summary>
+    <content type="text">Plain text body of the second Atom entry.</content>
+  </entry>
+</feed>

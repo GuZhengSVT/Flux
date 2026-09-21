@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Flux Fixture Atom XHTML Feed</title>
+  <link href="https://example.com/xhtml" rel="alternate"/>
+  <id>urn:uuid:00000000-0000-4000-8000-000000000010</id>
+  <updated>2026-09-21T04:30:00Z</updated>
+  <entry>
+    <title>XHTML content entry</title>
+    <link href="https://example.com/xhtml/one" rel="alternate"/>
+    <id>urn:uuid:00000000-0000-4000-8000-000000000011</id>
+    <updated>2026-09-21T04:30:00Z</updated>
+    <content type="xhtml">
+      <div xmlns="http://www.w3.org/1999/xhtml">
+        <p>Body with <strong>inline markup</strong> and math <code>$a^2 + b^2 = c^2$</code>.</p>
+        <ul>
+          <li>first</li>
+          <li>second</li>
+        </ul>
+      </div>
+    </content>
+  </entry>
+  <entry>
+    <title>Entry with src-only content</title>
+    <link href="https://example.com/xhtml/two" rel="alternate"/>
+    <id>urn:uuid:00000000-0000-4000-8000-000000000012</id>
+    <updated>2026-09-21T04:31:00Z</updated>
+    <content type="text/html" src="https://example.com/xhtml/two/body.html"/>
+  </entry>
+</feed>

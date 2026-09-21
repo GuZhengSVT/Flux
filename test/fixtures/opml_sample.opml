@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Flux Fixture Subscriptions</title>
+    <dateCreated>Mon, 21 Sep 2026 04:00:00 GMT</dateCreated>
+    <ownerName>Fixture Only</ownerName>
+  </head>
+  <body>
+    <outline text="Tech" title="Tech">
+      <outline type="rss" text="Example Blog" title="Example Blog"
+               xmlUrl="https://example.com/feed.xml" htmlUrl="https://example.com/"/>
+      <outline type="rss" text="Example Atom" title="Example Atom"
+               xmlUrl="https://example.com/atom.xml" htmlUrl="https://example.com/atom"/>
+      <outline text="Nested Group" title="Nested Group">
+        <outline type="rss" text="Nested Example" title="Nested Example"
+                 xmlUrl="https://nested.example.com/rss" htmlUrl="https://nested.example.com/"/>
+      </outline>
+    </outline>
+    <outline type="rss" text="Uncategorized Example" title="Uncategorized Example"
+             xmlUrl="https://example.org/feed" htmlUrl="https://example.org/"/>
+    <outline type="rss" text="Duplicate Of Example Blog" title="Duplicate Of Example Blog"
+             xmlUrl="https://example.com/feed.xml" htmlUrl="https://example.com/"/>
+    <outline text="Missing xmlUrl (invalid on purpose)" title="Missing xmlUrl"/>
+  </body>
+</opml>

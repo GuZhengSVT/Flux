@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Flux Fixture Feed</title>
+    <link>https://example.com/</link>
+    <description>虚构样本，仅用于解析测试</description>
+    <language>zh-cn</language>
+    <lastBuildDate>Mon, 21 Sep 2026 04:00:00 GMT</lastBuildDate>
+    <item>
+      <title>First fixture item</title>
+      <link>https://example.com/articles/first</link>
+      <guid isPermaLink="false">flux-fixture-item-0001</guid>
+      <pubDate>Sun, 20 Sep 2026 22:15:00 GMT</pubDate>
+      <author>fixture-author@example.com</author>
+      <dc:creator>Fixture Author</dc:creator>
+      <description>Short summary of the first fixture item.</description>
+      <content:encoded><![CDATA[<p>Body of the <strong>first</strong> item.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Second fixture item without guid</title>
+      <link>https://example.com/articles/second?utm_source=fixture&amp;id=2</link>
+      <pubDate>Sun, 20 Sep 2026 23:45:00 GMT</pubDate>
+      <description>Second summary.</description>
+      <content:encoded><![CDATA[<p>Body of the second item with an image.</p>
+<p><img src="https://example.com/media/second.png" alt="fixture image" /></p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Third fixture item without date</title>
+      <link>https://example.com/articles/third</link>
+      <guid isPermaLink="true">https://example.com/articles/third</guid>
+      <description>Item with no pubDate, to exercise the fetch-time fallback.</description>
+    </item>
+  </channel>
+</rss>
