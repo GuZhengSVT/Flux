@@ -16,8 +16,8 @@ import 'package:flux/core/core.dart';
 
 import 'tables/article_tables.dart';
 // database.g.dart 是本文件的 part，只能看到本文件的 import；枚举类型被生成的
-// 伴随类与表访问器引用，因此必须在这里直接可见。
-import 'tables/enums.dart';
+// 伴随类与表访问器引用，因此必须在这里直接可见。T012 起这些枚举由
+// package:flux/core/core.dart 的 domain 转出口提供（见 tables/enums.dart 的说明）。
 import 'tables/feed_tables.dart';
 import 'tables/reading_tables.dart';
 import 'tables/settings_tables.dart';

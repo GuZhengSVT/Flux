@@ -33,6 +33,11 @@ app.*.map.json
 # Widget 预览
 .widget_preview/
 
+# golden 断言失败时 flutter_test 会在测试目录旁写出对比图（masterImage/testImage/
+# isolatedDiff 等）。它们是**诊断产物**，不是仓库内容：更新基线要用
+# `flutter test --update-goldens`，而不是把失败对比图提交进来。
+**/golden/failures/
+
 # ---------------------------------------------------------------------------
 # IDE / 编辑器
 # ---------------------------------------------------------------------------

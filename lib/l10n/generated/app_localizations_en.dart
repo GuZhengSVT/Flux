@@ -308,4 +308,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutUnverifiedNote =>
       'The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub\'s public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053.';
+
+  @override
+  String get readingStateLabel => 'Reading state';
+
+  @override
+  String get readingStateUnread => 'Unread';
+
+  @override
+  String get readingStateRead => 'Read';
+
+  @override
+  String get readingStateLater => 'Read later';
+
+  @override
+  String get readingStateControlHint =>
+      'Click or press Enter to cycle through unread, read and read later';
+
+  @override
+  String readingStateSwitched(String state) {
+    return 'Reading state changed to $state';
+  }
+
+  @override
+  String get favoriteToggleLabel => 'Favourite';
+
+  @override
+  String get favoriteAddLabel => 'Add to favourites';
+
+  @override
+  String get favoriteRemoveLabel => 'Remove from favourites';
+
+  @override
+  String get favoriteToggleHint =>
+      'Favourites are independent of reading state and never change unread, read or read later';
+
+  @override
+  String get featuredBadgeLabel => 'Featured';
+
+  @override
+  String get controlLoadingLabel => 'Loading';
+
+  @override
+  String get controlSuccessLabel => 'Done';
+
+  @override
+  String get controlErrorLabel => 'Failed';
+
+  @override
+  String get controlDisabledLabelSuffix => 'unavailable';
 }

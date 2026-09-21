@@ -17,6 +17,9 @@ library;
 import 'package:flutter/material.dart';
 
 import 'package:flux/core/design/design_tokens.dart';
+// FluxMotionDurations 的实现已下移到 lib/ui：共享控件需要它，而 lib/ui 不得
+// import lib/app（否则成环）。这里继续导出该符号，T011 已有的公开入口不变。
+export 'package:flux/ui/flux_motion.dart' show FluxMotionDurations;
 
 /// 主题 token 的 [ThemeExtension]：让控件拿到 token 表里的精确颜色。
 ///
@@ -137,19 +140,6 @@ final class FluxColors extends ThemeExtension<FluxColors> {
       readingPaper: Color.lerp(readingPaper, other.readingPaper, t)!,
     );
   }
-}
-
-/// 动效时长的实际取值：尊重 SET-014（减少动态效果）。
-abstract final class FluxMotionDurations {
-  /// 在 [context] 下应使用的过渡时长。
-  ///
-  /// SET-014 的语义是「跟随系统，可强制开启」；这里先落地「跟随系统」——系统
-  /// 开启减少动态效果时返回 Duration.zero。强制开启的开关属于 T012/T051 的设置项，
-  /// 届时在此处叠加用户选择即可，不需要改所有调用点。
-  static Duration standard(BuildContext context) =>
-      MediaQuery.disableAnimationsOf(context)
-      ? Duration.zero
-      : FluxMotion.standard;
 }
 
 /// 主题生成器：由架构第 7 节 token 表生成浅色与深色 [ThemeData]。

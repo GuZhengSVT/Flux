@@ -637,6 +637,96 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'仓库与 Issue 地址取自本机内置的发布元数据，并在 2026-09-21 用 GitHub 公开接口核实存在、未归档且已开启 Issue；地址为空时显示「未配置」，不猜测。检查更新与 Release 链接由 T053 交付。'**
   String get aboutUnverifiedNote;
+
+  /// 三态控件：读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'阅读状态'**
+  String get readingStateLabel;
+
+  /// 三态控件取值：未读
+  ///
+  /// In zh, this message translates to:
+  /// **'未读'**
+  String get readingStateUnread;
+
+  /// 三态控件取值：已读
+  ///
+  /// In zh, this message translates to:
+  /// **'已读'**
+  String get readingStateRead;
+
+  /// 三态控件取值：稍后再读
+  ///
+  /// In zh, this message translates to:
+  /// **'稍后再读'**
+  String get readingStateLater;
+
+  /// 三态控件：读屏提示
+  ///
+  /// In zh, this message translates to:
+  /// **'点按或按回车循环切换未读、已读、稍后再读'**
+  String get readingStateControlHint;
+
+  /// 三态控件：切换后的读屏播报
+  ///
+  /// In zh, this message translates to:
+  /// **'阅读状态已切换为{state}'**
+  String readingStateSwitched(String state);
+
+  /// 收藏控件：读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'收藏'**
+  String get favoriteToggleLabel;
+
+  /// 收藏控件：未收藏时的动作
+  ///
+  /// In zh, this message translates to:
+  /// **'加入收藏'**
+  String get favoriteAddLabel;
+
+  /// 收藏控件：已收藏时的动作
+  ///
+  /// In zh, this message translates to:
+  /// **'取消收藏'**
+  String get favoriteRemoveLabel;
+
+  /// 收藏控件：读屏提示（强调与三态互不影响）
+  ///
+  /// In zh, this message translates to:
+  /// **'收藏独立于阅读状态，不改变未读、已读或稍后再读'**
+  String get favoriteToggleHint;
+
+  /// 加精徽标的读屏标签（来源属性，与文章收藏不同）
+  ///
+  /// In zh, this message translates to:
+  /// **'加精'**
+  String get featuredBadgeLabel;
+
+  /// 控件加载态读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'正在加载'**
+  String get controlLoadingLabel;
+
+  /// 控件成功态读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'操作成功'**
+  String get controlSuccessLabel;
+
+  /// 控件失败态读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败'**
+  String get controlErrorLabel;
+
+  /// 禁用态附在控件读屏标签后，说明当前不可操作
+  ///
+  /// In zh, this message translates to:
+  /// **'不可用'**
+  String get controlDisabledLabelSuffix;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,6 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- 加精徽标：盾形 + 顶部小星，与收藏星形区分。20 尺寸，currentColor 继承。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 3L15.8 5.17V10.1C15.8 13.4 13.4 16.0 10 17.1C6.6 16.0 4.2 13.4 4.2 10.1V5.17Z"/>
+  <path d="M10 7L10.72 8.52L12.38 8.75L11.19 9.9L11.47 11.54L10 10.79L8.53 11.54L8.81 9.9L7.62 8.75L9.28 8.52Z"/>
+</svg>

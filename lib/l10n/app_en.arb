@@ -127,5 +127,28 @@
   "aboutDeveloperValue": "GuZhengSVT",
   "aboutNotConfigured": "Not configured",
   "aboutReadOnlyNote": "About shows read-only release metadata (SET-084).",
-  "aboutUnverifiedNote": "The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub's public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053."
+  "aboutUnverifiedNote": "The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub's public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053.",
+  "readingStateLabel": "Reading state",
+  "readingStateUnread": "Unread",
+  "readingStateRead": "Read",
+  "readingStateLater": "Read later",
+  "readingStateControlHint": "Click or press Enter to cycle through unread, read and read later",
+  "readingStateSwitched": "Reading state changed to {state}",
+  "@readingStateSwitched": {
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "Read later"
+      }
+    }
+  },
+  "favoriteToggleLabel": "Favourite",
+  "favoriteAddLabel": "Add to favourites",
+  "favoriteRemoveLabel": "Remove from favourites",
+  "favoriteToggleHint": "Favourites are independent of reading state and never change unread, read or read later",
+  "featuredBadgeLabel": "Featured",
+  "controlLoadingLabel": "Loading",
+  "controlSuccessLabel": "Done",
+  "controlErrorLabel": "Failed",
+  "controlDisabledLabelSuffix": "unavailable"
 }

@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/l10n/l10n.dart';
+import 'package:flux/ui/ui.dart';
 
 import '../app_providers.dart';
 import '../theme/flux_theme.dart';
@@ -67,8 +68,21 @@ class AppShell extends ConsumerWidget {
                   destinations: <Widget>[
                     for (final AppDestination destination in appDestinations)
                       NavigationDestination(
-                        icon: Icon(destination.icon),
-                        selectedIcon: Icon(destination.selectedIcon),
+                        icon: FluxSvgIcon(
+                          destination.icon,
+                          // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
+                          // 24 在底栏会显得比文字标签重。
+                          size: FluxIconSize.small,
+                          // 标签已经由 NavigationDestination 播报，图标重复报一次
+                          // 会让读屏念两遍。
+                          excludeFromSemantics: true,
+                        ),
+                        selectedIcon: FluxSvgIcon(
+                          destination.selectedIcon,
+                          size: FluxIconSize.small,
+                          color: Theme.of(context).colorScheme.primary,
+                          excludeFromSemantics: true,
+                        ),
                         label: destination.label(AppLocalizations.of(context)),
                       ),
                   ],
@@ -104,8 +118,18 @@ class _ShellNavigationRail extends ConsumerWidget {
       destinations: <NavigationRailDestination>[
         for (final AppDestination destination in appDestinations)
           NavigationRailDestination(
-            icon: Icon(destination.icon),
-            selectedIcon: Icon(destination.selectedIcon),
+            icon: FluxSvgIcon(
+              destination.icon,
+              // 侧边栏用 24 档：桌面图标更小会与文字标签不协调。
+              size: FluxIconSize.regular,
+              excludeFromSemantics: true,
+            ),
+            selectedIcon: FluxSvgIcon(
+              destination.selectedIcon,
+              size: FluxIconSize.regular,
+              color: Theme.of(context).colorScheme.primary,
+              excludeFromSemantics: true,
+            ),
             label: Text(destination.label(l10n)),
           ),
       ],

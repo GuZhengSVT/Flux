@@ -220,3 +220,66 @@ abstract final class FluxMotion {
   /// 默认过渡时长（阶梯内取值，页面切换与状态变化共用）。
   static const Duration standard = Duration(milliseconds: 160);
 }
+
+/// 图标 token（架构第 7 节：图标 20/24 逻辑尺寸、1.5–2 视觉线宽）。
+///
+/// 为什么把尺寸与线宽放进 core：图标是**产品口径**，控件、导航、空态、状态标记
+/// 都要用同一套数值；把它们留在某个控件文件里，其他控件要么复制常量，要么各自
+/// 顺手定一个数，最终同一排图标粗细不一致。
+///
+/// 线宽在 SVG 里画好（每个图标自带 1.5 或 1.75），这里的常量用于：
+///   1) 测试校验「资源里的线宽落在 1.5–2 区间」，防止手改 SVG 时越界；
+///   2) 需要以纯色描边自绘的场合（例如加载指示器）取一致粗细。
+abstract final class FluxIconTokens {
+  /// 小尺寸（移动/紧凑列表）。
+  static const double sizeSmall = 20;
+
+  /// 标准尺寸（桌面导航、工具栏）。
+  static const double sizeRegular = 24;
+
+  /// 两套逻辑尺寸的允许取值。
+  static const List<double> sizes = <double>[sizeSmall, sizeRegular];
+
+  /// 线宽下界（架构第 7 节）。
+  static const double strokeMin = 1.5;
+
+  /// 线宽上界（架构第 7 节）。
+  static const double strokeMax = 2;
+
+  /// 20 尺寸图标使用的线宽。
+  static const double strokeSmall = 1.5;
+
+  /// 24 尺寸图标使用的线宽。
+  static const double strokeRegular = 1.75;
+
+  /// 触控目标最小边长（架构第 7 节：手机触控目标至少 48dp）。
+  ///
+  /// 图标本身只有 20/24，但**可点击控件**的命中区域必须是 48；否则用户点不准，
+  /// 而这在桌面鼠标下几乎看不出来。
+  static const double minTouchTarget = 48;
+}
+
+/// 控件状态视觉 token（T012）。
+///
+/// 八个状态的视觉只由这里的少量数值决定，避免每个控件各写一套透明度：
+/// 「同一个 hover，卡片上的星形比工具栏的星形浅一半」是低饱和风格里最容易
+/// 显得脏的一类问题。
+abstract final class FluxControlTokens {
+  /// 悬停底色相对强调色的不透明度。
+  static const double hoverOverlayOpacity = 0.08;
+
+  /// 按下底色不透明度（必须明显强于悬停，否则桌面点击没有反馈）。
+  static const double pressedOverlayOpacity = 0.16;
+
+  /// 键盘焦点环宽度。
+  static const double focusRingWidth = 2;
+
+  /// 禁用态不透明度（与 Material 的 0.38 一致，避免自创一套口径）。
+  static const double disabledOpacity = 0.38;
+
+  /// 加载指示器线宽。
+  static const double loadingStrokeWidth = 2;
+
+  /// 加载指示器相对图标尺寸的比例。
+  static const double loadingIndicatorScale = 0.6;
+}

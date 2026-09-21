@@ -9,7 +9,6 @@ import 'package:flux/core/core.dart';
 import 'package:flux/infrastructure/local/article_store.dart';
 import 'package:flux/infrastructure/local/database.dart';
 import 'package:flux/infrastructure/local/tables/article_tables.dart';
-import 'package:flux/infrastructure/local/tables/enums.dart';
 
 /// 构造一条带 GUID 的导入项。
 ArticleImport _byGuid({

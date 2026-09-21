@@ -137,10 +137,34 @@ void main() {
         ),
         containsAll(<String>['zh', 'en']),
       );
-      // 90 条消息（T011 实际交付量）；数量变化必须显式改这里，
-      // 避免 ARB 被误删条目而无人察觉。
-      expect(_messageKeys(zh).length, 90);
-      expect(_messageKeys(en).length, 90);
+      // 105 条消息（T011 交付 90 条，T012 新增 15 条共享控件文案）；
+      // 数量变化必须显式改这里，避免 ARB 被误删条目而无人察觉。
+      expect(_messageKeys(zh).length, 105);
+      expect(_messageKeys(en).length, 105);
+    });
+
+    test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {
+      final Set<String> zhKeys = _messageKeys(zh);
+      for (final String key in <String>[
+        'readingStateLabel',
+        'readingStateUnread',
+        'readingStateRead',
+        'readingStateLater',
+        'readingStateControlHint',
+        'readingStateSwitched',
+        'favoriteToggleLabel',
+        'favoriteAddLabel',
+        'favoriteRemoveLabel',
+        'favoriteToggleHint',
+        'featuredBadgeLabel',
+        'controlLoadingLabel',
+        'controlSuccessLabel',
+        'controlErrorLabel',
+        'controlDisabledLabelSuffix',
+      ]) {
+        expect(zhKeys, contains(key), reason: '缺少 $key');
+        expect(_messageKeys(en), contains(key), reason: '英文缺少 $key');
+      }
     });
   });
 

@@ -1,0 +1,7 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- RSS：圆点 + 两道同心波。24 逻辑尺寸，线宽 1.75，currentColor 继承。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="6" cy="18" r="1.6" fill="currentColor" stroke="none"/>
+  <path d="M6 11.5A6.5 6.5 0 0 1 12.5 18"/>
+  <path d="M6 5.5A12.5 12.5 0 0 1 18.5 18"/>
+</svg>

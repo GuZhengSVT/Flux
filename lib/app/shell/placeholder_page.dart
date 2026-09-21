@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/settings/presentation/settings_page.dart';
 import 'package:flux/l10n/l10n.dart';
+import 'package:flux/ui/ui.dart';
 
 import '../theme/flux_theme.dart';
 import 'app_destination.dart';
@@ -322,7 +323,12 @@ class _PanePlaceholder extends StatelessWidget {
   }
 }
 
-/// 无名空态占位（无订阅/全部已读/无结果/今日无新闻）。
+/// 空态占位（无订阅/全部已读/无结果/今日无新闻）。
+///
+/// T012 起改用共享的 [FluxEmptyState]：本文件原先自己拼「图标 + 标题 + 说明」，
+/// 而架构第 7 节要求这三类空态分别提示且样式一致。用共享组件之后，空态的图形、
+/// 字号、间距与后续页面（同为 T012 起的控件层）自动一致，不需要逐页对齐；
+/// 「计划任务」说明仍作为 secondaryNote 传入，占位页的诚实标注没有丢。
 class _EmptyStateBlock extends StatelessWidget {
   const _EmptyStateBlock({required this.kind, required this.tasks});
 
@@ -332,43 +338,36 @@ class _EmptyStateBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final FluxColors colors = FluxColors.of(context);
-    final ThemeData theme = Theme.of(context);
 
-    final (String title, String body) = switch (kind) {
-      _EmptyStateKind.today => (l10n.todayEmptyTitle, l10n.todayEmptyBody),
+    final (String title, String body, EmptyStateTone tone) = switch (kind) {
+      _EmptyStateKind.today => (
+        l10n.todayEmptyTitle,
+        l10n.todayEmptyBody,
+        EmptyStateTone.neutral,
+      ),
       _EmptyStateKind.noFeeds => (
         l10n.emptyNoFeedsTitle,
         l10n.emptyNoFeedsBody,
+        EmptyStateTone.neutral,
       ),
+      // 「全部已读」是完成态：用强调色而不是灰阶，否则用户会把它读成「出错了」。
       _EmptyStateKind.allRead => (
         l10n.emptyAllReadTitle,
         l10n.emptyAllReadBody,
+        EmptyStateTone.positive,
       ),
       _EmptyStateKind.noResults => (
         l10n.emptyNoResultsTitle,
         l10n.emptyNoResultsBody,
+        EmptyStateTone.muted,
       ),
     };
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(Icons.inbox_outlined, size: 20, color: colors.textSecondary),
-              const SizedBox(width: FluxSpacing.xs),
-              Expanded(child: Text(title, style: theme.textTheme.titleMedium)),
-            ],
-          ),
-          const SizedBox(height: FluxSpacing.xs),
-          Text(body, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: FluxSpacing.sm),
-          _PaneTaskNote(tasks: tasks),
-        ],
-      ),
+    return FluxEmptyState(
+      title: title,
+      body: body,
+      tone: tone,
+      secondaryNote: l10n.placeholderPageBody(tasks),
     );
   }
 }

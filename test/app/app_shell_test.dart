@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flux/app/shell/app_destination.dart';
 import 'package:flux/app/shell/app_shell.dart';
+import 'package:flux/ui/ui.dart';
 
 import 'test_harness.dart';
 
@@ -34,6 +35,39 @@ void main() {
       // 宽窗用侧边导航，不应出现底部导航栏。
       expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
+    });
+
+    testWidgets('导航图标是 T012 的原创 SVG，不再是 Material 占位图标', (
+      WidgetTester tester,
+    ) async {
+      // T011 用 Material 内置图标占位并注明「T012 落地时替换」。这条断言把交接
+      // 钉住：若有人退回到 IconData，原创图标集就会悄悄从界面上消失，而
+      // test/ui/flux_icons_test.dart 仍然全绿（那只检查资源文件，不看谁在用）。
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1280, 900));
+
+      await tester.pumpWidget(
+        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
+      );
+      await tester.pumpAndSettle();
+
+      // 侧边导航里恰好有 3 个图标位（每个去向的 icon 与 selectedIcon 共用同一
+      // 个字形的两个 SvgPicture，因此这里按「至少三个」断言而不写死数量）。
+      expect(find.byType(FluxSvgIcon), findsAtLeast(3));
+
+      for (final AppDestination destination in appDestinations) {
+        expect(
+          destination.icon,
+          isA<FluxIcon>(),
+          reason: '去向 \${destination.name} 应使用原创图标',
+        );
+      }
+      // 三个去向必须是三个不同图标，否则导航无法区分。
+      expect(
+        appDestinations.map((AppDestination d) => d.icon).toSet(),
+        hasLength(3),
+      );
     });
 
     testWidgets('窄窗退化为底部导航栏', (WidgetTester tester) async {

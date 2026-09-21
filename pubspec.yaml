@@ -41,6 +41,22 @@ dependencies:
   path: ^1.9.1
   http: ^1.6.0
 
+  # 原创 SVG 图标的运行时渲染（T012）。
+  # 为什么用 flutter_svg 而不是 vector_graphics 的编译管线：
+  #   编译管线需要把每个 SVG 预编译为二进制资源（build_runner 代码生成或
+  #   vector_graphics_compiler 命令行），会引入一套额外的构建步骤与生成物管理；
+  #   T012 只有约 20 个几何简单的小图标，运行期解析的开销可忽略，而
+  #   「资源与代码一一对应、不需要重新生成」的可维护性更重要。
+  #   两者共用同一套解析与绘制实现（flutter_svg 内部依赖 vector_graphics 与
+  #   vector_graphics_compiler 的解析器），因此没有引入第二套渲染语义。
+  flutter_svg: ^2.3.0
+
+  # RSS/Atom 解析（T013）。选官方维护的 renggli/dart-xml：
+  #   - 提供 DOM 与事件流两种入口，T013 需要「解析前先拒绝 DTD/外部实体」，
+  #     事件流入口可以在实体被展开前就中止解析；
+  #   - 纯 Dart 实现，无原生依赖，不引入 WebView 或网页运行时（架构第 8 节）。
+  xml: ^7.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,4 +80,11 @@ flutter:
   # test 自动跑 gen_l10n，ARB 与生成物不会不同步。配置见仓库根 l10n.yaml。
   generate: true
 
-  # 资源与字体在 T012（原创 SVG/设计 token）落地后补充，此处不预置不存在的路径。
+  # 原创 SVG 图标（T012）。全部为手写几何图形，MIT 授权见各文件顶部注释与
+  # 仓库根 LICENSE。每个图标同时提供 24 与 20 两套逻辑尺寸（架构第 7 节），
+  # 文件名后缀即其设计尺寸，控件按当前断点选择。
+  #
+  # 只声明真实存在的目录，不放猜测路径；test/app/flux_icons_test.dart 会校验
+  # 声明与磁盘文件一一对应。
+  assets:
+    - assets/icons/

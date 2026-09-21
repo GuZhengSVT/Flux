@@ -296,4 +296,51 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get aboutUnverifiedNote =>
       '仓库与 Issue 地址取自本机内置的发布元数据，并在 2026-09-21 用 GitHub 公开接口核实存在、未归档且已开启 Issue；地址为空时显示「未配置」，不猜测。检查更新与 Release 链接由 T053 交付。';
+
+  @override
+  String get readingStateLabel => '阅读状态';
+
+  @override
+  String get readingStateUnread => '未读';
+
+  @override
+  String get readingStateRead => '已读';
+
+  @override
+  String get readingStateLater => '稍后再读';
+
+  @override
+  String get readingStateControlHint => '点按或按回车循环切换未读、已读、稍后再读';
+
+  @override
+  String readingStateSwitched(String state) {
+    return '阅读状态已切换为$state';
+  }
+
+  @override
+  String get favoriteToggleLabel => '收藏';
+
+  @override
+  String get favoriteAddLabel => '加入收藏';
+
+  @override
+  String get favoriteRemoveLabel => '取消收藏';
+
+  @override
+  String get favoriteToggleHint => '收藏独立于阅读状态，不改变未读、已读或稍后再读';
+
+  @override
+  String get featuredBadgeLabel => '加精';
+
+  @override
+  String get controlLoadingLabel => '正在加载';
+
+  @override
+  String get controlSuccessLabel => '操作成功';
+
+  @override
+  String get controlErrorLabel => '操作失败';
+
+  @override
+  String get controlDisabledLabelSuffix => '不可用';
 }

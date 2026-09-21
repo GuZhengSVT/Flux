@@ -1,0 +1,6 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- 稍后再读：空心环 + 时钟指针。24 逻辑尺寸，线宽 1.75，currentColor 继承。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="7"/>
+  <path d="M12 8.2V12.4L15.3 14.2"/>
+</svg>

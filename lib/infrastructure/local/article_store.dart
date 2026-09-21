@@ -17,7 +17,6 @@ import 'package:flux/core/core.dart';
 
 import 'database.dart';
 import 'tables/article_tables.dart';
-import 'tables/enums.dart';
 
 /// 待导入的一篇文章（解析层产出的纯数据，不含网络与业务决策）。
 class ArticleImport {

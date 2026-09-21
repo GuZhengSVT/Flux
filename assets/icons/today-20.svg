@@ -1,0 +1,8 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- 今日：日记本 + 太阳。20 逻辑尺寸，线宽 1.5，currentColor 继承。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M5.5 3.5H16A1.5 1.5 0 0 1 17.5 5V15A1.5 1.5 0 0 1 16 16.5H5.5A1.5 1.5 0 0 1 4 15V5A1.5 1.5 0 0 1 5.5 3.5Z"/>
+  <path d="M7.5 3.5V16.5"/>
+  <circle cx="12.5" cy="9" r="2"/>
+  <path d="M12.5 5.4V6.4M12.5 11.6V12.6M8.9 9H9.9M15.1 9H16.1"/>
+</svg>

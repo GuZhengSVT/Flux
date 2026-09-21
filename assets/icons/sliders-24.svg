@@ -1,0 +1,10 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- 设置：三条滑杆。24 逻辑尺寸，线宽 1.75，currentColor 继承。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 7H12.8M17.2 7H20"/>
+  <circle cx="15" cy="7" r="2.2"/>
+  <path d="M4 12H7.3M11.7 12H20"/>
+  <circle cx="9.5" cy="12" r="2.2"/>
+  <path d="M4 17H13.8M18.2 17H20"/>
+  <circle cx="16" cy="17" r="2.2"/>
+</svg>

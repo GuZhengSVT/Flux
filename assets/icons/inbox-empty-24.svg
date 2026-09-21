@@ -1,0 +1,6 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!-- 空态：收件盘 + 中间一道留白，用于「没有内容」的统一空态图形。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4.5 13.5L7.2 5.8A1.5 1.5 0 0 1 8.6 4.8H15.4A1.5 1.5 0 0 1 16.8 5.8L19.5 13.5"/>
+  <path d="M4.5 13.5H9L10.3 15.7H13.7L15 13.5H19.5V17.4A1.5 1.5 0 0 1 18 18.9H6A1.5 1.5 0 0 1 4.5 17.4Z"/>
+</svg>

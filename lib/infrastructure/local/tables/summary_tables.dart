@@ -10,7 +10,6 @@ import 'package:drift/drift.dart';
 import 'package:flux/core/core.dart';
 
 import 'article_tables.dart';
-import 'enums.dart';
 
 /// 每日总结的一个版本。
 ///

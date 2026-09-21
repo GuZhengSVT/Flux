@@ -5,6 +5,7 @@
 library;
 
 export 'clock.dart';
+export 'domain/domain.dart';
 export 'error/app_error.dart';
 export 'error/secret_redaction.dart';
 export 'result.dart';
