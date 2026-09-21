@@ -42,11 +42,11 @@
 | DOC-003 中文 README 草稿 | DONE（仅文档） | 同目录 README，安装/构建标明适用前提 |
 | 旧版远端封存/本地备份/清理 | TODO | 本轮未执行 |
 | 新工程脚手架/依赖/工具链锁定 | DONE | T001–T006 完成；T007 建立分层骨架与核心规则，T008 锁定工具链与 CI。基线 HEAD 066c08d / T007+T008 提交见 §7.2；证据：lib/core、test/core、test/fixtures、.github/workflows/ci.yml |
-| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的十三项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）、T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）、T014（单源添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护，订阅管理页）、T015（OPML 导入预览/逐项结果/重试与导出，URL 秘密参数排除）、T016（刷新调度：启动/定时/手动触发合并、并发 4、失败隔离、离线与计费网络守卫）、T017（三态阅读/收藏、四类筛选与分页列表、批量范围操作与撤销、打开正文自动标已读）、T018（删除订阅/分组与保留收藏策略，含来源快照与墓碑事件，schema v5）与 T019（正文阅读器：受控文档渲染、代码静态高亮与折叠复制、LaTeX 自绘、目录、上下篇、页内查找、完整性四态）。现状：可启动真实应用并浏览真实文章列表——RSS 去向现在是完整可用的阅读页（筛选、分页、三态、收藏、批量、刷新），点开一篇文章是**真正的阅读器**（标题排版、代码高亮与折叠复制、公式自绘、目录侧栏、上下篇、页内查找、完整性四态），订阅管理里可删除单个订阅或整组并选择是否保留收藏；「今日新闻」仍是明确占位；SET-001 语言、SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6）。M1 的第十三项 T021 交付**远程图片缓存与图像安全**（受控 MIME/体积/魔数校验、DNS 解析后私网复检、哈希文件名 + SET-080 上限的 LRU 磁盘缓存、解码像素上限、一张失败不阻塞文章），第十四项 T022 交付**中英文全库检索**（实测选定 fts5 trigram：≥3 字符走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串，schema v7 建索引并 rebuild 灌历史文章，搜索框 + 范围 + 结果片段高亮）；宽列表的瀑布流与三栏列表面板、专注模式、阅读统计（T023）仍未实现（T019 遗留的卡片三形态、列表虚拟化与返回锚点已在 T019+ 补齐，见 R019a）。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
+| 新版软件功能实现 | DOING | M0 骨架已就绪；M1 已 DONE 的十三项：T009（SQLite/Drift 实体、索引、事务及迁移）、T010（设置注册表 SET-001–084、schema v2 真实增量迁移、macOS Keychain 安全存储、脱敏诊断）、T011（应用壳、三去向导航、首次引导、主题 token 与中英 i18n）、T012（原创 SVG 图标集、三态阅读控件与独立收藏、空态/状态横幅/统一卡片与八类状态）、T013（RSS/Atom 抓取、安全解析、身份去重与正文清洗，schema v3）、T014（单源添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护，订阅管理页）、T015（OPML 导入预览/逐项结果/重试与导出，URL 秘密参数排除）、T016（刷新调度：启动/定时/手动触发合并、并发 4、失败隔离、离线与计费网络守卫）、T017（三态阅读/收藏、四类筛选与分页列表、批量范围操作与撤销、打开正文自动标已读）、T018（删除订阅/分组与保留收藏策略，含来源快照与墓碑事件，schema v5）与 T019（正文阅读器：受控文档渲染、代码静态高亮与折叠复制、LaTeX 自绘、目录、上下篇、页内查找、完整性四态）。现状：可启动真实应用并浏览真实文章列表——RSS 去向现在是完整可用的阅读页（筛选、分页、三态、收藏、批量、刷新），点开一篇文章是**真正的阅读器**（标题排版、代码高亮与折叠复制、公式自绘、目录侧栏、上下篇、页内查找、完整性四态），订阅管理里可删除单个订阅或整组并选择是否保留收藏；「今日新闻」仍是明确占位；SET-001 语言、SET-002 主题真实读写并即时生效，其余 SET-003–016 只以禁用态展示、无假开关；浅/深两套 ThemeData 由架构第 7 节 token 表生成；T013 的抓取/解析/清洗已在真实源上跑通（见 7.1.6）。M1 的第十三项 T021 交付**远程图片缓存与图像安全**（受控 MIME/体积/魔数校验、DNS 解析后私网复检、哈希文件名 + SET-080 上限的 LRU 磁盘缓存、解码像素上限、一张失败不阻塞文章），第十四项 T022 交付**中英文全库检索**（实测选定 fts5 trigram：≥3 字符走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串，schema v7 建索引并 rebuild 灌历史文章，搜索框 + 范围 + 结果片段高亮）；第十五项 T023 交付**阅读统计**（前台可见且活跃才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台暂停、按会话时区跨午夜拆分、年度热力图含 0 值与图例与逐格日期分钟、近七日柱状图含文字数据、清空统计只清会话），第十六项 T024 交付**用户主动获取静态网页正文**（仅点击触发、HTTP + 静态解析、付费墙/JS 站失败分类且保留原文与外开入口、schema v8 分列存提取正文、原文/提取可切换）。M1（本地阅读闭环）十六项任务至此全部 DONE。**仍未实现**：宽列表的瀑布流与三栏列表面板、专注模式（属 T051）——T019 遗留的卡片三形态、列表虚拟化与返回锚点已在 T019+ 补齐（见 R019a）。真实 macOS 窗口（1200×832 内容区）已截图入证据 |
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：M1 进行中，T001–T022 已完成并有本机证据（T019 的验收缺口已在 T019+ 补齐，见 R019a；T021 与 T022 各有本机证据，见 R021/R022）；下一任务 T023（阅读会话、热力图与七日统计），前置 T009/T019 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M1 已完成**（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024），M1 里程碑出口达成。下一任务 T025（统一 AIProvider 能力契约/模型管理），属 M2 起点，前置 T010/T007 已 DONE。当前阻塞：无文档阻塞；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -59,8 +59,8 @@
 | RSS/Atom/OPML/分组/加精 | F-RSS；SET-020–028 | T013–T016 | DOING（T013 已交付并真实源验证：条件请求/304、限并发与超时、大响应与压缩炸弹防护、DTD/实体拒绝、RSS 2.0/Atom 解析、受控文档树清洗、身份去重与正文修订；T014 交付订阅管理页（添加/编辑/启用/加精、分组增删改/排序/置顶/折叠、未分类保护）；T015 交付 OPML 导入预览/逐项结果/重试与导出，导出排除内部 ID、加精/刷新偏好、阅读状态与 URL 秘密参数；**T016 交付刷新调度**：启动/定时/手动三种触发按源合并去重、并发上限 4（SET-028）、失败隔离、304 走条件请求、离线与计费网络（SET-013，默认关）在**上网之前**拦下且不推进「上次检查」；桌面端无公开计费网络 API 因此如实记为未实现（见 7.1.9 遗留）；正文阅读产品化仍属 T019） |
 | 文章三态/收藏/批量操作 | F-STATE；SET-010、081 | T017、T018、T045 | DOING（T017 交付：三态与收藏的真实写入与列表操作、四类筛选（later 独立入口）、发布时间倒序分页、批量范围与批量操作可撤销、SET-010 打开正文自动标已读；**T018 交付删除订阅/分组与保留收藏策略**：影响预览（收藏/其他含 later 三个数字）在操作前可见、默认勾选保留、非收藏全清理、收藏脱离源并冻结来源快照、分组两个分支复用同一套规则、删除写入墓碑事件、单事务失败整批回滚，schema v5 让 articles.feed_id 可空；除订阅时的状态同步与删除的跨设备集成仍属 T045）|
 | 正文/数学/代码/图片/链接 | F-READ、F-RENDER；SET-012、013 | T004、T019–T021 | DOING（**T019 交付正文阅读器**：受控文档树渲染（标题/段落/强调/删除线/引用/列表含任务勾选/链接/图片占位/表格含列对齐/行内代码/围栏代码块+静态高亮+折叠+复制）、LaTeX 单双美元号用 flutter_math_fork 纯自绘（不支持命令显示原式与原因，不留空白）、美元货币转义、正文完整性四态行、目录 h1–h3 侧栏（宽窗）、上下篇按进入时快照（首/尾边界禁用并说明）、页内查找高亮与计数；**T020 交付选区/复制/图片/链接**：SelectionArea 单块选区与自定义选区菜单、复制全文（纯文本重拼）、选词解释入口（未配置提示 + 跳设置，调用属 T034）、图片查看器（全屏/缩放/Esc/保存/分享，SET-012 关闭时占位+点选下载）、外链面板（完整地址 + 复制/打开，危险协议拒绝）、系统分享走 NSSharingServicePicker 且不可用时回退复制；**图片缓存/可控 MIME 与解码限额属 T021、跨块选择属后续（D-15）、卡片三形态与列表虚拟化已由 T019+ 补齐（R019a）、瀑布流与三栏列表面板仍属后续、专注模式属 T051**）|
-| 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**统计（阅读会话/热力图/七日）属 T023**） |
-| 原站静态全文 | F-READ；D-06 | T024 | TODO |
+| 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**T023 交付阅读统计**：会话追踪（前台可见且交互未超阈才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台立即暂停、关闭开关完全不记录）、按会话时区跨午夜拆分并按本地日期键落库、周期 flush + 结束收尾、写入失败不重复写；年度热力图（周一为列、0 值与年外占位格可辨、5 档图例、逐格日期+分钟提示）、近七日柱状图（柱顶文字分钟数）、年份选择器来自真实数据、清空统计走确认且只清会话表） |
+| 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
 | AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | TODO |
 | 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | TODO |
 | 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | TODO |
@@ -123,8 +123,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T020 | T019 | 单块选区、全文复制、图片查看/保存/链接外开 | 复制/查询占位可接用例，查询未配置提示；危险协议拒绝、远端图片开关、权限拒绝和系统分享回退通过 | DONE（缺失 REVIEW：受控文档渲染区包在 SelectionArea 里做**单块选区**并挂自定义选区菜单（复制 + 解释入口）；「复制全文」按纯文本重拼文档树（段落空行、代码原文、表格竖线、图片不产 alt）；选区查询走「未配置 AI」提示 + 跳设置，**本轮不发任何请求**（调用属 T034）；图片位受 SET-012 控制自动加载、点击进查看器（全屏/双击缩放/Esc/保存/分享），保存走 file_selector 系统面板 + 限长（16 MiB）下载；外链先出面板显示完整地址与复制/打开，javascript:/data:/file: 等被拒（复用 isSafeDocUrl）；系统分享走 macOS NSSharingServicePicker 原生通道，不可用或失败时回退复制。**顺带修掉一个真实缺陷**：行内链接的 recognizer 挂在只有 children 的父 span 上，导致链接此前**从未可点**（详见 R020）。代价/秘密：无 AI 调用、无费用）|
 | T021 | T020 | 远程图片缓存/媒体大小与图像安全 | 受控 MIME/尺寸/重定向、解码限额、磁盘路径和 LRU；一张失败不阻塞文章，计费网络/图片禁加载测试 | DONE（缺失 REVIEW）：受控抓取（MIME 白名单 jpeg/png/gif/webp、单图 4 MiB、重定向逐跳校验、DNS 解析后私网复检、解码前魔数嗅探 + 50 MP 像素上限）、哈希文件名 + SET-080 上限（默认 512 MiB，夹紧 128–4096）+ 按访问时间的 LRU 淘汰 + 内存缓存双上限（100 张 / 128 MiB 取小）、失败占位与重试不阻塞正文、SET-013 计费守卫在发请求前拦下、查看器与保存路径也走同一条管线（修掉 T020 用 Image.network 的旁路）。新增 89 条断言（守卫 9 + 大小/魔数/尺寸 19 + 受控抓取 21 + 磁盘缓存 20 + 加载管线 14 + 组件 6）|
 | T022 | T009、T019 | 中文/英文全库检索与过滤 | FTS tokenizer 在两平台实际可用，短中文词/连续文本/英文用例、片段高亮、分页、空结果、重建索引期间可阅读 | DONE（缺失 REVIEW）：**实测确定 tokenizer 语义**——默认 unicode61 对中文整段成一个 token（MATCH '离线' 零命中），改用 fts5 trigram：≥3 字符连续片段走 MATCH（bm25 排序 + snippet 高亮），任意长度（含 1–2 字中文与「AI」）走 LIKE 子串（LIKE 可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content（避开 rebuild 与触发器不一致），同步靠三个触发器，来源名现查 feeds.name（改名即时生效）；检索分页/空查询/无结果/失败四态可分，范围支持全部与当前筛选；schema v6→v7 含历史文章 rebuild 灌索引；10000 行烟测 MATCH p95 17 ms / LIKE p95 7 ms。新增 87 条断言（查询构造 31 + 数据层 32 + 性能烟测 5 + 迁移 3 + 界面/控制器 13 + 快照与建库 3） |
-| T023 | T009、T019 | 阅读会话、热力图和七日统计 | 前后台/锁屏/失焦暂停、5 分钟空闲、跨午夜/时区、清除统计、图例文字与历史年份通过 | TODO |
-| T024 | T013、T019、T020 | 用户主动获取静态网页正文 | URL/DNS/重定向信任边界、静态抽取/付费墙/JS 站失败、正文修订和外开回退；无隐藏浏览器，无自动全站爬取 | TODO |
+| T023 | T009、T019 | 阅读会话、热力图和七日统计 | 前后台/锁屏/失焦暂停、5 分钟空闲、跨午夜/时区、清除统计、图例文字与历史年份通过 | DONE（缺失 REVIEW）：会话追踪器把「有效阅读」定义为**前台可见且交互未超阈**，空闲按「最后交互 + SET-015 阈值（默认 5 分钟，1–30）」封顶而不是超时清零；失焦/锁屏/后台（inactive/paused/hidden）立即暂停且不补回；SET-015 关闭时完全不记录。时间以**区间**而非累加器表达，因此跨午夜按**会话时区**拆分（`SessionLocalZone` 可注入，测试用固定偏移验证，不改进程时区），归属日期在写入时算好并入 `reading_sessions.local_date`——查询端只按文本日期分组，用户旅行后历史归属不漂移。周期性 flush（30 秒）+ 结束收尾；写入失败**不重试同一段时间**（丢一段好过记重复）。UI 在我的 → 阅读统计：年度热力图（周一为列、0 值格子有底色与边框且**与年外透明占位格可辨**、5 档图例、每格 Tooltip 给出「日期：N 分钟」）、近七日柱状图（柱顶写分钟数）、年份选择器来自真实数据、清空统计走确认对话框且**只清会话表**。**开发中由测试抓到两个真实缺陷**：一是 `idleBoundedEnd` 在 `now == lastActive` 时返回 null，把「读完就停手」的整段会话丢掉；二是热力图按日期建 Map 字面量时同日多来源合计被覆盖而非累加（见 R023）|
+| T024 | T013、T019、T020 | 用户主动获取静态网页正文 | URL/DNS/重定向信任边界、静态抽取/付费墙/JS 站失败、正文修订和外开回退；无隐藏浏览器，无自动全站爬取 | DONE（缺失 REVIEW）：用例形状上就**没有**自动/批量入口（不接受集合、无定时器），打开文章只读不抓（组件用例断言请求数为 0），仅按钮触发一次请求。抓取复用与订阅/图片**同一条判据链**（http/https 白名单、字面量私网拒绝、DNS 解析后逐结果复检、重定向逐跳复检、声明长度+流式计数+解压后三重体积上限），并从 T013 抽出 `response_body.dart` 共用有界读取/解压/解码（单一实现，被双方测试覆盖）。静态抽取是纯函数：配对扫描剔除 script/style/nav/footer/aside/header 等噪音（不用正则替换标签，避免脚本文本残留）、按 article → main → 常见容器 → 最大文字块 → 整页 选正文、交给 T013 清洗器做唯一一次白名单与危险 URL 判定、记录图片地址（不下载）。失败分类为付费墙迹象（meta/class/正文提示语，**仅提示不阻止**，抓到的东西仍然保存）、纯 JS 渲染（正文过短标 empty）、网络错误；失败与「抓不到正文」都**不写任何已存正文**，界面给原因 + 外开入口。提取正文与源正文**分列存储**（schema v8 五列），界面可原文/提取正文来回切换，两份都保留；保存只写提取列，阅读状态与收藏不变 |
 
 ### M2：AI、搜索与新闻
 
@@ -1728,9 +1728,296 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       trigram（a 方案），未引入第三方分词库
     提交/差异范围：提交 "T022: full-text search with CJK tokenizer strategy and FTS5 sync"
       （9d92972）；基线为 1098554（T021）。未 push
-    下一可执行任务及前置条件：T023（阅读会话、热力图与七日统计），前置 T009/T019 已 DONE
+   下一可执行任务及前置条件：T023（阅读会话、热力图与七日统计），前置 T009/T019 已 DONE
 
-### 7.2 工具链与环境记录（T008 填写）
+### 7.1.17 轮次记录 R023（T023）
+
+    轮次/日期：R023 / 2026-09-22
+    任务 ID 与状态变化：T023 TODO → DONE（M1 第十五项；**缺失 REVIEW**，理由同前几轮：
+      本轮新增了一条长期运行的时间采集路径，并把它接到了每次打开正文的生命周期上）
+    相关决策/功能/SET 项：架构 5.3（统计：前台可见且活跃时累计、失焦/锁屏/后台暂停、5 分钟无
+      交互暂停、按会话时区跨午夜拆分、热力图 0 值/图例/日期分钟、七日柱状图文字数据、可关闭可
+      清空、本机不跨设备相加）、架构 3（我的 → 阅读统计）、架构 4.1（会话以文章为单位）、
+      SET-015（阅读统计开关 + 空闲暂停 1–30 分钟，默认开 / 5 分钟）
+
+    **本轮最关键的判定：「有效阅读」到底是什么，以及它为什么必须用区间表达**
+
+      架构只给了四个词（前台可见、活跃、空闲暂停、跨午夜拆分），而它们组合起来有一个容易
+      写错的地方：空闲暂停要求「最后交互之后最多再算阈值那一段」。如果实现成一个秒数累加器，
+      「暂停发生在哪一刻」就丢了——于是跨午夜时无法判断哪一段落在哪一天，也没法在失焦时
+      准确收尾。因此本轮把有效时间建模为**区间列表**（ReadingInterval），由三个纯函数消费：
+
+      | 规则 | 纯函数 | 语义 |
+      | --- | --- | --- |
+      | 空闲封顶 | effectiveActiveEnd | 结束 = min(now, 最后交互 + 阈值)；阈值非正返回 null |
+      | 跨午夜拆分 | splitIntervalByLocalMidnight | 按**当地午夜**切段（不是加 24 小时，夏令时切换日会错）|
+      | 归属与合并 | buildSessionDrafts | 每段按当地读数取日期键，同日合并为一行 |
+
+      **开发中被测试抓到的两个真实缺陷**（都写着具体触发条件，作为后续回归的锚点）：
+
+        1) **effectiveActiveEnd 在 now == lastActive 时返回 null**。第一版写成「now 不晚于
+           lastActive 就返回 null」，看起来是在防零长区间，实际后果是所有「读完就停手」的会话
+           被**整段丢掉**（tracker 用例：持续交互 5 分钟后 stop，期望写入 1 行，实际 0 行）。
+           修正为「只判阈值非正」，并把这一条写成显式用例（now 恰等于 lastActive 必须返回 now）；
+        2) **热力图按日期聚合时同日多来源被覆盖而非相加**。第一版用 Map 字面量构造合计数，
+           同一日期出现两次时后一条覆盖前一条（widget 用例：同日 600 s + 300 s 期望 900，
+           实际 300）。之所以现在就会遇到：存储层已按日聚合，但调用方完全可以传入多来源合计。
+           修正为累加（update + ifAbsent）。
+
+      另外两处**设计决定**（不是缺陷，但值得记录）：
+        * **打开详情页即算一次活跃**。若要求等到第一次鼠标移动才开始计时，「打开文章静静读五
+          分钟」会被整段丢掉——而它正是最常见的阅读形态。因此 start() 同时锚定 lastActive，
+          超过阈值后由封顶规则自动停住（用例覆盖「一直不交互 → 只算到打开时刻 + 阈值」）；
+        * **写入失败不把区间塞回 pending**。否则下一次 flush 会把同一段时间重复写入，热力图上
+          凭空多出阅读时间。统计是估计值，丢一段比记重复更诚实（用例断言第二次 flush 不会重写）。
+
+    修改文件与主要行为：
+      - 新增 core/domain/reading_session.dart：SessionLocalZone 接口与 FixedOffsetZone、ReadingInterval、
+        ReadingSessionDraft、localDateKey、nextLocalMidnight、splitIntervalByLocalMidnight、
+        buildSessionDrafts、effectiveActiveEnd。**时区可注入**是跨午夜可测的前提——测试里用
+        FixedOffsetZone 构造 UTC+8 与 UTC-5 两个世界，无需改动进程时区（DateTime.toLocal 做不到）；
+        墙钟时间统一按「用 UTC 编码的当地读数」约定传递，避免进程时区二次解释；
+      - 新增 core/domain/reading_stats.dart：ReadingDayTotal、HeatmapLevel/HeatmapCell/HeatmapWeek/
+        YearHeatmap、WeeklyBar/WeeklyBars、displayMinutes（有秒数至少显示 1 分钟，避免「读了一点」
+        与「没读」显示成同一个 0）、heatmapLevelFor（10/30/60 分钟档）、buildYearHeatmap（周一为列、
+        年外与未来格子 inYear=false 与 0 值格可辨）、buildWeeklyBars（标签由调用方注入本地化文案，
+        core 不带 l10n）、yearOfLocalDate；
+      - 新增 core/domain/reading_stats_store.dart：读写端口（写入接受**已拆好的 draft**，避免存储层
+        把午夜拆分实现第二遍）；
+      - 新增 infrastructure/local/reading_stats_store.dart：单事务批量写入、按 local_date 文本范围
+        SUM 聚合（**不按 UTC 时间范围**，因此查询端不做时区换算）、activeYears 用 substr 取年份、
+        clearAll 只删 reading_sessions；
+      - 新增 infrastructure/local/degraded_reading_stats_store.dart：降级读返回空、写与清空类型化失败；
+      - 新增 infrastructure/platform/device_local_zone.dart：按当前偏移的固定偏移实现（如实记录
+        「夏令时切换日不自动换偏移」这一边界，不用它冒充已支持全球所有时区）；
+      - 新增 features/statistics/application/{reading_session_tracker,reading_stats_ports,
+        reading_stats_state,reading_stats_controller}.dart：tracker 不持有 Timer（心跳由页面驱动，
+        计时规则可确定性验证）、start/flush/stop 全部幂等、SET-015 读取失败按默认值「开」继续
+        （统计是可选辅助功能，一次读设置失败不该整段失效，也不该被当成「用户关了」）；控制器
+        的年/日聚合结果与「今天」留给界面（标签是本地化文案，控制器没有 BuildContext）；
+      - 新增 features/statistics/presentation/{reading_stats_page,heatmap_cell_tile,
+        session_interaction_listener}.dart：热力图（0 值格有底色与边框、图例 5 档、每格 Tooltip 给
+        「日期：N 分钟」，同时覆盖悬停与长按）、七日柱状图（柱顶文字分钟数）、年份下拉来自真实数据、
+        清空按钮走确认对话框；交互监听用 Listener + Focus（不参与手势竞技场，避免影响既有选区/
+        链接/图片点击）；
+      - 修改 features/articles/presentation/article_detail_page.dart：WidgetsBindingObserver 接收
+        生命周期（resumed → 可见，inactive/paused/hidden/detached → 不可见）、1 秒心跳驱动 tick、
+        dispose 时 fire-and-forget stop；
+      - 修改 features/settings/presentation/settings_page.dart：SET-015 从「即将推出」占位列表移除，
+        改为「阅读统计」入口（占位项 14 → 13），设置值在统计页内真实读写；
+      - 修改 lib/app/app_providers.dart 与 test/app/test_harness.dart：统计三个端口（统计存储/会话
+        时区/时钟）参数化注入（Riverpod 禁止同一容器重复覆盖同一 Provider，测试必须走组合根参数）；
+      - 新增 l10n：35 条统计文案（中英同步）；
+      - 新增测试：test/features/statistics/{reading_session_test（19 条纯函数：时区互逆、跨午夜
+        单/两/三段、正好落在午夜、跨月末年末、空闲封顶、日期键字典序）、reading_session_tracker_test
+        （18 条：关闭不记录、读设置失败按默认值、持续交互全计入、空闲超阈只算到阈值、恢复交互续记、
+        打开即算活跃、失焦暂停不补回、重复投递不重复计时、start/stop 幂等、周期 flush、跨午夜端到端、
+        写失败不重复）、reading_stats_widget_test（12 条：0 值格与占位格区分、Tooltip 含日期与分钟、
+        5 档颜色互异、分钟折算、年网格覆盖与年外标记、合计/活跃天数、未来日期、七日序与归一化）、
+        reading_stats_page_test（7 条端到端：真实库 → 控制器 → 图表渲染、空态、清空确认后库真空且
+        设置值保留、取消清空数据仍在、关开关只改设置不删历史、年份切换、端口未覆盖必须抛错）} 与
+        test/infrastructure/local/reading_stats_store_test.dart（10 条：跨午夜两行聚合、同日 SUM、
+        范围含两端、空批次、进行中会话可空结束时间、年份倒序去重、清空只清会话、清空空库幂等、
+        外键拒绝与先清后删）；
+      - 重出 test/app/golden/settings_dark_en.png（设置页多了一个导航行、占位项少一项，人工确认过）。
+    数据迁移/删除/依赖变化：**无 schema 变更**（reading_sessions 表与两个索引在 T009 已就绪，
+      local_date/time_zone/effective_seconds 都是既有列）；无删除；**无新增第三方依赖**
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | 无依赖变化
+      dart run build_runner build | 0 | PASS | 无告警
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1040 通过 / 2 跳过 / 0 失败（本轮相对 T022 的 977 新增 63 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      flutter test integration_test/t023_evidence_test.dart -d macos | 0 | PASS | 真实 macOS 窗口
+        进入统计页，供外部截图（见下）
+    UI/真实端点/双设备测试：capture_t023.sh 在本机真实 macOS 窗口按窗口 id 截图（screencapture -l），
+      产出 1 张 2400×1664 的证据图：
+      /Volumes/taurus/Document/Code/Flux-m0-workspace/evidence/screenshots/T023/stats_page_light_zh_wide.png
+      图内可见：SET-015 开关与「空闲 5 分钟后暂停累计」、「年度热力图」2026 选择器、「这一年累计 458
+      分钟 / 有记录 14 天」、GitHub 风格格子（含**可辨的 0 值浅色格**与无深色的年外留白）、「少 ■■■■■ 多」
+      图例、近七日柱状图（柱顶分别写 47/33/19/5 与 0，横轴为周三…周二与日期）。证据正文使用保留域名
+      （evidence.example.com），不访问真实站点。**未做**：浅深两套主题、窄窗布局、中英两套文案的
+      截图（属 T051 的视觉审计范围）
+    费用与秘密：未发起任何 AI/搜索调用，无费用；统计**只写本机会话表**，不发任何网络请求；时段与
+      文章 id 之外不含用户内容，诊断只记「落库 N 段」这类计数
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增了一条在每次打开正文时都会运行的采集路径，属复核适用范围，但
+         本轮未拿到维护者结论，因此如实写「DONE（缺失 REVIEW）」；
+      2) **REVIEW 时最该复核的一条**：DeviceLocalZone 用的是「当前偏移的固定偏移」实现
+         （dart:io 的 timeZoneOffset + timeZoneName，不引入时区数据库）。对无夏令时地区（中国大陆
+         等）与真实行为一致，但**在有夏令时的地区、切换当天可能差一小时**。彻底解决需要 tzdata 或
+         平台 API，属后续任务；本轮不用它冒充「已支持全球所有时区」；
+      3) **会话时区在应用启动时取一次快照**（组合根注入）。用户在应用运行期间跨时区旅行时，新会话
+         仍按启动时的时区归属。若改为每写一行都重读系统时区，同一次会话的不同片段可能落到不同
+         日期上，反而更难解释——本轮选择前者并在此如实记录；
+      4) **空闲暂停不区分「窗口在前台但人已离开」与「窗口失去焦点」**：前者靠 5 分钟阈值封顶，
+         后者靠生命周期回调立即暂停。桌面端没有可靠的「用户是否真的在看」信号，因此统计口径明写
+         为「估计值，不是精确阅读证明」（界面底部也写了这句）；
+      5) **心跳间隔为 1 秒**（生产由页面 Timer.periodic 驱动）。空闲阈值最小 1 分钟，1 秒粒度足以在
+         阈值到达时停住；但这也意味着应用在后台时**完全不计时**（桌面无系统级后台调度，与 T016 的
+         记录同一条限制）；
+      6) **未做统计的跨设备同步**（架构 5.3 明确首发不跨设备相加）；T041 的同步范围也不含会话统计；
+      7) 清空统计**不可撤销**（架构第 7 节要求危险操作「显示影响」——本轮以确认对话框列出影响范围
+         满足这一条，但没有实现撤销；统计是估计值，语义上无需像状态删除那样提供撤销）；
+      8) Android 工程仍未初始化；9) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T023 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与本轮记录。空闲阈值取 SET-015 的既有范围（1–30，默认 5），
+      未引入新设置项；热力图档位阈值（10/30/60 分钟）是展示口径，写在 domain 注释里，可调
+    提交/差异范围：提交 "T023: reading sessions, yearly heatmap and weekly stats"（7214d15）；
+      基线为 3016cb0（T022 文档提交）。未 push
+    下一可执行任务及前置条件：T024（用户主动获取静态网页正文），前置 T013/T019/T020 已 DONE
+
+
+### 7.1.18 轮次记录 R024（T024）
+
+    轮次/日期：R024 / 2026-09-22
+    任务 ID 与状态变化：T024 TODO → DONE（M1 第十六项，**M1 里程碑出口**；缺失 REVIEW，理由同前几轮：
+      本轮新增 schema 版本（v8）与一条面向任意第三方网页的出网路径）
+    相关决策/功能/SET 项：架构 4.2（F-READ：主动提取只用 HTTP + 静态解析，不执行脚本、不绕过
+      登录/付费墙/验证码；失败保留原内容并给外部浏览器入口）、架构 5.1（正文完整性四态里的
+      extracted）、架构 8（不可信外部内容在边界校验、不引入浏览器运行时）、D-05/D-06
+
+    **本轮最关键的边界：抓取的信任链复用，与新的一层——「什么算正文」**
+
+      T024 面对的是**任意第三方网页**，比 T013（用户配置的订阅源）与 T021（文章内嵌图片）
+      更接近通用抓取器，因此最容易出现「新写一套判据」的诱惑。本轮的选择是把已有的两层直接复用：
+
+        * **地址与字节边界**：全部走既有实现。地址用 UrlGuardPolicy.embeddedContent（第三方内容
+          策略，拒绝私网/回环，与订阅源的 configuredSource 策略有意不同），DNS 解析后逐结果复检，
+          重定向逐跳复检；字节侧从 T013 的 feed_fetcher 把「有界读取 + 有界 gzip 解压 + BOM/charset
+          解码」抽成 infrastructure/network/response_body.dart，两处共用（写两份必然有一份先被加固）；
+        * **HTML 的白名单与危险 URL**：交给 T013 的 sanitizeHtmlToDocument。本层只做「选哪一块」，
+          绝不自建第二套过滤。
+
+      新写的只有「选正文」与「判失败类别」这两层，且都是纯函数（可用 fixture 离线验证）：
+
+      | 步骤 | 做法 | 为什么不能更简单 |
+      | --- | --- | --- |
+      | 去噪音 | 按**深度配对**移除 script/style/nav/footer/aside/header/form 等 | 正则替换标签会被脚本里的 `</div>` 字符串骗到，把脚本文本留在正文里 |
+      | 取 body | 先按 `<body>` 切一刀 | 浏览器遇到 body 会隐式闭合 head，而清洗器把 head 当「连同内容丢弃」。少写 `</head>` 的畸形页面否则会让**整篇正文被丢掉**（实测踩到）|
+      | 选区域 | article → main → role=main/#content 一类容器 → 最大文字块 → 整页 | 只认语义标签会漏掉大量用 div 的老站点 |
+      | 判失败 | 付费墙迹象 / 正文过短 / 无正文 | 三者对用户的下一步动作不同（改订阅 / 用浏览器 / 就是没有）|
+
+      **开发中被测试抓到的三类真实问题**（前两类是缺陷，第三类是夹具结论）：
+
+        1) **正则里的转义被写了两遍**（`\\b`、`\\s` 落进 raw 字符串后不匹配任何东西），导致付费墙的
+           meta 与 class 两类迹象**永远检测不到**（用例：识别 meta 与 class 类迹象，期望两个信号，
+           实际只有 inlineText）。修正为单层转义，并用 `\x22/\x27` 表达引号以免与 Dart 的单引号
+           字符串打架；
+        2) **缺 `</head>` 的畸形页面正文为空**。清洗器把 head/title 视为连同内容丢弃，而浏览器会在
+           遇到 body 时隐式闭合 head。抽取器现在先取 body 内容，与浏览器行为一致（用例：畸形页面
+           仍能抽出正文，且夹具断言它**确实**缺 </head>）；
+        3) **drift 的 schemaAt(7) 快照建不出 fts5 触发器**。v7→v8 迁移用例最初断言「升级后历史文章
+           仍能被搜到」，实测 0 命中——探针显示该合成库里 `sqlite_master.type='trigger'` 为空
+           （fts5 表与影子表在，触发器不在）。因此把断言收窄为「检索对象仍在」，并在用例注释里写明
+           真实触发器路径由 migration_v6_to_v7_test 覆盖，避免留下一条**看起来在测迁移、实际在测
+           夹具构造方式**的断言。
+
+    修改文件与主要行为：
+      - 新增 infrastructure/network/response_body.dart（从 feed_fetcher 抽出）：readBoundedBody
+        （声明长度 + 流式计数 + 超时）、decodeResponseBody、gunzipBounded（chunked 解压、边解压边计数）、
+        decodeText/decodeUtf16；feed_fetcher 改为调用它，行为不变（T013 的 32 条用例全绿）；
+      - 新增 infrastructure/network/static_page_fetcher.dart：HttpStaticPageFetcher（手动跟随重定向、
+        逐跳守卫与 DNS 复检、环检测、10 MiB 上限、30 秒超时、401/402/403 明确说明「不绕过访问限制」
+        且标为不可重试）；
+      - 新增 infrastructure/network/static_page_fetcher_adapter.dart：把抓取结果适配成 features 侧
+        端口（features 不得 import infrastructure，架构 2.2）；
+      - 新增 features/articles/domain/static_article_extractor.dart：extractStaticArticle 纯函数
+        （去噪音 → 取 body → 选区域 → 交清洗器 → 收集图片地址），StaticExtraction 结果含 outcome/
+        title/text/imageUrls/paywallSignals/usedRegion；kMinUsableTextLength=200 作为「可能纯 JS
+        渲染」的阈值；
+      - 新增 features/articles/application/fetch_original_article.dart：FetchOriginalArticleUseCase
+        与 StaticPageFetcherPort。**接口形状上不可能自动批量**（只接受单个 articleId + sourceUrl，
+        不接收集合、无定时器）；失败与「没抽到正文」两条路径都**没有任何写操作**；
+      - 新增 features/articles/application/article_extraction_ports.dart：提取存储、抓取端口与用例的
+        Provider（默认实现抛错，漏接线立刻暴露）；
+      - 新增 infrastructure/local/article_extraction_store.dart：只写 extracted_* 五列 + updated_at，
+        正文与哈希**一起更新**（只更新一个会让下次比较用错基准）；哈希未变时不重写大字段但仍然更新
+        时间（用户确实又点了一次）；
+      - 新增 infrastructure/local/degraded_article_extraction_store.dart：降级读空、写失败；
+      - 修改 infrastructure/local/tables/article_tables.dart：新增 extractedBody / extractedBodyHash /
+        extractedAt / extractedTitle / extractedImageUrls 五列（**分列存**，不覆盖 body——架构 4.2
+        要求失败保留原内容，且用户需要两份对照）；
+      - 修改 infrastructure/local/database.dart：schema v7 → **v8** 增量迁移（五列全部可空且不回填，
+        先 `_columnExists` 判存在再 ADD COLUMN）。**必须同步在 v4→v5 的 alterTable newColumns 里声明
+        这五列**：drift 的搬数据语句按**当前**表定义生成，不声明会让 v4 及更早的库升级时报
+        `no such column: extracted_body`（与 v6 的 image_url 完全同一个坑，实测踩到）；
+      - 修改 features/articles/presentation/article_detail_page.dart：「获取原站全文」入口条
+        （未提取/已提取/抓取中三态、只在点击时抓取的说明、原文/提取正文切换、失败时保留原文并给
+        「在浏览器打开」）；打开文章只**读**已存的提取正文，不发请求；
+      - 修改 lib/app/app_providers.dart 与 test/app/test_harness.dart：提取存储与静态抓取端口接线，
+        抓取端口参数化（Riverpod 禁止重复覆盖）；
+      - 新增 l10n：13 条原站全文文案（中英同步）；
+      - 新增测试：test/features/articles/static_article_extractor_test（19 条：正常文章标题/正文/图片、
+        噪音剔除、付费墙三类迹象与「提示不阻止」、正文里出现「付费」不误报、纯 JS 站、畸形页面、
+        输入截断、空输入、图片地址上限、script/事件属性/javascript: 不进结果、标题回退与实体解码、
+        区域选择与整页兜底）、fetch_original_article_test（15 条：一次调用一个请求、构造不抓取、地址
+        非法不发请求、成功保存、付费墙仍保存、纯 JS 不保存、网络失败不写、存储失败如实报告、非 http
+        协议/字面量私网/DNS 解析到私网/重定向到内网四种拒绝都不发请求、正常抓取与重定向计数、体积
+        上限、403 不绕过且不可重试）、article_extraction_page_test（6 条组件：打开不请求、点击后抓
+        取一次并渲染提取正文且可切回、失败显示原因与外开入口且原文仍在、纯 JS 提示、付费墙提示、
+        已存提取重开直接可用且默认仍显示原文）、article_extraction_store_test（10 条数据层：往返、
+        从未提取为 null、不存在文章、多图往返、保存不动阅读状态/收藏/源正文/源哈希、清除后源正文仍在、
+        哈希未变不重写正文但更新时间、哈希变化正文与哈希一起更新、只有时间无正文视为未提取）、
+        migration_v7_to_v8_test（3 条：五列就绪且旧数据与检索对象零丢失、升级后可写提取正文、空库
+        升级建出列）与 schema_snapshot_test 的 v8 分支；test/fixtures/ 新增 5 个静态网页夹具与
+        完整性断言。
+    数据迁移/删除/依赖变化：schema **v7 → v8**（articles 新增五个可空的提取列；不回填，不改既有列
+      语义）；无删除；**无新增第三方依赖**
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | 无依赖变化
+      dart run build_runner build | 0 | PASS | 无告警
+      dart run drift_dev schema dump lib/infrastructure/local/database.dart drift_schemas/ | 0 | PASS |
+        新增 drift_schema_v8.json
+      dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/generated/ | 0 |
+        PASS | 生成 test/generated/schema_v8.dart（既有迁移测试的当前版本常数 7 → 8）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1098 通过 / 2 跳过 / 0 失败（本轮相对 T023 的 1040 新增 58 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    性能烟测：无（本轮无索引/查询计划改动；静态抽取是单次页面级处理，输入上限 4 MiB 与响应上限
+      10 MiB 都是显式参数）
+    费用与秘密：未发起任何 AI/搜索调用，无费用；**未在本轮做任何真实站点的端到端抓取**（全部用
+      MockClient + fixture，符合「不扩大 T021 遗留的真实 CDN 端到端」这一边界）；抓取请求带项目标识
+      UA（不含凭据），错误信息只保留异常类型，不打印页面内容
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增 schema 版本与一条面向任意第三方网页的出网路径，属复核适用范围，
+         但本轮未拿到维护者结论，因此如实写「DONE（缺失 REVIEW）」；
+      2) **未做真实站点的端到端抓取**（全部 fixture + MockClient）。真机抓取的差异主要在编码与
+         重定向的真实组合上，而这两条已由 T013 的真实源证据（7.1.6）与本轮的定向用例覆盖。按任务
+         给定的边界「不接真实 CDN 端到端（不扩大 T021 遗留）」，本轮**不声称**已在真实站上验证；
+      3) **付费墙只提示不绕过**，且判据是启发式的（meta 关键词、类名、正文提示语）——会有**漏报**
+         （站点用别的写法）与**误报**（把 paywall 当普通类名）。因此提示的措辞是「可能要求付费或
+         登录」，不是断言；用户仍能看到抓到的东西；
+      4) **正文抽取是启发式的**：优先语义标签，其次最大文字块。对「正文分散在多个同级 div」的站点
+         只能取到其中最大的一块，剩余部分不入提取结果（**源正文仍在**，用户可切回）。这一限制
+         写在界面可切的对照里，而不是当作已解决；
+      5) **未做 `extracted` 完整性四态的回写**：T024 把提取正文单独存列，`articles.bodyCompleteness`
+         （sourceBody/summaryOnly/extracted/unknown）**保持描述源正文**不变。详情页的完整性徽标因此
+         仍显示源侧判定，而提取结果另有一行提示说明。把徽标改成随显示内容变化需要一套更细的
+         状态定义，属后续任务；本轮不做（避免让同一个字段同时描述两份正文）；
+      6) **未做提取结果的过期/失效处理**：站点改版后旧的提取正文会一直留着，直到用户再次点击获取
+         （按哈希判修订）。自动失效需要「多久算过期」这样一个产品口径，本轮不自行决定；
+      7) **未做「无 sourceUrl 的文章」的特殊入口**：这类文章的按钮会明确报「这篇文章没有可访问的
+         原站地址」，不发起请求；但仍保留了按钮（而不是隐藏），因为隐藏会让用户以为功能没做；
+      8) **DNS 复检的 TOCTOU 窗口仍在**（与 T021 同一条已知边界）：本层是「先解析、再校验、然后用
+         已校验的地址发起请求」，两次解析之间的窗口只能收敛、无法彻底消除（需连接级地址固定）；
+      9) **未对静态抓取做「同域限速/robots 遵从」**：本轮只有用户逐次点击这一条路径，因此不存在
+         批量抓取；若将来加入任何自动路径，必须同时补上这两项（本轮不做，也不声称已合规）；
+      10) Android 工程仍未初始化；11) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T024 → DONE，标注
+      缺失 REVIEW）、状态摘要、功能账本与本轮记录。付费墙「只提示不绕过」、无隐藏浏览器、无自动
+      全站爬取三条均为既定产品边界，本轮未改动任何一条；schema v8 的五列与全文抓取上限
+      （10 MiB / 30 秒 / 5 次重定向）沿用 T013 的既有口径
+    提交/差异范围：提交 "T024: on-demand static full-text extraction with original fallback"
+      （2197348）；基线为 7214d15（T023）。未 push
+    下一可执行任务及前置条件：M1 出口达成（T009–T024 全部 DONE）。下一任务 T025（统一 AIProvider
+      能力契约/模型管理），前置 T010/T007 已 DONE，属 M2 起点；开始前需按手册 5 的流程确认 M2 的
+      凭据/费用授权范围
+
 
 实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
@@ -1757,6 +2044,8 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 构建产物（T008 实测）：`flutter build macos --debug` 退出 0，产物 `build/macos/Build/Products/Debug/Flux.app`（debug 类型，非正式签名包，不代表可分发）。
 
 已知工具链行为：build_runner 2.16.1 已移除 `--delete-conflicting-outputs`（运行时会提示 "These options have been removed and were ignored"，退出码仍为 0）。手册 6.2 的命令基线保留该参数以兼容旧版本；它不再改变行为，生成物只写入 git 忽略的 `.dart_tool/build/`。
+
+### 7.2 工具链与环境记录（T008 填写）
 
 ### 7.2.1 T021/T022 新增的运行时能力（均无第三方依赖）
 
