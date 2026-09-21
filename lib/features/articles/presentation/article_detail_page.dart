@@ -23,8 +23,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/ai/application/ai_availability.dart';
+import 'package:flux/features/ai/application/model_manager_controller.dart';
 import 'package:flux/features/ai/application/vision_ports.dart';
 import 'package:flux/features/ai/application/visual_router.dart';
+import 'package:flux/features/ai/domain/ai_model.dart';
 import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/vision_consent.dart';
 import 'package:flux/features/ai/domain/vision_routing.dart';
@@ -44,6 +46,8 @@ import '../application/fetch_original_article.dart';
 import '../application/article_platform_ports.dart';
 import '../application/article_state.dart';
 import '../application/article_text_actions.dart';
+import '../application/article_ai_providers.dart';
+import '../application/article_ai_text_tasks.dart';
 import '../application/article_vision_analysis.dart';
 import '../application/reader_outline.dart';
 import '../domain/markdown_to_document.dart';
@@ -138,6 +142,21 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
 
   /// 进行中的图像分析取消信号；非空表示正在跑。
   AiCancellation? _visionCancellation;
+
+  /// AI 摘要面板状态（T034）。null 表示没有面板。
+  AiSummaryState? _summary;
+
+  /// 选词解释浮层状态（T034）。null 表示没有浮层。
+  SelectionExplainState? _explanation;
+
+  /// 当前文章的源正文（摘要与解释都用它作为材料）。
+  ///
+  /// 名字里带 source：页面上还有一个 `_body(l10n)` 方法负责构建正文视图，同名会让
+  /// 「读源码正文」在调用点变得歧义（Dart 里字段会遮蔽同名方法）。
+  String? _sourceBody;
+
+  /// 已存在的 AI 摘要（打开文章时读一次）。
+  AiSummaryRecord? _savedAiSummary;
 
   /// 每个顶层块的位置 key（目录跳转用）。
   List<GlobalKey> _blockKeys = <GlobalKey>[];
@@ -362,9 +381,18 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     final DocDocument? document = raw == null || raw.trim().isEmpty
         ? null
         : parseMarkdownToDocument(raw);
+    // 已存在的 AI 摘要（T034）：只读一次，供摘要面板与「AI 摘要」标注使用。
+    final Result<AiSummaryRecord?> savedAiSummary = entry == null
+        ? const Ok<AiSummaryRecord?>(null)
+        : await store.readAiSummary(entry.id);
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _entry = entry;
       _document = document;
+      _sourceBody = raw;
+      _savedAiSummary = savedAiSummary.valueOrNull;
       _loading = false;
       _blockKeys = List<GlobalKey>.generate(
         document?.children.length ?? 0,
@@ -454,19 +482,120 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     _notify(l10n.readingCopyAllDone(text.length));
   }
 
-  /// 「解释」选区：入口与提示（真正的调用属 T034）。
+  /// 「摘要」按钮：为当前文章生成 AI 摘要（T034）。
   ///
-  /// 无论 AI 是否已配置，都**不发起任何请求**：T020 的验收是「复制/查询占位可接用例，
-  /// 查询未配置提示」，调 AI 是 T034。因此两条路径都给明确说明，而不是一个看起来能用
-  /// 却什么都不做的按钮。
+  /// 三条行为与架构条文对应：
+  ///   1) **不覆盖源摘要**：结果写 ai_summary 三列（仓储只写这三列），源摘要在；
+  ///   2) **长文标截断**（SET-061）：面板说明「正文已截断」；
+  ///   3) **取消不改原文**：取消只中止生成，正文一个字都不变。
+  Future<void> _summarizeArticle() async {
+    final AiSummaryState? current = _summary;
+    if (current is AiSummaryRunning) {
+      return;
+    }
+    final Result<List<AiModel>> models = await ref
+        .read(modelManagerProvider)
+        .loadEnabledModels();
+    if (!mounted) {
+      return;
+    }
+    if (models.isErr || models.valueOrNull!.isEmpty) {
+      // 没有可用模型：走与「未配置 AI」同一条路径（提示 + 去设置），而不是发起一次注定
+      // 失败的请求。
+      await _showAiNotConfigured(
+        AppLocalizations.of(context).readingSummaryNoModelBody,
+      );
+      return;
+    }
+    final AiCancellation cancellation = AiCancellation();
+    setState(() => _summary = AiSummaryRunning(cancellation: cancellation));
+    final ArticleSummaryOutcome outcome = await ref
+        .read(articleSummaryServiceProvider)
+        .summarize(
+          taskId: 'article-summary-${widget.articleId}',
+          body: _bodyText(),
+          models: models.valueOrNull!,
+          cancellation: cancellation,
+        );
+    if (!mounted) {
+      return;
+    }
+    if (outcome.summary case final AiSummaryRecord record) {
+      final Result<void> saved = await ref
+          .read(articleCatalogProvider)
+          .saveAiSummary(articleId: widget.articleId, summary: record);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _summary = saved.isErr
+            ? AiSummaryFailed(error: saved.errorOrNull!)
+            : AiSummaryDone(record: record, truncated: outcome.truncated);
+      });
+      return;
+    }
+    setState(() {
+      _summary = outcome.skippedReason != null
+          ? const AiSummarySkipped()
+          : AiSummaryFailed(error: outcome.error!);
+    });
+  }
+
+  /// 取消进行中的摘要生成。
+  void _cancelSummary() {
+    final AiSummaryState? current = _summary;
+    if (current is AiSummaryRunning) {
+      current.cancellation.cancel(reason: 'userCancelled');
+      // 取消**不改原文**，也不写库：只把面板收回。
+      setState(() => _summary = null);
+      _notify(AppLocalizations.of(context).readingSummaryCancelled);
+    }
+  }
+
+  /// 当前显示用的正文文本（源正文或提取正文，与渲染那一份一致）。
+  String? _bodyText() {
+    if (_showExtracted) {
+      final ExtractedArticleBody? extraction = _extraction;
+      if (extraction != null) {
+        return extraction.body;
+      }
+    }
+    return _sourceBody;
+  }
+
+  /// 未配置 AI / 没有可用模型时的提示（含「去设置」）。
+  Future<void> _showAiNotConfigured(String body) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(l10n.readingSelectionExplainNoAiTitle),
+        content: Text(body),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.subscriptionClose),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ref.read(settingsNavigationRequestProvider.notifier).request();
+            },
+            child: Text(l10n.readingSelectionExplainGoSettings),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 选词解释：真实调用（T034；替换 T020 的「本轮只做入口」占位）。
   Future<void> _explainSelection(String selection) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final SelectionExplanationRequest request =
-        SelectionExplanationRequest.fromDocument(
-          plainText: _document == null ? '' : articlePlainText(_document!),
-          selection: selection,
-        );
-    if (request.selection.isEmpty) {
+    final SelectionExplanationInput input = buildSelectionExplanationInput(
+      plainText: _document == null ? '' : articlePlainText(_document!),
+      selection: selection,
+    );
+    if (input.selection.isEmpty) {
       return;
     }
     final bool configured = await _hasAiCredential();
@@ -474,32 +603,62 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
       return;
     }
     if (!configured) {
-      await showDialog<void>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text(l10n.readingSelectionExplainNoAiTitle),
-          // 说清「将发送什么」：架构 2.3 要求首次配置逐项告知接收者，而选词解释是
-          // 第一次把用户正文的一部分交给外部服务的地方。
-          content: Text(l10n.readingSelectionExplainNoAiBody(1200)),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.subscriptionClose),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // 跳设置：解释需要 AI 配置，把用户直接送到那里，而不是只留一句话。
-                ref.read(settingsNavigationRequestProvider.notifier).request();
-              },
-              child: Text(l10n.readingSelectionExplainGoSettings),
-            ),
-          ],
-        ),
-      );
+      await _showAiNotConfigured(l10n.readingSelectionExplainNoAiBody(1200));
       return;
     }
-    _notify(l10n.readingSelectionExplainPending);
+    final Result<List<AiModel>> models = await ref
+        .read(modelManagerProvider)
+        .loadEnabledModels();
+    if (!mounted) {
+      return;
+    }
+    if (models.isErr || models.valueOrNull!.isEmpty) {
+      await _showAiNotConfigured(l10n.readingSummaryNoModelBody);
+      return;
+    }
+    setState(
+      () => _explanation = SelectionExplainRunning(
+        selection: input.selection,
+        cancellation: AiCancellation(),
+      ),
+    );
+    final AiCancellation cancellation =
+        (_explanation! as SelectionExplainRunning).cancellation;
+    final SelectionExplainOutcome outcome = await ref
+        .read(selectionExplainServiceProvider)
+        .explain(
+          taskId: 'article-explain-${widget.articleId}',
+          plainText: _document == null ? '' : articlePlainText(_document!),
+          selection: selection,
+          models: models.valueOrNull!,
+          cancellation: cancellation,
+        );
+    if (!mounted) {
+      return;
+    }
+    // 失败与取消**都不改动正文**（架构 4.2）：结果只落在这个浮层里。
+    setState(() {
+      _explanation = outcome.ok
+          ? SelectionExplainDone(
+              selection: input.selection,
+              text: outcome.text!,
+              contextTruncated: outcome.contextTruncated,
+              sentCharacters: outcome.sentCharacters,
+            )
+          : SelectionExplainFailed(
+              selection: input.selection,
+              error: outcome.error,
+            );
+    });
+  }
+
+  /// 关闭解释浮层（不改原文）。
+  void _closeExplanation() {
+    final SelectionExplainState? current = _explanation;
+    if (current is SelectionExplainRunning) {
+      current.cancellation.cancel(reason: 'userCancelled');
+    }
+    setState(() => _explanation = null);
   }
 
   /// AI 是否已配置。
@@ -829,6 +988,12 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
             icon: const Icon(Icons.copy_all),
             onPressed: _copyAllPlainText,
           ),
+          // 「摘要」（T034）：为这篇文章生成 AI 摘要；**不覆盖**源摘要。
+          IconButton(
+            tooltip: l10n.readingSummaryAction,
+            icon: const Icon(Icons.summarize_outlined),
+            onPressed: _summarizeArticle,
+          ),
           IconButton(
             tooltip: _findOpen ? l10n.readingFindClose : l10n.readingFindOpen,
             icon: Icon(_findOpen ? Icons.search_off : Icons.search),
@@ -860,6 +1025,20 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
                       state: panel,
                       onCancel: _cancelVisionAnalysis,
                       onClose: () => setState(() => _visionPanel = null),
+                    ),
+                  // AI 摘要面板（T034）：不覆盖源摘要，关闭面板也不改正文。
+                  if (_summary case final AiSummaryState summaryState)
+                    AiSummaryPanel(
+                      state: summaryState,
+                      sourceSummary: _entry?.summary,
+                      onCancel: _cancelSummary,
+                      onClose: () => setState(() => _summary = null),
+                    ),
+                  // 选词解释浮层（T034）：取消/失败都不改原文。
+                  if (_explanation case final SelectionExplainState explanation)
+                    SelectionExplainPanel(
+                      state: explanation,
+                      onClose: _closeExplanation,
                     ),
                   Expanded(
                     child: LayoutBuilder(
@@ -912,6 +1091,10 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
           ),
         if (_entry case final ArticleListEntry entry) ...<Widget>[
           _Header(entry: entry),
+          // AI 摘要（T034）：与源摘要**分列显示**并标注来源与生成时间。有 AI 摘要时
+          // 放在最上面，因为它是针对全文的（信息量最大）；源摘要仍在下面，没有被覆盖。
+          if (_savedAiSummary case final AiSummaryRecord aiSummary)
+            _AiSummaryCard(record: aiSummary),
           if (entry.bodyCompleteness == BodyCompleteness.summaryOnly)
             // 「仅摘要」必须明说：架构 4.2 明确不把源内 content 字段绝对当全文，
             // 而读者看到一段像正文的文字时无从分辨它是不是全文。
@@ -1267,6 +1450,352 @@ class _DocumentBody extends StatelessWidget {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(SnackBar(content: Text(l10n.readingLinkCopied)));
   }
+}
+
+/// AI 摘要卡片（正文顶部的「AI 摘要」标注，T034）。
+///
+/// 与源摘要**分开显示**：AI 摘要明确标出「AI 摘要」与模型与时间，源摘要仍在详情页的
+/// 元信息里——用户因此能分辨哪句话是谁写的（架构 4.2「原文始终保留」）。
+class _AiSummaryCard extends StatelessWidget {
+  /// 构造卡片。
+  const _AiSummaryCard({required this.record});
+
+  /// 摘要记录。
+  final AiSummaryRecord record;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: FluxSpacing.md),
+      padding: const EdgeInsets.all(FluxSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(FluxRadius.card),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            l10n.readingAiSummaryLabel(
+              record.modelLabelText,
+              record.generatedAt.toLocal().toIso8601String().substring(0, 10),
+            ),
+            style: theme.textTheme.labelSmall,
+          ),
+          const SizedBox(height: FluxSpacing.xs),
+          Text(record.text, style: theme.textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+}
+
+/// AI 摘要面板（T034）：进行中 / 成功 / 失败 / 跳过四种状态。
+class AiSummaryPanel extends StatelessWidget {
+  /// 构造面板。
+  const AiSummaryPanel({
+    super.key,
+    required this.state,
+    required this.onCancel,
+    required this.onClose,
+    this.sourceSummary,
+  });
+
+  /// 面板状态。
+  final AiSummaryState state;
+
+  /// 取消进行中的生成。
+  final VoidCallback onCancel;
+
+  /// 关闭面板。
+  final VoidCallback onClose;
+
+  /// 源摘要（用于说明「AI 摘要不覆盖它」）。
+  final String? sourceSummary;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final bool running = state is AiSummaryRunning;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+        FluxSpacing.md,
+        FluxSpacing.sm,
+        FluxSpacing.md,
+        0,
+      ),
+      padding: const EdgeInsets.all(FluxSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(FluxRadius.card),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text(l10n.readingSummaryTitle, style: theme.textTheme.titleSmall),
+              const Spacer(),
+              if (running)
+                TextButton(
+                  onPressed: onCancel,
+                  child: Text(l10n.readingSummaryCancelAction),
+                ),
+              IconButton(
+                tooltip: l10n.visionAnalysisClose,
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: onClose,
+              ),
+            ],
+          ),
+          if (running)
+            Row(
+              children: <Widget>[
+                const FluxLoadingIndicator(size: 16),
+                const SizedBox(width: FluxSpacing.sm),
+                Expanded(child: Text(l10n.readingSummaryRunning)),
+              ],
+            )
+          else
+            _summaryBody(l10n, theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryBody(AppLocalizations l10n, ThemeData theme) =>
+      switch (state) {
+        AiSummaryDone(:final AiSummaryRecord record, :final bool truncated) =>
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SelectableText(record.text),
+              if (truncated) ...<Widget>[
+                const SizedBox(height: FluxSpacing.xs),
+                // SET-061：正文被截断必须说明，否则用户会把摘要当成对全文的概括。
+                Text(
+                  l10n.readingSummaryTruncatedNotice,
+                  style: theme.textTheme.labelSmall,
+                ),
+              ],
+              if (sourceSummary?.trim().isNotEmpty ?? false) ...<Widget>[
+                const SizedBox(height: FluxSpacing.xs),
+                Text(
+                  l10n.readingSummarySourceKept,
+                  style: theme.textTheme.labelSmall,
+                ),
+              ],
+            ],
+          ),
+        AiSummaryFailed(:final AppError? error) => Text(
+          error == null
+              ? l10n.readingSummaryNoModelBody
+              : l10n.readingSummaryFailed(error.kind),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.error,
+          ),
+        ),
+        AiSummarySkipped() => Text(
+          l10n.readingSummaryNoBody,
+          style: theme.textTheme.bodyMedium,
+        ),
+        AiSummaryRunning() => const SizedBox.shrink(),
+      };
+}
+
+/// 选词解释浮层（T034）：结果只在这里显示，**不改动原文**。
+class SelectionExplainPanel extends StatelessWidget {
+  /// 构造浮层。
+  const SelectionExplainPanel({
+    super.key,
+    required this.state,
+    required this.onClose,
+  });
+
+  /// 浮层状态。
+  final SelectionExplainState state;
+
+  /// 关闭浮层。
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+        FluxSpacing.md,
+        FluxSpacing.sm,
+        FluxSpacing.md,
+        0,
+      ),
+      padding: const EdgeInsets.all(FluxSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(FluxRadius.card),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  l10n.readingSelectionExplainTitle(state.selection),
+                  style: theme.textTheme.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                tooltip: l10n.visionAnalysisClose,
+                icon: const Icon(Icons.close, size: 18),
+                onPressed: onClose,
+              ),
+            ],
+          ),
+          switch (state) {
+            SelectionExplainRunning() => Row(
+              children: <Widget>[
+                const FluxLoadingIndicator(size: 16),
+                const SizedBox(width: FluxSpacing.sm),
+                Expanded(child: Text(l10n.readingSelectionExplainRunning)),
+              ],
+            ),
+            SelectionExplainDone(
+              :final String text,
+              :final bool contextTruncated,
+              :final int sentCharacters,
+            ) =>
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SelectableText(text),
+                  const SizedBox(height: FluxSpacing.xs),
+                  // 说清「发了多少」与「上下文截过」：这是数据出境的可见性，不是细节。
+                  Text(
+                    contextTruncated
+                        ? l10n.readingSelectionExplainSentTruncated(
+                            sentCharacters,
+                          )
+                        : l10n.readingSelectionExplainSent(sentCharacters),
+                    style: theme.textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            SelectionExplainFailed(:final AppError? error) => Text(
+              error == null
+                  ? l10n.readingSelectionExplainFailedUnknown
+                  : l10n.readingSummaryFailed(error.kind),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          },
+        ],
+      ),
+    );
+  }
+}
+
+/// AI 摘要面板的状态（T034）。
+sealed class AiSummaryState {
+  /// 构造状态。
+  const AiSummaryState();
+}
+
+/// 正在生成。
+final class AiSummaryRunning extends AiSummaryState {
+  /// 构造状态。
+  const AiSummaryRunning({required this.cancellation});
+
+  /// 取消信号。
+  final AiCancellation cancellation;
+}
+
+/// 生成成功。
+final class AiSummaryDone extends AiSummaryState {
+  /// 构造状态。
+  const AiSummaryDone({required this.record, required this.truncated});
+
+  /// 生成的摘要。
+  final AiSummaryRecord record;
+
+  /// 正文是否被截断（SET-061）。
+  final bool truncated;
+}
+
+/// 生成失败。
+final class AiSummaryFailed extends AiSummaryState {
+  /// 构造状态。
+  const AiSummaryFailed({this.error});
+
+  /// 失败原因；null 表示「没有可用模型」这类配置问题。
+  final AppError? error;
+}
+
+/// 跳过（没有正文可总结）。
+final class AiSummarySkipped extends AiSummaryState {
+  /// 构造状态。
+  const AiSummarySkipped();
+}
+
+/// 选词解释浮层的状态（T034）。
+sealed class SelectionExplainState {
+  /// 构造状态。
+  const SelectionExplainState({required this.selection});
+
+  /// 用户选中的文本。
+  final String selection;
+}
+
+/// 正在解释。
+final class SelectionExplainRunning extends SelectionExplainState {
+  /// 构造状态。
+  const SelectionExplainRunning({
+    required super.selection,
+    required this.cancellation,
+  });
+
+  /// 取消信号。
+  final AiCancellation cancellation;
+}
+
+/// 解释成功。
+final class SelectionExplainDone extends SelectionExplainState {
+  /// 构造状态。
+  const SelectionExplainDone({
+    required super.selection,
+    required this.text,
+    required this.contextTruncated,
+    required this.sentCharacters,
+  });
+
+  /// 解释文本。
+  final String text;
+
+  /// 上下文是否被截断（最少上下文的上限被触发）。
+  final bool contextTruncated;
+
+  /// 实际发送的字符数。
+  final int sentCharacters;
+}
+
+/// 解释失败（不改原文）。
+final class SelectionExplainFailed extends SelectionExplainState {
+  /// 构造状态。
+  const SelectionExplainFailed({required super.selection, this.error});
+
+  /// 失败原因。
+  final AppError? error;
 }
 
 /// 图像分析结果面板（T033）。

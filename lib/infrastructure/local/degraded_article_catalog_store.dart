@@ -77,6 +77,30 @@ final class DegradedArticleCatalogStore implements ArticleCatalogStore {
       detail: '本次运行数据库不可用，撤销无法执行',
     ),
   );
+
+  @override
+  Future<Result<void>> saveAiSummary({
+    required int articleId,
+    required AiSummaryRecord summary,
+  }) async => Err(
+    StorageError(operation: 'saveAiSummary', detail: '本次运行数据库不可用，AI 摘要不会保存'),
+  );
+
+  @override
+  Future<Result<AiSummaryRecord?>> readAiSummary(int articleId) async =>
+      Err(StorageError(operation: 'readAiSummary', detail: '本次运行数据库不可用'));
+
+  @override
+  Future<Result<List<int>>> listArticlesMissingSummary({
+    required int limit,
+    int? feedId,
+    int offset = 0,
+  }) async => Err(
+    StorageError(
+      operation: 'listArticlesMissingSummary',
+      detail: '本次运行数据库不可用，自动摘要不会执行',
+    ),
+  );
 }
 
 /// 数据库不可用时的检索端口（T022 的降级启动路径）。

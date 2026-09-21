@@ -26,6 +26,7 @@ import '../domain/ai_model.dart';
 import '../domain/ai_model_references.dart';
 import '../domain/provider_preset.dart';
 import 'ai_failure_text.dart';
+import 'ai_auto_summary_toggle.dart';
 import 'ai_model_form.dart';
 import 'preset_status_badge.dart';
 
@@ -312,6 +313,10 @@ class _Body extends StatelessWidget {
         // 直接看到「哪些是实测、哪些只有夹具、哪些还没验证」，而不是靠文档。
         for (final ProviderPreset preset in PresetCatalog.all)
           _PresetRow(preset: preset),
+        const SizedBox(height: FluxSpacing.md),
+        // T034：缺摘要时自动 AI 摘要的开关（SET-037）。这一项直接决定会不会自动产生
+        // 费用，因此从「即将推出」占位里移出来，放在用户配置模型的地方。
+        const AiAutoSummaryToggle(),
         const SizedBox(height: FluxSpacing.md),
         Text(l10n.aiPlannedNotice, style: theme.textTheme.bodySmall),
       ],

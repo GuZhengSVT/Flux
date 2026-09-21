@@ -172,8 +172,8 @@ void main() {
       // 测试禁用原因、费用与数据发送确认框四句、成功回执、删除确认四句与失败、
       // 服务表单字段与提示（服务名/协议/端点/凭据三种状态/结果数/超时/内网批准）、
       // 以及未实现部分的说明）。
-      expect(_messageKeys(zh).length, 598);
-      expect(_messageKeys(en).length, 598);
+      expect(_messageKeys(zh).length, 619);
+      expect(_messageKeys(en).length, 619);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

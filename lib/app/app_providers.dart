@@ -47,6 +47,8 @@ import 'package:flux/infrastructure/local/degraded_article_extraction_store.dart
 import 'package:flux/infrastructure/local/degraded_reading_stats_store.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
+import 'package:flux/infrastructure/local/daily_summary_counter_store.dart';
+import 'package:flux/features/articles/application/article_ai_providers.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -425,6 +427,26 @@ List<Override> bootstrapOverrides(
     // 工具执行器的视觉分析端口（T033）：把视觉链路接到 inspectImage 上。
     toolVisionAnalyzerProvider.overrideWith(
       (Ref ref) => VisualRouterToolAnalyzer(ref.watch(visualRouterProvider)),
+    ),
+    // ---- T034：选词解释 / 单文摘要 / 自动摘要 ----------------------------------
+    //
+    // 日期时区与会话时区用**同一份快照**：两处各读一次设备时区会让「会话归属」与
+    // 「当天额度」在跨午夜的那一秒落在不同的日期上，而用户会看到「昨天的额度今天又
+    // 用了一遍」这种无法解释的计数。
+    summaryZoneProvider.overrideWithValue(
+      sessionZone ?? DeviceLocalZone.current(),
+    ),
+    // SET-061 的单材料预算：与 aiTaskBudgetProvider 同一口径，先用注册表默认值（8000），
+    // 由 T041 的同步投影统一接上「读用户值」。这里不引入第二套设置读取路径。
+    // 当天自动摘要计数：用 settings 窄表的 device. 命名空间（本机运行计数，不参与同步）。
+    // 数据库不可用时给 null（读取抛错 → 批处理会**不发请求**），这是 fail-closed 的方向：
+    // 功能暂时用不了，而不是绕过当天的费用上限。
+    dailySummaryCounterProvider.overrideWithValue(
+      // 数据库不可用时用「读失败、写失败」的降级实现，而不是让 Provider 抛错：批处理会因
+      // 读不到额度而**不发请求**（fail-closed），而抛错会让一次刷新带上一条无关的崩溃。
+      result.database == null
+          ? const DegradedDailySummaryCounter()
+          : SettingsDailySummaryCounter(result.database!),
     ),
   ];
 }

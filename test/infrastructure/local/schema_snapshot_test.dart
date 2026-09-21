@@ -757,5 +757,82 @@ void main() {
         );
       }
     });
+
+    test('v12 快照新增文章的 AI 摘要三列（T034），且不丢 v11 的任何实体', () {
+      final File v12Snapshot = File('drift_schemas/drift_schema_v12.json');
+      expect(
+        v12Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v12 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v12Decoded =
+          jsonDecode(v12Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v12Entities =
+          (v12Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v12Names = v12Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      // v11 的全部实体都必须保留：v12 **只加列**，不新增也不删除任何表/索引。
+      final Map<String, dynamic> v11Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v11.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v11Names = (v11Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v12Names,
+        v11Names,
+        reason: 'v12 只给 articles 加三列，实体集合必须与 v11 完全一致',
+      );
+
+      final Map<String, dynamic> articlesEntity = v12Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'articles',
+      );
+      final List<Map<String, dynamic>> articleColumns =
+          ((articlesEntity['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> columnNames = articleColumns
+          .map((Map<String, dynamic> c) => c['name'] as String)
+          .toSet();
+      expect(
+        columnNames,
+        containsAll(<String>[
+          'ai_summary',
+          'ai_summary_at',
+          'ai_summary_model',
+          // 源摘要必须仍在：AI 摘要**不覆盖**它（架构 4.2「原文始终保留」）。
+          'summary',
+        ]),
+      );
+
+      // 三列都可空且无默认值：历史行没有「生成过 AI 摘要」这个事实，
+      // 用源摘要或时间回填会让界面显示一个用户从未生成的摘要。
+      for (final String name in <String>[
+        'ai_summary',
+        'ai_summary_at',
+        'ai_summary_model',
+      ]) {
+        final Map<String, dynamic> column = articleColumns.firstWhere(
+          (Map<String, dynamic> c) => c['name'] == name,
+        );
+        expect(column['nullable'], isTrue, reason: '$name 必须可空');
+        expect(
+          column['default_dart'] ?? column['default'],
+          isNull,
+          reason: '$name 不得有默认值（回填会伪装成用户生成过）',
+        );
+      }
+    });
   });
 }

@@ -21,11 +21,14 @@ import 'package:flux/features/feeds/application/refresh_providers.dart';
 import 'package:flux/features/feeds/application/feed_overview.dart';
 import 'package:flux/features/feeds/presentation/feed_manager_controller.dart';
 import 'package:flux/features/feeds/presentation/refresh_outcome_text.dart';
+import 'package:flux/features/ai/application/model_manager_controller.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
 import '../application/article_list_state.dart';
+import '../application/article_ai_providers.dart';
 import '../application/article_search_state.dart';
+import '../application/auto_summary_batch.dart';
 import 'article_list_controller.dart';
 import 'article_list_view.dart';
 import 'article_search_view.dart';
@@ -295,6 +298,53 @@ class _ReadingToolbar extends ConsumerWidget {
       ..showSnackBar(SnackBar(content: Text(message)));
     // 刷新后重读列表：新文章要立刻出现，而不是等用户切页。
     await ref.read(articleListControllerProvider.notifier).reload();
+    if (!context.mounted) {
+      return;
+    }
+    // 自动摘要**只在刷新批处理里跑**（T034；手册「滚动不触发计费——只在刷新批处理中做」）。
+    // SET-037 关闭时 runAutoSummaryAfterRefresh 会直接返回（一个请求都不发）。
+    final AutoSummarySettings summarySettings = await ref.read(
+      autoSummarySettingsProvider.future,
+    );
+    final AutoSummaryBatchReport summaryReport =
+        await runAutoSummaryAfterRefresh(
+          settings: summarySettings,
+          loadModels: ref.read(modelManagerProvider).loadEnabledModels,
+          service: ref.read(autoSummaryBatchServiceProvider),
+        );
+    if (!context.mounted || summaryReport.disabled) {
+      return;
+    }
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    if (summaryReport.stoppedByQuota && !summaryReport.didWork) {
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.readingSummaryAutoQuotaReached(summarySettings.dailyLimit),
+            ),
+          ),
+        );
+      return;
+    }
+    if (!summaryReport.didWork) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.readingSummaryAutoBatchReport(
+              summaryReport.succeeded,
+              summaryReport.failed,
+              summaryReport.fromCache,
+              summarySettings.dailyLimit,
+            ),
+          ),
+        ),
+      );
   }
 }
 

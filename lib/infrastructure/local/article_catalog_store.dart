@@ -274,6 +274,119 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
   }
 
   @override
+  Future<Result<void>> saveAiSummary({
+    required int articleId,
+    required AiSummaryRecord summary,
+  }) async {
+    try {
+      // 补丁里**只有** ai_summary 三列：源摘要、正文、正文哈希、三态与收藏都不出现，
+      // 因此「写 AI 摘要顺手改了源代码的摘要」在这个实现里不可能发生。
+      final int changed =
+          await (_db.update(
+            _db.articles,
+          )..where(($ArticlesTable t) => t.id.equals(articleId))).write(
+            ArticlesCompanion(
+              aiSummary: Value<String?>(summary.text),
+              aiSummaryAt: Value<DateTime?>(summary.generatedAt),
+              aiSummaryModel: Value<String?>(summary.modelLabel),
+            ),
+          );
+      if (changed == 0) {
+        return Err<void>(
+          StorageError(
+            operation: 'saveAiSummary',
+            detail: '文章 $articleId 不存在',
+            isMissing: true,
+          ),
+        );
+      }
+      return okUnit();
+    } on Exception catch (error, stackTrace) {
+      return Err<void>(_storage('saveAiSummary', error, stackTrace));
+    }
+  }
+
+  @override
+  Future<Result<AiSummaryRecord?>> readAiSummary(int articleId) async {
+    try {
+      final Article? row =
+          await (_db.select(_db.articles)
+                ..where(($ArticlesTable t) => t.id.equals(articleId))
+                ..limit(1))
+              .getSingleOrNull();
+      if (row == null) {
+        return const Ok<AiSummaryRecord?>(null);
+      }
+      final String? text = row.aiSummary;
+      final DateTime? at = row.aiSummaryAt;
+      if (text == null || text.isEmpty || at == null) {
+        // 文本或时间缺一即视为「没有 AI 摘要」：只有文本没有时间，界面无法说明它是
+        // 什么时候生成的（而一个没有时间的摘要在正文改动后无法被判断是否还对应）。
+        return const Ok<AiSummaryRecord?>(null);
+      }
+      return Ok<AiSummaryRecord?>(
+        AiSummaryRecord(
+          text: text,
+          generatedAt: at,
+          modelLabel: row.aiSummaryModel,
+        ),
+      );
+    } on Exception catch (error, stackTrace) {
+      return Err<AiSummaryRecord?>(
+        _storage('readAiSummary', error, stackTrace),
+      );
+    }
+  }
+
+  @override
+  Future<Result<List<int>>> listArticlesMissingSummary({
+    required int limit,
+    int? feedId,
+    int offset = 0,
+  }) async {
+    if (limit <= 0) {
+      return const Ok<List<int>>(<int>[]);
+    }
+    try {
+      // 「缺摘要」= 源摘要与 AI 摘要都为空（空白串也算缺：源里给一个空 <description>
+      // 不是「有摘要」）。排序与列表一致（时间倒序、id 稳定），因此自动摘要总是先补
+      // 用户最可能看到的那几篇。
+      final SimpleSelectStatement<$ArticlesTable, Article> select =
+          _db.select(_db.articles)
+            ..where(
+              ($ArticlesTable t) =>
+                  _blank(t.summary) & _blank(t.aiSummary) & _inFeed(t, feedId),
+            )
+            ..orderBy(<OrderClauseGenerator<$ArticlesTable>>[
+              ($ArticlesTable t) => OrderingTerm.desc(
+                coalesce<DateTime>(<Expression<DateTime>>[
+                  t.publishedAt,
+                  t.fetchedAt,
+                ]),
+              ),
+              ($ArticlesTable t) => OrderingTerm.desc(t.id),
+            ])
+            ..limit(limit, offset: offset);
+      final List<Article> rows = await select.get();
+      return Ok<List<int>>(<int>[for (final Article row in rows) row.id]);
+    } on Exception catch (error, stackTrace) {
+      return Err<List<int>>(
+        _storage('listArticlesMissingSummary', error, stackTrace),
+      );
+    }
+  }
+
+  /// 「这一列是空的」（NULL 或只有空白）。
+  Expression<bool> _blank(GeneratedColumn<String> column) {
+    final Expression<String> trimmed = column.trim();
+    return column.isNull() | trimmed.equals('');
+  }
+
+  /// 可选的来源限定。
+  Expression<bool> _inFeed($ArticlesTable t, int? feedId) =>
+      feedId == null ? const Constant<bool>(true) : t.feedId.equals(feedId);
+
+  @override
   Future<Result<int>> restoreArticleStates(
     List<ArticleStateSnapshot> snapshots,
   ) async {
@@ -420,6 +533,9 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
       publishedAt: row.publishedAt,
       fetchedAt: row.fetchedAt,
       summary: row.summary,
+      aiSummary: row.aiSummary,
+      aiSummaryAt: row.aiSummaryAt,
+      aiSummaryModel: row.aiSummaryModel,
       sourceUrl: row.sourceUrl,
       author: row.author,
       imageUrl: row.imageUrl,

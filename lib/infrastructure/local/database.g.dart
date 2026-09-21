@@ -1881,6 +1881,39 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _aiSummaryMeta = const VerificationMeta(
+    'aiSummary',
+  );
+  @override
+  late final GeneratedColumn<String> aiSummary = GeneratedColumn<String>(
+    'ai_summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _aiSummaryAtMeta = const VerificationMeta(
+    'aiSummaryAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> aiSummaryAt = GeneratedColumn<DateTime>(
+    'ai_summary_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _aiSummaryModelMeta = const VerificationMeta(
+    'aiSummaryModel',
+  );
+  @override
+  late final GeneratedColumn<String> aiSummaryModel = GeneratedColumn<String>(
+    'ai_summary_model',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _extractedImageUrlsMeta =
       const VerificationMeta('extractedImageUrls');
   @override
@@ -1968,6 +2001,9 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
     extractedBodyHash,
     extractedAt,
     extractedTitle,
+    aiSummary,
+    aiSummaryAt,
+    aiSummaryModel,
     extractedImageUrls,
     readingState,
     favorite,
@@ -2135,6 +2171,30 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
         ),
       );
     }
+    if (data.containsKey('ai_summary')) {
+      context.handle(
+        _aiSummaryMeta,
+        aiSummary.isAcceptableOrUnknown(data['ai_summary']!, _aiSummaryMeta),
+      );
+    }
+    if (data.containsKey('ai_summary_at')) {
+      context.handle(
+        _aiSummaryAtMeta,
+        aiSummaryAt.isAcceptableOrUnknown(
+          data['ai_summary_at']!,
+          _aiSummaryAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ai_summary_model')) {
+      context.handle(
+        _aiSummaryModelMeta,
+        aiSummaryModel.isAcceptableOrUnknown(
+          data['ai_summary_model']!,
+          _aiSummaryModelMeta,
+        ),
+      );
+    }
     if (data.containsKey('extracted_image_urls')) {
       context.handle(
         _extractedImageUrlsMeta,
@@ -2273,6 +2333,18 @@ class $ArticlesTable extends Articles with TableInfo<$ArticlesTable, Article> {
       extractedTitle: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}extracted_title'],
+      ),
+      aiSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ai_summary'],
+      ),
+      aiSummaryAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}ai_summary_at'],
+      ),
+      aiSummaryModel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ai_summary_model'],
       ),
       extractedImageUrls: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2436,6 +2508,26 @@ class Article extends DataClass implements Insertable<Article> {
   /// 不覆盖 [title]。
   final String? extractedTitle;
 
+  /// AI 摘要（schema v12；T034）。
+  ///
+  /// 与 [summary] **分列**而不是覆盖：源摘要来自订阅内容，AI 摘要由模型生成（可能失真、
+  /// 可能被用户拒绝）。覆盖式存储会让「这句话到底是谁说的」在数据上不可分辨，也无法在
+  /// 用户不信任 AI 摘要时退回源摘要。
+  ///
+  /// 可空且**不回填**：历史行并没有「生成过 AI 摘要」这个事实。
+  final String? aiSummary;
+
+  /// AI 摘要的生成时刻（schema v12，UTC）。
+  ///
+  /// 界面据此标注「AI 摘要 · 生成于 …」：一个没有时间的 AI 摘要无法让用户判断它是否
+  /// 还对应得上当前正文。
+  final DateTime? aiSummaryAt;
+
+  /// 生成 AI 摘要时使用的模型（别名 + 模型 ID 的简短标识；schema v12）。
+  ///
+  /// 只记**模型标识**（例如 `deepseek/deepseek-chat`），不记端点与凭据（架构第 8 节）。
+  final String? aiSummaryModel;
+
   /// 提取到的图片地址（schema v8；每行一个，**不下载**）。
   ///
   /// 用换行分隔的文本而不是 JSON：读取方只需要一个列表，而 JSON 会给这一列引入一个
@@ -2482,6 +2574,9 @@ class Article extends DataClass implements Insertable<Article> {
     this.extractedBodyHash,
     this.extractedAt,
     this.extractedTitle,
+    this.aiSummary,
+    this.aiSummaryAt,
+    this.aiSummaryModel,
     this.extractedImageUrls,
     required this.readingState,
     required this.favorite,
@@ -2563,6 +2658,15 @@ class Article extends DataClass implements Insertable<Article> {
     if (!nullToAbsent || extractedTitle != null) {
       map['extracted_title'] = Variable<String>(extractedTitle);
     }
+    if (!nullToAbsent || aiSummary != null) {
+      map['ai_summary'] = Variable<String>(aiSummary);
+    }
+    if (!nullToAbsent || aiSummaryAt != null) {
+      map['ai_summary_at'] = Variable<DateTime>(aiSummaryAt);
+    }
+    if (!nullToAbsent || aiSummaryModel != null) {
+      map['ai_summary_model'] = Variable<String>(aiSummaryModel);
+    }
     if (!nullToAbsent || extractedImageUrls != null) {
       map['extracted_image_urls'] = Variable<String>(extractedImageUrls);
     }
@@ -2635,6 +2739,15 @@ class Article extends DataClass implements Insertable<Article> {
       extractedTitle: extractedTitle == null && nullToAbsent
           ? const Value.absent()
           : Value(extractedTitle),
+      aiSummary: aiSummary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiSummary),
+      aiSummaryAt: aiSummaryAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiSummaryAt),
+      aiSummaryModel: aiSummaryModel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(aiSummaryModel),
       extractedImageUrls: extractedImageUrls == null && nullToAbsent
           ? const Value.absent()
           : Value(extractedImageUrls),
@@ -2686,6 +2799,9 @@ class Article extends DataClass implements Insertable<Article> {
       ),
       extractedAt: serializer.fromJson<DateTime?>(json['extractedAt']),
       extractedTitle: serializer.fromJson<String?>(json['extractedTitle']),
+      aiSummary: serializer.fromJson<String?>(json['aiSummary']),
+      aiSummaryAt: serializer.fromJson<DateTime?>(json['aiSummaryAt']),
+      aiSummaryModel: serializer.fromJson<String?>(json['aiSummaryModel']),
       extractedImageUrls: serializer.fromJson<String?>(
         json['extractedImageUrls'],
       ),
@@ -2733,6 +2849,9 @@ class Article extends DataClass implements Insertable<Article> {
       'extractedBodyHash': serializer.toJson<String?>(extractedBodyHash),
       'extractedAt': serializer.toJson<DateTime?>(extractedAt),
       'extractedTitle': serializer.toJson<String?>(extractedTitle),
+      'aiSummary': serializer.toJson<String?>(aiSummary),
+      'aiSummaryAt': serializer.toJson<DateTime?>(aiSummaryAt),
+      'aiSummaryModel': serializer.toJson<String?>(aiSummaryModel),
       'extractedImageUrls': serializer.toJson<String?>(extractedImageUrls),
       'readingState': serializer.toJson<String>(
         $ArticlesTable.$converterreadingState.toJson(readingState),
@@ -2769,6 +2888,9 @@ class Article extends DataClass implements Insertable<Article> {
     Value<String?> extractedBodyHash = const Value.absent(),
     Value<DateTime?> extractedAt = const Value.absent(),
     Value<String?> extractedTitle = const Value.absent(),
+    Value<String?> aiSummary = const Value.absent(),
+    Value<DateTime?> aiSummaryAt = const Value.absent(),
+    Value<String?> aiSummaryModel = const Value.absent(),
     Value<String?> extractedImageUrls = const Value.absent(),
     ReadingState? readingState,
     bool? favorite,
@@ -2811,6 +2933,11 @@ class Article extends DataClass implements Insertable<Article> {
     extractedTitle: extractedTitle.present
         ? extractedTitle.value
         : this.extractedTitle,
+    aiSummary: aiSummary.present ? aiSummary.value : this.aiSummary,
+    aiSummaryAt: aiSummaryAt.present ? aiSummaryAt.value : this.aiSummaryAt,
+    aiSummaryModel: aiSummaryModel.present
+        ? aiSummaryModel.value
+        : this.aiSummaryModel,
     extractedImageUrls: extractedImageUrls.present
         ? extractedImageUrls.value
         : this.extractedImageUrls,
@@ -2867,6 +2994,13 @@ class Article extends DataClass implements Insertable<Article> {
       extractedTitle: data.extractedTitle.present
           ? data.extractedTitle.value
           : this.extractedTitle,
+      aiSummary: data.aiSummary.present ? data.aiSummary.value : this.aiSummary,
+      aiSummaryAt: data.aiSummaryAt.present
+          ? data.aiSummaryAt.value
+          : this.aiSummaryAt,
+      aiSummaryModel: data.aiSummaryModel.present
+          ? data.aiSummaryModel.value
+          : this.aiSummaryModel,
       extractedImageUrls: data.extractedImageUrls.present
           ? data.extractedImageUrls.value
           : this.extractedImageUrls,
@@ -2906,6 +3040,9 @@ class Article extends DataClass implements Insertable<Article> {
           ..write('extractedBodyHash: $extractedBodyHash, ')
           ..write('extractedAt: $extractedAt, ')
           ..write('extractedTitle: $extractedTitle, ')
+          ..write('aiSummary: $aiSummary, ')
+          ..write('aiSummaryAt: $aiSummaryAt, ')
+          ..write('aiSummaryModel: $aiSummaryModel, ')
           ..write('extractedImageUrls: $extractedImageUrls, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
@@ -2941,6 +3078,9 @@ class Article extends DataClass implements Insertable<Article> {
     extractedBodyHash,
     extractedAt,
     extractedTitle,
+    aiSummary,
+    aiSummaryAt,
+    aiSummaryModel,
     extractedImageUrls,
     readingState,
     favorite,
@@ -2975,6 +3115,9 @@ class Article extends DataClass implements Insertable<Article> {
           other.extractedBodyHash == this.extractedBodyHash &&
           other.extractedAt == this.extractedAt &&
           other.extractedTitle == this.extractedTitle &&
+          other.aiSummary == this.aiSummary &&
+          other.aiSummaryAt == this.aiSummaryAt &&
+          other.aiSummaryModel == this.aiSummaryModel &&
           other.extractedImageUrls == this.extractedImageUrls &&
           other.readingState == this.readingState &&
           other.favorite == this.favorite &&
@@ -3007,6 +3150,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
   final Value<String?> extractedBodyHash;
   final Value<DateTime?> extractedAt;
   final Value<String?> extractedTitle;
+  final Value<String?> aiSummary;
+  final Value<DateTime?> aiSummaryAt;
+  final Value<String?> aiSummaryModel;
   final Value<String?> extractedImageUrls;
   final Value<ReadingState> readingState;
   final Value<bool> favorite;
@@ -3037,6 +3183,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.extractedBodyHash = const Value.absent(),
     this.extractedAt = const Value.absent(),
     this.extractedTitle = const Value.absent(),
+    this.aiSummary = const Value.absent(),
+    this.aiSummaryAt = const Value.absent(),
+    this.aiSummaryModel = const Value.absent(),
     this.extractedImageUrls = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
@@ -3068,6 +3217,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     this.extractedBodyHash = const Value.absent(),
     this.extractedAt = const Value.absent(),
     this.extractedTitle = const Value.absent(),
+    this.aiSummary = const Value.absent(),
+    this.aiSummaryAt = const Value.absent(),
+    this.aiSummaryModel = const Value.absent(),
     this.extractedImageUrls = const Value.absent(),
     this.readingState = const Value.absent(),
     this.favorite = const Value.absent(),
@@ -3100,6 +3252,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Expression<String>? extractedBodyHash,
     Expression<DateTime>? extractedAt,
     Expression<String>? extractedTitle,
+    Expression<String>? aiSummary,
+    Expression<DateTime>? aiSummaryAt,
+    Expression<String>? aiSummaryModel,
     Expression<String>? extractedImageUrls,
     Expression<String>? readingState,
     Expression<bool>? favorite,
@@ -3133,6 +3288,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       if (extractedBodyHash != null) 'extracted_body_hash': extractedBodyHash,
       if (extractedAt != null) 'extracted_at': extractedAt,
       if (extractedTitle != null) 'extracted_title': extractedTitle,
+      if (aiSummary != null) 'ai_summary': aiSummary,
+      if (aiSummaryAt != null) 'ai_summary_at': aiSummaryAt,
+      if (aiSummaryModel != null) 'ai_summary_model': aiSummaryModel,
       if (extractedImageUrls != null)
         'extracted_image_urls': extractedImageUrls,
       if (readingState != null) 'reading_state': readingState,
@@ -3167,6 +3325,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     Value<String?>? extractedBodyHash,
     Value<DateTime?>? extractedAt,
     Value<String?>? extractedTitle,
+    Value<String?>? aiSummary,
+    Value<DateTime?>? aiSummaryAt,
+    Value<String?>? aiSummaryModel,
     Value<String?>? extractedImageUrls,
     Value<ReadingState>? readingState,
     Value<bool>? favorite,
@@ -3199,6 +3360,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
       extractedBodyHash: extractedBodyHash ?? this.extractedBodyHash,
       extractedAt: extractedAt ?? this.extractedAt,
       extractedTitle: extractedTitle ?? this.extractedTitle,
+      aiSummary: aiSummary ?? this.aiSummary,
+      aiSummaryAt: aiSummaryAt ?? this.aiSummaryAt,
+      aiSummaryModel: aiSummaryModel ?? this.aiSummaryModel,
       extractedImageUrls: extractedImageUrls ?? this.extractedImageUrls,
       readingState: readingState ?? this.readingState,
       favorite: favorite ?? this.favorite,
@@ -3290,6 +3454,15 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
     if (extractedTitle.present) {
       map['extracted_title'] = Variable<String>(extractedTitle.value);
     }
+    if (aiSummary.present) {
+      map['ai_summary'] = Variable<String>(aiSummary.value);
+    }
+    if (aiSummaryAt.present) {
+      map['ai_summary_at'] = Variable<DateTime>(aiSummaryAt.value);
+    }
+    if (aiSummaryModel.present) {
+      map['ai_summary_model'] = Variable<String>(aiSummaryModel.value);
+    }
     if (extractedImageUrls.present) {
       map['extracted_image_urls'] = Variable<String>(extractedImageUrls.value);
     }
@@ -3337,6 +3510,9 @@ class ArticlesCompanion extends UpdateCompanion<Article> {
           ..write('extractedBodyHash: $extractedBodyHash, ')
           ..write('extractedAt: $extractedAt, ')
           ..write('extractedTitle: $extractedTitle, ')
+          ..write('aiSummary: $aiSummary, ')
+          ..write('aiSummaryAt: $aiSummaryAt, ')
+          ..write('aiSummaryModel: $aiSummaryModel, ')
           ..write('extractedImageUrls: $extractedImageUrls, ')
           ..write('readingState: $readingState, ')
           ..write('favorite: $favorite, ')
@@ -10833,6 +11009,9 @@ typedef $$ArticlesTableCreateCompanionBuilder = ArticlesCompanion Function({
   Value<String?> extractedBodyHash,
   Value<DateTime?> extractedAt,
   Value<String?> extractedTitle,
+  Value<String?> aiSummary,
+  Value<DateTime?> aiSummaryAt,
+  Value<String?> aiSummaryModel,
   Value<String?> extractedImageUrls,
   Value<ReadingState> readingState,
   Value<bool> favorite,
@@ -10864,6 +11043,9 @@ typedef $$ArticlesTableUpdateCompanionBuilder = ArticlesCompanion Function({
   Value<String?> extractedBodyHash,
   Value<DateTime?> extractedAt,
   Value<String?> extractedTitle,
+  Value<String?> aiSummary,
+  Value<DateTime?> aiSummaryAt,
+  Value<String?> aiSummaryModel,
   Value<String?> extractedImageUrls,
   Value<ReadingState> readingState,
   Value<bool> favorite,
@@ -11059,6 +11241,21 @@ class $$ArticlesTableFilterComposer
 
   ColumnFilters<String> get extractedTitle => $composableBuilder(
     column: $table.extractedTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aiSummary => $composableBuilder(
+    column: $table.aiSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get aiSummaryAt => $composableBuilder(
+    column: $table.aiSummaryAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aiSummaryModel => $composableBuilder(
+    column: $table.aiSummaryModel,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11286,6 +11483,21 @@ class $$ArticlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get aiSummary => $composableBuilder(
+    column: $table.aiSummary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get aiSummaryAt => $composableBuilder(
+    column: $table.aiSummaryAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get aiSummaryModel => $composableBuilder(
+    column: $table.aiSummaryModel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get extractedImageUrls => $composableBuilder(
     column: $table.extractedImageUrls,
     builder: (column) => ColumnOrderings(column),
@@ -11435,6 +11647,19 @@ class $$ArticlesTableAnnotationComposer
 
   GeneratedColumn<String> get extractedTitle => $composableBuilder(
     column: $table.extractedTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get aiSummary =>
+      $composableBuilder(column: $table.aiSummary, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get aiSummaryAt => $composableBuilder(
+    column: $table.aiSummaryAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get aiSummaryModel => $composableBuilder(
+    column: $table.aiSummaryModel,
     builder: (column) => column,
   );
 
@@ -11589,6 +11814,9 @@ class $$ArticlesTableTableManager
                 Value<String?> extractedBodyHash = const Value.absent(),
                 Value<DateTime?> extractedAt = const Value.absent(),
                 Value<String?> extractedTitle = const Value.absent(),
+                Value<String?> aiSummary = const Value.absent(),
+                Value<DateTime?> aiSummaryAt = const Value.absent(),
+                Value<String?> aiSummaryModel = const Value.absent(),
                 Value<String?> extractedImageUrls = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
@@ -11619,6 +11847,9 @@ class $$ArticlesTableTableManager
                 extractedBodyHash: extractedBodyHash,
                 extractedAt: extractedAt,
                 extractedTitle: extractedTitle,
+                aiSummary: aiSummary,
+                aiSummaryAt: aiSummaryAt,
+                aiSummaryModel: aiSummaryModel,
                 extractedImageUrls: extractedImageUrls,
                 readingState: readingState,
                 favorite: favorite,
@@ -11652,6 +11883,9 @@ class $$ArticlesTableTableManager
                 Value<String?> extractedBodyHash = const Value.absent(),
                 Value<DateTime?> extractedAt = const Value.absent(),
                 Value<String?> extractedTitle = const Value.absent(),
+                Value<String?> aiSummary = const Value.absent(),
+                Value<DateTime?> aiSummaryAt = const Value.absent(),
+                Value<String?> aiSummaryModel = const Value.absent(),
                 Value<String?> extractedImageUrls = const Value.absent(),
                 Value<ReadingState> readingState = const Value.absent(),
                 Value<bool> favorite = const Value.absent(),
@@ -11682,6 +11916,9 @@ class $$ArticlesTableTableManager
                 extractedBodyHash: extractedBodyHash,
                 extractedAt: extractedAt,
                 extractedTitle: extractedTitle,
+                aiSummary: aiSummary,
+                aiSummaryAt: aiSummaryAt,
+                aiSummaryModel: aiSummaryModel,
                 extractedImageUrls: extractedImageUrls,
                 readingState: readingState,
                 favorite: favorite,

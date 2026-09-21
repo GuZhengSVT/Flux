@@ -1868,6 +1868,148 @@
   "@aiVisionSettingHint": {
     "description": "AI 服务页：视觉能力说明"
   },
+  "readingSummaryAction": "摘要",
+  "@readingSummaryAction": {
+    "description": "详情页：生成 AI 摘要按钮"
+  },
+  "readingSummaryTitle": "AI 摘要",
+  "@readingSummaryTitle": {
+    "description": "AI 摘要面板标题"
+  },
+  "readingSummaryRunning": "正在生成摘要…",
+  "@readingSummaryRunning": {
+    "description": "AI 摘要进行中"
+  },
+  "readingSummaryCancelAction": "取消摘要",
+  "@readingSummaryCancelAction": {
+    "description": "AI 摘要面板：取消生成"
+  },
+  "readingSummaryCancelled": "已取消摘要生成，正文没有改动。",
+  "@readingSummaryCancelled": {
+    "description": "取消摘要后的提示"
+  },
+  "readingAiSummaryLabel": "AI 摘要 · {model} · {date}",
+  "@readingAiSummaryLabel": {
+    "description": "正文里的 AI 摘要标注（来源与生成时间；与源摘要分列显示）",
+    "placeholders": {
+      "model": {
+        "type": "String",
+        "example": "deepseek/deepseek-chat"
+      },
+      "date": {
+        "type": "String",
+        "example": "2026-09-22"
+      }
+    }
+  },
+  "readingSummaryTruncatedNotice": "正文超过单篇预算（SET-061 的 8000 字符），摘要只依据前一部分生成。",
+  "@readingSummaryTruncatedNotice": {
+    "description": "AI 摘要面板：正文被截断的说明"
+  },
+  "readingSummarySourceKept": "源摘要仍然保留，未被 AI 摘要覆盖。",
+  "@readingSummarySourceKept": {
+    "description": "AI 摘要面板：不覆盖源摘要的说明"
+  },
+  "readingSummaryNoBody": "这篇文章没有正文可总结（源只提供了摘要）；已保留源摘要。",
+  "@readingSummaryNoBody": {
+    "description": "AI 摘要：没有正文时的跳过说明"
+  },
+  "readingSummaryNoModelBody": "摘要需要 AI 服务。请先配置至少一个已启用的模型；未配置时列表会退回到截取正文。",
+  "@readingSummaryNoModelBody": {
+    "description": "AI 摘要/解释：没有可用模型时的提示"
+  },
+  "readingSummaryFailed": "摘要生成失败：{reason}",
+  "@readingSummaryFailed": {
+    "description": "AI 摘要失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
+  },
+  "readingSummaryAutoToggleLabel": "缺摘要时自动生成 AI 摘要",
+  "@readingSummaryAutoToggleLabel": {
+    "description": "SET-037 的界面开关标签"
+  },
+  "readingSummaryAutoToggleHint": "默认关闭。开启后只在**列表刷新**时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限（SET-064，默认 50）约束；关闭时列表会截取正文作为兜底。",
+  "@readingSummaryAutoToggleHint": {
+    "description": "SET-037 的界面开关说明"
+  },
+  "readingSummaryAutoToggleDone": "自动摘要已开启；下次刷新时会补齐缺摘要的文章。",
+  "@readingSummaryAutoToggleDone": {
+    "description": "开启自动摘要后的提示"
+  },
+  "readingSummaryAutoBatchReport": "自动摘要：成功 {succeeded} 篇，失败 {failed} 篇，缓存命中 {cached} 篇（当天上限 {limit}）。",
+  "@readingSummaryAutoBatchReport": {
+    "description": "列表刷新后的自动摘要回执",
+    "placeholders": {
+      "succeeded": {
+        "type": "int",
+        "example": "3"
+      },
+      "failed": {
+        "type": "int",
+        "example": "0"
+      },
+      "cached": {
+        "type": "int",
+        "example": "1"
+      },
+      "limit": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "readingSummaryAutoQuotaReached": "当天的自动摘要额度已用尽（{limit} 篇），手动摘要不受此限制。",
+  "@readingSummaryAutoQuotaReached": {
+    "description": "SET-064 额度用尽提示",
+    "placeholders": {
+      "limit": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "readingSelectionExplainTitle": "解释「{selection}」",
+  "@readingSelectionExplainTitle": {
+    "description": "选词解释浮层标题",
+    "placeholders": {
+      "selection": {
+        "type": "String",
+        "example": "该模型"
+      }
+    }
+  },
+  "readingSelectionExplainRunning": "正在解释…",
+  "@readingSelectionExplainRunning": {
+    "description": "选词解释进行中"
+  },
+  "readingSelectionExplainSent": "已发送选区与前后上下文共 {characters} 字；原文未被修改。",
+  "@readingSelectionExplainSent": {
+    "description": "选词解释：发送量说明",
+    "placeholders": {
+      "characters": {
+        "type": "int",
+        "example": "620"
+      }
+    }
+  },
+  "readingSelectionExplainSentTruncated": "已发送选区与前后上下文共 {characters} 字（上下文已截断）；原文未被修改。",
+  "@readingSelectionExplainSentTruncated": {
+    "description": "选词解释：发送量说明（上下文被截断过）",
+    "placeholders": {
+      "characters": {
+        "type": "int",
+        "example": "1200"
+      }
+    }
+  },
+  "readingSelectionExplainFailedUnknown": "解释失败，请稍后重试；原文未被修改。",
+  "@readingSelectionExplainFailedUnknown": {
+    "description": "选词解释失败（无类型化原因时）"
+  },
   "readingSelectionCopy": "复制",
   "@readingSelectionCopy": {
     "description": "选区菜单里的复制"

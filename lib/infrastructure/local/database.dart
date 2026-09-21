@@ -80,7 +80,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -186,6 +186,11 @@ class AppDatabase extends _$AppDatabase {
               articles.extractedAt,
               articles.extractedTitle,
               articles.extractedImageUrls,
+              // v12 的 AI 摘要三列同理（T034）：它们也在当前表定义里，v5 阶段取 null，
+              // 由 v12 步骤按事实判断是否真的加上。
+              articles.aiSummary,
+              articles.aiSummaryAt,
+              articles.aiSummaryModel,
             ],
           ),
         );
@@ -330,11 +335,33 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixSearchServiceSort);
       }
 
+      if (from < 12) {
+        // v11 → v12：文章表补 AI 摘要三列（T034；架构 4.2「AI 摘要与源摘要独立」）。
+        //
+        // 三列全部可空且**不回填**：历史行并没有「生成过 AI 摘要」这个事实。用源摘要
+        // 回填会让界面显示「AI 摘要」，而用户从未点过那个按钮——那正是架构第 8 节禁止的
+        // 「用假象代替状态」。
+        //
+        // 为什么分列而不是覆盖 summary：源摘要与 AI 摘要**来源不同**（一个是订阅内容，
+        // 一个是模型生成），覆盖式存储会让「这句话是谁说的」在数据上不可分辨，也让用户
+        // 无法在不信任 AI 摘要时退回源摘要。
+        //
+        // 为什么要先判存在：上面 v4→v5 那一步的 alterTable 是**按当前表定义**重建 articles
+        // 的（drift 的 12 步重建流程会逐列生成搬数据语句），因此当一次升级直接从 v4 及更早
+        // 走到 v12 时，重建出来的表**已经带上**这三列——再执行一次 ADD COLUMN 会报
+        // duplicate column name（v1 快照升级的用例已经抓到过同一个坑两次）。
+        if (!await _columnExists('articles', 'ai_summary')) {
+          await m.addColumn(articles, articles.aiSummary);
+          await m.addColumn(articles, articles.aiSummaryAt);
+          await m.addColumn(articles, articles.aiSummaryModel);
+        }
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 11;
+      const int highestImplemented = 12;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

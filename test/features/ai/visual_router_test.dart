@@ -20,6 +20,7 @@ import 'package:flux/features/ai/domain/ai_protocol.dart';
 import 'package:flux/features/ai/domain/model_capability.dart';
 import 'package:flux/features/ai/domain/vision_consent.dart';
 import 'package:flux/features/ai/domain/vision_routing.dart';
+
 import 'ai_runner_support.dart';
 import 'vision_test_support.dart';
 

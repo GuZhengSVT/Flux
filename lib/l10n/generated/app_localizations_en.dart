@@ -1295,6 +1295,97 @@ class AppLocalizationsEn extends AppLocalizations {
       'The image-analysis switch, per-image limit and dedicated vision model live in settings; without a vision model, image analysis is skipped and text tasks continue.';
 
   @override
+  String get readingSummaryAction => 'Summary';
+
+  @override
+  String get readingSummaryTitle => 'AI summary';
+
+  @override
+  String get readingSummaryRunning => 'Generating summary…';
+
+  @override
+  String get readingSummaryCancelAction => 'Cancel summary';
+
+  @override
+  String get readingSummaryCancelled =>
+      'Summary generation cancelled; the article is unchanged.';
+
+  @override
+  String readingAiSummaryLabel(String model, String date) {
+    return 'AI summary · $model · $date';
+  }
+
+  @override
+  String get readingSummaryTruncatedNotice =>
+      'The article exceeds the single-article budget (SET-061, 8000 characters), so the summary only uses the first part.';
+
+  @override
+  String get readingSummarySourceKept =>
+      'The source summary is still kept and was not overwritten by the AI summary.';
+
+  @override
+  String get readingSummaryNoBody =>
+      'This article has no body to summarize (the source only provided a summary); the source summary is kept.';
+
+  @override
+  String get readingSummaryNoModelBody =>
+      'Summaries need an AI service. Configure at least one enabled model first; without one the list falls back to an excerpt of the body.';
+
+  @override
+  String readingSummaryFailed(String reason) {
+    return 'Summary failed: $reason';
+  }
+
+  @override
+  String get readingSummaryAutoToggleLabel =>
+      'Auto AI summary for missing summaries';
+
+  @override
+  String get readingSummaryAutoToggleHint =>
+      'Off by default. When on, missing summaries are filled only during a list refresh; each summary is billed separately and is capped by the daily limit (SET-064, default 50). When off, the list uses an excerpt of the body as a fallback.';
+
+  @override
+  String get readingSummaryAutoToggleDone =>
+      'Auto summary enabled; missing summaries will be filled on the next refresh.';
+
+  @override
+  String readingSummaryAutoBatchReport(
+    int succeeded,
+    int failed,
+    int cached,
+    int limit,
+  ) {
+    return 'Auto summary: $succeeded succeeded, $failed failed, $cached from cache (daily limit $limit).';
+  }
+
+  @override
+  String readingSummaryAutoQuotaReached(int limit) {
+    return 'Today\'s auto-summary quota is used up ($limit); manual summaries are not affected.';
+  }
+
+  @override
+  String readingSelectionExplainTitle(String selection) {
+    return 'Explain \"$selection\"';
+  }
+
+  @override
+  String get readingSelectionExplainRunning => 'Explaining…';
+
+  @override
+  String readingSelectionExplainSent(int characters) {
+    return 'Sent the selection plus surrounding context, $characters characters in total; the article was not modified.';
+  }
+
+  @override
+  String readingSelectionExplainSentTruncated(int characters) {
+    return 'Sent the selection plus surrounding context, $characters characters in total (context was truncated); the article was not modified.';
+  }
+
+  @override
+  String get readingSelectionExplainFailedUnknown =>
+      'Explanation failed, please try again later; the article was not modified.';
+
+  @override
   String get readingSelectionCopy => 'Copy';
 
   @override

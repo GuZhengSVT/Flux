@@ -21,6 +21,7 @@ import '../result.dart';
 import '../error/app_error.dart';
 
 import 'article_identity.dart';
+import 'article_summary.dart';
 import 'reading_state.dart';
 
 /// 列表筛选。
@@ -51,6 +52,9 @@ class ArticleListEntry {
     required this.publishedAt,
     required this.fetchedAt,
     this.summary,
+    this.aiSummary,
+    this.aiSummaryAt,
+    this.aiSummaryModel,
     this.sourceUrl,
     this.author,
     this.feedTitle,
@@ -105,7 +109,18 @@ class ArticleListEntry {
   final DateTime fetchedAt;
 
   /// 摘要（源内摘要清洗后的纯文本）；可为 null。
+  ///
+  /// 这是**源摘要**，与 [aiSummary] 分开：AI 摘要不覆盖它（架构 4.2「原文始终保留」）。
   final String? summary;
+
+  /// AI 生成的摘要；从未生成过时为 null（T034）。
+  final String? aiSummary;
+
+  /// AI 摘要的生成时刻（UTC）；与 [aiSummary] 同时有值。
+  final DateTime? aiSummaryAt;
+
+  /// 生成 AI 摘要所用的模型标识（`别名/模型ID`）；未知为 null。
+  final String? aiSummaryModel;
 
   /// 原始链接（保留查询参数，用于外开）。
   final String? sourceUrl;
@@ -297,6 +312,33 @@ abstract interface class ArticleCatalogStore {
   Future<Result<int>> restoreArticleStates(
     List<ArticleStateSnapshot> snapshots,
   );
+
+  /// 写入一篇文章的 AI 摘要（T034）。
+  ///
+  /// 实现**只写 ai_summary 三列**：不得触碰 summary（源摘要）、body、body_hash、
+  /// reading_state、favorite。源摘要独立是架构 4.2 的明确要求，让写 AI 摘要的路径
+  /// 在类型上拿不到其它列，是这条规则最可靠的实现方式。
+  Future<Result<void>> saveAiSummary({
+    required int articleId,
+    required AiSummaryRecord summary,
+  });
+
+  /// 读取一篇文章的 AI 摘要；从未生成过时返回 null。
+  Future<Result<AiSummaryRecord?>> readAiSummary(int articleId);
+
+  /// 列出「缺摘要」的文章 id（列表刷新时的自动摘要批处理用它挑候选）。
+  ///
+  /// 「缺摘要」的定义是**源摘要与 AI 摘要都为空**：已经有源摘要的文章不需要 AI 摘要
+  /// （那是 SET-037 的开关语义——只在缺失时补），而已经有 AI 摘要的不该重复花钱。
+  ///
+  /// [limit] 是本次最多返回多少个（配合 SET-064 的当天剩余额度使用）；[offset] 让批处理
+  /// 能越过「这批已经跑过」的文章继续往后找，而不是每次都从最新一篇开始（那会让额度
+  /// 反复花在同一小批「摘要生成失败」的文章上）。
+  Future<Result<List<int>>> listArticlesMissingSummary({
+    required int limit,
+    int? feedId,
+    int offset = 0,
+  });
 
   /// 读取正文纯文本（详情页用）。
   ///

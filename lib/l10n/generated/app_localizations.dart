@@ -2257,6 +2257,137 @@ abstract class AppLocalizations {
   /// **'图像分析的开关、单张上限与专用视觉模型在设置中；未配置视觉模型时会跳过图像分析，正文与文本任务照常。'**
   String get aiVisionSettingHint;
 
+  /// 详情页：生成 AI 摘要按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'摘要'**
+  String get readingSummaryAction;
+
+  /// AI 摘要面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 摘要'**
+  String get readingSummaryTitle;
+
+  /// AI 摘要进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在生成摘要…'**
+  String get readingSummaryRunning;
+
+  /// AI 摘要面板：取消生成
+  ///
+  /// In zh, this message translates to:
+  /// **'取消摘要'**
+  String get readingSummaryCancelAction;
+
+  /// 取消摘要后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消摘要生成，正文没有改动。'**
+  String get readingSummaryCancelled;
+
+  /// 正文里的 AI 摘要标注（来源与生成时间；与源摘要分列显示）
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 摘要 · {model} · {date}'**
+  String readingAiSummaryLabel(String model, String date);
+
+  /// AI 摘要面板：正文被截断的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'正文超过单篇预算（SET-061 的 8000 字符），摘要只依据前一部分生成。'**
+  String get readingSummaryTruncatedNotice;
+
+  /// AI 摘要面板：不覆盖源摘要的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'源摘要仍然保留，未被 AI 摘要覆盖。'**
+  String get readingSummarySourceKept;
+
+  /// AI 摘要：没有正文时的跳过说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有正文可总结（源只提供了摘要）；已保留源摘要。'**
+  String get readingSummaryNoBody;
+
+  /// AI 摘要/解释：没有可用模型时的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'摘要需要 AI 服务。请先配置至少一个已启用的模型；未配置时列表会退回到截取正文。'**
+  String get readingSummaryNoModelBody;
+
+  /// AI 摘要失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'摘要生成失败：{reason}'**
+  String readingSummaryFailed(String reason);
+
+  /// SET-037 的界面开关标签
+  ///
+  /// In zh, this message translates to:
+  /// **'缺摘要时自动生成 AI 摘要'**
+  String get readingSummaryAutoToggleLabel;
+
+  /// SET-037 的界面开关说明
+  ///
+  /// In zh, this message translates to:
+  /// **'默认关闭。开启后只在**列表刷新**时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限（SET-064，默认 50）约束；关闭时列表会截取正文作为兜底。'**
+  String get readingSummaryAutoToggleHint;
+
+  /// 开启自动摘要后的提示
+  ///
+  /// In zh, this message translates to:
+  /// **'自动摘要已开启；下次刷新时会补齐缺摘要的文章。'**
+  String get readingSummaryAutoToggleDone;
+
+  /// 列表刷新后的自动摘要回执
+  ///
+  /// In zh, this message translates to:
+  /// **'自动摘要：成功 {succeeded} 篇，失败 {failed} 篇，缓存命中 {cached} 篇（当天上限 {limit}）。'**
+  String readingSummaryAutoBatchReport(
+    int succeeded,
+    int failed,
+    int cached,
+    int limit,
+  );
+
+  /// SET-064 额度用尽提示
+  ///
+  /// In zh, this message translates to:
+  /// **'当天的自动摘要额度已用尽（{limit} 篇），手动摘要不受此限制。'**
+  String readingSummaryAutoQuotaReached(int limit);
+
+  /// 选词解释浮层标题
+  ///
+  /// In zh, this message translates to:
+  /// **'解释「{selection}」'**
+  String readingSelectionExplainTitle(String selection);
+
+  /// 选词解释进行中
+  ///
+  /// In zh, this message translates to:
+  /// **'正在解释…'**
+  String get readingSelectionExplainRunning;
+
+  /// 选词解释：发送量说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已发送选区与前后上下文共 {characters} 字；原文未被修改。'**
+  String readingSelectionExplainSent(int characters);
+
+  /// 选词解释：发送量说明（上下文被截断过）
+  ///
+  /// In zh, this message translates to:
+  /// **'已发送选区与前后上下文共 {characters} 字（上下文已截断）；原文未被修改。'**
+  String readingSelectionExplainSentTruncated(int characters);
+
+  /// 选词解释失败（无类型化原因时）
+  ///
+  /// In zh, this message translates to:
+  /// **'解释失败，请稍后重试；原文未被修改。'**
+  String get readingSelectionExplainFailedUnknown;
+
   /// 选区菜单里的复制
   ///
   /// In zh, this message translates to:

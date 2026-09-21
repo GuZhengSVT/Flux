@@ -164,6 +164,26 @@ class Articles extends Table {
   /// 不覆盖 [title]。
   TextColumn get extractedTitle => text().nullable()();
 
+  /// AI 摘要（schema v12；T034）。
+  ///
+  /// 与 [summary] **分列**而不是覆盖：源摘要来自订阅内容，AI 摘要由模型生成（可能失真、
+  /// 可能被用户拒绝）。覆盖式存储会让「这句话到底是谁说的」在数据上不可分辨，也无法在
+  /// 用户不信任 AI 摘要时退回源摘要。
+  ///
+  /// 可空且**不回填**：历史行并没有「生成过 AI 摘要」这个事实。
+  TextColumn get aiSummary => text().nullable()();
+
+  /// AI 摘要的生成时刻（schema v12，UTC）。
+  ///
+  /// 界面据此标注「AI 摘要 · 生成于 …」：一个没有时间的 AI 摘要无法让用户判断它是否
+  /// 还对应得上当前正文。
+  DateTimeColumn get aiSummaryAt => dateTime().nullable()();
+
+  /// 生成 AI 摘要时使用的模型（别名 + 模型 ID 的简短标识；schema v12）。
+  ///
+  /// 只记**模型标识**（例如 `deepseek/deepseek-chat`），不记端点与凭据（架构第 8 节）。
+  TextColumn get aiSummaryModel => text().nullable()();
+
   /// 提取到的图片地址（schema v8；每行一个，**不下载**）。
   ///
   /// 用换行分隔的文本而不是 JSON：读取方只需要一个列表，而 JSON 会给这一列引入一个
