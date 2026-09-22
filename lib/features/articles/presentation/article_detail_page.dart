@@ -55,6 +55,7 @@ import '../application/article_translation_providers.dart';
 import '../application/article_translation_tasks.dart';
 import '../application/article_vision_analysis.dart';
 import '../application/reader_outline.dart';
+import '../application/reading_search_request.dart';
 import '../domain/markdown_to_document.dart';
 import 'article_list_controller.dart';
 
@@ -839,6 +840,27 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
     );
   }
 
+  /// 用选中的文字检索本机文章库（T049）。
+  ///
+  /// 只**置一个请求**并返回上一页：检索框住在阅读页，而切换去向的状态在 lib/app
+  /// （features 不得 import app）。因此这里与 T020 的「去设置」同一条路线——请求由
+  /// 壳层落实为导航，阅读页再把它填进检索框并立刻检索一次。
+  ///
+  /// 选中的文字可能有多行（跨段落时框架会把换行带进来）。检索词里的换行会让查询
+  /// 变成「逐字匹配换行」，几乎必然零命中，因此这里压成单行再交给检索。
+  Future<void> _searchSelection(String selection) async {
+    final String query = selection.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (query.isEmpty) {
+      return;
+    }
+    ref.read(readingSearchRequestProvider.notifier).request(query);
+    if (!mounted) {
+      return;
+    }
+    // 退回列表：检索框与结果都在那里，留在正文里用户看不到自己刚发起的检索。
+    Navigator.of(context).maybePop();
+  }
+
   /// 选词解释：真实调用（T034；替换 T020 的「本轮只做入口」占位）。
   Future<void> _explainSelection(String selection) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
@@ -1515,6 +1537,8 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
             onOpenLink: _openLinkPanel,
             onOpenImage: _openImageViewer,
             onExplainSelection: _explainSelection,
+            onSearchSelection: _searchSelection,
+            onTranslateArticle: _translateArticle,
           )
         else
           Text(l10n.readingDetailNoBody, style: theme.textTheme.bodyMedium),
@@ -1742,6 +1766,8 @@ class _DocumentBody extends StatelessWidget {
     required this.onOpenLink,
     required this.onOpenImage,
     required this.onExplainSelection,
+    required this.onSearchSelection,
+    required this.onTranslateArticle,
   });
 
   final DocDocument document;
@@ -1754,6 +1780,12 @@ class _DocumentBody extends StatelessWidget {
   final void Function(String url) onOpenLink;
   final void Function(String url, String alt) onOpenImage;
   final Future<void> Function(String selection) onExplainSelection;
+
+  /// 用选中的文字去检索本机文章库（T049）。
+  final Future<void> Function(String selection) onSearchSelection;
+
+  /// 翻译这篇文章（T049：把详情页工具栏已有的动作也放进正文右键菜单）。
+  final Future<void> Function() onTranslateArticle;
 
   @override
   Widget build(BuildContext context) {
@@ -1796,7 +1828,31 @@ class _DocumentBody extends StatelessWidget {
                   },
                 ),
               );
+              // 「在库中检索」（T049；架构第 3 节的「选词复制/查询」在正文里的入口）。
+              // 与「解释」分开：那个把选区发给 AI 服务（出网、可能计费），这个只在
+              // 本机数据库里查（不出网）。两者的代价完全不同，因此是两条明确的菜单项，
+              // 而不是一个「处理选区」的按钮。
+              items.add(
+                ContextMenuButtonItem(
+                  label: l10n.readingContextSearchSelection,
+                  onPressed: () {
+                    selectableRegionState.hideToolbar();
+                    unawaited(onSearchSelection(selected));
+                  },
+                ),
+              );
             }
+            // 「翻译这篇文章」不依赖选区：它在菜单里恒常出现，与工具栏上的翻译按钮
+            // 是同一个动作（右键菜单是桌面用户的第二条路径，不是另一套语义）。
+            items.add(
+              ContextMenuButtonItem(
+                label: l10n.readingContextTranslateArticle,
+                onPressed: () {
+                  selectableRegionState.hideToolbar();
+                  unawaited(onTranslateArticle());
+                },
+              ),
+            );
             return AdaptiveTextSelectionToolbar.buttonItems(
               anchors: selectableRegionState.contextMenuAnchors,
               buttonItems: items,

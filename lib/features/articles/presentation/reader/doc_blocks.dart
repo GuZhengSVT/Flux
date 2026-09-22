@@ -394,28 +394,39 @@ class ImageBlockView extends StatelessWidget {
     AppLocalizations l10n,
     DocTheme theme, {
     required bool failed,
-  }) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: <Widget>[
-      Icon(
-        failed ? Icons.broken_image_outlined : Icons.image_outlined,
-        color: theme.textSecondary,
+  }) => Semantics(
+    // 整块作为一个语义节点播报：内部是图标 + 替代文字 + 失败说明三段，分开播报会
+    // 变成「图片 说明 图片加载失败」这样一串碎片，而用户需要的是「这里本该有一张图，
+    // 它叫什么」。
+    label: l10n.a11yImagePlaceholder(
+      alt.isEmpty ? l10n.readingImagePlaceholder : alt,
+    ),
+    container: true,
+    child: ExcludeSemantics(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(
+            failed ? Icons.broken_image_outlined : Icons.image_outlined,
+            color: theme.textSecondary,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            alt.isEmpty ? l10n.readingImagePlaceholder : alt,
+            style: typography.secondary,
+            textAlign: TextAlign.center,
+          ),
+          if (failed) ...<Widget>[
+            const SizedBox(height: 4),
+            Text(
+              l10n.readingImageLoadFailed,
+              style: typography.secondary,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
       ),
-      const SizedBox(height: 6),
-      Text(
-        alt.isEmpty ? l10n.readingImagePlaceholder : alt,
-        style: typography.secondary,
-        textAlign: TextAlign.center,
-      ),
-      if (failed) ...<Widget>[
-        const SizedBox(height: 4),
-        Text(
-          l10n.readingImageLoadFailed,
-          style: typography.secondary,
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ],
+    ),
   );
 }
 

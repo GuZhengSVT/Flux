@@ -3510,4 +3510,109 @@ class AppLocalizationsZh extends AppLocalizations {
   String diagnosticsFailed(String reason) {
     return '操作失败：$reason';
   }
+
+  @override
+  String get shortcutHelpTitle => '键盘快捷键';
+
+  @override
+  String get shortcutHelpAction => '快捷键说明';
+
+  @override
+  String get shortcutGroupNavigation => '切换去向';
+
+  @override
+  String get shortcutNavToday => '⌘1 今日新闻';
+
+  @override
+  String get shortcutNavReading => '⌘2 RSS 阅读';
+
+  @override
+  String get shortcutNavMine => '⌘3 我的 / 设置';
+
+  @override
+  String get shortcutGroupList => '文章列表';
+
+  @override
+  String get shortcutListMove => '↑ / ↓ 上一篇 / 下一篇';
+
+  @override
+  String get shortcutListOpen => '回车 打开选中的文章';
+
+  @override
+  String get shortcutGroupClose => '关闭与取消';
+
+  @override
+  String get shortcutCloseLayer => 'Esc 关闭弹层 / 退出搜索 / 取消列表选择';
+
+  @override
+  String get shortcutGroupOther => '其它';
+
+  @override
+  String get shortcutHelpOpen => '⌘/ 打开这个说明';
+
+  @override
+  String get shortcutHelpFooter => '控件都可以用 Tab 聚焦，回车或空格触发；列表、订阅行与正文另有右键菜单。';
+
+  @override
+  String a11yListSelection(int index, int total) {
+    return '已选中第 $index 篇，共 $total 篇；回车打开';
+  }
+
+  @override
+  String get a11yListLoading => '正在载入文章列表';
+
+  @override
+  String get a11yDetailLoading => '正在载入这篇正文';
+
+  @override
+  String a11yImagePlaceholder(String alt) {
+    return '图片占位：$alt';
+  }
+
+  @override
+  String get readingContextSearchSelection => '在库中检索这段文字';
+
+  @override
+  String get readingContextSearchRequested => '已切到 RSS 阅读并检索所选文字。';
+
+  @override
+  String get readingContextTranslateArticle => '翻译这篇文章';
+
+  @override
+  String get articleMenuDelete => '删除这篇文章…';
+
+  @override
+  String articlePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  ) {
+    return '已删除这篇文章，并清理了 $citations 条引用、$translations 份译文、$sessions 条会话与 $media 个缓存文件。';
+  }
+
+  @override
+  String get settingsMotionLabel => '减少动态效果';
+
+  @override
+  String get settingsMotionId => 'SET-014 · 设备专属';
+
+  @override
+  String get settingsMotionHint =>
+      '跟随系统时按系统的「减少动态效果」设置解析；也可在本设备强制开启或关闭，只影响本机的过渡动画时长。';
+
+  @override
+  String get settingsOptionMotionSystem => '跟随系统';
+
+  @override
+  String get settingsOptionMotionOn => '始终减少';
+
+  @override
+  String get settingsOptionMotionOff => '不减少';
+
+  @override
+  String get readingOpenOriginal => '用浏览器打开原文';
+
+  @override
+  String get readingSourceUrlMissing => '这篇文章没有可用的原文地址。';
 }

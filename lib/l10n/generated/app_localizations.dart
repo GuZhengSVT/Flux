@@ -6084,6 +6084,197 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'操作失败：{reason}'**
   String diagnosticsFailed(String reason);
+
+  /// 快捷键说明面板标题
+  ///
+  /// In zh, this message translates to:
+  /// **'键盘快捷键'**
+  String get shortcutHelpTitle;
+
+  /// 快捷键说明入口（工具提示）
+  ///
+  /// In zh, this message translates to:
+  /// **'快捷键说明'**
+  String get shortcutHelpAction;
+
+  /// 快捷键分组：导航
+  ///
+  /// In zh, this message translates to:
+  /// **'切换去向'**
+  String get shortcutGroupNavigation;
+
+  /// 快捷键：切到今日新闻
+  ///
+  /// In zh, this message translates to:
+  /// **'⌘1 今日新闻'**
+  String get shortcutNavToday;
+
+  /// 快捷键：切到 RSS 阅读
+  ///
+  /// In zh, this message translates to:
+  /// **'⌘2 RSS 阅读'**
+  String get shortcutNavReading;
+
+  /// 快捷键：切到我的
+  ///
+  /// In zh, this message translates to:
+  /// **'⌘3 我的 / 设置'**
+  String get shortcutNavMine;
+
+  /// 快捷键分组：列表
+  ///
+  /// In zh, this message translates to:
+  /// **'文章列表'**
+  String get shortcutGroupList;
+
+  /// 快捷键：列表上下选择
+  ///
+  /// In zh, this message translates to:
+  /// **'↑ / ↓ 上一篇 / 下一篇'**
+  String get shortcutListMove;
+
+  /// 快捷键：回车打开
+  ///
+  /// In zh, this message translates to:
+  /// **'回车 打开选中的文章'**
+  String get shortcutListOpen;
+
+  /// 快捷键分组：关闭
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭与取消'**
+  String get shortcutGroupClose;
+
+  /// 快捷键：Esc 关闭
+  ///
+  /// In zh, this message translates to:
+  /// **'Esc 关闭弹层 / 退出搜索 / 取消列表选择'**
+  String get shortcutCloseLayer;
+
+  /// 快捷键分组：其它
+  ///
+  /// In zh, this message translates to:
+  /// **'其它'**
+  String get shortcutGroupOther;
+
+  /// 快捷键：打开说明面板
+  ///
+  /// In zh, this message translates to:
+  /// **'⌘/ 打开这个说明'**
+  String get shortcutHelpOpen;
+
+  /// 快捷键面板页脚说明
+  ///
+  /// In zh, this message translates to:
+  /// **'控件都可以用 Tab 聚焦，回车或空格触发；列表、订阅行与正文另有右键菜单。'**
+  String get shortcutHelpFooter;
+
+  /// 列表选中行的读屏播报
+  ///
+  /// In zh, this message translates to:
+  /// **'已选中第 {index} 篇，共 {total} 篇；回车打开'**
+  String a11yListSelection(int index, int total);
+
+  /// 列表加载中的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'正在载入文章列表'**
+  String get a11yListLoading;
+
+  /// 详情加载中的读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'正在载入这篇正文'**
+  String get a11yDetailLoading;
+
+  /// 图片占位读屏标签
+  ///
+  /// In zh, this message translates to:
+  /// **'图片占位：{alt}'**
+  String a11yImagePlaceholder(String alt);
+
+  /// 正文选区菜单：在库中检索
+  ///
+  /// In zh, this message translates to:
+  /// **'在库中检索这段文字'**
+  String get readingContextSearchSelection;
+
+  /// 检索跳转回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已切到 RSS 阅读并检索所选文字。'**
+  String get readingContextSearchRequested;
+
+  /// 正文选区菜单：翻译本文
+  ///
+  /// In zh, this message translates to:
+  /// **'翻译这篇文章'**
+  String get readingContextTranslateArticle;
+
+  /// 列表项菜单：彻底删除
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这篇文章…'**
+  String get articleMenuDelete;
+
+  /// 彻底删除回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除这篇文章，并清理了 {citations} 条引用、{translations} 份译文、{sessions} 条会话与 {media} 个缓存文件。'**
+  String articlePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  );
+
+  /// SET-014 标题
+  ///
+  /// In zh, this message translates to:
+  /// **'减少动态效果'**
+  String get settingsMotionLabel;
+
+  /// SET-014 编号与分类
+  ///
+  /// In zh, this message translates to:
+  /// **'SET-014 · 设备专属'**
+  String get settingsMotionId;
+
+  /// SET-014 说明
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统时按系统的「减少动态效果」设置解析；也可在本设备强制开启或关闭，只影响本机的过渡动画时长。'**
+  String get settingsMotionHint;
+
+  /// SET-014 取值：跟随系统
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统'**
+  String get settingsOptionMotionSystem;
+
+  /// SET-014 取值：强制开启
+  ///
+  /// In zh, this message translates to:
+  /// **'始终减少'**
+  String get settingsOptionMotionOn;
+
+  /// SET-014 取值：强制关闭
+  ///
+  /// In zh, this message translates to:
+  /// **'不减少'**
+  String get settingsOptionMotionOff;
+
+  /// 列表项菜单：外部打开原文
+  ///
+  /// In zh, this message translates to:
+  /// **'用浏览器打开原文'**
+  String get readingOpenOriginal;
+
+  /// 原文地址缺失提示
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有可用的原文地址。'**
+  String get readingSourceUrlMissing;
 }
 
 class _AppLocalizationsDelegate

@@ -12,6 +12,8 @@
 // 会把 600 断点判早。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Riverpod 3 把 StateProvider 归入 legacy 入口；它只是「一个可变值」，
@@ -19,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/articles/application/reading_search_request.dart';
 import 'package:flux/features/articles/presentation/reader/article_image_view.dart';
 import 'package:flux/features/feeds/presentation/refresh_automation.dart';
 import 'package:flux/features/news/presentation/daily_news_automation.dart';
@@ -29,6 +32,7 @@ import 'package:flux/ui/ui.dart';
 import '../app_providers.dart';
 import '../theme/flux_theme.dart';
 import 'app_destination.dart';
+import 'app_shortcuts.dart';
 import 'destination_page.dart';
 
 /// 当前选中的去向。
@@ -62,6 +66,29 @@ class AppShell extends ConsumerWidget {
           AppDestination.mine;
       // 消费后清空：否则用户之后每次手动切换去向都会被拉回设置。
       ref.read(settingsNavigationRequestProvider.notifier).consume();
+    });
+
+    // 正文里的「在库中检索」请求（T049）：把去向切到 RSS 阅读。查询词本身由阅读页
+    // 自己消费（它才是检索框的持有者），这里只负责导航——与上面「去设置」同一条路线。
+    ref.listen<String?>(readingSearchRequestProvider, (
+      String? _,
+      String? next,
+    ) {
+      if (next == null) {
+        return;
+      }
+      ref.read(selectedDestinationProvider.notifier).state =
+          AppDestination.reading;
+    });
+
+    // ⌘/ 的说明面板请求（T049）：应用级快捷键那一层在 Navigator 之上，弹不出对话框，
+    // 因此由这里（Navigator 内部）落实。
+    ref.listen<bool>(shortcutHelpRequestProvider, (bool? _, bool next) {
+      if (!next) {
+        return;
+      }
+      ref.read(shortcutHelpRequestProvider.notifier).consume();
+      unawaited(ShortcutHelpDialog.show(context));
     });
 
     return LayoutBuilder(

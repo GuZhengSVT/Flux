@@ -639,7 +639,7 @@ class _PinnedBadge extends StatelessWidget {
 }
 
 /// 订阅行。
-class _FeedRow extends ConsumerWidget {
+class _FeedRow extends ConsumerStatefulWidget {
   const _FeedRow({
     required this.entry,
     required this.index,
@@ -654,78 +654,105 @@ class _FeedRow extends ConsumerWidget {
   final int? groupId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_FeedRow> createState() => _FeedRowState();
+}
+
+class _FeedRowState extends ConsumerState<_FeedRow> {
+  /// 行尾菜单按钮的状态句柄。
+  ///
+  /// 由本行持有（而不是一个全局 Map）：菜单按钮与这一行同生命周期，行消失时句柄
+  /// 自然被回收。用全局 Map 按订阅 id 缓存会让「订阅被删除」之后句柄永远留在 map 里。
+  final GlobalKey<PopupMenuButtonState<_FeedAction>> _menuKey =
+      GlobalKey<PopupMenuButtonState<_FeedAction>>(debugLabel: 'FeedRowMenu');
+
+  @override
+  Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
-    final FeedRecord feed = entry.feed;
+    final FeedRecord feed = widget.entry.feed;
 
     return Semantics(
-      label: l10n.subscriptionFeedRowLabel(feed.name, entry.unreadCount),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: FluxSpacing.xxs),
-        child: Row(
-          children: <Widget>[
-            // 拖动把手：ReorderableDragStartListener 自带焦点与长按语义，
-            // 键盘用户可用上/下方向键（Flutter 对拖动把手实现了方向键移动）。
-            ReorderableDragStartListener(
-              index: index,
-              child: Tooltip(
-                message: l10n.subscriptionDragHandleLabel,
-                child: Padding(
-                  padding: const EdgeInsets.all(FluxSpacing.xs),
-                  child: Icon(
-                    Icons.drag_indicator,
-                    size: 20,
-                    color: scheme.onSurfaceVariant,
+      label: l10n.subscriptionFeedRowLabel(feed.name, widget.entry.unreadCount),
+      child: GestureDetector(
+        // 右键菜单（T049；架构第 3 节「订阅行菜单」）：菜单内容与行尾的 PopupMenuButton
+        // **完全一致**——它只是桌面用户的第二条路径，不是另一套动作集合。因此复用同一
+        // 个菜单按钮的 showButtonMenu：另建一份菜单项会让两处的动作表慢慢漂移。
+        onSecondaryTapDown: (TapDownDetails details) => _openMenu(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: FluxSpacing.xxs),
+          child: Row(
+            children: <Widget>[
+              // 拖动把手：ReorderableDragStartListener 自带焦点与长按语义，
+              // 键盘用户可用上/下方向键（Flutter 对拖动把手实现了方向键移动）。
+              ReorderableDragStartListener(
+                index: widget.index,
+                child: Tooltip(
+                  message: l10n.subscriptionDragHandleLabel,
+                  child: Padding(
+                    padding: const EdgeInsets.all(FluxSpacing.xs),
+                    child: Icon(
+                      Icons.drag_indicator,
+                      size: 20,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
-            ),
-            // 加精徽标（SET-023）：加精只在**显示**上用强调色与徽标表达，
-            // 不改变排序，也不改变新闻选材。
-            if (feed.favorite)
-              Padding(
-                padding: const EdgeInsets.only(right: FluxSpacing.xs),
-                child: FluxSvgIcon(
-                  FluxIcon.featuredBadge,
-                  size: FluxIconSize.small,
-                  color: scheme.primary,
-                  semanticsLabel: l10n.featuredBadgeLabel,
+              // 加精徽标（SET-023）：加精只在**显示**上用强调色与徽标表达，
+              // 不改变排序，也不改变新闻选材。
+              if (feed.favorite)
+                Padding(
+                  padding: const EdgeInsets.only(right: FluxSpacing.xs),
+                  child: FluxSvgIcon(
+                    FluxIcon.featuredBadge,
+                    size: FluxIconSize.small,
+                    color: scheme.primary,
+                    semanticsLabel: l10n.featuredBadgeLabel,
+                  ),
+                ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      feed.name,
+                      style: theme.textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      l10n.subscriptionUnreadCount(widget.entry.unreadCount),
+                      style: theme.textTheme.labelSmall,
+                    ),
+                  ],
                 ),
               ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    feed.name,
-                    style: theme.textTheme.bodyLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    l10n.subscriptionUnreadCount(entry.unreadCount),
-                    style: theme.textTheme.labelSmall,
-                  ),
-                ],
+              if (!feed.enabled)
+                Tooltip(
+                  message: l10n.subscriptionEnabledNote,
+                  child: _Tagged(text: l10n.subscriptionFeedDisabledBadge),
+                ),
+              _FeedMenu(
+                menuKey: _menuKey,
+                entry: widget.entry,
+                index: widget.index,
+                total: widget.total,
+                groupId: widget.groupId,
               ),
-            ),
-            if (!feed.enabled)
-              Tooltip(
-                message: l10n.subscriptionEnabledNote,
-                child: _Tagged(text: l10n.subscriptionFeedDisabledBadge),
-              ),
-            _FeedMenu(
-              entry: entry,
-              index: index,
-              total: total,
-              groupId: groupId,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
+  /// 右键打开订阅菜单。
+  ///
+  /// 用 [PopupMenuButtonState.showButtonMenu] 而不是另建一份菜单项：菜单的**内容**只有
+  /// 一处定义（_FeedMenu.itemBuilder），右键与点按钮因此不会漂移成两条不同的动作表。
+  /// 位置用菜单按钮自己的状态打开，菜单会贴在按钮上——这正是「行尾那个按钮」的位置，
+  /// 用户不会觉得菜单从别处冒出来。
+  void _openMenu() => _menuKey.currentState?.showButtonMenu();
 }
 
 /// 小标签（已停用等）。
@@ -943,11 +970,15 @@ enum _GroupAction { rename, togglePin, moveUp, moveDown, delete }
 /// 订阅菜单：重命名、移动分组、启用、加精、刷新间隔、上移/下移。
 class _FeedMenu extends ConsumerWidget {
   const _FeedMenu({
+    required this.menuKey,
     required this.entry,
     required this.index,
     required this.total,
     required this.groupId,
   });
+
+  /// 菜单按钮的状态句柄（右键菜单由它打开，见 _FeedRowState）。
+  final GlobalKey<PopupMenuButtonState<_FeedAction>> menuKey;
 
   final FeedListEntry entry;
   final int index;
@@ -966,6 +997,7 @@ class _FeedMenu extends ConsumerWidget {
         .value;
 
     return PopupMenuButton<_FeedAction>(
+      key: menuKey,
       tooltip: l10n.subscriptionFeedMenu,
       onSelected: (_FeedAction action) async {
         // 与分组菜单同样的理由：messenger 在第一个 await 之前取好。

@@ -259,6 +259,7 @@ Widget wrapFluxApp({
   ThemeMode themeMode = ThemeMode.light,
   Brightness platformBrightness = Brightness.light,
   Size? surfaceSize,
+  TextScaler textScaler = TextScaler.noScaling,
 }) {
   return ProviderScope(
     overrides: overrides,
@@ -267,6 +268,8 @@ Widget wrapFluxApp({
         platformBrightness: platformBrightness,
         // 固定窗口逻辑尺寸，让断点行为在测试里可复现。
         size: surfaceSize ?? const Size(1200, 800),
+        // 字号缩放（T049 的大字号回归）：默认不缩放，用例可按 SET-006 的上限放大。
+        textScaler: textScaler,
       ),
       child: MaterialApp(
         theme: FluxTheme.light(),

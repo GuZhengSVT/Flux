@@ -30,6 +30,7 @@ class FluxCard extends StatelessWidget {
     this.onTap,
     this.semanticsLabel,
     this.selected = false,
+    this.keyboardFocus = false,
     this.borderRadius,
   });
 
@@ -48,6 +49,13 @@ class FluxCard extends StatelessWidget {
   /// 是否选中（用 selectedSurface 与强调色边框表达，不使用阴影）。
   final bool selected;
 
+  /// 是否是键盘当前落点（T049）。
+  ///
+  /// 与 [selected] 分开：勾选表示「会参与批量操作」，键盘落点表示「光标停在这里」。
+  /// 两者在列表里可能同时存在，用同一套视觉会让用户分不清「我选了哪些」与
+  /// 「回车会打开哪一篇」。
+  final bool keyboardFocus;
+
   /// 圆角覆盖；默认用卡片 token。
   final BorderRadius? borderRadius;
 
@@ -60,9 +68,16 @@ class FluxCard extends StatelessWidget {
     Widget content = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: selected ? scheme.surfaceContainerHigh : scheme.surface,
+        color: selected || keyboardFocus
+            ? scheme.surfaceContainerHigh
+            : scheme.surface,
         borderRadius: radius,
-        border: Border.all(color: selected ? scheme.primary : scheme.outline),
+        border: Border.all(
+          color: keyboardFocus
+              ? scheme.primary
+              : (selected ? scheme.primary : scheme.outline),
+          width: keyboardFocus ? FluxControlTokens.focusRingWidth : 1,
+        ),
       ),
       child: child,
     );

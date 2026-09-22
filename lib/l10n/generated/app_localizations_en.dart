@@ -3692,4 +3692,114 @@ class AppLocalizationsEn extends AppLocalizations {
   String diagnosticsFailed(String reason) {
     return 'Operation failed: $reason';
   }
+
+  @override
+  String get shortcutHelpTitle => 'Keyboard shortcuts';
+
+  @override
+  String get shortcutHelpAction => 'Keyboard shortcuts';
+
+  @override
+  String get shortcutGroupNavigation => 'Switch destination';
+
+  @override
+  String get shortcutNavToday => '⌘1 Today';
+
+  @override
+  String get shortcutNavReading => '⌘2 Reading';
+
+  @override
+  String get shortcutNavMine => '⌘3 Mine / Settings';
+
+  @override
+  String get shortcutGroupList => 'Article list';
+
+  @override
+  String get shortcutListMove => '↑ / ↓ Previous / next row';
+
+  @override
+  String get shortcutListOpen => 'Return Open the selected article';
+
+  @override
+  String get shortcutGroupClose => 'Close and cancel';
+
+  @override
+  String get shortcutCloseLayer =>
+      'Esc Close a layer / leave search / clear list selection';
+
+  @override
+  String get shortcutGroupOther => 'Other';
+
+  @override
+  String get shortcutHelpOpen => '⌘/ Open this list';
+
+  @override
+  String get shortcutHelpFooter =>
+      'Every control is reachable with Tab and activates with Return or Space; lists, subscription rows and the article body also have context menus.';
+
+  @override
+  String a11yListSelection(int index, int total) {
+    return 'Selected row $index of $total; press Return to open';
+  }
+
+  @override
+  String get a11yListLoading => 'Loading the article list';
+
+  @override
+  String get a11yDetailLoading => 'Loading the article body';
+
+  @override
+  String a11yImagePlaceholder(String alt) {
+    return 'Image placeholder: $alt';
+  }
+
+  @override
+  String get readingContextSearchSelection =>
+      'Search the library for this text';
+
+  @override
+  String get readingContextSearchRequested =>
+      'Switched to Reading and searched for the selected text.';
+
+  @override
+  String get readingContextTranslateArticle => 'Translate this article';
+
+  @override
+  String get articleMenuDelete => 'Delete this article…';
+
+  @override
+  String articlePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  ) {
+    return 'Article deleted, along with $citations citations, $translations translations, $sessions reading sessions and $media cached files.';
+  }
+
+  @override
+  String get settingsMotionLabel => 'Reduce motion';
+
+  @override
+  String get settingsMotionId => 'SET-014 · Device-only';
+
+  @override
+  String get settingsMotionHint =>
+      'Follow system resolves from the OS \"Reduce motion\" setting; you can also force it on or off on this device. It only affects transition durations on this machine.';
+
+  @override
+  String get settingsOptionMotionSystem => 'Follow system';
+
+  @override
+  String get settingsOptionMotionOn => 'Always reduce';
+
+  @override
+  String get settingsOptionMotionOff => 'Do not reduce';
+
+  @override
+  String get readingOpenOriginal => 'Open original in browser';
+
+  @override
+  String get readingSourceUrlMissing =>
+      'This article has no original URL to open.';
 }

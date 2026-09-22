@@ -12,7 +12,10 @@
 //   3) 没有订阅与「筛选无结果」分别提示（架构第 7 节要求三类空态区分）。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flux/core/core.dart';
@@ -26,6 +29,7 @@ import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
 
 import '../application/article_list_state.dart';
+import '../application/reading_search_request.dart';
 import '../application/article_ai_providers.dart';
 import '../application/article_search_state.dart';
 import '../application/auto_summary_batch.dart';
@@ -50,6 +54,21 @@ class ReadingPage extends ConsumerWidget {
     // 「我输入了词 → 看到结果；我清空 → 回到列表」。
     final bool searching = search.query.trim().isNotEmpty || search.searched;
 
+    // 正文里的「在库中检索」请求：把词填进检索框并立刻检索一次，然后清空请求。
+    // 用 listen 而不是在 build 里读一下再写：build 期间写 provider 会在同一帧触发
+    // 重建，而 Riverpod 明确禁止（与 app_shell 的「去设置」同一处理）。
+    ref.listen<String?>(readingSearchRequestProvider, (
+      String? _,
+      String? next,
+    ) {
+      if (next == null) {
+        return;
+      }
+      ref.read(searchControllerProvider.notifier).setQuery(next);
+      unawaited(ref.read(searchControllerProvider.notifier).run());
+      ref.read(readingSearchRequestProvider.notifier).consume();
+    });
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -70,8 +89,13 @@ class ReadingPage extends ConsumerWidget {
           child: searching
               ? ArticleSearchView(state: search)
               : state.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                  loading: () => Center(
+                    child: Semantics(
+                      label: l10n.a11yListLoading,
+                      liveRegion: true,
+                      child: const CircularProgressIndicator(),
+                    ),
+                  ),
                   error: (Object error, StackTrace stackTrace) =>
                       ReadingLoadFailed(
                         message: error is AppError ? error.message : null,
@@ -140,29 +164,52 @@ class _SearchBarState extends ConsumerState<_SearchBar> {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: TextField(
-              controller: _controller,
-              onChanged: ref.read(searchControllerProvider.notifier).setQuery,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (String _) =>
-                  ref.read(searchControllerProvider.notifier).run(),
-              decoration: InputDecoration(
-                isDense: true,
-                prefixIcon: const Icon(Icons.search, size: 18),
-                labelText: l10n.searchFieldLabel,
-                hintText: l10n.searchFieldHint,
-                border: const OutlineInputBorder(),
-                suffixIcon: state.query.isEmpty
-                    ? null
-                    : IconButton(
-                        iconSize: 18,
-                        tooltip: l10n.searchClear,
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _controller.clear();
-                          ref.read(searchControllerProvider.notifier).clear();
-                        },
-                      ),
+            // Esc 退出搜索（T049）。
+            //
+            // 为什么把 Focus 包在**输入框外面**而不是给整页挂一层：按键事件只沿当前
+            // 焦点结点的**祖先链**投递，而搜索框是唯一会在这里拿到焦点的控件。包在
+            // 它外面时「用户在搜索框里按 Esc」必然被这里看到；挂在页面上（输入框的
+            // 兄弟分支）则永远收不到——实测就是这样。
+            //
+            // 只在真的有搜索可退时消费：没有查询词时把 Esc 让出去，否则它会表现成
+            // 「按了没反应」，而用户此时想关的可能是别的层。
+            child: Focus(
+              onKeyEvent: (FocusNode node, KeyEvent event) {
+                if (event is! KeyDownEvent ||
+                    event.logicalKey != LogicalKeyboardKey.escape) {
+                  return KeyEventResult.ignored;
+                }
+                if (!state.searched && state.query.isEmpty) {
+                  return KeyEventResult.ignored;
+                }
+                _controller.clear();
+                ref.read(searchControllerProvider.notifier).clear();
+                return KeyEventResult.handled;
+              },
+              child: TextField(
+                controller: _controller,
+                onChanged: ref.read(searchControllerProvider.notifier).setQuery,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (String _) =>
+                    ref.read(searchControllerProvider.notifier).run(),
+                decoration: InputDecoration(
+                  isDense: true,
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  labelText: l10n.searchFieldLabel,
+                  hintText: l10n.searchFieldHint,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: state.query.isEmpty
+                      ? null
+                      : IconButton(
+                          iconSize: 18,
+                          tooltip: l10n.searchClear,
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            _controller.clear();
+                            ref.read(searchControllerProvider.notifier).clear();
+                          },
+                        ),
+                ),
               ),
             ),
           ),
