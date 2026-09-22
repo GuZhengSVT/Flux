@@ -26,6 +26,7 @@ import 'tables/settings_tables.dart';
 import 'tables/news_tables.dart';
 import 'tables/news_run_tables.dart';
 import 'tables/summary_tables.dart';
+import 'tables/sync_tables.dart';
 import 'tables/translation_tables.dart';
 
 part 'database.g.dart';
@@ -57,6 +58,10 @@ part 'database.g.dart';
     NewsConfigEntryRecords,
     NewsPromptVersionRecords,
     NewsRuns,
+    SyncStateRecords,
+    SyncPendingChanges,
+    SyncTombstones,
+    SyncFeedAliasRecords,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -89,7 +94,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -200,6 +205,9 @@ class AppDatabase extends _$AppDatabase {
               articles.aiSummary,
               articles.aiSummaryAt,
               articles.aiSummaryModel,
+              // v16 的 articles.sync_key 同理（T041）：它也在当前表定义里，v5 阶段取
+              // null，由 v16 步骤按事实判断是否真的加上。
+              articles.syncKey,
               // v14 的 feeds.news_enabled 同理（T036）：它也在当前表定义里，v5 阶段取 null，
               // 由 v14 步骤按事实判断是否真的加上。
               feeds.newsEnabled,
@@ -440,11 +448,62 @@ class AppDatabase extends _$AppDatabase {
         await m.createIndex(ixNewsRunsCurrent);
       }
 
+      if (from < 16) {
+        // v15 → v16：同步基线与协议状态（T041；架构 5.1 的 SyncState 实体、5.2 的
+        // 条件发布/墓碑/别名）。
+        //
+        // 四张新表 + 一行种子，**不改任何既有列**：
+        //   * sync_state_records（**单行**）：共同基线版本、本地修订号、上次成功时间、
+        //     设备名、条件写能力探测结果；
+        //   * sync_pending_changes：哪些本地改动还没上传（字段级粒度，T043 的合并依据）；
+        //   * sync_tombstones：删除了什么（跨设备不得复活，架构 5.2）；
+        //   * sync_feed_aliases：订阅在两台设备上的 syncId 对应（按规范 URL 对齐后保存）。
+        //
+        // 为什么**不回填**任何待同步变更或墓碑：升级前不存在「有改动等着同步」这个事实。
+        // 给已有订阅批量造一批 pending 行，会让第一次同步把整个库当成「本地新改动」上传——
+        // 那等于用一次迁移伪造出一批用户从未做过的修改（架构第 8 节禁止用假象代替状态）。
+        // 首次同步的合并语义由 T044 的「首次预览」承担，而不是靠迁移预置 dirty 标记。
+        //
+        // 唯一必须写入的是 sync_state 的**单行种子**：共同基线为 null（从未同步过）、
+        // 本地修订为 0、能力探测为 null（尚未探测）。这一行不是「用户数据」，而是「协议
+        // 需要一个可更新的当前态行」；不写它的话每个写入点都要先判断「有没有行」，
+        // 而漏判的那一处会静默丢弃一次基线推进。
+        //
+        // 与 v1→v2、v8→v9、v9→v10、v10→v11、v12→v13、v13→v14、v14→v15 同一个坑：
+        // createTable 只建表，**不**建索引；漏掉 createIndex 时运行时查询照常工作，
+        // 只有结构校验才会发现差异，因此逐个显式写出。
+        await m.createTable(syncStateRecords);
+        await m.createTable(syncPendingChanges);
+        await m.createIndex(uxSyncPendingEntityField);
+        await m.createIndex(ixSyncPendingRevision);
+        await m.createTable(syncTombstones);
+        await m.createIndex(uxSyncTombstonesEntity);
+        await m.createIndex(ixSyncTombstonesAt);
+        await m.createTable(syncFeedAliasRecords);
+        await m.createIndex(uxSyncFeedAliasesLocal);
+        await m.createIndex(ixSyncFeedAliasesSyncId);
+        // 文章表的同步键（同一步内，因为它与同步协议一起上线）。
+        //
+        // 与 v6/v8/v12 同一个坑：上面 v4→v5 的 alterTable 是按**当前**表定义重建
+        // articles 的，因此从 v4 及更早升上来的库在这一步**已经有** sync_key；对已经
+        // 在 v15 的库则没有，必须真的加上。两种起点都要能升上来，所以按事实判断。
+        if (!await _columnExists('articles', 'sync_key')) {
+          await m.addColumn(articles, articles.syncKey);
+        }
+        // 索引必须单独建：addColumn 只加列，不建索引；而 v4 及更早的库在 alterTable
+        // 重建时也不会带上它（重建只搬列）。CREATE INDEX 的 IF NOT EXISTS 在这里不合适
+        // ——drift 的 createIndex 会按名字判断，重复建会报错，因此用条件包裹。
+        if (!await _indexExists('ux_articles_sync_key')) {
+          await m.createIndex(uxArticlesSyncKey);
+        }
+        await _seedSyncState();
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 15;
+      const int highestImplemented = 16;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',
@@ -474,6 +533,25 @@ class AppDatabase extends _$AppDatabase {
       ),
       mode: InsertMode.insertOrIgnore,
     );
+    await _seedSyncState();
+  }
+
+  /// 建立同步基线状态的那**一行**（T041）。
+  ///
+  /// 用 insertOrIgnore 而不是 insert：onCreate 与 v15→v16 迁移都会调用它，重复写入
+  /// 必须是幂等的（迁移路径上如果这一步失败，整次升级会回滚，而升级失败在用户看来
+  /// 就是「应用打不开」）。
+  ///
+  /// 写入的值全部是「尚未同步」的诚实默认：基线为 null、修订为 0、能力未探测。
+  /// 不填任何看起来合理的假值（例如把探测结果先写成 true），那会让第一台设备在
+  /// 服务器不支持条件写时进入多端自动覆盖路径（架构 5.2 明确禁止）。
+  Future<void> _seedSyncState() async {
+    await into(syncStateRecords).insert(
+      const SyncStateRecordsCompanion(
+        id: Value<int>(SyncStateRecords.singletonId),
+      ),
+      mode: InsertMode.insertOrIgnore,
+    );
   }
 
   /// 表 [table] 上是否已有列 [column]。
@@ -486,6 +564,19 @@ class AppDatabase extends _$AppDatabase {
     final List<QueryRow> rows = await customSelect('PRAGMA table_info($table)')
         .get();
     return rows.any((QueryRow row) => row.read<String>('name') == column);
+  }
+
+  /// 索引 [name] 是否已存在。
+  ///
+  /// 迁移步骤需要它，理由与 [_columnExists] 相同：v4→v5 的 alterTable 会按当前表定义
+  /// 重建 articles，而 drift 的重建流程是否连带建出新索引取决于它的执行细节，按事实
+  /// 问库比按版本号推断可靠。
+  Future<bool> _indexExists(String name) async {
+    final List<QueryRow> rows = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'index' AND name = ?",
+      variables: <Variable<Object>>[Variable<String>(name)],
+    ).get();
+    return rows.isNotEmpty;
   }
 }
 

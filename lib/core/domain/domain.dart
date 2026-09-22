@@ -33,5 +33,8 @@ export 'reading_session.dart';
 export 'reading_stats.dart';
 export 'reading_stats_store.dart';
 export 'stable_id.dart';
+export 'sync_article_key.dart';
+export 'sync_projection.dart';
+export 'sync_store.dart';
 export 'url_secrets.dart';
 export 'url_guard.dart';

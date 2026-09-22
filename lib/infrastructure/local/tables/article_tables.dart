@@ -47,6 +47,13 @@ import 'feed_tables.dart';
 @TableIndex(name: 'ix_articles_reading_state', columns: {#readingState})
 @TableIndex(name: 'ix_articles_favorite', columns: {#favorite})
 @TableIndex(name: 'ix_articles_body_hash', columns: {#bodyHash})
+// 同步键唯一（T041）：同一篇文章在同一个库里只能有一行。条件唯一（WHERE sync_key IS
+// NOT NULL）让尚未算过同步键的行互不冲突——SQLite 的唯一索引本就把多个 NULL 视为互不
+// 相等，这里显式写出条件只是让「哪些行参与这条约束」一眼可见。
+@TableIndex.sql(
+  'CREATE UNIQUE INDEX ux_articles_sync_key ON articles (sync_key) '
+  'WHERE sync_key IS NOT NULL',
+)
 class Articles extends Table {
   IntColumn get id => integer().autoIncrement()();
 
@@ -92,6 +99,19 @@ class Articles extends Table {
 
   /// 无 GUID 兜底指纹（来源 + 标题 + 时间）；null 表示未走兜底规则。
   TextColumn get fallbackFingerprint => text().nullable()();
+
+  /// 跨设备文章同步键（schema v16；T041、架构 5.2）。
+  ///
+  /// 值由 core 的 syncArticleKey 从「订阅 syncId + 身份证据」确定性算出，**不由本机
+  /// 自增 id 派生**（自增 id 在另一台设备上必然指向别的行）。它做两件事：
+  ///   1) 让我们能在同步包里认出「这条状态是哪篇文章的」；
+  ///   2) 让**占位行**在后续抓取时被匹配上——占位行没有 GUID/链接（架构 5.2「远端状态
+  ///      到达但本机没有正文，保存状态占位」），按 GUID 找不到它，但按同步键能找到。
+  ///
+  /// 可空且**不回填**：历史行没有「算过同步键」这个事实，迁移里批量回填等于用一次升级
+  /// 伪造出一批从未同步过的记录（与 image_url / ai_summary 同一口径）。为空的行按既有
+  /// 身份规则照常工作，只是不参与同步键匹配。
+  TextColumn get syncKey => text().nullable()();
 
   /// 兜底指纹可靠度；null 表示该行不是靠指纹识别。发布时间缺失时指纹退化为
   /// 来源 + 标题，被标为 unreliable，同步阶段不得据此静默合并。

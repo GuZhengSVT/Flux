@@ -1168,5 +1168,121 @@ void main() {
         reason: '失败草稿不得覆盖成功版本，这条约束必须落在 DDL 上',
       );
     });
+
+    test('v16 快照新增同步基线与协议状态四表（T041）', () {
+      final File v16Snapshot = File('drift_schemas/drift_schema_v16.json');
+      expect(
+        v16Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v16 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v16Decoded =
+          jsonDecode(v16Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v16Entities =
+          (v16Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v16Names = v16Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      final Map<String, dynamic> v15Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v15.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v15Names = (v15Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v16Names,
+        containsAll(v15Names),
+        reason: 'v16 只新增同步四表与它们的索引，不得删除 v15 的任何实体',
+      );
+      expect(v16Names.difference(v15Names), <String>{
+        'sync_state_records',
+        'sync_pending_changes',
+        'ux_sync_pending_entity_field',
+        'ix_sync_pending_revision',
+        'sync_tombstones',
+        'ux_sync_tombstones_entity',
+        'ix_sync_tombstones_at',
+        'sync_feed_alias_records',
+        'ux_sync_feed_aliases_local',
+        'ix_sync_feed_aliases_sync_id',
+        'ux_articles_sync_key',
+      }, reason: 'v16 相对 v15 的新增实体应只有四张表、六条索引与文章同步键唯一索引');
+
+      // **数据库不含秘密**（架构 5.1、第 8 节）：同步表不得出现 WebDAV 密码、
+      // API Key 或任何凭据列——SET-071 只住 Keychain。
+      final Map<String, Set<String>> expectedColumns = <String, Set<String>>{
+        'sync_state_records': <String>{
+          'id',
+          'base_version',
+          'local_revision',
+          'last_synced_at',
+          'device_name',
+          'supports_conditional_write',
+          'capability_probed_at',
+        },
+        'sync_pending_changes': <String>{
+          'id',
+          'entity_kind',
+          'entity_key',
+          'field_name',
+          'revision',
+          'changed_at',
+        },
+        'sync_tombstones': <String>{
+          'id',
+          'entity_kind',
+          'entity_key',
+          'deleted_at',
+          'revision',
+          'display_name',
+        },
+        'sync_feed_alias_records': <String>{
+          'id',
+          'sync_id',
+          'local_feed_id',
+          'created_at',
+        },
+      };
+      for (final MapEntry<String, Set<String>> entry
+          in expectedColumns.entries) {
+        final Map<String, dynamic> table = v16Entities.firstWhere(
+          (Map<String, dynamic> e) =>
+              (e['data'] as Map<String, dynamic>)['name'] == entry.key,
+        );
+        final Set<String> columns =
+            ((table['data'] as Map<String, dynamic>)['columns']
+                    as List<dynamic>)
+                .cast<Map<String, dynamic>>()
+                .map((Map<String, dynamic> c) => c['name'] as String)
+                .toSet();
+        expect(
+          columns,
+          entry.value,
+          reason: '${entry.key} 的列清单必须与投影口径一致（不含任何凭据列）',
+        );
+        for (final String column in columns) {
+          expect(
+            column.toLowerCase(),
+            isNot(
+              anyOf(
+                contains('password'),
+                contains('secret'),
+                contains('api_key'),
+              ),
+            ),
+            reason: '$entry.key 不得持有凭据（$column）',
+          );
+        }
+      }
+    });
   });
 }
