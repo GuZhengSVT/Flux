@@ -4823,3 +4823,17 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
     使用既定 Flutter 路线和全部产品约束；遇到不一致先指出，不能用 mock 代替正式功能。
     修改后按手册完成验证、更新任务与功能账本，给出真实证据和下一步。
 实测日期：2026-09-21。实测机器：Apple M4 / 16 GiB / arm64，macOS 27.0 (26A428)。
+
+## 9. 开发暂停记录 R-PAUSE（R052 后，主代理）
+
+日期：2026-09-22。执行者：主代理（Codex），用户指令暂停。
+
+任务范围：T001–T052（M0–M4 macOS 范围）全部执行完毕。T051 为部分完成（SET 表逐项 UI 入口审计未做）；Android 专项（手册 T050 行）未初始化；T053–T056 发布链路未开始（需签名密钥与发布授权）。
+
+暂停时状态：HEAD 033a207；测试 2199 通过 / 4 跳过 / 0 失败；工作树干净；本地领先 origin/main 30+ 提交（按用户既定策略未 push）。
+
+暂停时清理：全部子代理（A1–A31）与后台 flutter/dart 进程已关闭；Flux-prototype-verify（657MB 原型工程，T003/T004 证据已归档 logs/T003_T004_prototype_evidence.md）、restore-test（T002 演练完成）、staging（T006 材料已入库）移入废纸篓；保留 Flux-legacy-backup-20260921.tar.gz（旧版封存备份）与 Flux-m0-workspace/{evidence,logs}（验收证据）；主工程 .dart_tool/build 缓存按用户指示（存储充足）保留至最终版本后再清。
+
+已声明 NOT_RUN（待用户接管决策）：真实 WebDAV 双客户端验证（需凭据）；除 DeepSeek 外的 AI/搜索供应商真实调用（需凭据）；能耗与 VoiceOver 真机走查；Android 全部（工程未初始化）。
+
+下一步（供用户决策）：a) 提供凭据补真实验证；b) 授权 push；c) 继续 T053+ 发布链路；d) 审阅各 REVIEW 状态任务。
