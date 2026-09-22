@@ -61,6 +61,20 @@ import 'package:flux/features/news/application/news_run_providers.dart';
 import 'package:flux/features/news/application/news_run_service.dart';
 import 'package:flux/features/news/application/news_verification_service.dart';
 import 'package:flux/features/news/application/news_today_controller.dart';
+import 'package:flux/features/news/application/daily_news_run.dart'
+    show DailyNewsRunner;
+import 'package:flux/features/news/application/daily_news_scheduler.dart';
+import 'package:flux/features/news/application/daily_news_settings.dart';
+import 'package:flux/features/news/application/daily_news_providers.dart'
+    show
+        dailyNewsSchedulerProvider,
+        dailyNewsStatusProvider,
+        newsCostNoticeStoreProvider;
+import 'package:flux/features/news/application/news_run_inputs.dart'
+    show newsDayRange;
+import 'package:flux/features/news/application/news_source_config.dart'
+    show NewsConfigState;
+import 'package:flux/features/ai/domain/ai_message.dart' show AiCancellation;
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -74,6 +88,7 @@ import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/article_translation_store.dart';
 import 'package:flux/infrastructure/local/news_source_config_store.dart';
 import 'package:flux/infrastructure/local/news_run_store.dart';
+import 'package:flux/infrastructure/local/news_cost_notice_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
@@ -508,6 +523,126 @@ List<Override> bootstrapOverrides(
           },
     ),
     // ---- T033：视觉链路 ------------------------------------------------------
+    // ---- T040：默认开启的每日定时总结 ----------------------------------------
+    //
+    // 三项一起接线，缺一不可：
+    //   * **费用告知记录**（本机状态）：没有它，定时任务在用户从没被告知的情况下付费运行；
+    //     数据库不可用时给降级实现（读作**未确认**），方向是 fail-closed。
+    //   * **调度器**：长期存活对象，策略/齐备性/跑一次都是注入的窄能力，因此它的时间规则
+    //     可以用假时钟逐条验证（core/domain/news_schedule.dart）。
+    //   * **状态发布**：调度器把每次评估的结论写进 dailyNewsStatusProvider，设置页与今日页
+    //     读同一份，不在别处重算「下次什么时候跑」。
+    newsCostNoticeStoreProvider.overrideWithValue(
+      result.database == null
+          ? const DegradedNewsCostNotice()
+          : DeviceStateNewsCostNotice(DeviceStateRepository(result.database!)),
+    ),
+    dailyNewsSchedulerProvider.overrideWith((Ref ref) {
+      final NewsDailySettings settings = NewsDailySettings(
+        // 只读设置端口：定时只**读** SET-056/057，写入口在设置页（SET-056/057 的写入走
+        // settingsStoreProvider）。
+        reader: SettingsStoreReader(result.settingsStore),
+        // 设备时区每次评估时读一次：用户换时区后下一次检查就按新时区算（D-07）。
+        zone: DeviceLocalZone.current(),
+      );
+      final DailyNewsRunner runner = DailyNewsRunner(
+        runs: ref.watch(newsRunStoreProvider),
+        runInput: (NewsRunInput input, SessionLocalZone zone) async {
+          // 每次运行都按当前设置**现造**服务：用户改了上限/必访站之后，下一次定时
+          // 运行就按新值走（与手动生成同一条路径，见 newsRunServiceBuilderProvider）。
+          final NewsRunService service = await ref.read(
+            newsRunServiceBuilderProvider,
+          )(zone: zone);
+          return service.run(input);
+        },
+        diagnostics: ref.watch(aiDiagnosticSinkProvider),
+        clock: ref.watch(aiTaskClockProvider),
+      );
+      final DailyNewsScheduler scheduler = DailyNewsScheduler(
+        readPolicy: settings.load,
+        // 启动时把上次留下的 running 标成 interrupted（**不重放**，架构 4.5）：
+        // 这条接线接在同一张 news_runs 表上，与 T030 的 ai_tasks 同一口径。
+        markInterruptedOnStartup: () => ref
+            .read(newsRunStoreProvider)
+            .markRunningAsInterrupted(
+              at: ref.read(aiTaskClockProvider).now().toUtc(),
+            ),
+        readReadiness: () => loadDailyNewsReadiness(
+          loadModels: ref.read(modelManagerProvider).loadEnabledModels,
+          credentials: ref.watch(aiCredentialStoreProvider),
+          costNotice: ref.watch(newsCostNoticeStoreProvider),
+        ),
+        successDateLoader:
+            ({required String localDate, required String timeZone}) async {
+              final Result<NewsRunRecord?> current = await ref
+                  .read(newsRunStoreProvider)
+                  .loadCurrent(localDate: localDate, timeZone: timeZone);
+              if (current.isErr || current.valueOrNull == null) {
+                return null;
+              }
+              return current.valueOrNull!.localDate;
+            },
+        runNews:
+            ({
+              required String localDate,
+              required SessionLocalZone zone,
+              required AiCancellation cancellation,
+            }) async {
+              // 配置与总开关在**每次运行时**读：用户改了必访站/关键词之后，下一次
+              // 定时运行就按新配置走，不需要重启应用。
+              final bool globalEnabled = await ref.read(
+                newsGlobalEnabledProvider.future,
+              );
+              final NewsPromptLanguage language = await ref.read(
+                newsPromptLanguageProvider.future,
+              );
+              final Result<NewsConfigState> config = await ref
+                  .read(newsSourceConfigServiceProvider)
+                  .load(globalEnabled: globalEnabled, language: language);
+              if (config.isErr) {
+                return NewsRunOutcome(
+                  status: TaskStatus.failed,
+                  snapshot: _scheduledFailureSnapshot(
+                    localDate: localDate,
+                    zone: zone,
+                    nowUtc: ref.read(aiTaskClockProvider).now().toUtc(),
+                    globalEnabled: globalEnabled,
+                  ),
+                  error: config.errorOrNull,
+                  stage: NewsRunStage.snapshot,
+                );
+              }
+              final NewsRunOutcome? outcome = await runner.run(
+                localDate: localDate,
+                zone: zone,
+                config: config.valueOrNull!,
+                globalEnabled: globalEnabled,
+                cancellation: cancellation,
+              );
+              return outcome ??
+                  NewsRunOutcome(
+                    status: TaskStatus.failed,
+                    snapshot: _scheduledFailureSnapshot(
+                      localDate: localDate,
+                      zone: zone,
+                      nowUtc: ref.read(aiTaskClockProvider).now().toUtc(),
+                      globalEnabled: globalEnabled,
+                    ),
+                    error: ProviderError(
+                      provider: '-',
+                      kind: 'noOutcome',
+                      detail: '定时运行没有返回结果',
+                    ),
+                  );
+            },
+        clock: ref.watch(aiTaskClockProvider),
+        diagnostics: ref.watch(aiDiagnosticSinkProvider),
+        onStatus: ref.read(dailyNewsStatusProvider.notifier).publish,
+      );
+      ref.onDispose(scheduler.dispose);
+      return scheduler;
+    }),
+
     //
     // 图片加载**复用 T021 的受控加载器**（地址守卫 + MIME/魔数/体积校验 + 磁盘缓存），
     // 并在超出 SET-065 单图上限时降采样：另起一条「只给视觉用」的下载路径会让两条路径的
@@ -591,3 +726,34 @@ final class SettingsStoreReader implements SettingsReader {
   @override
   Future<Result<Object?>> readSetting(SettingId id) => _store.readSetting(id);
 }
+
+/// 定时任务在「读配置失败」时使用的最小快照。
+///
+/// 为什么不用一个更简单的错误记录：版本行的输入快照是 NOT NULL 的（它是「这次任务基于什么
+/// 输入」的事实），而配置读失败时确实没有输入可记。这里如实记成空输入 + 当时的时区与日期，
+/// 而不是编造一批材料或跳过落库——跳过会让这次失败在界面上消失。
+NewsInputSnapshot _scheduledFailureSnapshot({
+  required String localDate,
+  required SessionLocalZone zone,
+  required DateTime nowUtc,
+  required bool globalEnabled,
+}) => NewsInputSnapshot(
+  localDate: localDate,
+  deviceTimeZone: zone.ianaName,
+  utcOffsetMinutes: newsDayRange(nowUtc: nowUtc, zone: zone).utcOffsetMinutes,
+  dayStartUtc: newsDayRange(nowUtc: nowUtc, zone: zone).startUtc,
+  dayEndUtc: newsDayRange(nowUtc: nowUtc, zone: zone).endUtc,
+  frozenAtUtc: nowUtc,
+  candidates: const <NewsMaterial>[],
+  requiredSites: const <NewsRequiredSite>[],
+  keywords: const <String>[],
+  blockedQueryTerms: const <String>[],
+  excludedTopics: const <String>[],
+  promptVersionRef: 'scheduled#unavailable',
+  promptText: '',
+  maxArticles: 0,
+  maxSites: 0,
+  maxQueries: 0,
+  singleMaterialBudget: 0,
+  globalEnabled: globalEnabled,
+);

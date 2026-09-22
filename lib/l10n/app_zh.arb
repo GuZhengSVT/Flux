@@ -3297,5 +3297,73 @@
   "@todayCacheClearedNotice": {
     "description": "历史记录里正文已被清理的条数",
     "placeholders": { "count": { "type": "int", "example": "2" } }
-  }
+  },
+  "newsScheduleTitle": "每日定时总结",
+  "@newsScheduleTitle": { "description": "定时小节标题" },
+  "newsScheduleEnableLabel": "本设备自动定时总结",
+  "@newsScheduleEnableLabel": { "description": "SET-056 开关标签" },
+  "newsScheduleEnableHint": "默认开启。开启后每天到点会自动运行一次总结；未完成配置或未确认费用告知时会显示「等待配置」，不会发出任何请求。这是本机项，不随同步传给其它设备。",
+  "@newsScheduleEnableHint": { "description": "SET-056 开关说明" },
+  "newsScheduleTimeLabel": "每天执行时间",
+  "@newsScheduleTimeLabel": { "description": "SET-057 时间标签" },
+  "newsScheduleTimeHint": "按当前设备时区计算。当前时区：{zone}。",
+  "@newsScheduleTimeHint": {
+    "description": "SET-057 时间说明",
+    "placeholders": { "zone": { "type": "String", "example": "Asia/Shanghai" } }
+  },
+  "newsScheduleTimeEdit": "修改时间",
+  "@newsScheduleTimeEdit": { "description": "打开时间选择器" },
+  "newsScheduleTimeSaved": "执行时间已改为 {time}",
+  "@newsScheduleTimeSaved": {
+    "description": "时间保存回执",
+    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+  },
+  "newsScheduleNextRun": "下次运行：{time}",
+  "@newsScheduleNextRun": {
+    "description": "下次运行时间",
+    "placeholders": { "time": { "type": "String", "example": "2026-09-22 20:00" } }
+  },
+  "newsScheduleCompletedToday": "今日已完成（不会重复自动运行）",
+  "@newsScheduleCompletedToday": { "description": "今天已生成" },
+  "newsScheduleRunning": "正在运行…",
+  "@newsScheduleRunning": { "description": "定时任务正在运行" },
+  "newsScheduleDisabled": "已关闭：这台设备不会自动运行定时总结。",
+  "@newsScheduleDisabled": { "description": "SET-056 关闭说明" },
+  "newsScheduleWaitingTitle": "等待配置：不会发出任何请求",
+  "@newsScheduleWaitingTitle": { "description": "等待配置标题" },
+  "newsScheduleWaitingNoModel": "没有启用的 AI 模型。请到「AI 服务」添加并启用一个模型。",
+  "@newsScheduleWaitingNoModel": { "description": "等待配置：没有模型" },
+  "newsScheduleWaitingNoCredential": "已启用的模型没有配置 API Key。请到「AI 服务」补上凭据。",
+  "@newsScheduleWaitingNoCredential": { "description": "等待配置：没有凭据" },
+  "newsScheduleWaitingCostNotice": "尚未确认定时任务的费用与数据发送告知。确认后才会自动运行。",
+  "@newsScheduleWaitingCostNotice": { "description": "等待配置：费用告知未确认" },
+  "newsScheduleWaitingModelReadFailed": "读取模型列表失败，暂时无法判断是否可以运行，因此没有发出请求。",
+  "@newsScheduleWaitingModelReadFailed": { "description": "等待配置：模型列表读失败" },
+  "newsScheduleWaitingUnknown": "缺少运行所需的配置，因此没有发出请求。",
+  "@newsScheduleWaitingUnknown": { "description": "等待配置：其它原因" },
+  "newsScheduleCostNoticeAck": "我已了解（会按计划自动运行）",
+  "@newsScheduleCostNoticeAck": { "description": "确认费用告知按钮" },
+  "newsScheduleCostNoticeDone": "已确认；定时任务会在下次到点时运行。",
+  "@newsScheduleCostNoticeDone": { "description": "确认费用告知回执" },
+  "newsScheduleCostNoticeFailed": "确认写入失败：{reason}。为避免未经告知的付费运行，定时任务仍不会自动执行。",
+  "@newsScheduleCostNoticeFailed": {
+    "description": "确认写入失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "newsScheduleCostNoticeBody": "定时总结会在每天 {time}（设备当地时间）自动运行一次：它会联网检索、抓取必访网站并调用你配置的模型，可能产生费用；当天已有成功版本时不会重复自动运行。macOS 上应用退出后不会后台执行——错过的时点会在下次打开应用时补跑一次（仅当天）。",
+  "@newsScheduleCostNoticeBody": {
+    "description": "费用告知正文",
+    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+  },
+  "newsScheduleSearchMissing": "未配置联网搜索：定时总结仍会运行，但核验会标注「未联网核验」。",
+  "@newsScheduleSearchMissing": { "description": "缺搜索服务的提示（非阻塞）" },
+  "newsScheduleLastRunFailed": "上次自动运行未完成（{reason}）。",
+  "@newsScheduleLastRunFailed": {
+    "description": "上次自动运行失败说明",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "newsScheduleInterruptedNote": "应用退出时正在进行的任务会被标为「中断」，不会自动重发（避免为可能已计费的内容再付一次）。",
+  "@newsScheduleInterruptedNote": { "description": "中断语义说明" },
+  "newsScheduleTimePickerTitle": "选择每天的执行时间",
+  "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" }
 }

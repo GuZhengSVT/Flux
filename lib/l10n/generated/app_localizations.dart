@@ -4767,6 +4767,156 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'这一天有 {count} 条引用对应的本机文章正文已被清理，仍显示当时保存的最小摘录。'**
   String todayCacheClearedNotice(int count);
+
+  /// 定时小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'每日定时总结'**
+  String get newsScheduleTitle;
+
+  /// SET-056 开关标签
+  ///
+  /// In zh, this message translates to:
+  /// **'本设备自动定时总结'**
+  String get newsScheduleEnableLabel;
+
+  /// SET-056 开关说明
+  ///
+  /// In zh, this message translates to:
+  /// **'默认开启。开启后每天到点会自动运行一次总结；未完成配置或未确认费用告知时会显示「等待配置」，不会发出任何请求。这是本机项，不随同步传给其它设备。'**
+  String get newsScheduleEnableHint;
+
+  /// SET-057 时间标签
+  ///
+  /// In zh, this message translates to:
+  /// **'每天执行时间'**
+  String get newsScheduleTimeLabel;
+
+  /// SET-057 时间说明
+  ///
+  /// In zh, this message translates to:
+  /// **'按当前设备时区计算。当前时区：{zone}。'**
+  String newsScheduleTimeHint(String zone);
+
+  /// 打开时间选择器
+  ///
+  /// In zh, this message translates to:
+  /// **'修改时间'**
+  String get newsScheduleTimeEdit;
+
+  /// 时间保存回执
+  ///
+  /// In zh, this message translates to:
+  /// **'执行时间已改为 {time}'**
+  String newsScheduleTimeSaved(String time);
+
+  /// 下次运行时间
+  ///
+  /// In zh, this message translates to:
+  /// **'下次运行：{time}'**
+  String newsScheduleNextRun(String time);
+
+  /// 今天已生成
+  ///
+  /// In zh, this message translates to:
+  /// **'今日已完成（不会重复自动运行）'**
+  String get newsScheduleCompletedToday;
+
+  /// 定时任务正在运行
+  ///
+  /// In zh, this message translates to:
+  /// **'正在运行…'**
+  String get newsScheduleRunning;
+
+  /// SET-056 关闭说明
+  ///
+  /// In zh, this message translates to:
+  /// **'已关闭：这台设备不会自动运行定时总结。'**
+  String get newsScheduleDisabled;
+
+  /// 等待配置标题
+  ///
+  /// In zh, this message translates to:
+  /// **'等待配置：不会发出任何请求'**
+  String get newsScheduleWaitingTitle;
+
+  /// 等待配置：没有模型
+  ///
+  /// In zh, this message translates to:
+  /// **'没有启用的 AI 模型。请到「AI 服务」添加并启用一个模型。'**
+  String get newsScheduleWaitingNoModel;
+
+  /// 等待配置：没有凭据
+  ///
+  /// In zh, this message translates to:
+  /// **'已启用的模型没有配置 API Key。请到「AI 服务」补上凭据。'**
+  String get newsScheduleWaitingNoCredential;
+
+  /// 等待配置：费用告知未确认
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未确认定时任务的费用与数据发送告知。确认后才会自动运行。'**
+  String get newsScheduleWaitingCostNotice;
+
+  /// 等待配置：模型列表读失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取模型列表失败，暂时无法判断是否可以运行，因此没有发出请求。'**
+  String get newsScheduleWaitingModelReadFailed;
+
+  /// 等待配置：其它原因
+  ///
+  /// In zh, this message translates to:
+  /// **'缺少运行所需的配置，因此没有发出请求。'**
+  String get newsScheduleWaitingUnknown;
+
+  /// 确认费用告知按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'我已了解（会按计划自动运行）'**
+  String get newsScheduleCostNoticeAck;
+
+  /// 确认费用告知回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已确认；定时任务会在下次到点时运行。'**
+  String get newsScheduleCostNoticeDone;
+
+  /// 确认写入失败
+  ///
+  /// In zh, this message translates to:
+  /// **'确认写入失败：{reason}。为避免未经告知的付费运行，定时任务仍不会自动执行。'**
+  String newsScheduleCostNoticeFailed(String reason);
+
+  /// 费用告知正文
+  ///
+  /// In zh, this message translates to:
+  /// **'定时总结会在每天 {time}（设备当地时间）自动运行一次：它会联网检索、抓取必访网站并调用你配置的模型，可能产生费用；当天已有成功版本时不会重复自动运行。macOS 上应用退出后不会后台执行——错过的时点会在下次打开应用时补跑一次（仅当天）。'**
+  String newsScheduleCostNoticeBody(String time);
+
+  /// 缺搜索服务的提示（非阻塞）
+  ///
+  /// In zh, this message translates to:
+  /// **'未配置联网搜索：定时总结仍会运行，但核验会标注「未联网核验」。'**
+  String get newsScheduleSearchMissing;
+
+  /// 上次自动运行失败说明
+  ///
+  /// In zh, this message translates to:
+  /// **'上次自动运行未完成（{reason}）。'**
+  String newsScheduleLastRunFailed(String reason);
+
+  /// 中断语义说明
+  ///
+  /// In zh, this message translates to:
+  /// **'应用退出时正在进行的任务会被标为「中断」，不会自动重发（避免为可能已计费的内容再付一次）。'**
+  String get newsScheduleInterruptedNote;
+
+  /// 时间选择器标题
+  ///
+  /// In zh, this message translates to:
+  /// **'选择每天的执行时间'**
+  String get newsScheduleTimePickerTitle;
 }
 
 class _AppLocalizationsDelegate

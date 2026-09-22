@@ -2697,4 +2697,95 @@ class AppLocalizationsZh extends AppLocalizations {
   String todayCacheClearedNotice(int count) {
     return '这一天有 $count 条引用对应的本机文章正文已被清理，仍显示当时保存的最小摘录。';
   }
+
+  @override
+  String get newsScheduleTitle => '每日定时总结';
+
+  @override
+  String get newsScheduleEnableLabel => '本设备自动定时总结';
+
+  @override
+  String get newsScheduleEnableHint =>
+      '默认开启。开启后每天到点会自动运行一次总结；未完成配置或未确认费用告知时会显示「等待配置」，不会发出任何请求。这是本机项，不随同步传给其它设备。';
+
+  @override
+  String get newsScheduleTimeLabel => '每天执行时间';
+
+  @override
+  String newsScheduleTimeHint(String zone) {
+    return '按当前设备时区计算。当前时区：$zone。';
+  }
+
+  @override
+  String get newsScheduleTimeEdit => '修改时间';
+
+  @override
+  String newsScheduleTimeSaved(String time) {
+    return '执行时间已改为 $time';
+  }
+
+  @override
+  String newsScheduleNextRun(String time) {
+    return '下次运行：$time';
+  }
+
+  @override
+  String get newsScheduleCompletedToday => '今日已完成（不会重复自动运行）';
+
+  @override
+  String get newsScheduleRunning => '正在运行…';
+
+  @override
+  String get newsScheduleDisabled => '已关闭：这台设备不会自动运行定时总结。';
+
+  @override
+  String get newsScheduleWaitingTitle => '等待配置：不会发出任何请求';
+
+  @override
+  String get newsScheduleWaitingNoModel => '没有启用的 AI 模型。请到「AI 服务」添加并启用一个模型。';
+
+  @override
+  String get newsScheduleWaitingNoCredential =>
+      '已启用的模型没有配置 API Key。请到「AI 服务」补上凭据。';
+
+  @override
+  String get newsScheduleWaitingCostNotice => '尚未确认定时任务的费用与数据发送告知。确认后才会自动运行。';
+
+  @override
+  String get newsScheduleWaitingModelReadFailed =>
+      '读取模型列表失败，暂时无法判断是否可以运行，因此没有发出请求。';
+
+  @override
+  String get newsScheduleWaitingUnknown => '缺少运行所需的配置，因此没有发出请求。';
+
+  @override
+  String get newsScheduleCostNoticeAck => '我已了解（会按计划自动运行）';
+
+  @override
+  String get newsScheduleCostNoticeDone => '已确认；定时任务会在下次到点时运行。';
+
+  @override
+  String newsScheduleCostNoticeFailed(String reason) {
+    return '确认写入失败：$reason。为避免未经告知的付费运行，定时任务仍不会自动执行。';
+  }
+
+  @override
+  String newsScheduleCostNoticeBody(String time) {
+    return '定时总结会在每天 $time（设备当地时间）自动运行一次：它会联网检索、抓取必访网站并调用你配置的模型，可能产生费用；当天已有成功版本时不会重复自动运行。macOS 上应用退出后不会后台执行——错过的时点会在下次打开应用时补跑一次（仅当天）。';
+  }
+
+  @override
+  String get newsScheduleSearchMissing => '未配置联网搜索：定时总结仍会运行，但核验会标注「未联网核验」。';
+
+  @override
+  String newsScheduleLastRunFailed(String reason) {
+    return '上次自动运行未完成（$reason）。';
+  }
+
+  @override
+  String get newsScheduleInterruptedNote =>
+      '应用退出时正在进行的任务会被标为「中断」，不会自动重发（避免为可能已计费的内容再付一次）。';
+
+  @override
+  String get newsScheduleTimePickerTitle => '选择每天的执行时间';
 }

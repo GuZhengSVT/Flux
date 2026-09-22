@@ -535,4 +535,93 @@ void main() {
       expect((error as StorageError).isMissing, isTrue);
     });
   });
+
+  group('运行占位与中断标记（T040）', () {
+    test('占位行不移动 is_current：进行中的任务不是当前版本', () async {
+      await store.append(record(version: 1));
+      final Result<NewsRunRecord> reserved = await store.reserveRunning(
+        record(version: 2, status: TaskStatus.running, isCurrent: false),
+      );
+      expect(reserved.isOk, isTrue);
+      expect(reserved.valueOrNull!.isCurrent, isFalse);
+
+      final NewsRunRecord current = (await store.loadCurrent(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(current.version, 1, reason: '进行中的占位不得顶掉用户正在看的版本');
+    });
+
+    test('占位行可以原地收尾为成功版本，并接管 is_current', () async {
+      await store.reserveRunning(
+        record(version: 1, status: TaskStatus.running, isCurrent: false),
+      );
+      final Result<NewsRunRecord> done = await store.completeReserved(
+        record(version: 1),
+      );
+      expect(done.isOk, isTrue);
+
+      final List<NewsRunRecord> versions = (await store.loadVersions(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(versions, hasLength(1), reason: '原地收尾不留重复行');
+      expect(versions.single.status, TaskStatus.succeeded);
+      expect(versions.single.isCurrent, isTrue);
+    });
+
+    test('占位行不存在时收尾会插入结果（不丢已经跑完的结果）', () async {
+      final Result<NewsRunRecord> done = await store.completeReserved(
+        record(version: 3),
+      );
+      expect(done.isOk, isTrue);
+      final List<NewsRunRecord> versions = (await store.loadVersions(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(versions.single.version, 3);
+      expect(versions.single.isCurrent, isTrue);
+    });
+
+    test('markRunningAsInterrupted 只标 running，成功版本与非 running 状态不动', () async {
+      await store.append(record(version: 1));
+      await store.reserveRunning(
+        record(version: 2, status: TaskStatus.running, isCurrent: false),
+      );
+      await store.append(
+        record(
+          version: 3,
+          status: TaskStatus.failed,
+          isCurrent: false,
+          items: const <NewsDraftItem>[],
+        ),
+      );
+
+      final Result<int> marked = await store.markRunningAsInterrupted(
+        at: DateTime.utc(2026, 9, 23, 1),
+      );
+      expect(marked.valueOrNull, 1, reason: '只有那条 running 被标');
+
+      final List<NewsRunRecord> versions = (await store.loadVersions(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      final Map<int, NewsRunRecord> byVersion = <int, NewsRunRecord>{
+        for (final NewsRunRecord r in versions) r.version: r,
+      };
+      expect(byVersion[1]!.status, TaskStatus.succeeded);
+      expect(byVersion[1]!.isCurrent, isTrue, reason: '中断标记不改当前版本');
+      expect(byVersion[2]!.status, TaskStatus.interrupted);
+      expect(byVersion[2]!.errorKind, 'interrupted');
+      expect(byVersion[3]!.status, TaskStatus.failed, reason: '失败记录不被改写');
+    });
+
+    test('没有 running 行时标记返回 0（不谎报改过）', () async {
+      await store.append(record(version: 1));
+      final Result<int> marked = await store.markRunningAsInterrupted(
+        at: DateTime.utc(2026, 9, 23, 1),
+      );
+      expect(marked.valueOrNull, 0);
+    });
+  });
 }

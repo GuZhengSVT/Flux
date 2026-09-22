@@ -1856,5 +1856,73 @@
   "@todayCacheClearedNotice": {
     "description": "历史记录里正文已被清理的条数",
     "placeholders": { "count": { "type": "int", "example": "2" } }
-  }
+  },
+  "newsScheduleTitle": "Daily scheduled summary",
+  "@newsScheduleTitle": { "description": "定时小节标题" },
+  "newsScheduleEnableLabel": "Scheduled summary on this device",
+  "@newsScheduleEnableLabel": { "description": "SET-056 开关标签" },
+  "newsScheduleEnableHint": "On by default. When enabled, a summary runs automatically once a day at the set time. If the setup is incomplete or the cost notice has not been confirmed, it shows \"waiting for configuration\" and sends no requests at all. This is a per-device setting and is not carried to other devices by sync.",
+  "@newsScheduleEnableHint": { "description": "SET-056 开关说明" },
+  "newsScheduleTimeLabel": "Daily run time",
+  "@newsScheduleTimeLabel": { "description": "SET-057 时间标签" },
+  "newsScheduleTimeHint": "Uses the current device time zone: {zone}.",
+  "@newsScheduleTimeHint": {
+    "description": "SET-057 时间说明",
+    "placeholders": { "zone": { "type": "String", "example": "Asia/Shanghai" } }
+  },
+  "newsScheduleTimeEdit": "Change time",
+  "@newsScheduleTimeEdit": { "description": "打开时间选择器" },
+  "newsScheduleTimeSaved": "Run time changed to {time}",
+  "@newsScheduleTimeSaved": {
+    "description": "时间保存回执",
+    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+  },
+  "newsScheduleNextRun": "Next run: {time}",
+  "@newsScheduleNextRun": {
+    "description": "下次运行时间",
+    "placeholders": { "time": { "type": "String", "example": "2026-09-22 20:00" } }
+  },
+  "newsScheduleCompletedToday": "Already done today (it will not run again automatically)",
+  "@newsScheduleCompletedToday": { "description": "今天已生成" },
+  "newsScheduleRunning": "Running…",
+  "@newsScheduleRunning": { "description": "定时任务正在运行" },
+  "newsScheduleDisabled": "Off: this device will not run the scheduled summary automatically.",
+  "@newsScheduleDisabled": { "description": "SET-056 关闭说明" },
+  "newsScheduleWaitingTitle": "Waiting for configuration: no requests are sent",
+  "@newsScheduleWaitingTitle": { "description": "等待配置标题" },
+  "newsScheduleWaitingNoModel": "No AI model is enabled. Add and enable one under AI services.",
+  "@newsScheduleWaitingNoModel": { "description": "等待配置：没有模型" },
+  "newsScheduleWaitingNoCredential": "The enabled models have no API key. Add credentials under AI services.",
+  "@newsScheduleWaitingNoCredential": { "description": "等待配置：没有凭据" },
+  "newsScheduleWaitingCostNotice": "The cost and data-sending notice for the scheduled task has not been confirmed yet. It will only run automatically after you confirm.",
+  "@newsScheduleWaitingCostNotice": { "description": "等待配置：费用告知未确认" },
+  "newsScheduleWaitingModelReadFailed": "Reading the model list failed, so it is unclear whether it can run; no request was sent.",
+  "@newsScheduleWaitingModelReadFailed": { "description": "等待配置：模型列表读失败" },
+  "newsScheduleWaitingUnknown": "Required configuration is missing, so no request was sent.",
+  "@newsScheduleWaitingUnknown": { "description": "等待配置：其它原因" },
+  "newsScheduleCostNoticeAck": "I understand (it will run on schedule)",
+  "@newsScheduleCostNoticeAck": { "description": "确认费用告知按钮" },
+  "newsScheduleCostNoticeDone": "Confirmed; the scheduled task will run at the next due time.",
+  "@newsScheduleCostNoticeDone": { "description": "确认费用告知回执" },
+  "newsScheduleCostNoticeFailed": "Saving the confirmation failed: {reason}. To avoid an unannounced paid run, the scheduled task still will not run automatically.",
+  "@newsScheduleCostNoticeFailed": {
+    "description": "确认写入失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "newsScheduleCostNoticeBody": "The scheduled summary runs once a day at {time} (device local time): it searches the web, fetches your required sites and calls the models you configured, which may cost money. If a successful version already exists for the day it will not run again automatically. On macOS there is no background execution once the app quits — a missed time is caught up once the next time you open the app (that same day only).",
+  "@newsScheduleCostNoticeBody": {
+    "description": "费用告知正文",
+    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+  },
+  "newsScheduleSearchMissing": "No web search service is configured: the scheduled summary still runs, but verification is labelled \"not verified online\".",
+  "@newsScheduleSearchMissing": { "description": "缺搜索服务的提示（非阻塞）" },
+  "newsScheduleLastRunFailed": "The last automatic run did not finish ({reason}).",
+  "@newsScheduleLastRunFailed": {
+    "description": "上次自动运行失败说明",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "newsScheduleInterruptedNote": "A task still running when the app quits is marked \"interrupted\" and is not sent again automatically, so content that may already have been billed is not charged twice.",
+  "@newsScheduleInterruptedNote": { "description": "中断语义说明" },
+  "newsScheduleTimePickerTitle": "Pick the daily run time",
+  "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" }
 }

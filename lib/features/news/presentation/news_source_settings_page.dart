@@ -24,6 +24,7 @@ import 'package:flux/ui/ui.dart';
 
 import '../application/news_source_config.dart';
 import '../application/news_source_providers.dart';
+import 'news_schedule_settings.dart';
 
 /// 新闻生成设置页。
 class NewsSourceSettingsPage extends ConsumerStatefulWidget {
@@ -308,6 +309,9 @@ class _NewsSourceSettingsPageState
                   title: Text(l10n.newsGlobalSwitchLabel),
                   subtitle: Text(l10n.newsGlobalSwitchHint),
                 ),
+                const Divider(),
+                _SectionTitle(title: l10n.newsScheduleTitle),
+                const NewsScheduleSection(),
                 const Divider(),
                 _SectionTitle(
                   title: l10n.newsFeedSectionTitle,

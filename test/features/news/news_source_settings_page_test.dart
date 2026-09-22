@@ -117,6 +117,14 @@ void main() {
         );
     await pumpPage(tester);
 
+    // 「高级覆盖」在页面下方（T040 新增的定时小节把它往下推了）：ListView 不构建
+    // 屏外项，因此要先滚到它，否则查找会得到 0 个结果并看起来像界面错了。
+    await tester.scrollUntilVisible(
+      find.text('高级覆盖'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('高级覆盖'));
     await tester.pumpAndSettle();
     expect(

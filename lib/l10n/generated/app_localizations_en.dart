@@ -2835,4 +2835,104 @@ class AppLocalizationsEn extends AppLocalizations {
   String todayCacheClearedNotice(int count) {
     return 'On this day, $count cited local articles have had their bodies cleared; the minimal excerpts saved at the time are still shown.';
   }
+
+  @override
+  String get newsScheduleTitle => 'Daily scheduled summary';
+
+  @override
+  String get newsScheduleEnableLabel => 'Scheduled summary on this device';
+
+  @override
+  String get newsScheduleEnableHint =>
+      'On by default. When enabled, a summary runs automatically once a day at the set time. If the setup is incomplete or the cost notice has not been confirmed, it shows \"waiting for configuration\" and sends no requests at all. This is a per-device setting and is not carried to other devices by sync.';
+
+  @override
+  String get newsScheduleTimeLabel => 'Daily run time';
+
+  @override
+  String newsScheduleTimeHint(String zone) {
+    return 'Uses the current device time zone: $zone.';
+  }
+
+  @override
+  String get newsScheduleTimeEdit => 'Change time';
+
+  @override
+  String newsScheduleTimeSaved(String time) {
+    return 'Run time changed to $time';
+  }
+
+  @override
+  String newsScheduleNextRun(String time) {
+    return 'Next run: $time';
+  }
+
+  @override
+  String get newsScheduleCompletedToday =>
+      'Already done today (it will not run again automatically)';
+
+  @override
+  String get newsScheduleRunning => 'Running…';
+
+  @override
+  String get newsScheduleDisabled =>
+      'Off: this device will not run the scheduled summary automatically.';
+
+  @override
+  String get newsScheduleWaitingTitle =>
+      'Waiting for configuration: no requests are sent';
+
+  @override
+  String get newsScheduleWaitingNoModel =>
+      'No AI model is enabled. Add and enable one under AI services.';
+
+  @override
+  String get newsScheduleWaitingNoCredential =>
+      'The enabled models have no API key. Add credentials under AI services.';
+
+  @override
+  String get newsScheduleWaitingCostNotice =>
+      'The cost and data-sending notice for the scheduled task has not been confirmed yet. It will only run automatically after you confirm.';
+
+  @override
+  String get newsScheduleWaitingModelReadFailed =>
+      'Reading the model list failed, so it is unclear whether it can run; no request was sent.';
+
+  @override
+  String get newsScheduleWaitingUnknown =>
+      'Required configuration is missing, so no request was sent.';
+
+  @override
+  String get newsScheduleCostNoticeAck =>
+      'I understand (it will run on schedule)';
+
+  @override
+  String get newsScheduleCostNoticeDone =>
+      'Confirmed; the scheduled task will run at the next due time.';
+
+  @override
+  String newsScheduleCostNoticeFailed(String reason) {
+    return 'Saving the confirmation failed: $reason. To avoid an unannounced paid run, the scheduled task still will not run automatically.';
+  }
+
+  @override
+  String newsScheduleCostNoticeBody(String time) {
+    return 'The scheduled summary runs once a day at $time (device local time): it searches the web, fetches your required sites and calls the models you configured, which may cost money. If a successful version already exists for the day it will not run again automatically. On macOS there is no background execution once the app quits — a missed time is caught up once the next time you open the app (that same day only).';
+  }
+
+  @override
+  String get newsScheduleSearchMissing =>
+      'No web search service is configured: the scheduled summary still runs, but verification is labelled \"not verified online\".';
+
+  @override
+  String newsScheduleLastRunFailed(String reason) {
+    return 'The last automatic run did not finish ($reason).';
+  }
+
+  @override
+  String get newsScheduleInterruptedNote =>
+      'A task still running when the app quits is marked \"interrupted\" and is not sent again automatically, so content that may already have been billed is not charged twice.';
+
+  @override
+  String get newsScheduleTimePickerTitle => 'Pick the daily run time';
 }

@@ -1115,6 +1115,30 @@ abstract interface class NewsRunStore {
   /// 追加保留上一版为当前版本（架构 4.4「保留上一次成功总结」）。
   Future<Result<NewsRunRecord>> append(NewsRunRecord record);
 
+  /// 先占一个**运行中**的版本行（T040 的定时任务用它，以便进程被终止后能如实标中断）。
+  ///
+  /// 为什么必须先写一行：应用被系统终止时，内存里的任务状态什么都不剩。没有这一行，
+  /// 「上次到底有没有跑过」在数据上是空白，界面只能显示「今天还没生成」——与事实不符。
+  /// 占位行的 `isCurrent` 必须是 false（只有成功/部分成功才允许成为当前版本），因此
+  /// 用户看到的内容不会因为一次进行中的任务而改变。
+  Future<Result<NewsRunRecord>> reserveRunning(NewsRunRecord record);
+
+  /// 用**同一个版本号**把占位行原地收尾（成功/部分成功/失败/取消都走它）。
+  ///
+  /// 原地收尾而不是再追加一条：追加会让每次定时生成都留下一条永远停在 `running` 的
+  /// 历史行，用户会以为有任务卡住了。占位行不存在时实现应当**插入**这条结果而不是报错——
+  /// 任务可能已经真实跑完并计过费，把结果丢掉是这里代价最大的错误。
+  ///
+  /// is_current 的规则必须与 [append] 完全一致（只有成功/部分成功移动当前版本）。
+  Future<Result<NewsRunRecord>> completeReserved(NewsRunRecord record);
+
+  /// 把上次进程结束时仍在 `running` 的记录标成 `interrupted`（T040；沿用 T030 的口径）。
+  ///
+  /// 返回被标记的条数。**绝不自动重放**：一次被终止的任务可能已经计费，重发的代价是
+  /// 用户为同一份内容付两次费（架构 4.5）。补跑由调度器的「当日未成功则运行一次」承担，
+  /// 且那是一次**新的**任务与新的版本号，不是把旧行改写成成功。
+  Future<Result<int>> markRunningAsInterrupted({required DateTime at});
+
   /// 读某一天某个时区的全部版本（版本号倒序）。
   Future<Result<List<NewsRunRecord>>> loadVersions({
     required String localDate,

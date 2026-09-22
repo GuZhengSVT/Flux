@@ -68,6 +68,135 @@ final class DriftNewsRunStore implements NewsRunStore {
   }
 
   @override
+  Future<Result<NewsRunRecord>> reserveRunning(NewsRunRecord record) async {
+    try {
+      // **不动**任何既有行的 is_current：一条进行中的任务不是「当前版本」。这条规则在
+      // 这里显式写出来，是因为 append 会移动 is_current，而把它复用到占位行上会让
+      // 「用户正在看的总结」在一次还没出结果的任务开始时就被取消标记。
+      final NewsRunsCompanion companion = _toCompanion(record);
+      await _db
+          .into(_db.newsRuns)
+          .insert(companion.copyWith(isCurrent: const Value<bool>(false)));
+      final NewsRunRecord? saved = await _readVersion(
+        localDate: record.localDate,
+        timeZone: record.timeZone,
+        version: record.version,
+      );
+      if (saved == null) {
+        return Err<NewsRunRecord>(
+          StorageError(operation: 'newsRun.reserveRunning', detail: '写入后读取失败'),
+        );
+      }
+      return Ok<NewsRunRecord>(saved);
+    } on Exception catch (error, stackTrace) {
+      return Err<NewsRunRecord>(
+        _storage('newsRun.reserveRunning', error, stackTrace),
+      );
+    }
+  }
+
+  @override
+  Future<Result<NewsRunRecord>> completeReserved(NewsRunRecord record) async {
+    try {
+      await _db.transaction(() async {
+        if (record.isCurrent) {
+          // 与 append 同一套规则：只有成功/部分成功的收尾才把当前版本移过来。
+          await (_db.update(_db.newsRuns)..where(
+                (NewsRuns t) =>
+                    t.localDate.equals(record.localDate) &
+                    t.timeZone.equals(record.timeZone) &
+                    t.isCurrent.equals(true),
+              ))
+              .write(const NewsRunsCompanion(isCurrent: Value<bool>(false)));
+        }
+        final int changed =
+            await (_db.update(_db.newsRuns)..where(
+                  (NewsRuns t) =>
+                      t.localDate.equals(record.localDate) &
+                      t.timeZone.equals(record.timeZone) &
+                      t.version.equals(record.version),
+                ))
+                .write(_toCompanion(record));
+        if (changed == 0) {
+          // 占位行不在了（可能被用户清理过，或这次运行没有写占位行）：插入而不是报错。
+          await _db.into(_db.newsRuns).insert(_toCompanion(record));
+        }
+      });
+      final NewsRunRecord? saved = await _readVersion(
+        localDate: record.localDate,
+        timeZone: record.timeZone,
+        version: record.version,
+      );
+      if (saved == null) {
+        return Err<NewsRunRecord>(
+          StorageError(
+            operation: 'newsRun.completeReserved',
+            detail: '写入后读取失败',
+          ),
+        );
+      }
+      return Ok<NewsRunRecord>(saved);
+    } on Exception catch (error, stackTrace) {
+      return Err<NewsRunRecord>(
+        _storage('newsRun.completeReserved', error, stackTrace),
+      );
+    }
+  }
+
+  @override
+  Future<Result<int>> markRunningAsInterrupted({required DateTime at}) async {
+    try {
+      // 只标 `running`（**不**把 queued/waitingConfiguration 也算进来）：定时任务在真正
+      // 发出请求之前只写 running 占位，而 waitingConfiguration 是「没跑过」的状态，把它
+      // 标成中断会让用户以为任务跑过并失败了。
+      //
+      // 一次 UPDATE 完成，不逐行读改写：逐行处理时中途再崩溃会留下「一部分 interrupted、
+      // 一部分仍是 running」的混合状态，而下一次启动无法区分两者（与 T030 同一理由）。
+      // **不改** is_current：占位行本来就不是当前版本，成功版本必须原样留在界面上。
+      final int changed =
+          await (_db.update(_db.newsRuns)..where(
+                (NewsRuns t) => t.taskStatus.equals(TaskStatus.running.name),
+              ))
+              .write(
+                const NewsRunsCompanion(
+                  taskStatus: Value<TaskStatus>(TaskStatus.interrupted),
+                  errorKind: Value<String?>('interrupted'),
+                ),
+              );
+      if (changed > 0) {
+        diagnostics?.warning(
+          '启动时把 $changed 条未完成的新闻任务标记为 interrupted（不自动重放）',
+          tag: 'news.store',
+        );
+      }
+      return Ok<int>(changed);
+    } on Exception catch (error, stackTrace) {
+      return Err<int>(
+        _storage('newsRun.markRunningAsInterrupted', error, stackTrace),
+      );
+    }
+  }
+
+  /// 按 (日期, 时区, 版本) 读一行并还原为领域对象。
+  Future<NewsRunRecord?> _readVersion({
+    required String localDate,
+    required String timeZone,
+    required int version,
+  }) async {
+    final NewsRun? row =
+        await (_db.select(_db.newsRuns)
+              ..where(
+                (NewsRuns t) =>
+                    t.localDate.equals(localDate) &
+                    t.timeZone.equals(timeZone) &
+                    t.version.equals(version),
+              )
+              ..limit(1))
+            .getSingleOrNull();
+    return row == null ? null : _toDomain(row);
+  }
+
+  @override
   Future<Result<List<NewsRunRecord>>> loadVersions({
     required String localDate,
     required String timeZone,
@@ -567,6 +696,25 @@ final class DegradedNewsRunStore implements NewsRunStore {
   }) async => Err<void>(
     StorageError(operation: 'newsRun.deleteVersion', detail: '本次运行数据库不可用'),
   );
+
+  @override
+  Future<Result<NewsRunRecord>> reserveRunning(NewsRunRecord record) async =>
+      Err<NewsRunRecord>(
+        StorageError(operation: 'newsRun.reserveRunning', detail: '本次运行数据库不可用'),
+      );
+
+  @override
+  Future<Result<NewsRunRecord>> completeReserved(NewsRunRecord record) async =>
+      Err<NewsRunRecord>(
+        StorageError(
+          operation: 'newsRun.completeReserved',
+          detail: '本次运行数据库不可用',
+        ),
+      );
+
+  @override
+  Future<Result<int>> markRunningAsInterrupted({required DateTime at}) async =>
+      const Ok<int>(0);
 
   @override
   Future<Result<List<NewsRunDateRef>>> listDateRefs() async =>

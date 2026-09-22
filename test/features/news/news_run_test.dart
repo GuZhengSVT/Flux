@@ -163,6 +163,71 @@ final class MemoryNewsRunStore implements NewsRunStore {
   );
 
   @override
+  Future<Result<NewsRunRecord>> reserveRunning(NewsRunRecord record) async {
+    // 与真实实现同一套语义：占位行**不**移动 is_current（进行中的任务不是当前版本）。
+    final NewsRunRecord saved = record.copyWith(
+      id: rows.length + 1,
+      isCurrent: false,
+    );
+    rows.add(saved);
+    return Ok<NewsRunRecord>(saved);
+  }
+
+  @override
+  Future<Result<NewsRunRecord>> completeReserved(NewsRunRecord record) async {
+    if (record.isCurrent) {
+      for (int i = 0; i < rows.length; i++) {
+        final NewsRunRecord row = rows[i];
+        if (row.localDate == record.localDate &&
+            row.timeZone == record.timeZone &&
+            row.isCurrent) {
+          rows[i] = row.copyWith(isCurrent: false);
+        }
+      }
+    }
+    final int index = rows.indexWhere(
+      (NewsRunRecord r) =>
+          r.localDate == record.localDate &&
+          r.timeZone == record.timeZone &&
+          r.version == record.version,
+    );
+    if (index < 0) {
+      rows.add(record.copyWith(id: rows.length + 1));
+      return Ok<NewsRunRecord>(rows.last);
+    }
+    rows[index] = record.copyWith(id: rows[index].id);
+    return Ok<NewsRunRecord>(rows[index]);
+  }
+
+  @override
+  Future<Result<int>> markRunningAsInterrupted({required DateTime at}) async {
+    int changed = 0;
+    for (int i = 0; i < rows.length; i++) {
+      final NewsRunRecord row = rows[i];
+      if (row.status == TaskStatus.running) {
+        // 中断**不改** is_current（占位行本来就不是当前版本）。
+        rows[i] = NewsRunRecord(
+          id: row.id,
+          localDate: row.localDate,
+          timeZone: row.timeZone,
+          version: row.version,
+          status: TaskStatus.interrupted,
+          snapshot: row.snapshot,
+          siteResults: row.siteResults,
+          materials: row.materials,
+          items: row.items,
+          createdAt: row.createdAt,
+          isCurrent: row.isCurrent,
+          errorKind: 'interrupted',
+          stage: row.stage,
+        );
+        changed++;
+      }
+    }
+    return Ok<int>(changed);
+  }
+
+  @override
   Future<Result<void>> deleteVersion({
     required String localDate,
     required String timeZone,

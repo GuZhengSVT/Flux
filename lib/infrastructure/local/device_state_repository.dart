@@ -33,8 +33,19 @@ abstract final class DeviceStateKey {
   /// 首次引导是否已完成（T011）。
   static const String onboardingCompleted = 'device.onboardingCompleted';
 
+  /// 定时总结的首次费用与数据发送告知是否已确认（T040）。
+  ///
+  /// 为什么必须持久化、且必须是**本机**项：定时任务没有任何对话框，用户点不到任何确认；
+  /// 没有这条记录就等于「未经告知地后台付费运行」。同步到另一台设备更不行——那台设备会
+  /// 因为一条从别处来的记录而自动开跑并自己付费（架构 4.4「执行开关是本机项」）。
+  static const String newsCostNoticeAcknowledged =
+      'device.newsCostNoticeAcknowledged';
+
   /// 全部本机状态键。
-  static const List<String> all = <String>[onboardingCompleted];
+  static const List<String> all = <String>[
+    onboardingCompleted,
+    newsCostNoticeAcknowledged,
+  ];
 }
 
 /// 本机运行状态的类型化读写。

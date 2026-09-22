@@ -21,6 +21,7 @@ import 'package:flutter_riverpod/legacy.dart' show StateProvider;
 import 'package:flux/core/design/design_tokens.dart';
 import 'package:flux/features/articles/presentation/reader/article_image_view.dart';
 import 'package:flux/features/feeds/presentation/refresh_automation.dart';
+import 'package:flux/features/news/presentation/daily_news_automation.dart';
 import 'package:flux/features/settings/application/settings_navigation.dart';
 import 'package:flux/l10n/l10n.dart';
 import 'package:flux/ui/ui.dart';
@@ -73,48 +74,53 @@ class AppShell extends ConsumerWidget {
         // 在哪个去向」无关——刷新是后台行为。
         // 媒体缓存上限宿主同样包在这里（T021）：它只读 SET-080 并套用到图片加载器，
         // 与刷新宿主一样对「当前在哪个去向」无感。
+        // 定时总结宿主（T040）同批：它按 SET-057 的时点触发一次新闻任务，同样与用户在
+        // 哪个去向无关（用户正看着阅读页时 20:00 到了，任务也应当开始）。
         return MediaCacheLimitHost(
-          child: RefreshAutomationHost(
-            child: Scaffold(
-              body: useRail
-                  ? Row(
-                      children: <Widget>[
-                        _ShellNavigationRail(selected: selected),
-                        const VerticalDivider(width: 1),
-                        Expanded(child: _ShellBody(status: status)),
-                      ],
-                    )
-                  : _ShellBody(status: status),
-              bottomNavigationBar: useRail
-                  ? null
-                  : NavigationBar(
-                      selectedIndex: appDestinations.indexOf(selected),
-                      onDestinationSelected: (int index) => _select(ref, index),
-                      destinations: <Widget>[
-                        for (final AppDestination destination
-                            in appDestinations)
-                          NavigationDestination(
-                            icon: FluxSvgIcon(
-                              destination.icon,
-                              // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
-                              // 24 在底栏会显得比文字标签重。
-                              size: FluxIconSize.small,
-                              // 标签已经由 NavigationDestination 播报，图标重复报一次
-                              // 会让读屏念两遍。
-                              excludeFromSemantics: true,
+          child: DailyNewsAutomationHost(
+            child: RefreshAutomationHost(
+              child: Scaffold(
+                body: useRail
+                    ? Row(
+                        children: <Widget>[
+                          _ShellNavigationRail(selected: selected),
+                          const VerticalDivider(width: 1),
+                          Expanded(child: _ShellBody(status: status)),
+                        ],
+                      )
+                    : _ShellBody(status: status),
+                bottomNavigationBar: useRail
+                    ? null
+                    : NavigationBar(
+                        selectedIndex: appDestinations.indexOf(selected),
+                        onDestinationSelected: (int index) =>
+                            _select(ref, index),
+                        destinations: <Widget>[
+                          for (final AppDestination destination
+                              in appDestinations)
+                            NavigationDestination(
+                              icon: FluxSvgIcon(
+                                destination.icon,
+                                // 底栏图标用 20 档（架构第 7 节两套逻辑尺寸中的小尺寸），
+                                // 24 在底栏会显得比文字标签重。
+                                size: FluxIconSize.small,
+                                // 标签已经由 NavigationDestination 播报，图标重复报一次
+                                // 会让读屏念两遍。
+                                excludeFromSemantics: true,
+                              ),
+                              selectedIcon: FluxSvgIcon(
+                                destination.selectedIcon,
+                                size: FluxIconSize.small,
+                                color: Theme.of(context).colorScheme.primary,
+                                excludeFromSemantics: true,
+                              ),
+                              label: destination.label(
+                                AppLocalizations.of(context),
+                              ),
                             ),
-                            selectedIcon: FluxSvgIcon(
-                              destination.selectedIcon,
-                              size: FluxIconSize.small,
-                              color: Theme.of(context).colorScheme.primary,
-                              excludeFromSemantics: true,
-                            ),
-                            label: destination.label(
-                              AppLocalizations.of(context),
-                            ),
-                          ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
           ),
         );
