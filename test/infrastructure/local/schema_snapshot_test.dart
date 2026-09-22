@@ -1066,5 +1066,107 @@ void main() {
         reason: '订阅表原有列不得消失',
       );
     });
+
+    test('v15 快照新增每日新闻任务版本表（T037）', () {
+      final File v15Snapshot = File('drift_schemas/drift_schema_v15.json');
+      expect(
+        v15Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v15 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v15Decoded =
+          jsonDecode(v15Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v15Entities =
+          (v15Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v15Names = v15Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      final Map<String, dynamic> v14Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v14.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v14Names = (v14Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      expect(
+        v15Names,
+        containsAll(v14Names),
+        reason: 'v15 只新增一张表，不得删除 v14 的任何实体',
+      );
+      expect(v15Names.difference(v14Names), <String>{
+        'news_runs',
+        'ux_news_runs_date_tz_version',
+        'ix_news_runs_local_date',
+        'ix_news_runs_current',
+      }, reason: 'v15 相对 v14 的新增实体应只有一张表与三条索引');
+
+      final Map<String, dynamic> newsRuns = v15Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] == 'news_runs',
+      );
+      final Set<String> runColumns =
+          ((newsRuns['data'] as Map<String, dynamic>)['columns']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>()
+              .map((Map<String, dynamic> c) => c['name'] as String)
+              .toSet();
+      expect(
+        runColumns,
+        containsAll(<String>[
+          'id',
+          'local_date',
+          'time_zone',
+          'version',
+          'task_status',
+          'input_snapshot',
+          'snapshot_hash',
+          'site_results',
+          'materials',
+          'items',
+          'draft_text',
+          'provider_alias',
+          'model_id',
+          'consumed_tokens',
+          'attempt_count',
+          'error_kind',
+          'stage',
+          'verification_method',
+          'is_current',
+          'created_at',
+        ]),
+      );
+
+      // **数据库不含秘密**（架构 5.1、第 8 节）：这一张表不得出现任何 Key / 凭据 / 请求头列。
+      for (final String column in runColumns) {
+        expect(
+          column.toLowerCase(),
+          isNot(
+            anyOf(contains('key'), contains('secret'), contains('token_ref')),
+          ),
+          reason: 'news_runs 不得持有凭据或 Key（$column）',
+        );
+      }
+
+      // 只有成功/部分成功的版本才可能是当前展示版本：这条规则必须在 DDL 里。
+      // 快照里它落在表级 constraints（drift 对 customConstraints 的导出位置）。
+      final List<dynamic> constraints =
+          (newsRuns['data'] as Map<String, dynamic>)['constraints']
+              as List<dynamic>;
+      expect(
+        constraints.cast<String>(),
+        contains(
+          "CHECK (is_current = 0 OR task_status IN ('succeeded', 'partial'))",
+        ),
+        reason: '失败草稿不得覆盖成功版本，这条约束必须落在 DDL 上',
+      );
+    });
   });
 }

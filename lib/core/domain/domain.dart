@@ -12,6 +12,7 @@ export 'article_summary.dart';
 export 'article_translation.dart';
 export 'article_import.dart';
 export 'citation_access.dart';
+export 'news_run.dart';
 export 'document_tree.dart';
 export 'feed_catalog.dart';
 export 'feed_deletion.dart';

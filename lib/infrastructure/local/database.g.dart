@@ -12499,6 +12499,1167 @@ class NewsPromptVersionRecordsCompanion
   }
 }
 
+class $NewsRunsTable extends NewsRuns with TableInfo<$NewsRunsTable, NewsRun> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NewsRunsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _localDateMeta = const VerificationMeta(
+    'localDate',
+  );
+  @override
+  late final GeneratedColumn<String> localDate = GeneratedColumn<String>(
+    'local_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeZoneMeta = const VerificationMeta(
+    'timeZone',
+  );
+  @override
+  late final GeneratedColumn<String> timeZone = GeneratedColumn<String>(
+    'time_zone',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TaskStatus, String> taskStatus =
+      GeneratedColumn<String>(
+        'task_status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<TaskStatus>($NewsRunsTable.$convertertaskStatus);
+  static const VerificationMeta _inputSnapshotMeta = const VerificationMeta(
+    'inputSnapshot',
+  );
+  @override
+  late final GeneratedColumn<String> inputSnapshot = GeneratedColumn<String>(
+    'input_snapshot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _snapshotHashMeta = const VerificationMeta(
+    'snapshotHash',
+  );
+  @override
+  late final GeneratedColumn<String> snapshotHash = GeneratedColumn<String>(
+    'snapshot_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _siteResultsMeta = const VerificationMeta(
+    'siteResults',
+  );
+  @override
+  late final GeneratedColumn<String> siteResults = GeneratedColumn<String>(
+    'site_results',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _materialsMeta = const VerificationMeta(
+    'materials',
+  );
+  @override
+  late final GeneratedColumn<String> materials = GeneratedColumn<String>(
+    'materials',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _itemsMeta = const VerificationMeta('items');
+  @override
+  late final GeneratedColumn<String> items = GeneratedColumn<String>(
+    'items',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _draftTextMeta = const VerificationMeta(
+    'draftText',
+  );
+  @override
+  late final GeneratedColumn<String> draftText = GeneratedColumn<String>(
+    'draft_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _providerAliasMeta = const VerificationMeta(
+    'providerAlias',
+  );
+  @override
+  late final GeneratedColumn<String> providerAlias = GeneratedColumn<String>(
+    'provider_alias',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _modelIdMeta = const VerificationMeta(
+    'modelId',
+  );
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+    'model_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _consumedTokensMeta = const VerificationMeta(
+    'consumedTokens',
+  );
+  @override
+  late final GeneratedColumn<int> consumedTokens = GeneratedColumn<int>(
+    'consumed_tokens',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _attemptCountMeta = const VerificationMeta(
+    'attemptCount',
+  );
+  @override
+  late final GeneratedColumn<int> attemptCount = GeneratedColumn<int>(
+    'attempt_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _errorKindMeta = const VerificationMeta(
+    'errorKind',
+  );
+  @override
+  late final GeneratedColumn<String> errorKind = GeneratedColumn<String>(
+    'error_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stageMeta = const VerificationMeta('stage');
+  @override
+  late final GeneratedColumn<String> stage = GeneratedColumn<String>(
+    'stage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _verificationMethodMeta =
+      const VerificationMeta('verificationMethod');
+  @override
+  late final GeneratedColumn<String> verificationMethod =
+      GeneratedColumn<String>(
+        'verification_method',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _isCurrentMeta = const VerificationMeta(
+    'isCurrent',
+  );
+  @override
+  late final GeneratedColumn<bool> isCurrent = GeneratedColumn<bool>(
+    'is_current',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_current" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    localDate,
+    timeZone,
+    version,
+    taskStatus,
+    inputSnapshot,
+    snapshotHash,
+    siteResults,
+    materials,
+    items,
+    draftText,
+    providerAlias,
+    modelId,
+    consumedTokens,
+    attemptCount,
+    errorKind,
+    stage,
+    verificationMethod,
+    isCurrent,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'news_runs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NewsRun> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('local_date')) {
+      context.handle(
+        _localDateMeta,
+        localDate.isAcceptableOrUnknown(data['local_date']!, _localDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localDateMeta);
+    }
+    if (data.containsKey('time_zone')) {
+      context.handle(
+        _timeZoneMeta,
+        timeZone.isAcceptableOrUnknown(data['time_zone']!, _timeZoneMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timeZoneMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    if (data.containsKey('input_snapshot')) {
+      context.handle(
+        _inputSnapshotMeta,
+        inputSnapshot.isAcceptableOrUnknown(
+          data['input_snapshot']!,
+          _inputSnapshotMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_inputSnapshotMeta);
+    }
+    if (data.containsKey('snapshot_hash')) {
+      context.handle(
+        _snapshotHashMeta,
+        snapshotHash.isAcceptableOrUnknown(
+          data['snapshot_hash']!,
+          _snapshotHashMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_snapshotHashMeta);
+    }
+    if (data.containsKey('site_results')) {
+      context.handle(
+        _siteResultsMeta,
+        siteResults.isAcceptableOrUnknown(
+          data['site_results']!,
+          _siteResultsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_siteResultsMeta);
+    }
+    if (data.containsKey('materials')) {
+      context.handle(
+        _materialsMeta,
+        materials.isAcceptableOrUnknown(data['materials']!, _materialsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_materialsMeta);
+    }
+    if (data.containsKey('items')) {
+      context.handle(
+        _itemsMeta,
+        items.isAcceptableOrUnknown(data['items']!, _itemsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemsMeta);
+    }
+    if (data.containsKey('draft_text')) {
+      context.handle(
+        _draftTextMeta,
+        draftText.isAcceptableOrUnknown(data['draft_text']!, _draftTextMeta),
+      );
+    }
+    if (data.containsKey('provider_alias')) {
+      context.handle(
+        _providerAliasMeta,
+        providerAlias.isAcceptableOrUnknown(
+          data['provider_alias']!,
+          _providerAliasMeta,
+        ),
+      );
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(
+        _modelIdMeta,
+        modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta),
+      );
+    }
+    if (data.containsKey('consumed_tokens')) {
+      context.handle(
+        _consumedTokensMeta,
+        consumedTokens.isAcceptableOrUnknown(
+          data['consumed_tokens']!,
+          _consumedTokensMeta,
+        ),
+      );
+    }
+    if (data.containsKey('attempt_count')) {
+      context.handle(
+        _attemptCountMeta,
+        attemptCount.isAcceptableOrUnknown(
+          data['attempt_count']!,
+          _attemptCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('error_kind')) {
+      context.handle(
+        _errorKindMeta,
+        errorKind.isAcceptableOrUnknown(data['error_kind']!, _errorKindMeta),
+      );
+    }
+    if (data.containsKey('stage')) {
+      context.handle(
+        _stageMeta,
+        stage.isAcceptableOrUnknown(data['stage']!, _stageMeta),
+      );
+    }
+    if (data.containsKey('verification_method')) {
+      context.handle(
+        _verificationMethodMeta,
+        verificationMethod.isAcceptableOrUnknown(
+          data['verification_method']!,
+          _verificationMethodMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_current')) {
+      context.handle(
+        _isCurrentMeta,
+        isCurrent.isAcceptableOrUnknown(data['is_current']!, _isCurrentMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NewsRun map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NewsRun(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      localDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_date'],
+      )!,
+      timeZone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_zone'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      )!,
+      taskStatus: $NewsRunsTable.$convertertaskStatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}task_status'],
+        )!,
+      ),
+      inputSnapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}input_snapshot'],
+      )!,
+      snapshotHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}snapshot_hash'],
+      )!,
+      siteResults: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}site_results'],
+      )!,
+      materials: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}materials'],
+      )!,
+      items: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}items'],
+      )!,
+      draftText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}draft_text'],
+      ),
+      providerAlias: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_alias'],
+      ),
+      modelId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model_id'],
+      ),
+      consumedTokens: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}consumed_tokens'],
+      )!,
+      attemptCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempt_count'],
+      )!,
+      errorKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_kind'],
+      ),
+      stage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stage'],
+      ),
+      verificationMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}verification_method'],
+      ),
+      isCurrent: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_current'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NewsRunsTable createAlias(String alias) {
+    return $NewsRunsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<TaskStatus, String, String> $convertertaskStatus =
+      const EnumNameConverter<TaskStatus>(TaskStatus.values);
+}
+
+class NewsRun extends DataClass implements Insertable<NewsRun> {
+  final int id;
+
+  /// 设备本地日期键（YYYY-MM-DD）。任务开始时固化，之后不随时区变化重写（D-07）。
+  final String localDate;
+
+  /// 任务开始时的设备时区（IANA 名称）。
+  final String timeZone;
+
+  /// 版本号（同一日期 + 时区下从 1 开始单调递增）。
+  final int version;
+
+  /// 任务状态九态（与 core 的 TaskStatus 名称一致）。
+  final TaskStatus taskStatus;
+
+  /// 输入快照 JSON（时区、日期区间、选材、必访站、关键词、prompt 版本引用与文本）。
+  final String inputSnapshot;
+
+  /// 快照哈希（同一输入重复生成时的判定依据）。
+  final String snapshotHash;
+
+  /// 必访站逐站结果 JSON（成功/失败/超时/未执行，SET-051「记录逐站获取结果」）。
+  final String siteResults;
+
+  /// 材料清单 JSON（含 accessMethod 与最小摘录）。
+  final String materials;
+
+  /// 条目 JSON（含引用列表、处理结果与 T038 的证据标签）。
+  final String items;
+
+  /// 初稿全文（保留模型的原始输出，便于核对「条目拆分有没有丢内容」）。
+  final String? draftText;
+
+  /// 产出它的提供商别名与模型 ID。
+  final String? providerAlias;
+  final String? modelId;
+
+  /// 累计消耗 token 与 HTTP 尝试次数。
+  final int consumedTokens;
+  final int attemptCount;
+
+  /// 失败类别（结构性标识）；成功为 null。**不存错误正文**（架构第 8 节）。
+  final String? errorKind;
+
+  /// 中断/失败时所在的阶段（界面说明「卡在哪一步」）。
+  final String? stage;
+
+  /// 本次版本的来源核验方法记录（T038：派生查询、相似度阈值、聚类规则）。
+  ///
+  /// 为什么把「怎么核验的」也存下来：架构 4.4 要求标签是**启发式的**结果，用户需要能
+  /// 核对判定依据。只存标签（「来源单一」）会让人以为那是一个客观事实，而它其实是
+  /// 「按这套阈值没找到第二条独立来源」——两种含义的差别正是这款产品会不会被误信的关键。
+  /// 未核验时为 null（T037 的初稿版本都是 null）。
+  final String? verificationMethod;
+
+  /// 是否为当前展示版本。
+  final bool isCurrent;
+  final DateTime createdAt;
+  const NewsRun({
+    required this.id,
+    required this.localDate,
+    required this.timeZone,
+    required this.version,
+    required this.taskStatus,
+    required this.inputSnapshot,
+    required this.snapshotHash,
+    required this.siteResults,
+    required this.materials,
+    required this.items,
+    this.draftText,
+    this.providerAlias,
+    this.modelId,
+    required this.consumedTokens,
+    required this.attemptCount,
+    this.errorKind,
+    this.stage,
+    this.verificationMethod,
+    required this.isCurrent,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['local_date'] = Variable<String>(localDate);
+    map['time_zone'] = Variable<String>(timeZone);
+    map['version'] = Variable<int>(version);
+    {
+      map['task_status'] = Variable<String>(
+        $NewsRunsTable.$convertertaskStatus.toSql(taskStatus),
+      );
+    }
+    map['input_snapshot'] = Variable<String>(inputSnapshot);
+    map['snapshot_hash'] = Variable<String>(snapshotHash);
+    map['site_results'] = Variable<String>(siteResults);
+    map['materials'] = Variable<String>(materials);
+    map['items'] = Variable<String>(items);
+    if (!nullToAbsent || draftText != null) {
+      map['draft_text'] = Variable<String>(draftText);
+    }
+    if (!nullToAbsent || providerAlias != null) {
+      map['provider_alias'] = Variable<String>(providerAlias);
+    }
+    if (!nullToAbsent || modelId != null) {
+      map['model_id'] = Variable<String>(modelId);
+    }
+    map['consumed_tokens'] = Variable<int>(consumedTokens);
+    map['attempt_count'] = Variable<int>(attemptCount);
+    if (!nullToAbsent || errorKind != null) {
+      map['error_kind'] = Variable<String>(errorKind);
+    }
+    if (!nullToAbsent || stage != null) {
+      map['stage'] = Variable<String>(stage);
+    }
+    if (!nullToAbsent || verificationMethod != null) {
+      map['verification_method'] = Variable<String>(verificationMethod);
+    }
+    map['is_current'] = Variable<bool>(isCurrent);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  NewsRunsCompanion toCompanion(bool nullToAbsent) {
+    return NewsRunsCompanion(
+      id: Value(id),
+      localDate: Value(localDate),
+      timeZone: Value(timeZone),
+      version: Value(version),
+      taskStatus: Value(taskStatus),
+      inputSnapshot: Value(inputSnapshot),
+      snapshotHash: Value(snapshotHash),
+      siteResults: Value(siteResults),
+      materials: Value(materials),
+      items: Value(items),
+      draftText: draftText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(draftText),
+      providerAlias: providerAlias == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerAlias),
+      modelId: modelId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modelId),
+      consumedTokens: Value(consumedTokens),
+      attemptCount: Value(attemptCount),
+      errorKind: errorKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorKind),
+      stage: stage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stage),
+      verificationMethod: verificationMethod == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verificationMethod),
+      isCurrent: Value(isCurrent),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory NewsRun.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NewsRun(
+      id: serializer.fromJson<int>(json['id']),
+      localDate: serializer.fromJson<String>(json['localDate']),
+      timeZone: serializer.fromJson<String>(json['timeZone']),
+      version: serializer.fromJson<int>(json['version']),
+      taskStatus: $NewsRunsTable.$convertertaskStatus.fromJson(
+        serializer.fromJson<String>(json['taskStatus']),
+      ),
+      inputSnapshot: serializer.fromJson<String>(json['inputSnapshot']),
+      snapshotHash: serializer.fromJson<String>(json['snapshotHash']),
+      siteResults: serializer.fromJson<String>(json['siteResults']),
+      materials: serializer.fromJson<String>(json['materials']),
+      items: serializer.fromJson<String>(json['items']),
+      draftText: serializer.fromJson<String?>(json['draftText']),
+      providerAlias: serializer.fromJson<String?>(json['providerAlias']),
+      modelId: serializer.fromJson<String?>(json['modelId']),
+      consumedTokens: serializer.fromJson<int>(json['consumedTokens']),
+      attemptCount: serializer.fromJson<int>(json['attemptCount']),
+      errorKind: serializer.fromJson<String?>(json['errorKind']),
+      stage: serializer.fromJson<String?>(json['stage']),
+      verificationMethod: serializer.fromJson<String?>(
+        json['verificationMethod'],
+      ),
+      isCurrent: serializer.fromJson<bool>(json['isCurrent']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'localDate': serializer.toJson<String>(localDate),
+      'timeZone': serializer.toJson<String>(timeZone),
+      'version': serializer.toJson<int>(version),
+      'taskStatus': serializer.toJson<String>(
+        $NewsRunsTable.$convertertaskStatus.toJson(taskStatus),
+      ),
+      'inputSnapshot': serializer.toJson<String>(inputSnapshot),
+      'snapshotHash': serializer.toJson<String>(snapshotHash),
+      'siteResults': serializer.toJson<String>(siteResults),
+      'materials': serializer.toJson<String>(materials),
+      'items': serializer.toJson<String>(items),
+      'draftText': serializer.toJson<String?>(draftText),
+      'providerAlias': serializer.toJson<String?>(providerAlias),
+      'modelId': serializer.toJson<String?>(modelId),
+      'consumedTokens': serializer.toJson<int>(consumedTokens),
+      'attemptCount': serializer.toJson<int>(attemptCount),
+      'errorKind': serializer.toJson<String?>(errorKind),
+      'stage': serializer.toJson<String?>(stage),
+      'verificationMethod': serializer.toJson<String?>(verificationMethod),
+      'isCurrent': serializer.toJson<bool>(isCurrent),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  NewsRun copyWith({
+    int? id,
+    String? localDate,
+    String? timeZone,
+    int? version,
+    TaskStatus? taskStatus,
+    String? inputSnapshot,
+    String? snapshotHash,
+    String? siteResults,
+    String? materials,
+    String? items,
+    Value<String?> draftText = const Value.absent(),
+    Value<String?> providerAlias = const Value.absent(),
+    Value<String?> modelId = const Value.absent(),
+    int? consumedTokens,
+    int? attemptCount,
+    Value<String?> errorKind = const Value.absent(),
+    Value<String?> stage = const Value.absent(),
+    Value<String?> verificationMethod = const Value.absent(),
+    bool? isCurrent,
+    DateTime? createdAt,
+  }) => NewsRun(
+    id: id ?? this.id,
+    localDate: localDate ?? this.localDate,
+    timeZone: timeZone ?? this.timeZone,
+    version: version ?? this.version,
+    taskStatus: taskStatus ?? this.taskStatus,
+    inputSnapshot: inputSnapshot ?? this.inputSnapshot,
+    snapshotHash: snapshotHash ?? this.snapshotHash,
+    siteResults: siteResults ?? this.siteResults,
+    materials: materials ?? this.materials,
+    items: items ?? this.items,
+    draftText: draftText.present ? draftText.value : this.draftText,
+    providerAlias: providerAlias.present
+        ? providerAlias.value
+        : this.providerAlias,
+    modelId: modelId.present ? modelId.value : this.modelId,
+    consumedTokens: consumedTokens ?? this.consumedTokens,
+    attemptCount: attemptCount ?? this.attemptCount,
+    errorKind: errorKind.present ? errorKind.value : this.errorKind,
+    stage: stage.present ? stage.value : this.stage,
+    verificationMethod: verificationMethod.present
+        ? verificationMethod.value
+        : this.verificationMethod,
+    isCurrent: isCurrent ?? this.isCurrent,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  NewsRun copyWithCompanion(NewsRunsCompanion data) {
+    return NewsRun(
+      id: data.id.present ? data.id.value : this.id,
+      localDate: data.localDate.present ? data.localDate.value : this.localDate,
+      timeZone: data.timeZone.present ? data.timeZone.value : this.timeZone,
+      version: data.version.present ? data.version.value : this.version,
+      taskStatus: data.taskStatus.present
+          ? data.taskStatus.value
+          : this.taskStatus,
+      inputSnapshot: data.inputSnapshot.present
+          ? data.inputSnapshot.value
+          : this.inputSnapshot,
+      snapshotHash: data.snapshotHash.present
+          ? data.snapshotHash.value
+          : this.snapshotHash,
+      siteResults: data.siteResults.present
+          ? data.siteResults.value
+          : this.siteResults,
+      materials: data.materials.present ? data.materials.value : this.materials,
+      items: data.items.present ? data.items.value : this.items,
+      draftText: data.draftText.present ? data.draftText.value : this.draftText,
+      providerAlias: data.providerAlias.present
+          ? data.providerAlias.value
+          : this.providerAlias,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      consumedTokens: data.consumedTokens.present
+          ? data.consumedTokens.value
+          : this.consumedTokens,
+      attemptCount: data.attemptCount.present
+          ? data.attemptCount.value
+          : this.attemptCount,
+      errorKind: data.errorKind.present ? data.errorKind.value : this.errorKind,
+      stage: data.stage.present ? data.stage.value : this.stage,
+      verificationMethod: data.verificationMethod.present
+          ? data.verificationMethod.value
+          : this.verificationMethod,
+      isCurrent: data.isCurrent.present ? data.isCurrent.value : this.isCurrent,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsRun(')
+          ..write('id: $id, ')
+          ..write('localDate: $localDate, ')
+          ..write('timeZone: $timeZone, ')
+          ..write('version: $version, ')
+          ..write('taskStatus: $taskStatus, ')
+          ..write('inputSnapshot: $inputSnapshot, ')
+          ..write('snapshotHash: $snapshotHash, ')
+          ..write('siteResults: $siteResults, ')
+          ..write('materials: $materials, ')
+          ..write('items: $items, ')
+          ..write('draftText: $draftText, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('modelId: $modelId, ')
+          ..write('consumedTokens: $consumedTokens, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('stage: $stage, ')
+          ..write('verificationMethod: $verificationMethod, ')
+          ..write('isCurrent: $isCurrent, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    localDate,
+    timeZone,
+    version,
+    taskStatus,
+    inputSnapshot,
+    snapshotHash,
+    siteResults,
+    materials,
+    items,
+    draftText,
+    providerAlias,
+    modelId,
+    consumedTokens,
+    attemptCount,
+    errorKind,
+    stage,
+    verificationMethod,
+    isCurrent,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NewsRun &&
+          other.id == this.id &&
+          other.localDate == this.localDate &&
+          other.timeZone == this.timeZone &&
+          other.version == this.version &&
+          other.taskStatus == this.taskStatus &&
+          other.inputSnapshot == this.inputSnapshot &&
+          other.snapshotHash == this.snapshotHash &&
+          other.siteResults == this.siteResults &&
+          other.materials == this.materials &&
+          other.items == this.items &&
+          other.draftText == this.draftText &&
+          other.providerAlias == this.providerAlias &&
+          other.modelId == this.modelId &&
+          other.consumedTokens == this.consumedTokens &&
+          other.attemptCount == this.attemptCount &&
+          other.errorKind == this.errorKind &&
+          other.stage == this.stage &&
+          other.verificationMethod == this.verificationMethod &&
+          other.isCurrent == this.isCurrent &&
+          other.createdAt == this.createdAt);
+}
+
+class NewsRunsCompanion extends UpdateCompanion<NewsRun> {
+  final Value<int> id;
+  final Value<String> localDate;
+  final Value<String> timeZone;
+  final Value<int> version;
+  final Value<TaskStatus> taskStatus;
+  final Value<String> inputSnapshot;
+  final Value<String> snapshotHash;
+  final Value<String> siteResults;
+  final Value<String> materials;
+  final Value<String> items;
+  final Value<String?> draftText;
+  final Value<String?> providerAlias;
+  final Value<String?> modelId;
+  final Value<int> consumedTokens;
+  final Value<int> attemptCount;
+  final Value<String?> errorKind;
+  final Value<String?> stage;
+  final Value<String?> verificationMethod;
+  final Value<bool> isCurrent;
+  final Value<DateTime> createdAt;
+  const NewsRunsCompanion({
+    this.id = const Value.absent(),
+    this.localDate = const Value.absent(),
+    this.timeZone = const Value.absent(),
+    this.version = const Value.absent(),
+    this.taskStatus = const Value.absent(),
+    this.inputSnapshot = const Value.absent(),
+    this.snapshotHash = const Value.absent(),
+    this.siteResults = const Value.absent(),
+    this.materials = const Value.absent(),
+    this.items = const Value.absent(),
+    this.draftText = const Value.absent(),
+    this.providerAlias = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.consumedTokens = const Value.absent(),
+    this.attemptCount = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.stage = const Value.absent(),
+    this.verificationMethod = const Value.absent(),
+    this.isCurrent = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  NewsRunsCompanion.insert({
+    this.id = const Value.absent(),
+    required String localDate,
+    required String timeZone,
+    required int version,
+    required TaskStatus taskStatus,
+    required String inputSnapshot,
+    required String snapshotHash,
+    required String siteResults,
+    required String materials,
+    required String items,
+    this.draftText = const Value.absent(),
+    this.providerAlias = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.consumedTokens = const Value.absent(),
+    this.attemptCount = const Value.absent(),
+    this.errorKind = const Value.absent(),
+    this.stage = const Value.absent(),
+    this.verificationMethod = const Value.absent(),
+    this.isCurrent = const Value.absent(),
+    required DateTime createdAt,
+  }) : localDate = Value(localDate),
+       timeZone = Value(timeZone),
+       version = Value(version),
+       taskStatus = Value(taskStatus),
+       inputSnapshot = Value(inputSnapshot),
+       snapshotHash = Value(snapshotHash),
+       siteResults = Value(siteResults),
+       materials = Value(materials),
+       items = Value(items),
+       createdAt = Value(createdAt);
+  static Insertable<NewsRun> custom({
+    Expression<int>? id,
+    Expression<String>? localDate,
+    Expression<String>? timeZone,
+    Expression<int>? version,
+    Expression<String>? taskStatus,
+    Expression<String>? inputSnapshot,
+    Expression<String>? snapshotHash,
+    Expression<String>? siteResults,
+    Expression<String>? materials,
+    Expression<String>? items,
+    Expression<String>? draftText,
+    Expression<String>? providerAlias,
+    Expression<String>? modelId,
+    Expression<int>? consumedTokens,
+    Expression<int>? attemptCount,
+    Expression<String>? errorKind,
+    Expression<String>? stage,
+    Expression<String>? verificationMethod,
+    Expression<bool>? isCurrent,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (localDate != null) 'local_date': localDate,
+      if (timeZone != null) 'time_zone': timeZone,
+      if (version != null) 'version': version,
+      if (taskStatus != null) 'task_status': taskStatus,
+      if (inputSnapshot != null) 'input_snapshot': inputSnapshot,
+      if (snapshotHash != null) 'snapshot_hash': snapshotHash,
+      if (siteResults != null) 'site_results': siteResults,
+      if (materials != null) 'materials': materials,
+      if (items != null) 'items': items,
+      if (draftText != null) 'draft_text': draftText,
+      if (providerAlias != null) 'provider_alias': providerAlias,
+      if (modelId != null) 'model_id': modelId,
+      if (consumedTokens != null) 'consumed_tokens': consumedTokens,
+      if (attemptCount != null) 'attempt_count': attemptCount,
+      if (errorKind != null) 'error_kind': errorKind,
+      if (stage != null) 'stage': stage,
+      if (verificationMethod != null) 'verification_method': verificationMethod,
+      if (isCurrent != null) 'is_current': isCurrent,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  NewsRunsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? localDate,
+    Value<String>? timeZone,
+    Value<int>? version,
+    Value<TaskStatus>? taskStatus,
+    Value<String>? inputSnapshot,
+    Value<String>? snapshotHash,
+    Value<String>? siteResults,
+    Value<String>? materials,
+    Value<String>? items,
+    Value<String?>? draftText,
+    Value<String?>? providerAlias,
+    Value<String?>? modelId,
+    Value<int>? consumedTokens,
+    Value<int>? attemptCount,
+    Value<String?>? errorKind,
+    Value<String?>? stage,
+    Value<String?>? verificationMethod,
+    Value<bool>? isCurrent,
+    Value<DateTime>? createdAt,
+  }) {
+    return NewsRunsCompanion(
+      id: id ?? this.id,
+      localDate: localDate ?? this.localDate,
+      timeZone: timeZone ?? this.timeZone,
+      version: version ?? this.version,
+      taskStatus: taskStatus ?? this.taskStatus,
+      inputSnapshot: inputSnapshot ?? this.inputSnapshot,
+      snapshotHash: snapshotHash ?? this.snapshotHash,
+      siteResults: siteResults ?? this.siteResults,
+      materials: materials ?? this.materials,
+      items: items ?? this.items,
+      draftText: draftText ?? this.draftText,
+      providerAlias: providerAlias ?? this.providerAlias,
+      modelId: modelId ?? this.modelId,
+      consumedTokens: consumedTokens ?? this.consumedTokens,
+      attemptCount: attemptCount ?? this.attemptCount,
+      errorKind: errorKind ?? this.errorKind,
+      stage: stage ?? this.stage,
+      verificationMethod: verificationMethod ?? this.verificationMethod,
+      isCurrent: isCurrent ?? this.isCurrent,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (localDate.present) {
+      map['local_date'] = Variable<String>(localDate.value);
+    }
+    if (timeZone.present) {
+      map['time_zone'] = Variable<String>(timeZone.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (taskStatus.present) {
+      map['task_status'] = Variable<String>(
+        $NewsRunsTable.$convertertaskStatus.toSql(taskStatus.value),
+      );
+    }
+    if (inputSnapshot.present) {
+      map['input_snapshot'] = Variable<String>(inputSnapshot.value);
+    }
+    if (snapshotHash.present) {
+      map['snapshot_hash'] = Variable<String>(snapshotHash.value);
+    }
+    if (siteResults.present) {
+      map['site_results'] = Variable<String>(siteResults.value);
+    }
+    if (materials.present) {
+      map['materials'] = Variable<String>(materials.value);
+    }
+    if (items.present) {
+      map['items'] = Variable<String>(items.value);
+    }
+    if (draftText.present) {
+      map['draft_text'] = Variable<String>(draftText.value);
+    }
+    if (providerAlias.present) {
+      map['provider_alias'] = Variable<String>(providerAlias.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (consumedTokens.present) {
+      map['consumed_tokens'] = Variable<int>(consumedTokens.value);
+    }
+    if (attemptCount.present) {
+      map['attempt_count'] = Variable<int>(attemptCount.value);
+    }
+    if (errorKind.present) {
+      map['error_kind'] = Variable<String>(errorKind.value);
+    }
+    if (stage.present) {
+      map['stage'] = Variable<String>(stage.value);
+    }
+    if (verificationMethod.present) {
+      map['verification_method'] = Variable<String>(verificationMethod.value);
+    }
+    if (isCurrent.present) {
+      map['is_current'] = Variable<bool>(isCurrent.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NewsRunsCompanion(')
+          ..write('id: $id, ')
+          ..write('localDate: $localDate, ')
+          ..write('timeZone: $timeZone, ')
+          ..write('version: $version, ')
+          ..write('taskStatus: $taskStatus, ')
+          ..write('inputSnapshot: $inputSnapshot, ')
+          ..write('snapshotHash: $snapshotHash, ')
+          ..write('siteResults: $siteResults, ')
+          ..write('materials: $materials, ')
+          ..write('items: $items, ')
+          ..write('draftText: $draftText, ')
+          ..write('providerAlias: $providerAlias, ')
+          ..write('modelId: $modelId, ')
+          ..write('consumedTokens: $consumedTokens, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('errorKind: $errorKind, ')
+          ..write('stage: $stage, ')
+          ..write('verificationMethod: $verificationMethod, ')
+          ..write('isCurrent: $isCurrent, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12587,6 +13748,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $NewsConfigEntryRecordsTable(this);
   late final $NewsPromptVersionRecordsTable newsPromptVersionRecords =
       $NewsPromptVersionRecordsTable(this);
+  late final $NewsRunsTable newsRuns = $NewsRunsTable(this);
   late final Index ixDeletionEventsSyncId = Index(
     'ix_deletion_events_sync_id',
     'CREATE INDEX ix_deletion_events_sync_id ON deletion_events (sync_id)',
@@ -12667,6 +13829,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'ux_news_prompt_versions_language_version',
     'CREATE UNIQUE INDEX ux_news_prompt_versions_language_version ON news_prompt_version_records (language, version)',
   );
+  late final Index uxNewsRunsDateTzVersion = Index(
+    'ux_news_runs_date_tz_version',
+    'CREATE UNIQUE INDEX ux_news_runs_date_tz_version ON news_runs (local_date, time_zone, version)',
+  );
+  late final Index ixNewsRunsLocalDate = Index(
+    'ix_news_runs_local_date',
+    'CREATE INDEX ix_news_runs_local_date ON news_runs (local_date)',
+  );
+  late final Index ixNewsRunsCurrent = Index(
+    'ix_news_runs_current',
+    'CREATE INDEX ix_news_runs_current ON news_runs (local_date, time_zone, is_current)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12704,6 +13878,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     newsRequiredSiteRecords,
     newsConfigEntryRecords,
     newsPromptVersionRecords,
+    newsRuns,
     ixDeletionEventsSyncId,
     ixDeletionEventsDeletedAt,
     ixReadingSessionsArticleStart,
@@ -12724,6 +13899,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ixNewsRequiredSitesOrder,
     uxNewsConfigEntriesKindOrder,
     uxNewsPromptVersionsLanguageVersion,
+    uxNewsRunsDateTzVersion,
+    ixNewsRunsLocalDate,
+    ixNewsRunsCurrent,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -20208,6 +21386,504 @@ typedef $$NewsPromptVersionRecordsTableProcessedTableManager =
       NewsPromptVersionRecord,
       PrefetchHooks Function()
     >;
+typedef $$NewsRunsTableCreateCompanionBuilder = NewsRunsCompanion Function({
+  Value<int> id,
+  required String localDate,
+  required String timeZone,
+  required int version,
+  required TaskStatus taskStatus,
+  required String inputSnapshot,
+  required String snapshotHash,
+  required String siteResults,
+  required String materials,
+  required String items,
+  Value<String?> draftText,
+  Value<String?> providerAlias,
+  Value<String?> modelId,
+  Value<int> consumedTokens,
+  Value<int> attemptCount,
+  Value<String?> errorKind,
+  Value<String?> stage,
+  Value<String?> verificationMethod,
+  Value<bool> isCurrent,
+  required DateTime createdAt,
+});
+typedef $$NewsRunsTableUpdateCompanionBuilder = NewsRunsCompanion Function({
+  Value<int> id,
+  Value<String> localDate,
+  Value<String> timeZone,
+  Value<int> version,
+  Value<TaskStatus> taskStatus,
+  Value<String> inputSnapshot,
+  Value<String> snapshotHash,
+  Value<String> siteResults,
+  Value<String> materials,
+  Value<String> items,
+  Value<String?> draftText,
+  Value<String?> providerAlias,
+  Value<String?> modelId,
+  Value<int> consumedTokens,
+  Value<int> attemptCount,
+  Value<String?> errorKind,
+  Value<String?> stage,
+  Value<String?> verificationMethod,
+  Value<bool> isCurrent,
+  Value<DateTime> createdAt,
+});
+
+class $$NewsRunsTableFilterComposer
+    extends Composer<_$AppDatabase, $NewsRunsTable> {
+  $$NewsRunsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeZone => $composableBuilder(
+    column: $table.timeZone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TaskStatus, TaskStatus, String>
+  get taskStatus => $composableBuilder(
+    column: $table.taskStatus,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get snapshotHash => $composableBuilder(
+    column: $table.snapshotHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get siteResults => $composableBuilder(
+    column: $table.siteResults,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get materials => $composableBuilder(
+    column: $table.materials,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get items => $composableBuilder(
+    column: $table.items,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get draftText => $composableBuilder(
+    column: $table.draftText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorKind => $composableBuilder(
+    column: $table.errorKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get verificationMethod => $composableBuilder(
+    column: $table.verificationMethod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCurrent => $composableBuilder(
+    column: $table.isCurrent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NewsRunsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NewsRunsTable> {
+  $$NewsRunsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localDate => $composableBuilder(
+    column: $table.localDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timeZone => $composableBuilder(
+    column: $table.timeZone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taskStatus => $composableBuilder(
+    column: $table.taskStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get snapshotHash => $composableBuilder(
+    column: $table.snapshotHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get siteResults => $composableBuilder(
+    column: $table.siteResults,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get materials => $composableBuilder(
+    column: $table.materials,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get items => $composableBuilder(
+    column: $table.items,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get draftText => $composableBuilder(
+    column: $table.draftText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modelId => $composableBuilder(
+    column: $table.modelId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorKind => $composableBuilder(
+    column: $table.errorKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get stage => $composableBuilder(
+    column: $table.stage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get verificationMethod => $composableBuilder(
+    column: $table.verificationMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCurrent => $composableBuilder(
+    column: $table.isCurrent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NewsRunsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NewsRunsTable> {
+  $$NewsRunsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get localDate =>
+      $composableBuilder(column: $table.localDate, builder: (column) => column);
+
+  GeneratedColumn<String> get timeZone =>
+      $composableBuilder(column: $table.timeZone, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TaskStatus, String> get taskStatus =>
+      $composableBuilder(
+        column: $table.taskStatus,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get inputSnapshot => $composableBuilder(
+    column: $table.inputSnapshot,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get snapshotHash => $composableBuilder(
+    column: $table.snapshotHash,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get siteResults => $composableBuilder(
+    column: $table.siteResults,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get materials =>
+      $composableBuilder(column: $table.materials, builder: (column) => column);
+
+  GeneratedColumn<String> get items =>
+      $composableBuilder(column: $table.items, builder: (column) => column);
+
+  GeneratedColumn<String> get draftText =>
+      $composableBuilder(column: $table.draftText, builder: (column) => column);
+
+  GeneratedColumn<String> get providerAlias => $composableBuilder(
+    column: $table.providerAlias,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<int> get consumedTokens => $composableBuilder(
+    column: $table.consumedTokens,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get attemptCount => $composableBuilder(
+    column: $table.attemptCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get errorKind =>
+      $composableBuilder(column: $table.errorKind, builder: (column) => column);
+
+  GeneratedColumn<String> get stage =>
+      $composableBuilder(column: $table.stage, builder: (column) => column);
+
+  GeneratedColumn<String> get verificationMethod => $composableBuilder(
+    column: $table.verificationMethod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCurrent =>
+      $composableBuilder(column: $table.isCurrent, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$NewsRunsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NewsRunsTable,
+          NewsRun,
+          $$NewsRunsTableFilterComposer,
+          $$NewsRunsTableOrderingComposer,
+          $$NewsRunsTableAnnotationComposer,
+          $$NewsRunsTableCreateCompanionBuilder,
+          $$NewsRunsTableUpdateCompanionBuilder,
+          (NewsRun, BaseReferences<_$AppDatabase, $NewsRunsTable, NewsRun>),
+          NewsRun,
+          PrefetchHooks Function()
+        > {
+  $$NewsRunsTableTableManager(_$AppDatabase db, $NewsRunsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NewsRunsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NewsRunsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NewsRunsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> localDate = const Value.absent(),
+                Value<String> timeZone = const Value.absent(),
+                Value<int> version = const Value.absent(),
+                Value<TaskStatus> taskStatus = const Value.absent(),
+                Value<String> inputSnapshot = const Value.absent(),
+                Value<String> snapshotHash = const Value.absent(),
+                Value<String> siteResults = const Value.absent(),
+                Value<String> materials = const Value.absent(),
+                Value<String> items = const Value.absent(),
+                Value<String?> draftText = const Value.absent(),
+                Value<String?> providerAlias = const Value.absent(),
+                Value<String?> modelId = const Value.absent(),
+                Value<int> consumedTokens = const Value.absent(),
+                Value<int> attemptCount = const Value.absent(),
+                Value<String?> errorKind = const Value.absent(),
+                Value<String?> stage = const Value.absent(),
+                Value<String?> verificationMethod = const Value.absent(),
+                Value<bool> isCurrent = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => NewsRunsCompanion(
+                id: id,
+                localDate: localDate,
+                timeZone: timeZone,
+                version: version,
+                taskStatus: taskStatus,
+                inputSnapshot: inputSnapshot,
+                snapshotHash: snapshotHash,
+                siteResults: siteResults,
+                materials: materials,
+                items: items,
+                draftText: draftText,
+                providerAlias: providerAlias,
+                modelId: modelId,
+                consumedTokens: consumedTokens,
+                attemptCount: attemptCount,
+                errorKind: errorKind,
+                stage: stage,
+                verificationMethod: verificationMethod,
+                isCurrent: isCurrent,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String localDate,
+                required String timeZone,
+                required int version,
+                required TaskStatus taskStatus,
+                required String inputSnapshot,
+                required String snapshotHash,
+                required String siteResults,
+                required String materials,
+                required String items,
+                Value<String?> draftText = const Value.absent(),
+                Value<String?> providerAlias = const Value.absent(),
+                Value<String?> modelId = const Value.absent(),
+                Value<int> consumedTokens = const Value.absent(),
+                Value<int> attemptCount = const Value.absent(),
+                Value<String?> errorKind = const Value.absent(),
+                Value<String?> stage = const Value.absent(),
+                Value<String?> verificationMethod = const Value.absent(),
+                Value<bool> isCurrent = const Value.absent(),
+                required DateTime createdAt,
+              }) => NewsRunsCompanion.insert(
+                id: id,
+                localDate: localDate,
+                timeZone: timeZone,
+                version: version,
+                taskStatus: taskStatus,
+                inputSnapshot: inputSnapshot,
+                snapshotHash: snapshotHash,
+                siteResults: siteResults,
+                materials: materials,
+                items: items,
+                draftText: draftText,
+                providerAlias: providerAlias,
+                modelId: modelId,
+                consumedTokens: consumedTokens,
+                attemptCount: attemptCount,
+                errorKind: errorKind,
+                stage: stage,
+                verificationMethod: verificationMethod,
+                isCurrent: isCurrent,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$NewsRunsTable, NewsRun>(table),
+                  BaseReferences<_$AppDatabase, $NewsRunsTable, NewsRun>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NewsRunsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NewsRunsTable,
+      NewsRun,
+      $$NewsRunsTableFilterComposer,
+      $$NewsRunsTableOrderingComposer,
+      $$NewsRunsTableAnnotationComposer,
+      $$NewsRunsTableCreateCompanionBuilder,
+      $$NewsRunsTableUpdateCompanionBuilder,
+      (NewsRun, BaseReferences<_$AppDatabase, $NewsRunsTable, NewsRun>),
+      NewsRun,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -20263,4 +21939,6 @@ class $AppDatabaseManager {
         _db,
         _db.newsPromptVersionRecords,
       );
+  $$NewsRunsTableTableManager get newsRuns =>
+      $$NewsRunsTableTableManager(_db, _db.newsRuns);
 }

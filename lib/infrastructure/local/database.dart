@@ -24,6 +24,7 @@ import 'tables/deletion_tables.dart';
 import 'tables/reading_tables.dart';
 import 'tables/settings_tables.dart';
 import 'tables/news_tables.dart';
+import 'tables/news_run_tables.dart';
 import 'tables/summary_tables.dart';
 import 'tables/translation_tables.dart';
 
@@ -55,6 +56,7 @@ part 'database.g.dart';
     NewsRequiredSiteRecords,
     NewsConfigEntryRecords,
     NewsPromptVersionRecords,
+    NewsRuns,
   ],
   // T022 的全文检索索引放在 .drift 文件里：FTS5 是虚拟表，建表语句必须带
   // USING fts5(...) 与 tokenizer 参数，Dart 表 DSL 表达不了（见该文件顶部说明）。
@@ -87,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -417,11 +419,32 @@ class AppDatabase extends _$AppDatabase {
         }
       }
 
+      if (from < 15) {
+        // v14 → v15：每日新闻任务的版本表（T037；架构 4.4/5.1）。
+        //
+        // 一张新表 + 三条索引，**不改任何既有列**：升级前不存在「已经生成过今日总结」
+        // 这个事实，空表是诚实的默认状态（与 v8→v9、v9→v10、v10→v11、v12→v13、v13→v14
+        // 同一口径）。因此这一步对既有数据是零影响的。
+        //
+        // 为什么单独一张表而不是复用 summary_versions：那张表是 T009 为「每日总结」
+        // 定义的版本行，字段是通用形态（content + 引用行）；新闻任务的输入快照、逐站
+        // 状态、材料清单与条目结构都要按版本整块保留，塞进那种形状需要把四组数据编码
+        // 成一个不透明字符串，运维与迁移校验都看不出里面是什么。
+        //
+        // 与 v1→v2、v8→v9、v9→v10、v10→v11、v12→v13、v13→v14 同一个坑：createTable
+        // 只建表，**不**建索引；漏掉 createIndex 时运行时查询照常工作，只有结构校验
+        // 才会发现差异，因此逐个显式写出。
+        await m.createTable(newsRuns);
+        await m.createIndex(uxNewsRunsDateTzVersion);
+        await m.createIndex(ixNewsRunsLocalDate);
+        await m.createIndex(ixNewsRunsCurrent);
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 14;
+      const int highestImplemented = 15;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

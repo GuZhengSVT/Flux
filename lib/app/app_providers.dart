@@ -18,6 +18,12 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/ai/application/ai_ports.dart';
+import 'package:flux/features/ai/application/ai_task_budget.dart';
+import 'package:flux/features/ai/application/ai_task_providers.dart';
+import 'package:flux/features/ai/application/ai_task_runner.dart';
+import 'package:flux/features/ai/application/search_manager_controller.dart';
+import 'package:flux/features/ai/application/tool_executor.dart';
+import 'package:flux/features/ai/domain/tool_call.dart';
 import 'package:flux/features/ai/application/model_manager.dart';
 import 'package:flux/features/ai/application/model_manager_controller.dart';
 import 'package:flux/features/ai/domain/ai_model_store.dart';
@@ -51,6 +57,8 @@ import 'package:flux/infrastructure/local/daily_summary_counter_store.dart';
 import 'package:flux/features/articles/application/article_ai_providers.dart';
 import 'package:flux/features/articles/application/article_translation_providers.dart';
 import 'package:flux/features/news/application/news_source_providers.dart';
+import 'package:flux/features/news/application/news_run_providers.dart';
+import 'package:flux/features/news/application/news_run_service.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -63,6 +71,7 @@ import 'package:flux/infrastructure/local/degraded_search_service_store.dart';
 import 'package:flux/infrastructure/local/article_extraction_store.dart';
 import 'package:flux/infrastructure/local/article_translation_store.dart';
 import 'package:flux/infrastructure/local/news_source_config_store.dart';
+import 'package:flux/infrastructure/local/news_run_store.dart';
 import 'package:flux/infrastructure/local/reading_stats_store.dart';
 import 'package:flux/infrastructure/network/feed_fetcher.dart';
 import 'package:flux/infrastructure/network/static_page_fetcher_adapter.dart';
@@ -334,6 +343,14 @@ List<Override> bootstrapOverrides(
       newsSourceConfigProvider.overrideWithValue(
         DriftNewsSourceConfigStore(catalogDatabase),
       ),
+      // T037：每日新闻的选材查询与版本存储（同一份数据：选材读 articles/feeds，
+      // 版本写 news_runs）。
+      newsCandidateStoreProvider.overrideWithValue(
+        DriftNewsCandidateStore(catalogDatabase),
+      ),
+      newsRunStoreProvider.overrideWithValue(
+        DriftNewsRunStore(catalogDatabase),
+      ),
       // T024：提取正文读写。
       articleExtractionProvider.overrideWithValue(
         DriftArticleExtractionStore(catalogDatabase),
@@ -394,6 +411,11 @@ List<Override> bootstrapOverrides(
       newsSourceConfigProvider.overrideWithValue(
         const DegradedNewsSourceConfigStore(),
       ),
+      // T037：降级模式下选材读作空、版本写入明确失败（不假装保存成功）。
+      newsCandidateStoreProvider.overrideWithValue(
+        const DegradedNewsCandidateStore(),
+      ),
+      newsRunStoreProvider.overrideWithValue(const DegradedNewsRunStore()),
     ],
     // ---- T024：静态网页抓取 --------------------------------------------------
     // 与数据库无关（只需要 HTTP），因此两种启动状态下都给真实实现：降级模式只是不
@@ -421,6 +443,60 @@ List<Override> bootstrapOverrides(
     // 单材料预算（SET-061）由设置读取；接线到这里之后执行器就能拿到用户配置的值。
     toolBudgetSettingsProvider.overrideWithValue(
       SettingsStoreToolBudgetReader(result.settingsStore),
+    ),
+    // ---- T037：每日新闻任务的编排 --------------------------------------------
+    //
+    // 一次任务一份执行器与一份预算：工具次数（SET-062）与 Token（SET-063）都是**每任务**
+    // 的边界，因此这里给的是构造而不是实例（见 NewsRunService.buildTools 的说明）。
+    //
+    // 编排服务本身在**用户点生成时**构造（设置是异步读的，而 Provider 的构造是同步的）：
+    // 让这里同步造一个「用默认上限」的服务会把用户调低的上限悄悄忽略掉。
+    //
+    // 用设置读取器把 SET-059/060/061/062/063 接上：编排服务由构造器按当前设置现造，
+    // 因此用户改上限之后**下一次**生成就生效，不需要重启应用。
+    newsRunServiceBuilderProvider.overrideWith(
+      (Ref ref) =>
+          ({
+            required SessionLocalZone zone,
+            void Function(NewsRunStage stage)? onStage,
+          }) async {
+            final NewsTaskSettings settings =
+                await NewsTaskSettings.fromSettingsReader(
+                  SettingsStoreReader(result.settingsStore),
+                );
+            final AiTaskBudget budget = await AiTaskBudget.fromSettingsReader(
+              SettingsStoreReader(result.settingsStore),
+            );
+            return NewsRunService(
+              candidates: ref.watch(newsCandidateStoreProvider),
+              runs: ref.watch(newsRunStoreProvider),
+              buildTools: () => ToolExecutor(
+                budget: ToolCallBudget(limit: settings.toolCalls),
+                config: ToolExecutorConfig(
+                  singleMaterialCharBudget: settings.singleMaterialBudget,
+                ),
+                searchManager: ref.watch(searchManagerProvider),
+                pageFetcher: ref.watch(controlledPageFetcherProvider),
+                imageInspector: ref.watch(toolImageInspectorProvider),
+                diagnostics: ref.watch(aiDiagnosticSinkProvider),
+                visionAnalyzer: ref.watch(toolVisionAnalyzerProvider),
+              ),
+              runner: AiTaskRunner(
+                credentials: ref.watch(aiCredentialStoreProvider),
+                factory: ref.watch(aiProviderFactoryProvider)!,
+                diagnostics: ref.watch(aiDiagnosticSinkProvider),
+                budget: budget,
+                clock: ref.watch(aiTaskClockProvider),
+              ),
+              loadModels: ref.read(modelManagerProvider).loadEnabledModels,
+              searchAvailability: ref.watch(newsSearchAvailabilityProvider),
+              diagnostics: ref.watch(aiDiagnosticSinkProvider),
+              clock: ref.watch(aiTaskClockProvider),
+              zone: zone,
+              settings: settings,
+              onStage: onStage,
+            );
+          },
     ),
     // ---- T033：视觉链路 ------------------------------------------------------
     //
