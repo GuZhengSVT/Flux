@@ -185,6 +185,56 @@ final class DriftNewsRunStore implements NewsRunStore {
   }
 
   @override
+  Future<Result<void>> deleteVersion({
+    required String localDate,
+    required String timeZone,
+    required int version,
+  }) async {
+    try {
+      final NewsRun? target =
+          await (_db.select(_db.newsRuns)
+                ..where(
+                  (NewsRuns t) =>
+                      t.localDate.equals(localDate) &
+                      t.timeZone.equals(timeZone) &
+                      t.version.equals(version),
+                )
+                ..limit(1))
+              .getSingleOrNull();
+      if (target == null) {
+        return Err<void>(
+          StorageError(
+            operation: 'newsRun.deleteVersion',
+            detail: '目标版本不存在',
+            isMissing: true,
+          ),
+        );
+      }
+      // 当前展示版本不可删：它在界面上就是「这一天的总结」，删掉会让用户看到
+      // 「今天没有总结」——而用户的本意是清理旧稿。**先**用一条说得清楚的错误拒绝，
+      // 再进事务（事务里被拒绝会连带一次回滚，错误原因也更难解释）。
+      if (target.isCurrent) {
+        return Err<void>(
+          ValidationError(
+            field: 'newsRun.version',
+            reason: '当前展示的版本不能删除，请先切换到其它版本',
+          ),
+        );
+      }
+      await (_db.delete(_db.newsRuns)..where(
+            (NewsRuns t) =>
+                t.localDate.equals(localDate) &
+                t.timeZone.equals(timeZone) &
+                t.version.equals(version),
+          ))
+          .go();
+      return okUnit();
+    } on Exception catch (error, stackTrace) {
+      return Err<void>(_storage('newsRun.deleteVersion', error, stackTrace));
+    }
+  }
+
+  @override
   Future<Result<List<String>>> listDates() async {
     try {
       final List<NewsRun> rows = await _db.select(_db.newsRuns).get();
@@ -508,6 +558,15 @@ final class DegradedNewsRunStore implements NewsRunStore {
   @override
   Future<Result<List<String>>> listDates() async =>
       const Ok<List<String>>(<String>[]);
+
+  @override
+  Future<Result<void>> deleteVersion({
+    required String localDate,
+    required String timeZone,
+    required int version,
+  }) async => Err<void>(
+    StorageError(operation: 'newsRun.deleteVersion', detail: '本次运行数据库不可用'),
+  );
 
   @override
   Future<Result<List<NewsRunDateRef>>> listDateRefs() async =>

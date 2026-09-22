@@ -480,4 +480,59 @@ void main() {
       expect(rows, isEmpty);
     });
   });
+
+  group('版本删除（T039）', () {
+    test('删除非当前版本成功，当前版本与其它版本不受影响', () async {
+      await store.append(record(version: 1));
+      await store.append(record(version: 2));
+      await store.append(record(version: 3));
+
+      final Result<void> deleted = await store.deleteVersion(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+        version: 2,
+      );
+      expect(deleted.isOk, isTrue);
+
+      final List<NewsRunRecord> versions = (await store.loadVersions(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(versions.map((NewsRunRecord r) => r.version), <int>[3, 1]);
+      final NewsRunRecord current = (await store.loadCurrent(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(current.version, 3);
+      expect(current.isCurrent, isTrue);
+    });
+
+    test('当前展示的版本不可删除，且库内不变', () async {
+      await store.append(record(version: 1));
+      final Result<void> deleted = await store.deleteVersion(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+        version: 1,
+      );
+      expect(deleted.isErr, isTrue);
+      expect(deleted.errorOrNull!.kind, 'validation');
+      final List<NewsRunRecord> versions = (await store.loadVersions(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(versions, hasLength(1));
+    });
+
+    test('删除不存在的版本报「缺失」而不是静默成功', () async {
+      final Result<void> deleted = await store.deleteVersion(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+        version: 9,
+      );
+      expect(deleted.isErr, isTrue);
+      final AppError error = deleted.errorOrNull!;
+      expect(error, isA<StorageError>());
+      expect((error as StorageError).isMissing, isTrue);
+    });
+  });
 }

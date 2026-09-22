@@ -3203,5 +3203,99 @@
   "todayShortfallGlobalDisabled": "RSS 内容总开关当前是关闭的，且没有其它输入（关键词/必访网站），因此没有生成。可在「设置 → 新闻生成」打开总开关。",
   "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
   "todayJournalNotice": "标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。",
-  "@todayJournalNotice": { "description": "今日页底部说明" }
+  "@todayJournalNotice": { "description": "今日页底部说明" },
+  "todayRecentLabel": "近 7 天",
+  "@todayRecentLabel": { "description": "今日页顶部日期条带说明" },
+  "todayPickDate": "选择历史日期",
+  "@todayPickDate": { "description": "日历弹层入口" },
+  "todayTodayChip": "今天",
+  "@todayTodayChip": { "description": "日期条带上的今天标记" },
+  "todayIsToday": "今天",
+  "@todayIsToday": { "description": "当前查看的就是今天时的说明" },
+  "todayHistoryBanner": "正在查看历史日期 {date} 的版本。历史记录按生成当时的设备时区归属，不会因现在换时区而改写。",
+  "@todayHistoryBanner": {
+    "description": "历史日期说明",
+    "placeholders": { "date": { "type": "String", "example": "2026-09-01" } }
+  },
+  "todaySitesProgressTitle": "必访网站（逐站）",
+  "@todaySitesProgressTitle": { "description": "生成中的逐站进度标题" },
+  "todaySitePending": "待获取",
+  "@todaySitePending": { "description": "必访站尚未轮到" },
+  "todayCancelling": "正在取消…",
+  "@todayCancelling": { "description": "取消已请求、任务尚未收尾" },
+  "todayStatusTitle": "本次生成状态",
+  "@todayStatusTitle": { "description": "非成功记录的状态说明标题" },
+  "todayStatusCancelled": "本次生成已取消（已完成的阶段信息保留在下面的记录里）。",
+  "@todayStatusCancelled": { "description": "状态说明：取消" },
+  "todayStatusInterrupted": "这次任务没有跑完就被系统终止了（应用退出或崩溃）。不会自动重发，避免为可能已经计费的内容再发一次请求；可在需要时手动重新生成。",
+  "@todayStatusInterrupted": { "description": "状态说明：中断" },
+  "todayStatusWaitingConfiguration": "缺少必要配置（没有启用的 AI 模型，或首次费用告知未确认），因此本次没有发出任何请求。补齐配置后可以重新生成。",
+  "@todayStatusWaitingConfiguration": { "description": "状态说明：等待配置" },
+  "todayStatusWaitingNetwork": "生成时设备无网络，任务暂停后结束，没有产出可用结果。联网后可以重新生成。",
+  "@todayStatusWaitingNetwork": { "description": "状态说明：等待网络" },
+  "todayStatusRunning": "有一条任务记录停在“进行中”：若应用曾被强制退出，它已被标为中断，不会自动重发。",
+  "@todayStatusRunning": { "description": "状态说明：仍在运行/中断的占位" },
+  "todayStatusFailed": "本次生成失败：{reason}。上一版成功总结没有受影响。",
+  "@todayStatusFailed": {
+    "description": "状态说明：失败",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayStatusInsufficient": "材料不足：没有取到足够的输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成条目，也不会编造内容。",
+  "@todayStatusInsufficient": { "description": "状态说明：材料不足" },
+  "todayStatusStage": "中止于「{stage}」这一步。",
+  "@todayStatusStage": {
+    "description": "中止阶段说明",
+    "placeholders": { "stage": { "type": "String", "example": "联网检索" } }
+  },
+  "todayNoResultYet": "这一天的生成还没有产出可用条目。",
+  "@todayNoResultYet": { "description": "有记录但没有可用结果" },
+  "todayVersionItemDetail": "版本 {version} · {status} · {time} · {model}",
+  "@todayVersionItemDetail": {
+    "description": "版本条目（含时间与模型）",
+    "placeholders": {
+      "version": { "type": "int", "example": "2" },
+      "status": { "type": "String", "example": "核验后" },
+      "time": { "type": "String", "example": "2026-09-22 21:03" },
+      "model": { "type": "String", "example": "deepseek/deepseek-chat" }
+    }
+  },
+  "todayVersionModelUnknown": "模型未记录",
+  "@todayVersionModelUnknown": { "description": "记录里没有模型信息" },
+  "todayVersionDelete": "删除",
+  "@todayVersionDelete": { "description": "删除历史版本按钮" },
+  "todayVersionDeleteTooltip": "删除这个历史版本（当前展示的版本不能删）",
+  "@todayVersionDeleteTooltip": { "description": "删除按钮提示" },
+  "todayVersionDeleteConfirmTitle": "删除版本 {version}？",
+  "@todayVersionDeleteConfirmTitle": {
+    "description": "删除确认标题",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteConfirmBody": "将永久删除这一天的版本 {version}。当前展示的版本不会被删除，其它版本与材料记录不受影响。",
+  "@todayVersionDeleteConfirmBody": {
+    "description": "删除确认正文",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteConfirmOk": "删除",
+  "@todayVersionDeleteConfirmOk": { "description": "删除确认按钮" },
+  "todayVersionDeleteCancel": "取消",
+  "@todayVersionDeleteCancel": { "description": "删除取消按钮" },
+  "todayVersionDeleted": "已删除版本 {version}",
+  "@todayVersionDeleted": {
+    "description": "删除成功回执",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteFailed": "删除失败：{reason}",
+  "@todayVersionDeleteFailed": {
+    "description": "删除失败回执",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayCitationContentCleared": "这篇本机文章的正文已被清理（例如清理过缓存），只能显示当时保存的最小摘录。",
+  "@todayCitationContentCleared": { "description": "本机正文已清理说明" },
+  "todayCitationExcerptCleared": "原文已清理，只保留最小摘录。",
+  "@todayCitationExcerptCleared": { "description": "引用摘录为空时的说明" },
+  "todayCacheClearedNotice": "这一天有 {count} 条引用对应的本机文章正文已被清理，仍显示当时保存的最小摘录。",
+  "@todayCacheClearedNotice": {
+    "description": "历史记录里正文已被清理的条数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  }
 }

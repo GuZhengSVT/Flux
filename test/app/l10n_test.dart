@@ -184,8 +184,12 @@ void main() {
       // 并删除 11 条随「壳层占位页」一起消失的文案（milestoneShellNotice /
       // placeholderBadge / layoutShellNote / 三个栏位名 / 三个断点名 /
       // todayEmptyTitle / todayEmptyBody）：701 - 11 + 53 = 743。
-      expect(_messageKeys(zh).length, 743);
-      expect(_messageKeys(en).length, 743);
+      // T039 新增 31 条今日页产品化文案（近 7 天与日历入口、今天标记、历史日期
+      // 归属说明、生成中的逐站进度三条、取消中、九态状态说明八条与中止阶段一句、
+      // 无可用结果一句、版本条目（含时间与模型/模型未记录）与删除六句、删除回执
+      // 两条、引用已清理三条）：743 + 31 = 774。
+      expect(_messageKeys(zh).length, 774);
+      expect(_messageKeys(en).length, 774);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

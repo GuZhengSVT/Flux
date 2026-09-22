@@ -39,6 +39,7 @@ final Provider<NewsRunStore> newsRunStoreProvider = Provider<NewsRunStore>(
 typedef NewsRunServiceBuilder = Future<NewsRunService> Function({
   required SessionLocalZone zone,
   void Function(NewsRunStage stage)? onStage,
+  void Function(NewsSiteFetchResult result)? onSiteResult,
 });
 
 /// 编排服务构造器（组合根提供实现）。

@@ -120,12 +120,77 @@ final class MemoryNewsRunStore implements NewsRunStore {
     required String localDate,
     required String timeZone,
     required int version,
-  }) async => okUnit();
+  }) async {
+    // 与 Drift 实现同一套语义（只有成功/部分成功的版本能成为当前版本）：替身如果
+    // 无条件返回成功，界面用例就会在「切换失败」这条路径上得到假绿。
+    NewsRunRecord? target;
+    for (final NewsRunRecord row in rows) {
+      if (row.localDate == localDate &&
+          row.timeZone == timeZone &&
+          row.version == version) {
+        target = row;
+      }
+    }
+    if (target == null) {
+      return Err<void>(
+        StorageError(
+          operation: 'newsRun.setCurrentVersion',
+          detail: '目标版本不存在',
+          isMissing: true,
+        ),
+      );
+    }
+    if (!target.status.isCompleted) {
+      return Err<void>(
+        ValidationError(
+          field: 'newsRun.version',
+          reason: '只有成功或部分成功的版本可以设为当前版本',
+        ),
+      );
+    }
+    for (int i = 0; i < rows.length; i++) {
+      final NewsRunRecord row = rows[i];
+      if (row.localDate == localDate && row.timeZone == timeZone) {
+        rows[i] = row.copyWith(isCurrent: row.version == version);
+      }
+    }
+    return okUnit();
+  }
 
   @override
   Future<Result<List<String>>> listDates() async => Ok<List<String>>(
     <String>{for (final NewsRunRecord r in rows) r.localDate}.toList(),
   );
+
+  @override
+  Future<Result<void>> deleteVersion({
+    required String localDate,
+    required String timeZone,
+    required int version,
+  }) async {
+    final int index = rows.indexWhere(
+      (NewsRunRecord r) =>
+          r.localDate == localDate &&
+          r.timeZone == timeZone &&
+          r.version == version,
+    );
+    if (index < 0) {
+      return Err<void>(
+        StorageError(
+          operation: 'newsRun.deleteVersion',
+          detail: '目标版本不存在',
+          isMissing: true,
+        ),
+      );
+    }
+    if (rows[index].isCurrent) {
+      return Err<void>(
+        ValidationError(field: 'newsRun.version', reason: '当前展示的版本不能删除'),
+      );
+    }
+    rows.removeAt(index);
+    return okUnit();
+  }
 
   @override
   Future<Result<List<NewsRunDateRef>>> listDateRefs() async =>

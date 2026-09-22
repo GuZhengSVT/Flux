@@ -461,6 +461,7 @@ List<Override> bootstrapOverrides(
           ({
             required SessionLocalZone zone,
             void Function(NewsRunStage stage)? onStage,
+            void Function(NewsSiteFetchResult result)? onSiteResult,
           }) async {
             final NewsTaskSettings settings =
                 await NewsTaskSettings.fromSettingsReader(
@@ -497,6 +498,7 @@ List<Override> bootstrapOverrides(
               zone: zone,
               settings: settings,
               onStage: onStage,
+              onSiteResult: onSiteResult,
               verificationBudget: NewsVerificationBudget(
                 // SET-060 的查询上限就是核验查询的共享上限：核验是在同一份预算里追加的检索，
                 // 不另开一套额度（那会让一次生成的总查询数悄悄翻倍）。

@@ -2709,4 +2709,130 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get todayJournalNotice =>
       'Labels, versions and materials all come from local records; model output is not a guarantee of truth — check the citations yourself.';
+
+  @override
+  String get todayRecentLabel => 'Last 7 days';
+
+  @override
+  String get todayPickDate => 'Pick a date';
+
+  @override
+  String get todayTodayChip => 'Today';
+
+  @override
+  String get todayIsToday => 'Today';
+
+  @override
+  String todayHistoryBanner(String date) {
+    return 'You are viewing versions for $date. Historical records keep the device time zone in effect when they were generated; changing time zones now does not rewrite them.';
+  }
+
+  @override
+  String get todaySitesProgressTitle => 'Required sites (per site)';
+
+  @override
+  String get todaySitePending => 'Waiting';
+
+  @override
+  String get todayCancelling => 'Cancelling…';
+
+  @override
+  String get todayStatusTitle => 'This run\'s status';
+
+  @override
+  String get todayStatusCancelled =>
+      'This run was cancelled. Stage information already completed is kept in the record below.';
+
+  @override
+  String get todayStatusInterrupted =>
+      'This task was terminated by the system before it finished (app quit or crash). It is not retried automatically, so a request that may already have been billed is not sent twice; you can generate again manually when you want.';
+
+  @override
+  String get todayStatusWaitingConfiguration =>
+      'Required configuration is missing (no enabled AI model, or the first-time cost notice has not been confirmed), so no request was sent. Generate again after you finish the setup.';
+
+  @override
+  String get todayStatusWaitingNetwork =>
+      'The device had no network while generating; the task paused and ended without a usable result. Generate again once you are online.';
+
+  @override
+  String get todayStatusRunning =>
+      'A task record is still marked as running. If the app was force-quit, it has been marked interrupted and will not be retried automatically.';
+
+  @override
+  String todayStatusFailed(String reason) {
+    return 'This run failed: $reason. The last successful summary is unaffected.';
+  }
+
+  @override
+  String get todayStatusInsufficient =>
+      'Insufficient material: there was not enough input (no articles selected for news, no keywords, and no required site returned content), so no items were generated and nothing was invented.';
+
+  @override
+  String todayStatusStage(String stage) {
+    return 'Stopped at the \"$stage\" step.';
+  }
+
+  @override
+  String get todayNoResultYet =>
+      'This day\'s generation has not produced any usable items yet.';
+
+  @override
+  String todayVersionItemDetail(
+    int version,
+    String status,
+    String time,
+    String model,
+  ) {
+    return 'Version $version · $status · $time · $model';
+  }
+
+  @override
+  String get todayVersionModelUnknown => 'model not recorded';
+
+  @override
+  String get todayVersionDelete => 'Delete';
+
+  @override
+  String get todayVersionDeleteTooltip =>
+      'Delete this historical version (the currently shown version cannot be deleted)';
+
+  @override
+  String todayVersionDeleteConfirmTitle(int version) {
+    return 'Delete version $version?';
+  }
+
+  @override
+  String todayVersionDeleteConfirmBody(int version) {
+    return 'This permanently deletes version $version for this day. The currently shown version is not deleted and other versions and material records are unaffected.';
+  }
+
+  @override
+  String get todayVersionDeleteConfirmOk => 'Delete';
+
+  @override
+  String get todayVersionDeleteCancel => 'Cancel';
+
+  @override
+  String todayVersionDeleted(int version) {
+    return 'Deleted version $version';
+  }
+
+  @override
+  String todayVersionDeleteFailed(String reason) {
+    return 'Delete failed: $reason';
+  }
+
+  @override
+  String get todayCitationContentCleared =>
+      'This local article\'s body has been cleared (for example by cache cleanup); only the minimal excerpt saved at the time can be shown.';
+
+  @override
+  String get todayCitationExcerptCleared =>
+      'The original has been cleared; only the minimal excerpt is kept.';
+
+  @override
+  String todayCacheClearedNotice(int count) {
+    return 'On this day, $count cited local articles have had their bodies cleared; the minimal excerpts saved at the time are still shown.';
+  }
 }

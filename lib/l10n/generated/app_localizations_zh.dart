@@ -2576,4 +2576,125 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get todayJournalNotice => '标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。';
+
+  @override
+  String get todayRecentLabel => '近 7 天';
+
+  @override
+  String get todayPickDate => '选择历史日期';
+
+  @override
+  String get todayTodayChip => '今天';
+
+  @override
+  String get todayIsToday => '今天';
+
+  @override
+  String todayHistoryBanner(String date) {
+    return '正在查看历史日期 $date 的版本。历史记录按生成当时的设备时区归属，不会因现在换时区而改写。';
+  }
+
+  @override
+  String get todaySitesProgressTitle => '必访网站（逐站）';
+
+  @override
+  String get todaySitePending => '待获取';
+
+  @override
+  String get todayCancelling => '正在取消…';
+
+  @override
+  String get todayStatusTitle => '本次生成状态';
+
+  @override
+  String get todayStatusCancelled => '本次生成已取消（已完成的阶段信息保留在下面的记录里）。';
+
+  @override
+  String get todayStatusInterrupted =>
+      '这次任务没有跑完就被系统终止了（应用退出或崩溃）。不会自动重发，避免为可能已经计费的内容再发一次请求；可在需要时手动重新生成。';
+
+  @override
+  String get todayStatusWaitingConfiguration =>
+      '缺少必要配置（没有启用的 AI 模型，或首次费用告知未确认），因此本次没有发出任何请求。补齐配置后可以重新生成。';
+
+  @override
+  String get todayStatusWaitingNetwork =>
+      '生成时设备无网络，任务暂停后结束，没有产出可用结果。联网后可以重新生成。';
+
+  @override
+  String get todayStatusRunning => '有一条任务记录停在“进行中”：若应用曾被强制退出，它已被标为中断，不会自动重发。';
+
+  @override
+  String todayStatusFailed(String reason) {
+    return '本次生成失败：$reason。上一版成功总结没有受影响。';
+  }
+
+  @override
+  String get todayStatusInsufficient =>
+      '材料不足：没有取到足够的输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成条目，也不会编造内容。';
+
+  @override
+  String todayStatusStage(String stage) {
+    return '中止于「$stage」这一步。';
+  }
+
+  @override
+  String get todayNoResultYet => '这一天的生成还没有产出可用条目。';
+
+  @override
+  String todayVersionItemDetail(
+    int version,
+    String status,
+    String time,
+    String model,
+  ) {
+    return '版本 $version · $status · $time · $model';
+  }
+
+  @override
+  String get todayVersionModelUnknown => '模型未记录';
+
+  @override
+  String get todayVersionDelete => '删除';
+
+  @override
+  String get todayVersionDeleteTooltip => '删除这个历史版本（当前展示的版本不能删）';
+
+  @override
+  String todayVersionDeleteConfirmTitle(int version) {
+    return '删除版本 $version？';
+  }
+
+  @override
+  String todayVersionDeleteConfirmBody(int version) {
+    return '将永久删除这一天的版本 $version。当前展示的版本不会被删除，其它版本与材料记录不受影响。';
+  }
+
+  @override
+  String get todayVersionDeleteConfirmOk => '删除';
+
+  @override
+  String get todayVersionDeleteCancel => '取消';
+
+  @override
+  String todayVersionDeleted(int version) {
+    return '已删除版本 $version';
+  }
+
+  @override
+  String todayVersionDeleteFailed(String reason) {
+    return '删除失败：$reason';
+  }
+
+  @override
+  String get todayCitationContentCleared =>
+      '这篇本机文章的正文已被清理（例如清理过缓存），只能显示当时保存的最小摘录。';
+
+  @override
+  String get todayCitationExcerptCleared => '原文已清理，只保留最小摘录。';
+
+  @override
+  String todayCacheClearedNotice(int count) {
+    return '这一天有 $count 条引用对应的本机文章正文已被清理，仍显示当时保存的最小摘录。';
+  }
 }

@@ -1136,6 +1136,19 @@ abstract interface class NewsRunStore {
     required int version,
   });
 
+  /// 删除一个**非当前**的历史版本（T039 的版本管理）。
+  ///
+  /// 两条拒绝规则，都是「删掉之后能不能解释」的问题：
+  ///   * **当前展示版本不可删**：它在界面上就是「这一天的总结」。直接删掉会让用户看到
+  ///     「今天没有总结」——而用户的本意是清理旧稿，不是丢弃今天的结果。要先切到别的版本；
+  ///   * **不存在的版本报错而不是静默成功**：静默成功会让界面显示「已删除」而库里什么都没变，
+  ///     用户下次打开又看到它。
+  Future<Result<void>> deleteVersion({
+    required String localDate,
+    required String timeZone,
+    required int version,
+  });
+
   /// 列出有记录的本地日期（日期倒序），供历史列表使用。
   Future<Result<List<String>>> listDates();
 

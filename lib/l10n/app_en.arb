@@ -1762,5 +1762,99 @@
   "todayShortfallGlobalDisabled": "The RSS master switch is off and there is no other input (keywords or required sites), so nothing was generated. You can turn it on in Settings → News generation.",
   "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
   "todayJournalNotice": "Labels, versions and materials all come from local records; model output is not a guarantee of truth — check the citations yourself.",
-  "@todayJournalNotice": { "description": "今日页底部说明" }
+  "@todayJournalNotice": { "description": "今日页底部说明" },
+  "todayRecentLabel": "Last 7 days",
+  "@todayRecentLabel": { "description": "今日页顶部日期条带说明" },
+  "todayPickDate": "Pick a date",
+  "@todayPickDate": { "description": "日历弹层入口" },
+  "todayTodayChip": "Today",
+  "@todayTodayChip": { "description": "日期条带上的今天标记" },
+  "todayIsToday": "Today",
+  "@todayIsToday": { "description": "当前查看的就是今天时的说明" },
+  "todayHistoryBanner": "You are viewing versions for {date}. Historical records keep the device time zone in effect when they were generated; changing time zones now does not rewrite them.",
+  "@todayHistoryBanner": {
+    "description": "历史日期说明",
+    "placeholders": { "date": { "type": "String", "example": "2026-09-01" } }
+  },
+  "todaySitesProgressTitle": "Required sites (per site)",
+  "@todaySitesProgressTitle": { "description": "生成中的逐站进度标题" },
+  "todaySitePending": "Waiting",
+  "@todaySitePending": { "description": "必访站尚未轮到" },
+  "todayCancelling": "Cancelling…",
+  "@todayCancelling": { "description": "取消已请求、任务尚未收尾" },
+  "todayStatusTitle": "This run's status",
+  "@todayStatusTitle": { "description": "非成功记录的状态说明标题" },
+  "todayStatusCancelled": "This run was cancelled. Stage information already completed is kept in the record below.",
+  "@todayStatusCancelled": { "description": "状态说明：取消" },
+  "todayStatusInterrupted": "This task was terminated by the system before it finished (app quit or crash). It is not retried automatically, so a request that may already have been billed is not sent twice; you can generate again manually when you want.",
+  "@todayStatusInterrupted": { "description": "状态说明：中断" },
+  "todayStatusWaitingConfiguration": "Required configuration is missing (no enabled AI model, or the first-time cost notice has not been confirmed), so no request was sent. Generate again after you finish the setup.",
+  "@todayStatusWaitingConfiguration": { "description": "状态说明：等待配置" },
+  "todayStatusWaitingNetwork": "The device had no network while generating; the task paused and ended without a usable result. Generate again once you are online.",
+  "@todayStatusWaitingNetwork": { "description": "状态说明：等待网络" },
+  "todayStatusRunning": "A task record is still marked as running. If the app was force-quit, it has been marked interrupted and will not be retried automatically.",
+  "@todayStatusRunning": { "description": "状态说明：仍在运行/中断的占位" },
+  "todayStatusFailed": "This run failed: {reason}. The last successful summary is unaffected.",
+  "@todayStatusFailed": {
+    "description": "状态说明：失败",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayStatusInsufficient": "Insufficient material: there was not enough input (no articles selected for news, no keywords, and no required site returned content), so no items were generated and nothing was invented.",
+  "@todayStatusInsufficient": { "description": "状态说明：材料不足" },
+  "todayStatusStage": "Stopped at the \"{stage}\" step.",
+  "@todayStatusStage": {
+    "description": "中止阶段说明",
+    "placeholders": { "stage": { "type": "String", "example": "Search" } }
+  },
+  "todayNoResultYet": "This day's generation has not produced any usable items yet.",
+  "@todayNoResultYet": { "description": "有记录但没有可用结果" },
+  "todayVersionItemDetail": "Version {version} · {status} · {time} · {model}",
+  "@todayVersionItemDetail": {
+    "description": "版本条目（含时间与模型）",
+    "placeholders": {
+      "version": { "type": "int", "example": "2" },
+      "status": { "type": "String", "example": "Verified" },
+      "time": { "type": "String", "example": "2026-09-22 21:03" },
+      "model": { "type": "String", "example": "deepseek/deepseek-chat" }
+    }
+  },
+  "todayVersionModelUnknown": "model not recorded",
+  "@todayVersionModelUnknown": { "description": "记录里没有模型信息" },
+  "todayVersionDelete": "Delete",
+  "@todayVersionDelete": { "description": "删除历史版本按钮" },
+  "todayVersionDeleteTooltip": "Delete this historical version (the currently shown version cannot be deleted)",
+  "@todayVersionDeleteTooltip": { "description": "删除按钮提示" },
+  "todayVersionDeleteConfirmTitle": "Delete version {version}?",
+  "@todayVersionDeleteConfirmTitle": {
+    "description": "删除确认标题",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteConfirmBody": "This permanently deletes version {version} for this day. The currently shown version is not deleted and other versions and material records are unaffected.",
+  "@todayVersionDeleteConfirmBody": {
+    "description": "删除确认正文",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteConfirmOk": "Delete",
+  "@todayVersionDeleteConfirmOk": { "description": "删除确认按钮" },
+  "todayVersionDeleteCancel": "Cancel",
+  "@todayVersionDeleteCancel": { "description": "删除取消按钮" },
+  "todayVersionDeleted": "Deleted version {version}",
+  "@todayVersionDeleted": {
+    "description": "删除成功回执",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayVersionDeleteFailed": "Delete failed: {reason}",
+  "@todayVersionDeleteFailed": {
+    "description": "删除失败回执",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayCitationContentCleared": "This local article's body has been cleared (for example by cache cleanup); only the minimal excerpt saved at the time can be shown.",
+  "@todayCitationContentCleared": { "description": "本机正文已清理说明" },
+  "todayCitationExcerptCleared": "The original has been cleared; only the minimal excerpt is kept.",
+  "@todayCitationExcerptCleared": { "description": "引用摘录为空时的说明" },
+  "todayCacheClearedNotice": "On this day, {count} cited local articles have had their bodies cleared; the minimal excerpts saved at the time are still shown.",
+  "@todayCacheClearedNotice": {
+    "description": "历史记录里正文已被清理的条数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  }
 }

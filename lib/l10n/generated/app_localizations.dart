@@ -4576,6 +4576,197 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。'**
   String get todayJournalNotice;
+
+  /// 今日页顶部日期条带说明
+  ///
+  /// In zh, this message translates to:
+  /// **'近 7 天'**
+  String get todayRecentLabel;
+
+  /// 日历弹层入口
+  ///
+  /// In zh, this message translates to:
+  /// **'选择历史日期'**
+  String get todayPickDate;
+
+  /// 日期条带上的今天标记
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get todayTodayChip;
+
+  /// 当前查看的就是今天时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'今天'**
+  String get todayIsToday;
+
+  /// 历史日期说明
+  ///
+  /// In zh, this message translates to:
+  /// **'正在查看历史日期 {date} 的版本。历史记录按生成当时的设备时区归属，不会因现在换时区而改写。'**
+  String todayHistoryBanner(String date);
+
+  /// 生成中的逐站进度标题
+  ///
+  /// In zh, this message translates to:
+  /// **'必访网站（逐站）'**
+  String get todaySitesProgressTitle;
+
+  /// 必访站尚未轮到
+  ///
+  /// In zh, this message translates to:
+  /// **'待获取'**
+  String get todaySitePending;
+
+  /// 取消已请求、任务尚未收尾
+  ///
+  /// In zh, this message translates to:
+  /// **'正在取消…'**
+  String get todayCancelling;
+
+  /// 非成功记录的状态说明标题
+  ///
+  /// In zh, this message translates to:
+  /// **'本次生成状态'**
+  String get todayStatusTitle;
+
+  /// 状态说明：取消
+  ///
+  /// In zh, this message translates to:
+  /// **'本次生成已取消（已完成的阶段信息保留在下面的记录里）。'**
+  String get todayStatusCancelled;
+
+  /// 状态说明：中断
+  ///
+  /// In zh, this message translates to:
+  /// **'这次任务没有跑完就被系统终止了（应用退出或崩溃）。不会自动重发，避免为可能已经计费的内容再发一次请求；可在需要时手动重新生成。'**
+  String get todayStatusInterrupted;
+
+  /// 状态说明：等待配置
+  ///
+  /// In zh, this message translates to:
+  /// **'缺少必要配置（没有启用的 AI 模型，或首次费用告知未确认），因此本次没有发出任何请求。补齐配置后可以重新生成。'**
+  String get todayStatusWaitingConfiguration;
+
+  /// 状态说明：等待网络
+  ///
+  /// In zh, this message translates to:
+  /// **'生成时设备无网络，任务暂停后结束，没有产出可用结果。联网后可以重新生成。'**
+  String get todayStatusWaitingNetwork;
+
+  /// 状态说明：仍在运行/中断的占位
+  ///
+  /// In zh, this message translates to:
+  /// **'有一条任务记录停在“进行中”：若应用曾被强制退出，它已被标为中断，不会自动重发。'**
+  String get todayStatusRunning;
+
+  /// 状态说明：失败
+  ///
+  /// In zh, this message translates to:
+  /// **'本次生成失败：{reason}。上一版成功总结没有受影响。'**
+  String todayStatusFailed(String reason);
+
+  /// 状态说明：材料不足
+  ///
+  /// In zh, this message translates to:
+  /// **'材料不足：没有取到足够的输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成条目，也不会编造内容。'**
+  String get todayStatusInsufficient;
+
+  /// 中止阶段说明
+  ///
+  /// In zh, this message translates to:
+  /// **'中止于「{stage}」这一步。'**
+  String todayStatusStage(String stage);
+
+  /// 有记录但没有可用结果
+  ///
+  /// In zh, this message translates to:
+  /// **'这一天的生成还没有产出可用条目。'**
+  String get todayNoResultYet;
+
+  /// 版本条目（含时间与模型）
+  ///
+  /// In zh, this message translates to:
+  /// **'版本 {version} · {status} · {time} · {model}'**
+  String todayVersionItemDetail(
+    int version,
+    String status,
+    String time,
+    String model,
+  );
+
+  /// 记录里没有模型信息
+  ///
+  /// In zh, this message translates to:
+  /// **'模型未记录'**
+  String get todayVersionModelUnknown;
+
+  /// 删除历史版本按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get todayVersionDelete;
+
+  /// 删除按钮提示
+  ///
+  /// In zh, this message translates to:
+  /// **'删除这个历史版本（当前展示的版本不能删）'**
+  String get todayVersionDeleteTooltip;
+
+  /// 删除确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除版本 {version}？'**
+  String todayVersionDeleteConfirmTitle(int version);
+
+  /// 删除确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'将永久删除这一天的版本 {version}。当前展示的版本不会被删除，其它版本与材料记录不受影响。'**
+  String todayVersionDeleteConfirmBody(int version);
+
+  /// 删除确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除'**
+  String get todayVersionDeleteConfirmOk;
+
+  /// 删除取消按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get todayVersionDeleteCancel;
+
+  /// 删除成功回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除版本 {version}'**
+  String todayVersionDeleted(int version);
+
+  /// 删除失败回执
+  ///
+  /// In zh, this message translates to:
+  /// **'删除失败：{reason}'**
+  String todayVersionDeleteFailed(String reason);
+
+  /// 本机正文已清理说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇本机文章的正文已被清理（例如清理过缓存），只能显示当时保存的最小摘录。'**
+  String get todayCitationContentCleared;
+
+  /// 引用摘录为空时的说明
+  ///
+  /// In zh, this message translates to:
+  /// **'原文已清理，只保留最小摘录。'**
+  String get todayCitationExcerptCleared;
+
+  /// 历史记录里正文已被清理的条数
+  ///
+  /// In zh, this message translates to:
+  /// **'这一天有 {count} 条引用对应的本机文章正文已被清理，仍显示当时保存的最小摘录。'**
+  String todayCacheClearedNotice(int count);
 }
 
 class _AppLocalizationsDelegate

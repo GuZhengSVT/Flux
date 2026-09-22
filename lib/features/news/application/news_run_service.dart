@@ -211,6 +211,7 @@ final class NewsRunService {
     required this.zone,
     this.settings = const NewsTaskSettings(),
     this.onStage,
+    this.onSiteResult,
     this.verifyCitations = true,
     this.verificationBudget = const NewsVerificationBudget(),
   });
@@ -252,6 +253,13 @@ final class NewsRunService {
 
   /// 阶段变更回调（界面进度显示）。
   final void Function(NewsRunStage stage)? onStage;
+
+  /// 单个必访站的抓取结果回调（T039 的「必访逐站状态在进度中可见」）。
+  ///
+  /// 与 [onStage] 同一性质：界面拿到的是**真实执行结果**，不是自己按站点数量推算的进度。
+  /// 逐站回调而不是「一个通知说第几站」：站点名与失败类别是界面要显示的内容本身，
+  /// 让界面按序号去快照里取会把「执行顺序」与「展示顺序」凑成需要同步的两份事实。
+  final void Function(NewsSiteFetchResult result)? onSiteResult;
 
   /// 是否执行 T038 的独立来源核验。
   ///
@@ -364,6 +372,7 @@ final class NewsRunService {
         tools: tools,
       );
       siteResults.add(outcome.result);
+      onSiteResult?.call(outcome.result);
       if (outcome.material != null) {
         fetchedMaterials.add(outcome.material!);
       }

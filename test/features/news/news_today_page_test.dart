@@ -82,12 +82,28 @@ void main() {
     articleId: 1,
   );
 
+  /// 一条**没有摘录**的材料：正文已被清理的本机引用（架构 5.3 的「只释放正文」）。
+  NewsMaterial clearedMaterial() => NewsMaterial(
+    sourceId: 'rss.1',
+    accessMethod: CitationAccessMethod.rss,
+    title: '本机文章标题',
+    url: 'https://example.com/1',
+    excerpt: '',
+    materialHash: 'h1',
+    accessedAt: DateTime.utc(2026, 9, 22, 13),
+    articleId: 1,
+  );
+
   Future<void> seed({
     required int version,
     required bool current,
     List<NewsDraftItem> items = const <NewsDraftItem>[],
     List<NewsSiteFetchResult> sites = const <NewsSiteFetchResult>[],
     String? verificationMethod,
+    List<NewsMaterial> materials = const <NewsMaterial>[],
+    TaskStatus status = TaskStatus.succeeded,
+    NewsRunStage? stage,
+    String? errorKind,
   }) async {
     final DriftNewsRunStore store = DriftNewsRunStore(db);
     await store.append(
@@ -95,10 +111,10 @@ void main() {
         localDate: '2026-09-22',
         timeZone: 'Asia/Shanghai',
         version: version,
-        status: TaskStatus.succeeded,
+        status: status,
         snapshot: snapshot(),
         siteResults: sites,
-        materials: <NewsMaterial>[material()],
+        materials: materials.isEmpty ? <NewsMaterial>[material()] : materials,
         items: items.isEmpty
             ? <NewsDraftItem>[
                 NewsDraftItem(
@@ -120,12 +136,16 @@ void main() {
         providerAlias: 'deepseek',
         modelId: 'deepseek-chat',
         verificationMethod: verificationMethod,
+        stage: stage,
+        errorKind: errorKind,
       ),
     );
   }
 
   Widget wrap(Widget child, {SettingsReader? reader}) => wrapFluxApp(
-    child: Material(child: child),
+    // 包一层 Scaffold：删除版本的回执是 SnackBar，而 SnackBar 需要一个 Scaffold
+    // 祖先才能真正显示出来（否则断言会在「没有可展示的 Scaffold」上失败）。
+    child: Scaffold(body: child),
     overrides: <Override>[
       newsRunStoreProvider.overrideWithValue(DriftNewsRunStore(db)),
       summaryZoneProvider.overrideWithValue(shanghai),
@@ -307,6 +327,177 @@ void main() {
       await tester.tap(find.byTooltip('后一天'));
       await tester.pumpAndSettle();
       expect(find.text('2026-09-22'), findsWidgets);
+    });
+
+    testWidgets('近 7 天条带显示今天并标出有记录的日期，点击可切换', (WidgetTester tester) async {
+      await seed(version: 1, current: true);
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('近 7 天'), findsOneWidget);
+      expect(find.text('今天'), findsWidgets);
+      // 条带上 09-21 在（近 7 天）；今天那一格用「今天」而不是数字标出。
+      expect(find.text('09-21'), findsOneWidget);
+
+      await tester.tap(find.text('09-21'));
+      await tester.pumpAndSettle();
+      expect(find.text('2026-09-21'), findsWidgets);
+      // 历史日期要说明时区归属（架构 4.4）。
+      expect(find.textContaining('正在查看历史日期'), findsOneWidget);
+    });
+
+    testWidgets('历史日期面包屑说明「按生成当时的时区归属」', (WidgetTester tester) async {
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+      // 条带上最早的一格（09-16）就在「近 7 天」里，点击即切到历史日期。
+      await tester.tap(find.text('09-16'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('2026-09-16'), findsWidgets);
+      expect(find.textContaining('不会因现在换时区而改写'), findsOneWidget);
+    });
+  });
+
+  group('版本管理（T039）', () {
+    testWidgets('版本条目含时间与模型，且提供删除入口', (WidgetTester tester) async {
+      await seed(version: 1, current: false);
+      await seed(
+        version: 2,
+        current: true,
+        verificationMethod: 'search=yes queries=1 results=3',
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('版本 1'), findsOneWidget);
+      expect(find.textContaining('2026-09-22'), findsWidgets);
+      expect(find.textContaining('deepseek/deepseek-chat'), findsWidgets);
+      expect(find.byTooltip('删除这个历史版本（当前展示的版本不能删）'), findsOneWidget);
+    });
+
+    testWidgets('删除历史版本先弹确认框；确认后列表里少一版', (WidgetTester tester) async {
+      await seed(version: 1, current: false);
+      await seed(version: 2, current: true);
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('删除这个历史版本（当前展示的版本不能删）'));
+      await tester.pumpAndSettle();
+      expect(find.text('删除版本 1？'), findsOneWidget);
+      expect(find.textContaining('当前展示的版本不会被删除'), findsOneWidget);
+
+      await tester.tap(find.text('删除').last);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('已删除版本 1'), findsOneWidget);
+      expect(find.textContaining('版本 1 '), findsNothing);
+    });
+
+    testWidgets('确认框里取消则不删除', (WidgetTester tester) async {
+      await seed(version: 1, current: false);
+      await seed(version: 2, current: true);
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('删除这个历史版本（当前展示的版本不能删）'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('取消'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('版本 1'), findsOneWidget);
+      expect(find.textContaining('已删除'), findsNothing);
+    });
+  });
+
+  group('状态完备（T039 的每页状态矩阵）', () {
+    testWidgets('有失败记录但没有成功版本时，显示失败原因与中止阶段', (WidgetTester tester) async {
+      final DriftNewsRunStore store = DriftNewsRunStore(db);
+      await store.append(
+        NewsRunRecord(
+          localDate: '2026-09-22',
+          timeZone: 'Asia/Shanghai',
+          version: 1,
+          status: TaskStatus.failed,
+          snapshot: snapshot(),
+          siteResults: const <NewsSiteFetchResult>[],
+          materials: const <NewsMaterial>[],
+          items: const <NewsDraftItem>[],
+          createdAt: DateTime.utc(2026, 9, 22, 13),
+          errorKind: 'validation',
+          stage: NewsRunStage.save,
+        ),
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('本次生成状态'), findsOneWidget);
+      expect(find.textContaining('材料不足'), findsOneWidget);
+      expect(find.textContaining('保存版本'), findsOneWidget);
+      expect(find.text('这一天还没有新闻'), findsNothing);
+    });
+
+    testWidgets('取消的记录显示「已取消」，不谎称生成过内容', (WidgetTester tester) async {
+      await seed(
+        version: 1,
+        current: false,
+        status: TaskStatus.cancelled,
+        stage: NewsRunStage.search,
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('已取消'), findsWidgets);
+      expect(find.textContaining('中止于'), findsOneWidget);
+    });
+
+    testWidgets('中断的记录说明「不会自动重发」', (WidgetTester tester) async {
+      await seed(
+        version: 1,
+        current: false,
+        status: TaskStatus.interrupted,
+        stage: NewsRunStage.generate,
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('不会自动重发'), findsOneWidget);
+    });
+
+    testWidgets('等待配置的记录说明「没有发出任何请求」', (WidgetTester tester) async {
+      await seed(
+        version: 1,
+        current: false,
+        status: TaskStatus.waitingConfiguration,
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('没有发出任何请求'), findsOneWidget);
+    });
+
+    testWidgets('等待网络的记录说明「任务暂停后结束」', (WidgetTester tester) async {
+      await seed(version: 1, current: false, status: TaskStatus.waitingNetwork);
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('任务暂停后结束'), findsOneWidget);
+    });
+  });
+
+  group('引用与已清理内容（T039）', () {
+    testWidgets('引用缺摘录时说明「原文已清理，只保留最小摘录」', (WidgetTester tester) async {
+      await seed(
+        version: 1,
+        current: true,
+        materials: <NewsMaterial>[clearedMaterial()],
+      );
+      await tester.pumpWidget(wrap(const NewsTodayPage()));
+      await tester.pumpAndSettle();
+
+      final Finder chip = find.textContaining('RSS·rss.1');
+      expect(chip, findsOneWidget);
+      await tester.longPress(chip);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('原文已清理，只保留最小摘录'), findsWidgets);
     });
   });
 }
