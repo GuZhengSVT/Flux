@@ -1,10 +1,16 @@
 <!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
-<!-- 设置：三条滑杆。20 逻辑尺寸，线宽 1.5，currentColor 继承。 -->
+<!-- 设置：三条滑杆。20 逻辑尺寸，线宽 1.5，currentColor 继承。
+     T051 按 16px 辨识度重绘：原来每行是「长线-圆-短线」三段，20 坐标系里
+     三段加圆要挤进 13 个单位，缩到 16px 后三行的线段与圆糊成一片竖纹
+     （实测该图标是三态/导航组里 16px 下相似度最高的一个）。
+     现在每行只保留「圆 + 圆两侧各一段」，三个圆的纵坐标摊到 6/10/14
+     （间距 4），水平位置错开 12.5/8/13.5 以保留滑杆的错落感；
+     线段端点离圆 0.9 个单位（16px 下约 0.72px），足以断开而不粘连。 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M3.5 6H10.6M14.4 6H16.5"/>
-  <circle cx="12.5" cy="6" r="1.9"/>
-  <path d="M3.5 10H6.1M9.9 10H16.5"/>
-  <circle cx="8" cy="10" r="1.9"/>
-  <path d="M3.5 14H11.6M15.4 14H16.5"/>
-  <circle cx="13.5" cy="14" r="1.9"/>
+  <path d="M2.5 5H10.3M14.7 5H17.5"/>
+  <circle cx="12.5" cy="5" r="2"/>
+  <path d="M2.5 10H5.3M9.7 10H17.5"/>
+  <circle cx="7.5" cy="10" r="2"/>
+  <path d="M2.5 15H11.3M15.7 15H17.5"/>
+  <circle cx="13.5" cy="15" r="2"/>
 </svg>

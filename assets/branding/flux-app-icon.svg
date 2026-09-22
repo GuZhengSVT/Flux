@@ -1,0 +1,41 @@
+<!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
+<!--
+  Flux 应用图标**设计源**（T051）。这是设计源文件，**不参与打包**：
+  pubspec.yaml 只声明 assets/icons/，本目录（assets/branding/）故意不声明。
+
+  为什么用 SVG 作源、再派生 PNG：
+    macOS 的 AppIcon.appiconset 需要 16/32/64/128/256/512/1024 七个位图，手绘七份
+    必然出现「小尺寸与大尺寸眼神不一致」。同一份矢量派生全部尺寸，改一处即全尺寸
+    同步，并且 16px 的辨识度可以在同一份源上直接复核（见 test/ui/golden/icon_sizes_golden_test.dart）。
+
+  几何遵循 macOS 应用图标的公开网格（1024 画布）：圆角矩形本体 824×824 居中
+  （四周留 100 的安全边），圆角半径 185。留边不是美观问题——填满画布的图标在
+  Dock 与访达里会显得比同排图标大一圈。
+
+  图形语言与 assets/icons/ 的 rss-*.svg 同源（圆点 + 两道同心波），但**几何直接在
+  1024 画布上定义**，而不是把小尺寸的 20 坐标系放大。原因是 16px 下的失效模式是
+  「线比一个像素还细」：20 坐标系里的 1.5 线宽缩到 16px 只有 1.0px，抗锯齿会把它
+  抹成一片灰。这里全部尺寸按 1024 直接给：
+
+    线宽 stroke = 105（16px 下 ≈ 1.64px，明显粗于 1px 的抗锯齿地板）
+    点半径   = 50 （16px 下直径 ≈ 1.56px）
+    内外弧净空 = 96 与 96（16px 下 ≈ 1.5px，两段弧不会糊成一条）
+
+  三个数字都是按「16px 时仍然 ≥1.5px」推出来的，不是看着 1024 的图定出来的；
+  验证方式见 test/ui/golden/icon_sizes_golden_test.dart 与 tool/generate_app_icon.sh
+  生成的 app_icon_16.png。徽标的包围盒占 tile 的 61%，与系统图标的观感一致。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+  <!-- 本体：824×824 居中，圆角 185（macOS 图标网格）。accent token = #315E52。 -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#315E52"/>
+  <!-- 徽标：圆点 + 两道同心波。刻度按 16px 反推：1 逻辑像素 = 64 个 1024 单位。
+       线宽 165（≈2.6px）、弧间净空 105（≈1.6px）、点与内弧净空 98（≈1.5px）。
+       圆心 P=(266,742)，内弧 r=270，外弧 r=540，点半径 105。
+       这组数字不是看着 1024 的图定的：先在 16px 上按「线宽/净空都要 ≥1.5px、
+       两段弧不能糊成一条」扫过一遍候选，选中后在 32/128/1024 上复核观感。 -->
+  <g stroke="#FFFFFF" stroke-width="165" stroke-linecap="round" fill="none">
+    <path d="M266 472A270 270 0 0 1 536 742"/>
+    <path d="M266 202A540 540 0 0 1 806 742"/>
+  </g>
+  <circle cx="266" cy="742" r="105" fill="#FFFFFF"/>
+</svg>

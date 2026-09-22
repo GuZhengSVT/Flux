@@ -1,6 +1,9 @@
 <!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
-<!-- 未读：空心环 + 实心点。20 逻辑尺寸，线宽 1.5，currentColor 继承。 -->
+<!-- 未读：空心环 + 实心点。20 逻辑尺寸，线宽 1.5，currentColor 继承。
+     T051：实心点半径由 2.1 提到 2.4。理由是三个状态**在同一行并排**出现：
+     16px 下 2.1 的点面积过小，未读行看起来比已读/稍后两行更空，用户会以为
+     这一项没有状态标记。放大后三个状态的视觉权重才对齐。 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
   <circle cx="10" cy="10" r="6"/>
-  <circle cx="10" cy="10" r="2.1" fill="currentColor" stroke="none"/>
+  <circle cx="10" cy="10" r="2.4" fill="currentColor" stroke="none"/>
 </svg>

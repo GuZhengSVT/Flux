@@ -1,6 +1,10 @@
 <!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
-<!-- 已读：空心环 + 对勾。20 逻辑尺寸，线宽 1.5，currentColor 继承。 -->
+<!-- 已读：空心环 + 对勾。20 逻辑尺寸，线宽 1.5，currentColor 继承。
+     T051 按 16px 辨识度重绘：对勾原为 (7.2,10.2)→(9.4,12.4)→(13.2,8.2)，
+     在 16px 下三个端点各不到 1 个像素，看起来像环里的一抹灰。改为更长更陡的
+     (6.8,10.3)→(9.3,12.8)→(13.4,7.6)：长臂拉到环内净空的边界，两段的斜率差
+     因此更容易分辨。验证见 test/ui/golden 的尺寸档 golden。 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
   <circle cx="10" cy="10" r="6"/>
-  <path d="M7.2 10.2L9.4 12.4L13.2 8.2"/>
+  <path d="M6.4 10.4L9.4 13.4L13.7 6.8"/>
 </svg>

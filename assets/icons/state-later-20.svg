@@ -1,6 +1,10 @@
 <!-- Original artwork for Flux, MIT License (c) 2025 GuZhengSVT -->
-<!-- 稍后再读：空心环 + 时钟指针。20 逻辑尺寸，线宽 1.5，currentColor 继承。 -->
+<!-- 稍后再读：空心环 + 时钟指针。20 逻辑尺寸，线宽 1.5，currentColor 继承。
+     T051 按 16px 辨识度重绘：原来的分针只有 3.6 长、时针朝右下 1.6，16px 下
+     两段的夹角不足 2 个像素，看着像环里一个实心块。现在分针 3.8、时针拉到 3.3，
+     两段接近 90°（钟面的 4 点方向），「稍后」与「已读」的区别因此落在
+     「钟 vs 勾」上，而不是两种模糊形状的细微差别。 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
   <circle cx="10" cy="10" r="6"/>
-  <path d="M10 6.8V10.4L12.8 12"/>
+  <path d="M10 5.8V10L13.8 12"/>
 </svg>
