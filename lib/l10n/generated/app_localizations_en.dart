@@ -16,38 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTagline => 'Local-first news & RSS reader';
 
   @override
-  String get milestoneShellNotice =>
-      'This build is the M0 app shell: navigation, theme, language and first-run setup only. No product feature is implemented yet.';
-
-  @override
-  String get placeholderBadge => 'Placeholder';
-
-  @override
   String placeholderPageBody(String tasks) {
     return 'This page is an app-shell placeholder with no data or interaction. Planned tasks: $tasks.';
   }
-
-  @override
-  String get layoutPaneSource => 'Feed pane';
-
-  @override
-  String get layoutPaneList => 'Article list';
-
-  @override
-  String get layoutPaneBody => 'Body pane';
-
-  @override
-  String get layoutBreakpointSingle => 'Single column (window width < 600)';
-
-  @override
-  String get layoutBreakpointDouble => 'Two columns (600–1099)';
-
-  @override
-  String get layoutBreakpointTriple => 'Three columns (≥1100)';
-
-  @override
-  String get layoutShellNote =>
-      'This milestone is shell only: every area below is a placeholder panel with no data, no interaction, and no claim that the region is implemented.';
 
   @override
   String get navToday => 'Today';
@@ -78,13 +49,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get emptyNoResultsBody =>
       'Try another keyword, or adjust the search scope and filters. Local full-text search ships in T022.';
-
-  @override
-  String get todayEmptyTitle => 'No news for today yet';
-
-  @override
-  String get todayEmptyBody =>
-      'Daily news needs configured AI and search services plus a first-send acknowledgement. Sources, prompt, generation and verification ship in T036–T040; while unconfigured this page stays empty instead of inventing content.';
 
   @override
   String get shellDatabaseFailedTitle => 'The local database cannot be opened';
@@ -2554,4 +2518,195 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get newsPlannedNotice =>
       'Daily-news retrieval orchestration and drafting (T037), source verification (T038) and scheduling (T040) come later; this page only covers the SET-050–055 configuration.';
+
+  @override
+  String get todayGenerate => 'Generate today\'s news';
+
+  @override
+  String get todayRegenerate => 'Generate again';
+
+  @override
+  String get todayCancelGenerate => 'Cancel generation';
+
+  @override
+  String get todayDateLabel => 'Date';
+
+  @override
+  String get todayPreviousDay => 'Previous day';
+
+  @override
+  String get todayNextDay => 'Next day';
+
+  @override
+  String get todayProgressTitle => 'Progress';
+
+  @override
+  String get todayStageSnapshot => 'Freezing the input snapshot';
+
+  @override
+  String get todayStageRequiredSites => 'Fetching required sites';
+
+  @override
+  String get todayStageSearch => 'Searching the web';
+
+  @override
+  String get todayStageGenerate => 'Drafting';
+
+  @override
+  String get todayStageVerify => 'Verifying independent sources';
+
+  @override
+  String get todayStageSave => 'Saving the version';
+
+  @override
+  String get todayNoVersionTitle => 'No news for this day yet';
+
+  @override
+  String get todayNoVersionBody =>
+      'News is produced only when you press Generate: it uses the configured required sites, search keywords and model, and builds cited items from your local articles plus fetched material. Until then this page stays empty instead of inventing content.';
+
+  @override
+  String todayMaterialCount(int count) {
+    return '$count input materials this run';
+  }
+
+  @override
+  String todayRejectedCount(int count) {
+    return '$count items were dropped for citing material that does not exist';
+  }
+
+  @override
+  String get todaySiteFailedTitle => 'Required sites';
+
+  @override
+  String todaySiteOk(int chars) {
+    return 'Fetched ($chars characters)';
+  }
+
+  @override
+  String get todaySiteTimeout => 'Timed out';
+
+  @override
+  String todaySiteFailed(String reason) {
+    return 'Failed ($reason)';
+  }
+
+  @override
+  String get todaySiteSkipped => 'Not attempted';
+
+  @override
+  String get todayLabelSingleSource => 'Single source';
+
+  @override
+  String get todayLabelInsufficient => 'Insufficient material';
+
+  @override
+  String get todayLabelConflict => 'Sources conflict';
+
+  @override
+  String get todayLabelNotVerified => 'Not verified online';
+
+  @override
+  String get todayLabelLegend =>
+      'Labels: single source = only one independent source found; insufficient material = verification got no usable result; sources conflict = a second source explicitly denies the claim; not verified online = no search service is configured. These describe the verification process, not a guarantee of truth.';
+
+  @override
+  String get todayCitationLocal => 'Local article';
+
+  @override
+  String get todayCitationOpen => 'Open in browser';
+
+  @override
+  String get todayCitationRss => 'RSS';
+
+  @override
+  String get todayCitationFetch => 'Fetched page';
+
+  @override
+  String get todayCitationSearch => 'Search snippet';
+
+  @override
+  String todayCitationIncomplete(String fields) {
+    return 'This citation is missing: $fields';
+  }
+
+  @override
+  String todayUnknownCitation(String ids) {
+    return 'The model cited material that does not exist; those items were dropped: $ids';
+  }
+
+  @override
+  String get todayVersionsTitle => 'Versions';
+
+  @override
+  String todayVersionItem(int version, String status) {
+    return 'Version $version ($status)';
+  }
+
+  @override
+  String get todayVersionCurrent => 'Shown now';
+
+  @override
+  String get todayVersionUse => 'Show this version';
+
+  @override
+  String todayVersionSwitched(int version) {
+    return 'Switched to version $version';
+  }
+
+  @override
+  String get todayDraftLabel => 'Draft';
+
+  @override
+  String get todayVerifiedLabel => 'Verified';
+
+  @override
+  String todayModelLabel(String model) {
+    return 'Model: $model';
+  }
+
+  @override
+  String todayVerificationMethod(String method) {
+    return 'Verification method: $method';
+  }
+
+  @override
+  String get todayCostConfirmTitle => 'Confirm generation (this costs money)';
+
+  @override
+  String todayCostConfirmBody(int articles, int sites, int queries) {
+    return 'Generation uses model calls and web searches and may cost money: up to $articles articles, $sites required sites and $queries queries this run, bounded by the time limit and the token budget. It is a real network request that sends data.';
+  }
+
+  @override
+  String get todayCostConfirmRegenerate =>
+      'This day already has a generated version; generating again adds a version and costs money again.';
+
+  @override
+  String get todayCostConfirmSend => 'Generate';
+
+  @override
+  String get todayCostConfirmCancel => 'Not now';
+
+  @override
+  String todayGenerateFailed(String reason) {
+    return 'Generation did not finish: $reason';
+  }
+
+  @override
+  String todayGenerateSucceeded(int version) {
+    return 'Saved as version $version';
+  }
+
+  @override
+  String get todayShortfallNoInput =>
+      'There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the SET-050 per-feed switches, the required-sites list, and whether your articles have been refreshed.';
+
+  @override
+  String get todayShortfallGlobalDisabled =>
+      'The RSS master switch is off and there is no other input (keywords or required sites), so nothing was generated. You can turn it on in Settings → News generation.';
+
+  @override
+  String get todayJournalNotice =>
+      'Labels, versions and materials all come from local records; model output is not a guarantee of truth — check the citations yourself.';
 }

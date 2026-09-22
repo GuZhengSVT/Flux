@@ -110,65 +110,11 @@ abstract class AppLocalizations {
   /// **'本地优先的新闻与 RSS 阅读器'**
   String get appTagline;
 
-  /// 壳层顶部说明，避免被误解为已交付功能
-  ///
-  /// In zh, this message translates to:
-  /// **'当前构建是 M0 应用壳：只包含导航、主题、语言与首次引导，没有业务功能。'**
-  String get milestoneShellNotice;
-
-  /// 占位页标记
-  ///
-  /// In zh, this message translates to:
-  /// **'占位'**
-  String get placeholderBadge;
-
   /// 占位页正文；tasks 为任务编号列表
   ///
   /// In zh, this message translates to:
   /// **'本页目前只有应用壳占位，没有接入数据与交互。计划任务：{tasks}。'**
   String placeholderPageBody(String tasks);
-
-  /// 响应式布局占位：来源栏
-  ///
-  /// In zh, this message translates to:
-  /// **'订阅源栏'**
-  String get layoutPaneSource;
-
-  /// 响应式布局占位：列表栏
-  ///
-  /// In zh, this message translates to:
-  /// **'文章列表'**
-  String get layoutPaneList;
-
-  /// 响应式布局占位：正文栏
-  ///
-  /// In zh, this message translates to:
-  /// **'正文区'**
-  String get layoutPaneBody;
-
-  /// 当前布局模式标注：单栏
-  ///
-  /// In zh, this message translates to:
-  /// **'单栏布局（窗口宽度 <600）'**
-  String get layoutBreakpointSingle;
-
-  /// 当前布局模式标注：双栏
-  ///
-  /// In zh, this message translates to:
-  /// **'双栏布局（600–1099）'**
-  String get layoutBreakpointDouble;
-
-  /// 当前布局模式标注：三栏
-  ///
-  /// In zh, this message translates to:
-  /// **'三栏布局（≥1100）'**
-  String get layoutBreakpointTriple;
-
-  /// 响应式布局说明
-  ///
-  /// In zh, this message translates to:
-  /// **'本期只做壳：以下区域都是占位面板，没有数据、没有交互，也不代表已实现这些区域的功能。'**
-  String get layoutShellNote;
 
   /// 顶层导航去向：今日新闻
   ///
@@ -223,18 +169,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。'**
   String get emptyNoResultsBody;
-
-  /// 今日页空态
-  ///
-  /// In zh, this message translates to:
-  /// **'今天还没有新闻'**
-  String get todayEmptyTitle;
-
-  /// 今日页空态说明
-  ///
-  /// In zh, this message translates to:
-  /// **'每日新闻需要先配置 AI 与搜索服务并完成首次数据发送告知。来源、prompt、生成与核验由 T036–T040 交付；未配置时本页保持空白，不会编造内容。'**
-  String get todayEmptyBody;
 
   /// 启动失败态标题
   ///
@@ -4324,6 +4258,324 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。'**
   String get newsPlannedNotice;
+
+  /// 今日页生成按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'生成今天的新闻'**
+  String get todayGenerate;
+
+  /// 当天已有成功版本时的生成按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'再生成一次'**
+  String get todayRegenerate;
+
+  /// 取消正在进行的生成
+  ///
+  /// In zh, this message translates to:
+  /// **'取消生成'**
+  String get todayCancelGenerate;
+
+  /// 日期选择标签
+  ///
+  /// In zh, this message translates to:
+  /// **'查看日期'**
+  String get todayDateLabel;
+
+  /// 前一天按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'前一天'**
+  String get todayPreviousDay;
+
+  /// 后一天按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'后一天'**
+  String get todayNextDay;
+
+  /// 进度标题
+  ///
+  /// In zh, this message translates to:
+  /// **'生成进度'**
+  String get todayProgressTitle;
+
+  /// 阶段：快照
+  ///
+  /// In zh, this message translates to:
+  /// **'固化输入快照'**
+  String get todayStageSnapshot;
+
+  /// 阶段：必访站
+  ///
+  /// In zh, this message translates to:
+  /// **'逐个获取必访网站'**
+  String get todayStageRequiredSites;
+
+  /// 阶段：检索
+  ///
+  /// In zh, this message translates to:
+  /// **'联网检索'**
+  String get todayStageSearch;
+
+  /// 阶段：生成
+  ///
+  /// In zh, this message translates to:
+  /// **'生成初稿'**
+  String get todayStageGenerate;
+
+  /// 阶段：核验
+  ///
+  /// In zh, this message translates to:
+  /// **'独立来源核验'**
+  String get todayStageVerify;
+
+  /// 阶段：保存
+  ///
+  /// In zh, this message translates to:
+  /// **'保存版本'**
+  String get todayStageSave;
+
+  /// 空态标题
+  ///
+  /// In zh, this message translates to:
+  /// **'这一天还没有新闻'**
+  String get todayNoVersionTitle;
+
+  /// 空态说明
+  ///
+  /// In zh, this message translates to:
+  /// **'新闻由你点「生成」后产生：会用当前配置的必访网站、搜索关键词与模型，基于本机文章与联网检索材料生成带引用的条目。未生成前这里是空的，不会编造内容。'**
+  String get todayNoVersionBody;
+
+  /// 材料数说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本次输入材料 {count} 条'**
+  String todayMaterialCount(int count);
+
+  /// 被退回条目数
+  ///
+  /// In zh, this message translates to:
+  /// **'其中 {count} 条因引用不实被退回'**
+  String todayRejectedCount(int count);
+
+  /// 逐站状态标题
+  ///
+  /// In zh, this message translates to:
+  /// **'必访网站获取情况'**
+  String get todaySiteFailedTitle;
+
+  /// 站点成功
+  ///
+  /// In zh, this message translates to:
+  /// **'已获取（{chars} 字符）'**
+  String todaySiteOk(int chars);
+
+  /// 站点超时
+  ///
+  /// In zh, this message translates to:
+  /// **'超时未完成'**
+  String get todaySiteTimeout;
+
+  /// 站点失败
+  ///
+  /// In zh, this message translates to:
+  /// **'获取失败（{reason}）'**
+  String todaySiteFailed(String reason);
+
+  /// 站点未执行
+  ///
+  /// In zh, this message translates to:
+  /// **'本次未执行'**
+  String get todaySiteSkipped;
+
+  /// 证据标签：来源单一
+  ///
+  /// In zh, this message translates to:
+  /// **'来源单一'**
+  String get todayLabelSingleSource;
+
+  /// 证据标签：材料不足
+  ///
+  /// In zh, this message translates to:
+  /// **'材料不足'**
+  String get todayLabelInsufficient;
+
+  /// 证据标签：来源冲突
+  ///
+  /// In zh, this message translates to:
+  /// **'来源冲突'**
+  String get todayLabelConflict;
+
+  /// 证据标签：未联网核验
+  ///
+  /// In zh, this message translates to:
+  /// **'未联网核验'**
+  String get todayLabelNotVerified;
+
+  /// 标签说明
+  ///
+  /// In zh, this message translates to:
+  /// **'标签说明：来源单一 = 只找到一条独立来源；材料不足 = 核验没有拿到可用结果；来源冲突 = 第二条来源明确否定；未联网核验 = 没有配置搜索服务。这些是核验过程的说明，不是对真实性的保证。'**
+  String get todayLabelLegend;
+
+  /// 引用类型：本机文章
+  ///
+  /// In zh, this message translates to:
+  /// **'本机文章'**
+  String get todayCitationLocal;
+
+  /// 引用外开按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'在浏览器打开'**
+  String get todayCitationOpen;
+
+  /// 引用获取方式：RSS
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS'**
+  String get todayCitationRss;
+
+  /// 引用获取方式：抓取
+  ///
+  /// In zh, this message translates to:
+  /// **'抓取'**
+  String get todayCitationFetch;
+
+  /// 引用获取方式：检索
+  ///
+  /// In zh, this message translates to:
+  /// **'检索片段'**
+  String get todayCitationSearch;
+
+  /// 引用不完整提示
+  ///
+  /// In zh, this message translates to:
+  /// **'这一条引用缺字段：{fields}'**
+  String todayCitationIncomplete(String fields);
+
+  /// 编造引用提示
+  ///
+  /// In zh, this message translates to:
+  /// **'模型引用的这些材料不存在，相关条目已退回：{ids}'**
+  String todayUnknownCitation(String ids);
+
+  /// 版本列表标题
+  ///
+  /// In zh, this message translates to:
+  /// **'历史版本'**
+  String get todayVersionsTitle;
+
+  /// 版本条目
+  ///
+  /// In zh, this message translates to:
+  /// **'版本 {version}（{status}）'**
+  String todayVersionItem(int version, String status);
+
+  /// 当前版本标记
+  ///
+  /// In zh, this message translates to:
+  /// **'当前展示'**
+  String get todayVersionCurrent;
+
+  /// 切换版本按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'切换到这一版'**
+  String get todayVersionUse;
+
+  /// 切换版本回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已切换到版本 {version}'**
+  String todayVersionSwitched(int version);
+
+  /// 初稿版本标记
+  ///
+  /// In zh, this message translates to:
+  /// **'初稿'**
+  String get todayDraftLabel;
+
+  /// 核验后版本标记
+  ///
+  /// In zh, this message translates to:
+  /// **'核验后'**
+  String get todayVerifiedLabel;
+
+  /// 模型元数据
+  ///
+  /// In zh, this message translates to:
+  /// **'模型：{model}'**
+  String todayModelLabel(String model);
+
+  /// 核验方法记录
+  ///
+  /// In zh, this message translates to:
+  /// **'核验方法：{method}'**
+  String todayVerificationMethod(String method);
+
+  /// 费用确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'确认生成（会产生费用）'**
+  String get todayCostConfirmTitle;
+
+  /// 费用确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'生成会用到模型调用与联网检索，可能产生费用：本次最多 {articles} 篇文章、{sites} 个必访网站、{queries} 个查询，并受总时限与 Token 预算约束。这是一次真实的网络请求与数据发送。'**
+  String todayCostConfirmBody(int articles, int sites, int queries);
+
+  /// 再生成的额外说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这一天已经有生成的版本；再生成一次会新增一个版本并再次产生费用。'**
+  String get todayCostConfirmRegenerate;
+
+  /// 确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'确认生成'**
+  String get todayCostConfirmSend;
+
+  /// 取消按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'先不生成'**
+  String get todayCostConfirmCancel;
+
+  /// 生成失败说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本次生成没有完成：{reason}'**
+  String todayGenerateFailed(String reason);
+
+  /// 生成成功回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存为新版本 {version}'**
+  String todayGenerateSucceeded(int version);
+
+  /// 缺输入说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。'**
+  String get todayShortfallNoInput;
+
+  /// 总开关关闭说明
+  ///
+  /// In zh, this message translates to:
+  /// **'RSS 内容总开关当前是关闭的，且没有其它输入（关键词/必访网站），因此没有生成。可在「设置 → 新闻生成」打开总开关。'**
+  String get todayShortfallGlobalDisabled;
+
+  /// 今日页底部说明
+  ///
+  /// In zh, this message translates to:
+  /// **'标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。'**
+  String get todayJournalNotice;
 }
 
 class _AppLocalizationsDelegate

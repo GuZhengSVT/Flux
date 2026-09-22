@@ -28,7 +28,7 @@ import 'package:flux/ui/ui.dart';
 import '../app_providers.dart';
 import '../theme/flux_theme.dart';
 import 'app_destination.dart';
-import 'placeholder_page.dart';
+import 'destination_page.dart';
 
 /// 当前选中的去向。
 ///
@@ -179,7 +179,7 @@ class _ShellBody extends ConsumerWidget {
     return Column(
       children: <Widget>[
         if (status.degraded) const DegradedBanner(),
-        Expanded(child: PlaceholderDestinationPage(destination: selected)),
+        Expanded(child: DestinationPage(destination: selected)),
       ],
     );
   }

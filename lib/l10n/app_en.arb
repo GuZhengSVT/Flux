@@ -4,8 +4,6 @@
 
   "appName": "Flux",
   "appTagline": "Local-first news & RSS reader",
-  "milestoneShellNotice": "This build is the M0 app shell: navigation, theme, language and first-run setup only. No product feature is implemented yet.",
-  "placeholderBadge": "Placeholder",
   "placeholderPageBody": "This page is an app-shell placeholder with no data or interaction. Planned tasks: {tasks}.",
   "@placeholderPageBody": {
     "placeholders": {
@@ -15,13 +13,6 @@
       }
     }
   },
-  "layoutPaneSource": "Feed pane",
-  "layoutPaneList": "Article list",
-  "layoutPaneBody": "Body pane",
-  "layoutBreakpointSingle": "Single column (window width < 600)",
-  "layoutBreakpointDouble": "Two columns (600–1099)",
-  "layoutBreakpointTriple": "Three columns (≥1100)",
-  "layoutShellNote": "This milestone is shell only: every area below is a placeholder panel with no data, no interaction, and no claim that the region is implemented.",
   "navToday": "Today",
   "navReading": "Reading",
   "navMine": "Mine",
@@ -31,8 +22,6 @@
   "emptyAllReadBody": "No unread articles match the current filter. Switch to Later or Favorites to review what you already handled.",
   "emptyNoResultsTitle": "No matching results",
   "emptyNoResultsBody": "Try another keyword, or adjust the search scope and filters. Local full-text search ships in T022.",
-  "todayEmptyTitle": "No news for today yet",
-  "todayEmptyBody": "Daily news needs configured AI and search services plus a first-send acknowledgement. Sources, prompt, generation and verification ship in T036–T040; while unconfigured this page stays empty instead of inventing content.",
   "shellDatabaseFailedTitle": "The local database cannot be opened",
   "shellDatabaseFailedBody": "This run can only show the shell: language and theme changes will not be saved. The original database file is left untouched — check disk space and file permissions, then restart.",
   "onboardingStepIndicator": "Step {current} of {total}",
@@ -1620,5 +1609,158 @@
   "newsEffectiveQueriesEmpty": "There are no sendable queries right now (keywords are empty or all blocked).",
   "@newsEffectiveQueriesEmpty": { "description": "没有生效查询时的说明" },
   "newsPlannedNotice": "Daily-news retrieval orchestration and drafting (T037), source verification (T038) and scheduling (T040) come later; this page only covers the SET-050–055 configuration.",
-  "@newsPlannedNotice": { "description": "未实现部分说明" }
+  "@newsPlannedNotice": { "description": "未实现部分说明" },
+
+  "todayGenerate": "Generate today's news",
+  "@todayGenerate": { "description": "今日页生成按钮" },
+  "todayRegenerate": "Generate again",
+  "@todayRegenerate": { "description": "当天已有成功版本时的生成按钮" },
+  "todayCancelGenerate": "Cancel generation",
+  "@todayCancelGenerate": { "description": "取消正在进行的生成" },
+  "todayDateLabel": "Date",
+  "@todayDateLabel": { "description": "日期选择标签" },
+  "todayPreviousDay": "Previous day",
+  "@todayPreviousDay": { "description": "前一天按钮" },
+  "todayNextDay": "Next day",
+  "@todayNextDay": { "description": "后一天按钮" },
+  "todayProgressTitle": "Progress",
+  "@todayProgressTitle": { "description": "进度标题" },
+  "todayStageSnapshot": "Freezing the input snapshot",
+  "@todayStageSnapshot": { "description": "阶段：快照" },
+  "todayStageRequiredSites": "Fetching required sites",
+  "@todayStageRequiredSites": { "description": "阶段：必访站" },
+  "todayStageSearch": "Searching the web",
+  "@todayStageSearch": { "description": "阶段：检索" },
+  "todayStageGenerate": "Drafting",
+  "@todayStageGenerate": { "description": "阶段：生成" },
+  "todayStageVerify": "Verifying independent sources",
+  "@todayStageVerify": { "description": "阶段：核验" },
+  "todayStageSave": "Saving the version",
+  "@todayStageSave": { "description": "阶段：保存" },
+  "todayNoVersionTitle": "No news for this day yet",
+  "@todayNoVersionTitle": { "description": "空态标题" },
+  "todayNoVersionBody": "News is produced only when you press Generate: it uses the configured required sites, search keywords and model, and builds cited items from your local articles plus fetched material. Until then this page stays empty instead of inventing content.",
+  "@todayNoVersionBody": { "description": "空态说明" },
+  "todayMaterialCount": "{count} input materials this run",
+  "@todayMaterialCount": {
+    "description": "材料数说明",
+    "placeholders": { "count": { "type": "int", "example": "12" } }
+  },
+  "todayRejectedCount": "{count} items were dropped for citing material that does not exist",
+  "@todayRejectedCount": {
+    "description": "被退回条目数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  },
+  "todaySiteFailedTitle": "Required sites",
+  "@todaySiteFailedTitle": { "description": "逐站状态标题" },
+  "todaySiteOk": "Fetched ({chars} characters)",
+  "@todaySiteOk": {
+    "description": "站点成功",
+    "placeholders": { "chars": { "type": "int", "example": "1200" } }
+  },
+  "todaySiteTimeout": "Timed out",
+  "@todaySiteTimeout": { "description": "站点超时" },
+  "todaySiteFailed": "Failed ({reason})",
+  "@todaySiteFailed": {
+    "description": "站点失败",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "todaySiteSkipped": "Not attempted",
+  "@todaySiteSkipped": { "description": "站点未执行" },
+  "todayLabelSingleSource": "Single source",
+  "@todayLabelSingleSource": { "description": "证据标签：来源单一" },
+  "todayLabelInsufficient": "Insufficient material",
+  "@todayLabelInsufficient": { "description": "证据标签：材料不足" },
+  "todayLabelConflict": "Sources conflict",
+  "@todayLabelConflict": { "description": "证据标签：来源冲突" },
+  "todayLabelNotVerified": "Not verified online",
+  "@todayLabelNotVerified": { "description": "证据标签：未联网核验" },
+  "todayLabelLegend": "Labels: single source = only one independent source found; insufficient material = verification got no usable result; sources conflict = a second source explicitly denies the claim; not verified online = no search service is configured. These describe the verification process, not a guarantee of truth.",
+  "@todayLabelLegend": { "description": "标签说明" },
+  "todayCitationLocal": "Local article",
+  "@todayCitationLocal": { "description": "引用类型：本机文章" },
+  "todayCitationOpen": "Open in browser",
+  "@todayCitationOpen": { "description": "引用外开按钮" },
+  "todayCitationRss": "RSS",
+  "@todayCitationRss": { "description": "引用获取方式：RSS" },
+  "todayCitationFetch": "Fetched page",
+  "@todayCitationFetch": { "description": "引用获取方式：抓取" },
+  "todayCitationSearch": "Search snippet",
+  "@todayCitationSearch": { "description": "引用获取方式：检索" },
+  "todayCitationIncomplete": "This citation is missing: {fields}",
+  "@todayCitationIncomplete": {
+    "description": "引用不完整提示",
+    "placeholders": { "fields": { "type": "String", "example": "url, excerpt" } }
+  },
+  "todayUnknownCitation": "The model cited material that does not exist; those items were dropped: {ids}",
+  "@todayUnknownCitation": {
+    "description": "编造引用提示",
+    "placeholders": { "ids": { "type": "String", "example": "rss.999" } }
+  },
+  "todayVersionsTitle": "Versions",
+  "@todayVersionsTitle": { "description": "版本列表标题" },
+  "todayVersionItem": "Version {version} ({status})",
+  "@todayVersionItem": {
+    "description": "版本条目",
+    "placeholders": {
+      "version": { "type": "int", "example": "2" },
+      "status": { "type": "String", "example": "partial" }
+    }
+  },
+  "todayVersionCurrent": "Shown now",
+  "@todayVersionCurrent": { "description": "当前版本标记" },
+  "todayVersionUse": "Show this version",
+  "@todayVersionUse": { "description": "切换版本按钮" },
+  "todayVersionSwitched": "Switched to version {version}",
+  "@todayVersionSwitched": {
+    "description": "切换版本回执",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayDraftLabel": "Draft",
+  "@todayDraftLabel": { "description": "初稿版本标记" },
+  "todayVerifiedLabel": "Verified",
+  "@todayVerifiedLabel": { "description": "核验后版本标记" },
+  "todayModelLabel": "Model: {model}",
+  "@todayModelLabel": {
+    "description": "模型元数据",
+    "placeholders": { "model": { "type": "String", "example": "deepseek/deepseek-chat" } }
+  },
+  "todayVerificationMethod": "Verification method: {method}",
+  "@todayVerificationMethod": {
+    "description": "核验方法记录",
+    "placeholders": { "method": { "type": "String", "example": "search=yes queries=3" } }
+  },
+  "todayCostConfirmTitle": "Confirm generation (this costs money)",
+  "@todayCostConfirmTitle": { "description": "费用确认标题" },
+  "todayCostConfirmBody": "Generation uses model calls and web searches and may cost money: up to {articles} articles, {sites} required sites and {queries} queries this run, bounded by the time limit and the token budget. It is a real network request that sends data.",
+  "@todayCostConfirmBody": {
+    "description": "费用确认正文",
+    "placeholders": {
+      "articles": { "type": "int", "example": "50" },
+      "sites": { "type": "int", "example": "10" },
+      "queries": { "type": "int", "example": "10" }
+    }
+  },
+  "todayCostConfirmRegenerate": "This day already has a generated version; generating again adds a version and costs money again.",
+  "@todayCostConfirmRegenerate": { "description": "再生成的额外说明" },
+  "todayCostConfirmSend": "Generate",
+  "@todayCostConfirmSend": { "description": "确认按钮" },
+  "todayCostConfirmCancel": "Not now",
+  "@todayCostConfirmCancel": { "description": "取消按钮" },
+  "todayGenerateFailed": "Generation did not finish: {reason}",
+  "@todayGenerateFailed": {
+    "description": "生成失败说明",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayGenerateSucceeded": "Saved as version {version}",
+  "@todayGenerateSucceeded": {
+    "description": "生成成功回执",
+    "placeholders": { "version": { "type": "int", "example": "2" } }
+  },
+  "todayShortfallNoInput": "There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the SET-050 per-feed switches, the required-sites list, and whether your articles have been refreshed.",
+  "@todayShortfallNoInput": { "description": "缺输入说明" },
+  "todayShortfallGlobalDisabled": "The RSS master switch is off and there is no other input (keywords or required sites), so nothing was generated. You can turn it on in Settings → News generation.",
+  "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
+  "todayJournalNotice": "Labels, versions and materials all come from local records; model output is not a guarantee of truth — check the citations yourself.",
+  "@todayJournalNotice": { "description": "今日页底部说明" }
 }

@@ -46,7 +46,7 @@
 | macOS / Android 构建及真机测试 | DOING | 本机 `flutter build macos --debug` 退出 0（T008/T009/T010 各复核一次，见 §7.2）；T010 另有 macOS 真机 integration_test（Keychain 往返）实际执行通过（见 §7.1.3）；**Android 工程按 D-02 暂缓，未初始化、未构建，Keystore 实测 NOT_RUN**；两平台正式签名与 M4 阶段专项验收仍未执行 |
 | 发布包/许可证文件落地/正式签名 | TODO | 已选 MIT，尚需在新工程落地；不宣称已有新版 Release |
 
-当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）、T031（三个搜索协议适配器与搜索服务管理）、T032（受控工具执行器）、T033（新闻图像理解与文本降级）与 T034（选词解释/单文摘要/自动缺摘要开关）与 T035（分段全文翻译与原译文切换）与 T036（新闻来源配置、版本化 prompt 与编辑器），见 R025–R036。下一任务 T037（每日新闻输入快照、事件聚合与初稿），前置 T030/T032/T033/T036 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
+当前阶段：**M2 进行中**。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）、T031（三个搜索协议适配器与搜索服务管理）、T032（受控工具执行器）、T033（新闻图像理解与文本降级）与 T034（选词解释/单文摘要/自动缺摘要开关）与 T035（分段全文翻译与原译文切换）与 T036（新闻来源配置、版本化 prompt 与编辑器）、T037（每日新闻输入快照、事件聚合与初稿）与 T038（独立来源核验、引用校验与版本化结果），见 R025–R038。下一任务 T039（今日页日期/历史/生成进度/来源跳转的产品化打磨），前置 T019/T020/T038 均已 DONE。当前阻塞：无文档阻塞；**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
 ### 2.2 功能状态（每轮同步维护）
 
@@ -62,9 +62,9 @@
 | 本地搜索/统计 | F-SEARCH；SET-015 | T022、T023 | DOING（**T022 交付全库检索**：fts5 + trigram tokenizer 的实测选型（默认 unicode61 对中文整段成一个 token、零命中，故不用），≥3 字符连续片段走 MATCH + bm25 + snippet 高亮、1–2 字与短 ASCII 走 LIKE 子串（可下推到 trigram 索引）；索引列只放 articles 逐字列 + external content 模式，三个触发器同步新增/删除/更新，来源名现查 feeds.name 因而改名即时生效；RSS 列表搜索框 + 范围（全部/当前筛选）+ 结果列表（复用卡片 + 片段高亮）+ 无结果/未搜/失败三态可分 + 防抖与竞态序号；schema v6→v7 建索引并 rebuild 灌历史文章；10000 行烟测 MATCH p95 17 ms、LIKE p95 7 ms。**T023 交付阅读统计**：会话追踪（前台可见且交互未超阈才累计、空闲按 SET-015 阈值封顶、失焦/锁屏/后台立即暂停、关闭开关完全不记录）、按会话时区跨午夜拆分并按本地日期键落库、周期 flush + 结束收尾、写入失败不重复写；年度热力图（周一为列、0 值与年外占位格可辨、5 档图例、逐格日期+分钟提示）、近七日柱状图（柱顶文字分钟数）、年份选择器来自真实数据、清空统计走确认且只清会话表） |
 | 原站静态全文 | F-READ；D-06 | T024 | DONE（缺失 REVIEW）：**仅用户显式点击触发**（用例无自动/批量/后台入口，打开文章不发任何请求，有组件断言）。只用 HTTP + 静态解析：配对扫描去掉 script/style/nav/footer/aside/header 等噪音，按 article → main → 常见容器 → 最大文字块 → 整页 选正文区，再交给 T013 的受控清洗器（唯一白名单与危险 URL 判据），输出标题 + 正文文本 + 图片引用（**不下载图**）。URL/DNS/重定向信任边界复用 UrlGuardPolicy 链（字面量私网拒绝 + DNS 解析后复检 + 逐跳复检），体积上限从 T013 抽到 `infrastructure/network/response_body.dart` 共用（声明长度 + 流式计数 + 解压后，另有 10 MiB 上限与超时）。失败分类：付费墙迹象（meta keywords/description、paywall 一类 class/id、订阅后可读等正文提示语）**只提示「可能无法获取」不阻止尝试**；纯 JS 渲染（正文过短）标 empty；网络/HTTP 错误。三者都**保留原正文 + 错误提示 + 外开浏览器入口**。提取正文与源正文分列（schema v8），界面原文/提取正文并列切换，两份都保留；成功后存 extracted 正文并按正文哈希判修订，阅读状态不变。**无隐藏浏览器**（无 WebView/无头浏览器/脚本执行路径），**不自动爬全站**（只有单篇按钮路径）|
 | AI 协议/全部预设/故障转移 | F-AI；SET-030–037、041、042 | T003、T025–T030 | DOING（**T025 交付统一契约与模型管理**：`AiProvider` 契约（`Stream<AiEvent>`：delta/usage/done）与 `AiProviderFactory`；五项能力各自独立（不按模型名推断），未声明上限按 SET-033 保守 8192/2048；模型记录落新表 `ai_model_records`（schema v9，**无任何凭据列**，Key 只住 Keychain），支持启用/停用、故障转移排序、唯一任务默认、删除引用检查（SET-034/035 + 本机默认，读不到引用时**不放行删除**）；设置 → AI 服务页可增删改并做最小生成测试，且**先弹费用确认**（`CostConfirmation` 是前置参数，忘了弹在类型上不可能）、输出上限夹到 64；诊断只记结构事实并有用例断言不含 Key 也不含模型输出正文。**T026 交付两个 OpenAI 协议适配器**：Chat Completions 与 Responses **分开建模**（请求体/事件流/usage 字段名三处形状差异各有独立夹具，且有用例断言两种 usage 不可互相解析）；SSE 按字节切行再解码整行（修掉了「按块解码导致中文变替换字符」的真缺陷），处理 CRLF/心跳/多行 data/字节上限；429 服从 Retry-After、401/403 不可重试、400 内容拒绝不可跨服务商规避（只认结构化标记）；取消在发字节前即被拒绝，首响应 45s / 停滞 30s；断流明确报错不静默结束。真实调用 1 次成功（DeepSeek `deepseek-chat`，709 ms / 20 in / 2 out）。**T027 交付 Anthropic Messages 适配器**：独立建模（不继承 CC），认证走 x-api-key + anthropic-version（用例断言请求头**不含** Authorization）、system 是顶层参数、max_tokens 必填、content 是分量数组（文本块 / base64 图片块）；SSE 按 type 分派并忽略生命周期与未知事件；usage **分两处拼合**（input 在 message_start、output 在 message_delta 且是累计值，覆盖而非累加），协议不给 total_tokens 故如实标本地合计；529 overloaded → **可重试**（不是通用 5xx 的不可重试），200 流内的 error 先用结构化类型名换语义状态码再分类；断流（无 message_stop）明确报错。**T028 交付预设验证矩阵**：7 条预设（OpenAI CC / OpenAI Responses / Anthropic / DeepSeek / Qwen / MiMo / OpenCode Zen）各含 id、显示名、协议、Base URL、认证方式、三档状态与注释，**只有实测才配「已支持」**；本轮仅 DeepSeek = 实测，OpenAI 双协议与 Anthropic = fixture 通过，Qwen/MiMo/Zen = 待验证（**共用 CC 协议不继承状态**）；OpenCode Zen 按授权用无效 Key 探 1 次返回 401 且错误体非 OpenAI 形状，如实记「端点待真实验证」；界面新增预设下拉（自动填协议 + Base URL、不代填 Key、显示最终端点）、三档徽章与验证状态小节。**T029 交付有预算的队列与五次无响应/跨模型故障转移**：按类型分类失败（只有无响应/超时/断流/连接失败/429 重试后计入五次；认证失败与内容拒绝**既不计数也不换模型**，后者是为避免跨服务商规避内容策略）；预算闸门在每次调用前检查（总时限 deadline 不重置 / HTTP 尝试 30 / Token 预算含调用前预留，无 usage 时按 CJK 1 字 1 token、非 CJK 4 字符 1 token 保守估算并标记）；总时限优先于五次规则（第 3 次后累计超限即停，不等第 5 次）；429 服从 Retry-After 一次且不做退避风暴；单次硬时限 120s 用真实计时器（卡住的流一定被打断），到点只取消这一次尝试并把取消翻译回超时；每次尝试用子取消信号（用户取消经父信号传播）；并发 2 用在途额度对象约束而故障转移保持串行；离线暂停为 waitingNetwork 且不消耗五次额度；断流但已有部分文本 → partial，跨模型的半句话**从不拼接**。**T030 交付持久任务、结果缓存与中断恢复**：schema v10 新增 ai_tasks（18 列，含输入快照、deadline、累计消耗、九态、错误**类别**）与 ai_result_cache_records 两张表及三个索引，**两张表均无凭据列**（逐列断言）；缓存键 = 任务类型 + 输入哈希 + 路由模型链 + 语言 + 温度 + 输出上限的确定性摘要，因此输入/模型/语言任一变化即失效是**结构性**的；命中缓存**一个请求都不发**（用请求计数断言）并标 from_cache；**只写成功结果**（failed/partial/cancelled 不写）；启动把四个活跃态一次性批量标成 interrupted 且**绝不自动重发**（架构 4.5：不为不确定是否计费的请求付两次费），成功版本不被覆盖；interrupted 显示在「设置 → AI 任务记录」并可手动重新开始——新任务承接、旧任务保持 interrupted，活跃态任务拒绝重开。**仍未实现**：视觉与受控工具（T032/T033）、SET-036 从设置读值与环境注入；**除 DeepSeek 外的预设均无真实调用证据（7.3 逐行标 NOT_RUN）**） |
-| 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | DOING（**T031 交付三个搜索协议适配器与搜索服务管理**：`SearchProvider`/`SearchProviderFactory` 契约返回统一 `SearchResponse`（结果列表 + answer + response_time + 总数）；三协议**完全独立建模**——Tavily 是 POST + JSON body、认证走 Authorization Bearer；Brave 是 GET + 查询参数、认证走 **X-Subscription-Token**（不是 Bearer）、结果在 `web.results` 两层嵌套里、**标题与片段里的高亮标签都剥离**、唯一支持 offset；SearXNG 是自建实例 GET + `format=json`、**没有默认端点**（不替用户猜一个公网实例）、凭据可选（无凭据不发认证头）。统一映射：`sourceId` 是「协议 + 服务商返回序号」的 SHA-256 摘要（不用 URL 或内容——同一篇材料换 URL 会被误认成两份独立证据，内容被服务商改写会让历史引用全部失效）；`publishedAt` 可空且**相对时间不换算**（Brave 的 "3 days ago" 需要抓取时刻作基准，而基准不是协议事实）；访问类别按「有发布时间 → 新闻 / 命中技术域名表 → 技术 / 其余 → 通用」判定，不用「域名含 news」这类猜测。安全边界：结果 URL 一律过地址守卫（embeddedContent 策略，拒绝私网/回环/链路本地），不合格条目**在适配器里就丢弃**而不是留给下游再判一次；**没有凭据绝不发请求**（在发出任何字节之前返回 AuthError，有用例断言请求计数为 0）；凭据只进认证头，不进 URL、日志或错误消息；SearXNG 的私网/HTTP 端点**必须由用户逐条显式批准**（SET-041，批准存在记录里），未批准时在发请求之前拒绝且错误指向「去开启显式批准」。管理面：`search_service_records`（schema v11，**无任何凭据列**，有用例逐列断言）+ 服务 CRUD/排序/启用/唯一任务默认/删除前引用检查（引用读不到时**不放行删除**）+ 最小检索测试（`SearchSendConfirmation` 是前置参数，忘了弹费用与数据发送确认在类型上不可能；测试只取 1 条，不按用户配置的 10 条去花）；界面新增「设置 → 搜索服务」（列表/表单/删除确认/发送确认，缺凭据时测试按钮**禁用并给出原因**，SearXNG 始终可点）；搜索凭据与 AI 凭据分属不同 Keychain 类别（SET-039），有用例断言同名不会互相覆盖。**T032 交付受控工具执行器**（见任务表 T032 行的完整口径）：封闭三项 search/fetchPage/inspectImage；预算闸门在任何工作之前；参数与地址校验是纯函数且复用 core 的 url_guard（fetchPage 指向 169.254.169.254/回环/私网一律被拒且**一次请求都不发**）；inspectImage 只认客户端注册过的材料引用（**不允许任意 URL**）；未知工具名（readFile/shell 等）不存在执行路径；**文本注入无效是类型事实**（执行器只接受 ToolCall，而它只能由协议结构化字段解析而来）；AiRequest.tools 已接线到三个适配器（三种声明形状各异）并由 AiTaskRunner 的受控循环执行与回填（回填带协议要求的调用 id）。**T033 交付新闻图像理解与文本降级**（见任务表 T033 行的完整口径）：路由 **专用视觉模型（SET-034）→ 有视觉能力的主模型 → 跳过**，跳过**不是失败**（返回带原因的结论让文本链路继续，且**一个请求都不发**）；指定但不可用/未声明能力的模型只回退**不绕过**（原因带进结论，不按模型名猜能力）；SET-065 的 6 张 / 4 MiB 限制在发送前规划，超单图**降采样并在请求与回填文本里都标出来**、超数量标跳过；**首次发送告知**（架构第 8 节）在真实调用之前：未确认时返回待确认端点并**一个字节都不发**，确认记录以**端点摘要**落在 device. 命名空间的**本机**存储（不随设置同步）；图片以**字节**进请求（Anthropic base64 / 两个 OpenAI 协议的 data URL，三种形状各异各有断言），地址只用于本机受控加载、不进 prompt；inspectImage 接上真实分析（无视觉模型时明确回填「已跳过」）；**动态网页不截图**（无 WebView/无头浏览器路径）。**仍未实现**：查询关键词列表与禁用词（SET-052/053，属 T036/T037）、无 native tool calling 的模型的「预先检索材料」编排（属 T036/T037 的新闻任务）；**三个搜索协议与全部 AI 预设（除 DeepSeek 外）本轮均无真实调用证据**（无凭据，7.3 逐行标 NOT_RUN））|
+| 搜索与受控工具/视觉 | F-AI；SET-034、038–040、065 | T031–T033 | DOING（**T031 交付三个搜索协议适配器与搜索服务管理**：`SearchProvider`/`SearchProviderFactory` 契约返回统一 `SearchResponse`（结果列表 + answer + response_time + 总数）；三协议**完全独立建模**——Tavily 是 POST + JSON body、认证走 Authorization Bearer；Brave 是 GET + 查询参数、认证走 **X-Subscription-Token**（不是 Bearer）、结果在 `web.results` 两层嵌套里、**标题与片段里的高亮标签都剥离**、唯一支持 offset；SearXNG 是自建实例 GET + `format=json`、**没有默认端点**（不替用户猜一个公网实例）、凭据可选（无凭据不发认证头）。统一映射：`sourceId` 是「协议 + 服务商返回序号」的 SHA-256 摘要（不用 URL 或内容——同一篇材料换 URL 会被误认成两份独立证据，内容被服务商改写会让历史引用全部失效）；`publishedAt` 可空且**相对时间不换算**（Brave 的 "3 days ago" 需要抓取时刻作基准，而基准不是协议事实）；访问类别按「有发布时间 → 新闻 / 命中技术域名表 → 技术 / 其余 → 通用」判定，不用「域名含 news」这类猜测。安全边界：结果 URL 一律过地址守卫（embeddedContent 策略，拒绝私网/回环/链路本地），不合格条目**在适配器里就丢弃**而不是留给下游再判一次；**没有凭据绝不发请求**（在发出任何字节之前返回 AuthError，有用例断言请求计数为 0）；凭据只进认证头，不进 URL、日志或错误消息；SearXNG 的私网/HTTP 端点**必须由用户逐条显式批准**（SET-041，批准存在记录里），未批准时在发请求之前拒绝且错误指向「去开启显式批准」。管理面：`search_service_records`（schema v11，**无任何凭据列**，有用例逐列断言）+ 服务 CRUD/排序/启用/唯一任务默认/删除前引用检查（引用读不到时**不放行删除**）+ 最小检索测试（`SearchSendConfirmation` 是前置参数，忘了弹费用与数据发送确认在类型上不可能；测试只取 1 条，不按用户配置的 10 条去花）；界面新增「设置 → 搜索服务」（列表/表单/删除确认/发送确认，缺凭据时测试按钮**禁用并给出原因**，SearXNG 始终可点）；搜索凭据与 AI 凭据分属不同 Keychain 类别（SET-039），有用例断言同名不会互相覆盖。**T032 交付受控工具执行器**（见任务表 T032 行的完整口径）：封闭三项 search/fetchPage/inspectImage；预算闸门在任何工作之前；参数与地址校验是纯函数且复用 core 的 url_guard（fetchPage 指向 169.254.169.254/回环/私网一律被拒且**一次请求都不发**）；inspectImage 只认客户端注册过的材料引用（**不允许任意 URL**）；未知工具名（readFile/shell 等）不存在执行路径；**文本注入无效是类型事实**（执行器只接受 ToolCall，而它只能由协议结构化字段解析而来）；AiRequest.tools 已接线到三个适配器（三种声明形状各异）并由 AiTaskRunner 的受控循环执行与回填（回填带协议要求的调用 id）。**T033 交付新闻图像理解与文本降级**（见任务表 T033 行的完整口径）：路由 **专用视觉模型（SET-034）→ 有视觉能力的主模型 → 跳过**，跳过**不是失败**（返回带原因的结论让文本链路继续，且**一个请求都不发**）；指定但不可用/未声明能力的模型只回退**不绕过**（原因带进结论，不按模型名猜能力）；SET-065 的 6 张 / 4 MiB 限制在发送前规划，超单图**降采样并在请求与回填文本里都标出来**、超数量标跳过；**首次发送告知**（架构第 8 节）在真实调用之前：未确认时返回待确认端点并**一个字节都不发**，确认记录以**端点摘要**落在 device. 命名空间的**本机**存储（不随设置同步）；图片以**字节**进请求（Anthropic base64 / 两个 OpenAI 协议的 data URL，三种形状各异各有断言），地址只用于本机受控加载、不进 prompt；inspectImage 接上真实分析（无视觉模型时明确回填「已跳过」）；**动态网页不截图**（无 WebView/无头浏览器路径）。**已由后续任务补齐**：查询关键词列表与禁用词（SET-052/053）在 T036 交付、并在 T037 接进新闻检索（禁词命中的查询根本不在发送列表里）；无 native tool calling 的模型的「预先检索材料」编排在 T037 落地（材料由客户端预先取好放进 prompt，模型不需要请求工具）。**三个搜索协议与全部 AI 预设（除 DeepSeek 外）本轮均无真实调用证据**（无凭据，7.3 逐行标 NOT_RUN））|
 | 选词/摘要/全文翻译 | SET-011、037、064 | T034、T035 | DOING（**T034 交付选词解释、单文摘要与自动缺摘要开关**：schema v12 给 articles 加 `ai_summary`/`ai_summary_at`/`ai_summary_model` 三列（可空、不回填），**与源摘要分列**——写 AI 摘要的实现里只有这三列，因此「覆盖源摘要」在结构上不可能（有用例断言源摘要、正文、三态、收藏在写入后原值不变）。选词解释**复用 T020 的 `SelectionExplanationRequest`**（上下文总量 1200 字、两侧各半、截断标省略号、选区本身不截断、找不到位置不猜），因此「只发送选区和最少上下文」这条数据出境规则只有一份实现；结果在浮层显示并注明**实际送出字数**与「上下文已截断」，**取消与失败都不改动原文**（架构 4.2）。单文摘要按 SET-061 的 8000 字符截断（在 **rune 边界**切，不切坏代理对）并在用户消息里**写明截断**（否则模型把半篇当全文）；结果写 `ai_summary` 三列，源摘要在；列表与详情按 **AI 摘要 → 源摘要 → 截取正文** 的优先级决定显示哪一段并标注来源。自动缺摘要开关 **SET-037 默认关**：关闭时批处理**一个请求都不发**（请求计数断言）；只在**列表刷新批处理**里执行（滚动/渲染不触发，因此「滚一下列表」不会产生计费调用）；开启后受 **SET-064 当天上限**约束，上限按**成功数**递减（失败不扣额度，避免「连着失败两次把额度用光而用户什么都没拿到」），且每个候选前重查剩余；**命中 T030 结果缓存时一个请求都不发**但仍落库且不消耗额度；**失败不写库**（不把一次网络抖动固化成一条假摘要）；读不到当天计数时 fail-closed（不发请求）。当天计数按日期键落 `device.autoSummaryUsed.YYYY-MM-DD`（**本机运行计数，不占 SET 编号、不参与同步**，跨午夜天然归零，坏值按上限兜底）。界面：详情页「摘要」按钮 + AI 摘要卡片（标注模型与生成时间、截断说明、「源摘要仍然保留」）、选区「解释」入口接上真实调用（替换 T020 的占位提示）、刷新后给自动摘要回执（成功/失败/缓存命中/当天上限）、AI 服务页新增 SET-037 开关（默认关、写明每篇单独计费与当天上限）。**T035 交付分段全文翻译与原译文切换**：schema v13 新增 article_translation_records 与 translation_segment_records 两张表，**不新增任何 articles 列**（原文只有 articles.body 一份，译文另有归属）；切分与回填是**同一个遍历**（mapTranslation），标题/段落/列表项各为一段、引用块与列表向下递归，代码块/公式/图片/分隔线/表格/未解析块不产生单元（宁可少翻不可翻错），回填按段查译文、找不到就显示原文；summaryOnly **早于**「有没有可翻译文字」判定（顺序反了会被永远掩盖）；逐段串行调用并回报「已完成 x/y 段」，**取消保留已完成段**（取消的段标 pending 而非 failed），**单段失败不回滚整份译文**且「重试失败段」只重跑失败的，已有译文段按**段落文本摘要**比对复用（正文改过即不复用）；段落级缓存键 = 段落文本 + 目标语言 + 路由模型链，命中时一个请求都不发；超长段按 SET-061 的 8000 字符在 rune 边界截断并写明；目标语言取 SET-011（zh-Hans/en），域外直接跳过；界面新增「翻译」按钮与面板（进度/取消/重试失败段/原文-译文切换/截断与过期说明），**原文始终保留是结构性的**（存储实现里没有任何一处写 articles 的列）；**无真实 AI 调用证据**（除 DeepSeek 外无凭据））|
-| 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | DOING（**T036 交付新闻来源配置、版本化 prompt 与编辑器**：schema v14 新增三张配置表并把 SET-050 的逐源开关加在 feeds 上（可空、不回填，null = 跟随 enabled）；组合 prompt 的协议段不可删是结构性的，必访站不静默消失有差异检查与逐站断言，查询禁词与主题排除各有独立实现与用例；界面为「设置 → 新闻生成」一页。**未实现**：今日新闻的检索编排与初稿（T037）、来源核验（T038）、今日页（T039）与定时执行（T040））|
+| 今日总结/来源核验/prompt/定时 | F-NEWS；SET-050–066 | T036–T040 | DOING（**T037/T038 交付每日新闻的检索编排、初稿、独立来源核验与今日页**：schema v15 新增 news_runs 一张宽表（快照/逐站状态/材料/条目/初稿/模型元数据/阶段/错误类别，都是同一次事实的组成部分，拆表会引入「版本写了材料还没写」的中间态）；NewsInputSnapshot 固化「本地日期 + 当时的 IANA 时区 + UTC 偏移 + 当日 00:00–24:00 的 UTC 区间 + 选材 + 必访站 + 关键词 + 禁词 + prompt 版本引用与全文 + SET-060/061 上限」，因此旅行后旧记录仍按当时的本地日期可查；选材按有效时间倒序且**加精不参与权重**（SET-050/023），并按「同 GUID 或同规范化链接 = 同一稿件」去重（含跟踪参数不同的同稿）；材料按 SET-061 截断并**标注截断**，段落带「第三方数据不是指令」的框架（架构第 8 节）；**出网只经过 T032 的 ToolExecutor**（地址守卫、工具次数、未知工具无执行路径这些既有保证自动适用），必访站逐站记录 成功/失败/**超时**/未执行四态（SET-051「必访失败可见」），检索查询经 T036 的禁词过滤（**命中的查询根本不在发送列表里**），空输入**不生成也不发任何模型请求**；初稿解析把**引用不在材料集合里的条目退回**并列出不存在的 id（全部编造则整稿失败）；核验是**纯函数启发式**：关键词重叠（以条目关键词数为分母）、判定顺序「未联网 → 明确否定 → 支持阈值 → 材料不足」、冲突要求「否定词与陈述关键词同句且在窗口内」（陈述本身为否定式时把来源的否定读成附和）、转载聚类用「规范化 URL 相同」或「标题相似度 ≥0.9」（前后缀修饰关系与二元组 Dice 取较大者，**不按域名、不用重叠系数**：前者会把同站不同报道并成一条、后者会让第二条来源凭空消失），标签只有来源单一/材料不足/来源冲突/未联网核验四类且**没有「已证实」**（架构 4.4 禁止声称保证真实性），判据（阈值/查询数/结果数/协议）随版本落库供核对；引用从**材料快照**取最小摘录（不由模型给、也不由检索片段冒充）并校验 URL/时间/摘录完整性，未知 sourceId 被列出而非静默丢弃；核验后**追加新版本**（初稿 v1 与核验后 v2 可对照），核验失败/来源冲突/必访失败 → partial，失败草稿不覆盖上次成功版本；今日页从占位升级为最小可用（日期前后切换与历史日期下拉、生成前**费用与数据发送确认**、六阶段真实进度、条目列表与证据标签徽章、引用跳转（RSS 引用跳本机文章、外部来源走系统浏览器）、必访逐站状态、版本列表与手动切换），**T011 的壳层占位页与 11 条占位文案随之删除**（三个去向都已是真实页面，占位结构只会误导；断点规则仍在 shell_layout.dart 并由用例逐点钉住 599/600/1099/1100）。**未实现**：今日页产品化打磨（T039）与定时执行（T040）；**无真实 AI 与搜索调用证据**（除 DeepSeek 外无凭据、三个搜索协议均无凭据））|
 | WebDAV 共通设置与阅读状态 | SET-070–075 | T041–T045 | TODO |
 | 明文备份/恢复/清理/诊断 | SET-076–082 | T046–T048 | TODO |
 | 平台体验/资源占用/可访问性 | 架构第 7、8 节 | T049–T052 | TODO |
@@ -142,8 +142,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | T034 | T020、T030 | 选词解释/单文摘要/自动缺摘要开关 | 默认不开自动摘要，正文截取兜底；开启后有当日上限与缓存；选区仅发送最少上下文，取消/失败不改原文 | DONE（缺失 REVIEW）：schema v12 给 articles 加 **ai_summary / ai_summary_at / ai_summary_model** 三列（全部可空、**不回填**；与源摘要 **summary 分列**，写 AI 摘要的实现里**只有这三列**）；domain/article_summary.dart（`resolveDisplaySummary` 优先级 AI→源→截取、`excerptSummaryFrom` 在 **rune 边界**截断、`DailySummaryQuota`）；application/article_ai_text_tasks.dart（复用 T020 的 `SelectionExplanationRequest` 做**最少上下文**；SET-061 的 8000 字符截断并在消息里**标注截断**；`kArticleSummaryPrompt`/`kSelectionExplainPrompt` 要求不引入材料外信息）；application/auto_summary_batch.dart（`runBatch(enabled: ...)`：SET-037 关闭时**一个请求都不发**；只在刷新批处理里调用（滚动不触发计费）；SET-064 当天上限是硬边界且按**成功数**递减；命中 T030 缓存时**不发请求**但仍落库且不扣额度；失败**不写库、不扣额度**；读不到当天计数时 fail-closed）、infrastructure/local/daily_summary_counter_store.dart（按日期键落 `device.autoSummaryUsed.YYYY-MM-DD`，跨午夜天然归零；坏值按上限兜底；`DegradedDailySummaryCounter` 读写双向失败）；文章端口新增 saveAiSummary/readAiSummary/listArticlesMissingSummary（「缺摘要」= 源摘要与 AI 摘要**都为空**，空白串也算缺）；界面：详情页「摘要」按钮与 AI 摘要卡片（标注模型与生成时间、截断说明、**源摘要仍保留**）、选词解释**真实调用**并替换 T020 占位（浮层显示，标注送出字数与上下文截断，**取消/失败不改原文**）、列表刷新后跑自动摘要批处理并给回执、AI 服务页新增 SET-037 开关（默认关、写明每篇单独计费与当天上限）|
 | T035 | T019、T030 | 分段全文翻译与原译文切换 | summaryOnly 不标全文；段落映射、目标语言、超长拆分、取消/部分成功/单段重试、原文永远保留 | DONE（缺失 REVIEW）：schema v13 新增 article_translation_records 与 translation_segment_records 两张表（**不新增任何 articles 列**：原文只有 articles.body 一份，译文另有归属）；core/domain/article_translation.dart 的 `mapTranslation` 是**切分与回填的唯一遍历**（标题/段落/列表项各为一段，引用块与列表向下递归，代码块/公式/图片/分隔线/表格/未解析块不产生单元——宁可少翻不可翻错），回填按段查译文、找不到就显示原文；`translationBlockReason` 让 **summaryOnly 早于「有没有可翻译文字」** 判定（顺序反了这条规则会被永远掩盖）；application/article_translation_tasks.dart 的 TranslationService **逐段串行**调用（并发上限默认 1，与 SET-036 的队列上限分开）、连续 per 段回报 `TranslationProgress`（已完成 x/y）、**取消保留已完成段**（取消的那一段标 pending 而非 failed：用户按的取消不是「这一段失败了」）、**单段失败不回滚整份译文**且只重试失败段（不重跑全部）、已有译文段按**段落文本摘要**比对复用（正文改过即不复用，避免把上一版译文贴到新段上）、段落级缓存键 = 段落文本 + 目标语言 + 路由模型链（命中时**一个请求都不发**但仍算已完成，只有成功段写缓存）；超长段按 SET-061 的 8000 字符在 **rune 边界**截断并在用户消息里写明截断；`prepareTranslationSegment` 与 T034 同一数字口径但**不共用代码**（逐段判断 vs 整篇一次）；目标语言取 SET-011 的 zh-Hans/en，取值域外直接跳过（不猜一个语言）；界面：详情页「翻译」按钮 + `ArticleTranslationPanelView`（进度/完成/部分成功/失败/跳过、取消、**重试失败段**、原文/译文切换、截断与过期说明、译文来源模型与时间），切换只改显示（`applyTranslation` 在渲染期回填），**原文始终保留**在数据层是结构性的（存储实现里没有任何一处写 articles 的列，有用例断言写入后 body/summary/ai_summary/三态/收藏原值不变）；降级启动读作「没有译文」、写明确失败。**无真实 AI 调用证据**（除 DeepSeek 外无凭据） |
 | T036 | T025、T031 | 新闻来源配置、版本化 prompt 与编辑器 | SET-050–055、组合/高级覆盖差异、恢复默认、必访任务不静默消失、查询禁词与主题过滤各有测试 | DONE（缺失 REVIEW）：schema v14 新增 news_required_site_records（SET-051 必访站）、news_config_entry_records（SET-052 关键词与 SET-053 两个独立列表，用 kind 区分）与 news_prompt_version_records（SET-055 版本历史）三张表，并给 feeds 加 **news_enabled 可空列**（SET-050 的逐源开关，**null = 跟随 enabled**：三态可表达且不回填，「已启用订阅默认开」在 newsIncludesFeed 一处成立）；core/domain/news_prompt.dart 是**纯函数**：composeNewsPrompt 按「任务 → 来源 → 规范 → 固定协议」组合，**协议段由 newsCitationProtocol 无条件附加**（用户可改部分与协议段在类型上分开，因此「把引用格式删掉」没有 API 入口），resolveNewsPrompt 让组合与高级覆盖在此汇合（高级覆盖=用户文本+协议段，空文本回退组合），newsPromptDiff 用**站名或地址出现**判定必访站是否被静默删除并逐个报出；buildNewsSearchQueries 只过滤**实际发送的查询词**（按包含匹配），newsExcludedTopicsSection 只写 prompt 里的主题偏好——两个列表各自独立（各有用例）；application/news_source_config.dart 的 NewsSourceConfigService 负责整体读写与版本追加（nextNewsPromptVersion=最大值+1，withVersion 保留旧版以便回退）；界面新增「设置 → 新闻生成」页（总开关、逐源三态 SegmentedButton、必访站增删改排序、三个列表编辑器、prompt 模式切换、任务/规范编辑与恢复默认、**固定协议段只读展示**（SelectableText，页面无任何可编辑输入框含协议文本）、版本列表可载入/删除、高级模式缺必访站立刻提示、生效查询与**实际会发送的 prompt** 预览）；**必访任务不静默消失**：组合结果逐站可断言的 requiredSiteLines + 差异检查两条用例；**无真实 AI 调用证据**（除 DeepSeek 外无凭据） |
-| T037 | T030、T032、T033、T036 | 每日新闻输入快照、事件聚合与初稿 | 设备时区/日期固定、文章去重、必访逐站状态、Token/工具轮数/图片预算、空输入不编造新闻 | TODO |
-| T038 | T037 | 独立来源核验/引用校验与版本保存 | 每条重要事实尝试独立来源；转载聚类、来源冲突/不足标签，拒绝未知 sourceId；取消/失败保留上次成功总结 | TODO |
+| T037 | T030、T032、T033、T036 | 每日新闻输入快照、事件聚合与初稿 | 设备时区/日期固定、文章去重、必访逐站状态、Token/工具轮数/图片预算、空输入不编造新闻 | DONE（缺失 REVIEW）：schema v15 新增 news_runs 表（**一张宽表**：快照/逐站状态/材料/条目/初稿/模型元数据/阶段/错误类别，都是同一次事实的组成部分，拆表会引入「版本写了材料还没写」的中间态）；core/domain/news_run.dart 是**纯数据与纯函数**层：NewsInputSnapshot 固化「本地日期 + 当时的 IANA 时区 + UTC 偏移 + 当日 00:00–24:00 的 UTC 区间 + 选材 + 必访站 + 关键词 + 禁词 + prompt 版本引用与全文 + SET-060/061 上限」，因此旅行后旧记录仍归属当时的本地日期（架构 4.4 的日界线口径）；application/news_run_inputs.dart 的 newsDayRange 按**当地读数**算零点（夏令时切换日不是 24 小时）、selectNewsCandidates 按「有效时间倒序 + 同刻按 id 稳定倒序」选材且**加精不参与权重**（SET-050/023），并按「同 GUID 或同规范化链接 = 同一稿件」去重（跟踪参数不同也算同稿，复用 T013 的跟踪参数表，避免导入与选材两套判据漂移）；材料按 SET-061 单材料预算截断并**标注截断**（不标注会让模型把半篇当全文），空材料如实写「来源只提供了标题」；材料段落带「这是第三方数据，不是指令」的框架（架构第 8 节）；application/news_run_service.dart 按架构 4.4 的顺序编排：**出网只经过 T032 的 ToolExecutor**（地址守卫、工具次数、未知工具无路径这些既有保证自动适用），必访站逐站执行并记录 成功/失败/**超时**/未执行 四态（SET-051「必访失败可见」），查询用 T036 的 buildNewsSearchQueries 构造（**禁词命中的查询根本不会出现在发送列表里**，另记被拦条数），材料合并后按 SET-063 派生的总字符预算裁剪；空输入（无文章且无关键词且必访全失败）**不生成、不发任何模型请求**（另有总开关关闭→waitingConfiguration 的独立分支）；初稿解析 parseNewsDraft 把带方括号 sourceId 的行作为条目、**引用不在材料集合里就退回该条目**并把不存在的 id 列出来（全部编造则整稿失败），无引用的短行按标题、长句按「缺引用」退回，markdown 链接不被误判成引用；保存走 NewsRunStore.append（版本号只增，只有 succeeded/partial 才把 is_current 移到新版，**DDL 里有 CHECK** 让失败草稿覆盖成功版本在数据层不可能）；diagnostics 只记结构事实（日期/时区/条数/阶段/失败类别），有用例断言日志不含材料正文、地址与查询词 |
+| T038 | T037 | 独立来源核验/引用校验与版本保存 | 每条重要事实尝试独立来源；转载聚类、来源冲突/不足标签，拒绝未知 sourceId；取消/失败保留上次成功总结 | DONE（缺失 REVIEW）：core/domain/news_verification.dart 是**纯函数**核验层——关键词提取（CJK 按字符二元组、拉丁按词并丢停用词）、claimOverlap 以**条目关键词数为分母**（来源比条目长，用并集会让真实支持掉到阈值下）、判定顺序「未联网 → 明确否定 → 支持阈值 → 材料不足」；**冲突是保守的**：要求「否定标记与陈述关键词落在同一句内且距离在窗口内」（只看否定词会把「否认传闻并确认 X」这类确认性报道误判为矛盾），且陈述本身是否定式时把来源的否定读成**附和**而非反驳；**转载聚类**用「规范化 URL 相同」或「标题相似度≥0.9」，其中标题相似度取「前后缀修饰关系（长度差≤6 的包含）」与「字符二元组 Dice」的较大者——**刻意不用重叠系数、也不按域名聚类**（前者会把「央行宣布降息」并进「央行今日宣布降息二十五个基点」从而让第二条来源凭空消失，后者会把同站两条不同报道并成一条），并有最短标题下限；四类标签（来源单一/材料不足/来源冲突/未联网核验）**没有「已证实」**（架构 4.4 禁止声称保证真实性），且判据（阈值、查询数、结果数、协议）随版本落库供用户核对；application/news_verification_service.dart 每条条目发**一个**派生查询（关键词拼查询而非整句），派生查询同样过禁词（绕过禁词等于在新路径上作废本地规则），条目自有引用也进聚类（同稿候选不算第二条独立来源），核验条数与查询数受预算约束，**检索失败只让标签变成「材料不足」而绝不丢条目**；引用校验 resolveNewsCitations 从**材料快照**取最小摘录（不由模型给、也不由检索片段冒充），并逐条检查 URL/时间/摘录完整性（时间以「发布时间或访问时刻任一」为准），未知 sourceId **被列出而不是静默丢弃**；核验后**追加一个新版本**（初稿 v1 与核验后 v2 都保留，可对照），核验失败/出现冲突/必访站失败 → partial，失败草稿不覆盖上次成功版本；今日页从占位升级为最小可用（**T011 的壳层占位页与 11 条占位文案随之删除**：界面上写「占位、无数据」而下面是能用页面比没有占位更糟；断点规则仍在 shell_layout.dart 并由 shell_layout_test 逐点钉住 599/600/1099/1100）：日期前后切换与历史日期下拉、生成按钮先弹**费用与数据发送确认**（列上限，已有版本时额外说明「再生成会再次产生费用」）、进度条按编排层**真实回调**显示六阶段、条目列表带证据标签徽章（提示里解释阈值口径）、引用可跳（RSS 引用跳本机文章详情、外部来源走系统浏览器，引用缺字段时说明缺什么）、必访站逐站状态、版本列表与手动切换（切到非成功版本被拒绝）；**无真实 AI 与搜索调用证据**（除 DeepSeek 外无凭据、三个搜索协议均无凭据） |
 | T039 | T019、T020、T038 | 今日页日期/历史/生成进度/来源跳转 | RSS 引用跳本地文章、外部源外开；已清理内容有说明；无结果/资料不足/生成中/失败/取消各状态与模型元数据齐全 | TODO |
 | T040 | T016、T029、T036–T039 | 默认开启的定时总结与后台调度 | 默认 20:00、10 分钟；waitingConfiguration 无网络、当天补跑一次、已有成功不重复、跨时区/双设备成本告知、受系统终止记中断 | TODO |
 
@@ -3411,6 +3411,123 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 
 
 
+
+### 7.1.31 轮次记录 R037（T037）
+
+    轮次/日期：R037 / 2026-09-22
+    任务 ID 与状态变化：T037（每日新闻输入快照、事件聚合与初稿）TODO → DONE（缺失 REVIEW）
+    相关决策/功能/SET 项：架构 4.4（日界线/事件聚合/引用协议/空输入不编造）、SET-050/051/052/053/060/061/062/063、手册 6.3「总结」节（必访失败可见、动态网页没有假访问、无搜索配置等待、模型编造引用被拒绝）
+    修改文件与主要行为：
+      - 新增 core/domain/news_run.dart（NewsInputSnapshot/NewsMaterial/NewsSiteFetchResult/
+        NewsAggregationResult/NewsDraftItem/NewsDraftParseResult/NewsRunRecord/NewsCandidateStore/
+        NewsRunStore/NewsRunDateRef，以及选材、材料构造与初稿解析等纯函数）；
+      - 新增 features/news/application/news_run_inputs.dart（NewsDayRange 与 newsDayRange、
+        selectNewsCandidates、deriveQueriesFromArticles、材料与逐站状态文本组装、
+        applyMaterialCharacterBudget 等）与 news_run_service.dart（编排：快照 → 必访逐站 → 检索 →
+        聚合 → 生成 → 校验 → 保存，以及 NewsTaskSettings 与每任务的 buildTools 工具预算）；
+        core/domain/domain.dart 增加 news_run 转出口；
+      - 新增 infrastructure/local/tables/news_run_tables.dart 与 news_run_store.dart（DriftNewsRunStore
+        + DriftNewsCandidateStore + 两个降级实现）；database.dart 升到 v15 并同步 highestImplemented；
+      - 新增 features/news/application/news_run_providers.dart，并在 app_providers.dart 两种启动状态接线；
+      - 新增 drift_schema_v15.json 与 test/generated/schema_v15.dart；新增
+        test/features/news/{news_run_test,news_run_store_test}.dart（37 + 12 条）与
+        test/infrastructure/local/migration_v14_to_v15_test.dart（3 条），更新 schema_snapshot_test 的
+        v15 快照断言与既有迁移/版本用例的当前版本号。
+    数据迁移/删除/依赖变化：schema v14 → v15（**只新增 news_runs 表与三条索引**，不改任何既有列，
+      因此对既有数据零影响）；无删除；无新增依赖。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 重生成 database.g.dart（schema v15）
+      dart run drift_dev schema dump … drift_schemas/ | 0 | PASS | 新增 drift_schema_v15.json
+      dart run drift_dev schema generate --data-classes --companions … | 0 | PASS | 新增 schema_v15.dart
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1679 通过 / 2 跳过 / 0 失败（相对 T036 的 1627 新增 52 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+    费用与秘密：**未发起任何真实网络调用，无费用产生**（生成与检索全部走 fixture 与端口替身）；
+      诊断只记结构事实（日期/时区/条数/阶段/失败类别），有用例断言日志不含材料正文、地址与查询词
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮新增一张表（schema v15），并把「实际发送什么材料/什么查询/什么 prompt」
+         从配置收紧为一次任务的固化快照，且落地「编造引用导致条目退回」这条安全规则；
+      2) **无真实 AI 与搜索调用证据**：除 DeepSeek 外无凭据、三个搜索协议均无凭据，7.3 逐行仍为
+         NOT_RUN；模型对引用协议的实际遵从度未验证；
+      3) **界面属 T038/T039**：本轮只交付用例层与存储层，今日页在 T038；
+      4) **无 native tool calling 的模型的「预先检索材料」编排已落地**（材料由客户端预先取好放进
+         prompt，模型不需要请求工具），但「模型据此少用工具」未在真实调用上验证；
+      5) **AI 结果缓存未接在新闻链路上**：新闻任务每次生成都要联网检索，缓存命中会让「今天的新闻」
+         变成一段历史检索的回放；缓存策略归 T047 范围；
+      6) **SET-060 的「预估成本提醒」未给具体金额**：确认框只列上限条数（SET-066 的单价未配置时
+         不展示伪精确金额）；
+      7) Android 工程仍未初始化；8) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T037 → DONE，标注
+      缺失 REVIEW）、功能账本与 R037 记录。
+    提交/差异范围：提交 "T037: daily news input snapshot, event aggregation and cited draft generation"；
+      基线为 T036 的提交（8e0467e）。未 push
+    下一可执行任务及前置条件：T038（独立来源核验/引用校验与版本保存），前置 T037 已 DONE
+
+### 7.1.32 轮次记录 R038（T038）
+
+    轮次/日期：R038 / 2026-09-22
+    任务 ID 与状态变化：T038（独立来源核验/引用校验与版本保存）TODO → DONE（缺失 REVIEW）
+    相关决策/功能/SET 项：架构 4.4（重要事实至少两个独立来源、转载不算两个证据、四类标签、
+      不可声称保证真实性、引用只可使用真实 sourceId 且保存标题/URL/时间/最小摘录/材料哈希）、
+      SET-042、SET-053、SET-060、SET-062、SET-066、手册 6.3「总结」节（两份转载不当独立证据）
+    修改文件与主要行为：
+      - 新增 core/domain/news_verification.dart（NewsVerificationMethod/NewsClaim/关键词提取/
+        claimOverlap/否定判定与冲突保守判据/转载聚类/标题相似度/引用完整性检查/verifyNewsItem）；
+      - 新增 features/news/application/news_verification_service.dart（核验编排：派生查询、禁词过滤、
+        条目自有引用进聚类、预算约束、「失败只降标签不丢条目」；以及 NewsVerifiedCitation 与
+        resolveNewsCitations 的引用字段校验）；
+      - news_run_service.dart 接入核验阶段（**先存初稿版本、核验后追加带标签的新版本**，
+        核验失败/来源冲突/必访失败 → partial）；news_run_store.dart 增加 listDateRefs（历史归属
+        「日期 + 当时的时区」）；news_run_tables.dart 增加 verification_method 列；
+      - 新增 features/news/application/news_today_controller.dart 与 presentation/news_today_page.dart
+        （日期切换与历史日期下拉、费用与数据发送确认、六阶段真实进度、条目与证据标签徽章、
+        引用跳转（RSS 跳本机文章、外部源走系统浏览器）、必访逐站状态、版本列表与手动切换）；
+      - 新增 app/shell/destination_page.dart 并删除 app/shell/placeholder_page.dart（T011 的壳层占位页）：
+        三个去向都已是真实页面，继续渲染占位结构等于用一个假界面盖住真功能；随之删除 11 条占位文案
+        （milestoneShellNotice / placeholderBadge / layoutShellNote / 三个栏位名 / 三个断点名 /
+        todayEmptyTitle / todayEmptyBody）。断点规则仍由 shell_layout.dart 承载并由 shell_layout_test
+        逐点钉住 599/600/1099/1100；新增 53 条今日页文案（中英各一份）；
+      - 新增 test/features/news/{news_verification_test,news_today_page_test}.dart（33 + 11 条），
+        扩展 news_run_store_test（证据标签与核验方法往返），更新 app_shell_test、l10n_test 与三张壳 golden。
+    数据迁移/删除/依赖变化：schema v15 内新增一列（verification_method，可空）；因 v15 尚未发布，
+      并入同一步迁移而不新开 v16；**删除一个源文件与 11 条文案**（占位页及其文案，见上）；
+      更新三张壳 golden；无新增依赖。
+    环境：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0；debug（macOS）
+    检查（均为本机实际执行，命令 | 退出码 | 结论 | 证据）
+      flutter pub get | 0 | PASS | Got dependencies
+      dart run build_runner build | 0 | PASS | 重生成 database.g.dart（v15 增列）
+      dart format lib test | 0 | PASS | 无格式差异
+      flutter analyze | 0 | PASS | No issues found
+      flutter test | 0 | PASS | 1720 通过 / 2 跳过 / 0 失败（相对 T037 的 1679 新增 41 条）
+      flutter build macos --debug | 0 | PASS | build/macos/Build/Products/Debug/Flux.app
+      （golden 更新经人工对照截图后执行：浅色中文宽窗与窄窗、深色英文宽窗三张；其余 golden 无变化）
+    费用与秘密：**未发起任何真实网络调用，无费用产生**（核验检索与生成全部走端口替身与 fixture）；
+      核验诊断只记条目序号/结论/条数，有用例断言日志不含条目正文、检索标题与地址
+    遗留问题与未运行项：
+      1) **缺失 REVIEW**：本轮定义了「独立来源」「冲突」「转载同稿」的启发式判据并落库为证据标签、
+         把核验结果拆成独立版本，并删除了 T011 的占位页与 11 条文案（一次可见的界面收缩）；
+      2) **核验是启发式，不是真实性保证**：阈值（支持重叠 0.34、同稿标题 0.9、前后缀长度差 6、
+         否定窗口 12）在本轮以中文新闻式样本验证，**未在真实多语料上校准**；判据随版本落库供核对；
+      3) **无真实 AI 与搜索调用证据**：除 DeepSeek 外无凭据、三个搜索协议均无凭据（7.3 逐行 NOT_RUN），
+         因此「模型对引用协议的实际遵从度」与「第二条来源的真实召回率」都无实测；
+      4) **跨时区历史查询只有两条线索**：先用当前设备时区读，再按日期索引找当时记录的时区
+         （listDateRefs），不引入时区数据库依赖（架构 2.1 白名单）；同一日期若在多于两个时区各存过
+         记录，界面可能只显示其中最新的一条；
+      5) **核验预算与生成预算共享查询上限**（SET-060 的 maxQueries），未新增独立上限项：若将来核验
+         需要更多查询，须先在设置注册表增加一项，而不是在代码里悄悄放宽；
+      6) **今日页仍是「最小可用」**：不做产品化排版、不做逐条条目编辑、不做导出/分享（属 T039）；
+      7) **未接入定时执行**（T040）与**未接结果缓存**（T047 范围）；8) Android 工程仍未初始化；
+      9) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字；只更新任务状态列（T038 → DONE，标注
+      缺失 REVIEW）、功能账本与 R038 记录。删除的是 T011 的占位页与它的文案（三个去向都已是真实
+      页面之后，占位结构只能误导），未删除任何功能或数据；断点规则与它的用例未被改动。
+    提交/差异范围：提交 "T038: independent source verification, citation validation and versioned results"；
+      基线为 T037 的提交（5945cb5）。未 push
+    下一可执行任务及前置条件：T039（今日页日期/历史/生成进度/来源跳转的产品化打磨），前置
+      T019/T020/T038 均已 DONE
 
 依赖版本取自已提交的 `pubspec.lock`（非 `pubspec.yaml` 的约束范围）。
 

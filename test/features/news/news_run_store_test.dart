@@ -260,6 +260,50 @@ void main() {
       );
     });
 
+    test('证据标签与核验方法随版本往返（T038）', () async {
+      await store.append(
+        record(version: 1).copyWith(
+          isCurrent: true,
+          verificationMethod:
+              'search=yes queries=3 results=12 '
+              'support>=0.34 syndication>=0.9 provider=tavily',
+          items: <NewsDraftItem>[
+            const NewsDraftItem(
+              index: 1,
+              text: '某地发生某事。',
+              sourceIds: <String>['rss.7'],
+              status: NewsItemStatus.kept,
+              labels: <NewsEvidenceLabel>[NewsEvidenceLabel.singleSource],
+              independentSourceCount: 1,
+              verificationNote: 'singleSource',
+            ),
+            const NewsDraftItem(
+              index: 2,
+              text: '另一件事。',
+              sourceIds: <String>['rss.7'],
+              status: NewsItemStatus.kept,
+              labels: <NewsEvidenceLabel>[NewsEvidenceLabel.sourceConflict],
+              independentSourceCount: 2,
+              verificationNote: 'conflict',
+            ),
+          ],
+        ),
+      );
+      final NewsRunRecord current = (await store.loadCurrent(
+        localDate: '2026-09-22',
+        timeZone: 'Asia/Shanghai',
+      )).valueOrNull!;
+      expect(current.verificationMethod, contains('provider=tavily'));
+      expect(current.items.first.labels, <NewsEvidenceLabel>[
+        NewsEvidenceLabel.singleSource,
+      ]);
+      expect(current.items.first.independentSourceCount, 1);
+      expect(current.items.first.verificationNote, 'singleSource');
+      expect(current.items.last.labels, <NewsEvidenceLabel>[
+        NewsEvidenceLabel.sourceConflict,
+      ]);
+    });
+
     test('listDates 按日期倒序返回有记录的日期', () async {
       await store.append(record(version: 1));
       await store.append(

@@ -201,6 +201,30 @@ final class DriftNewsRunStore implements NewsRunStore {
     }
   }
 
+  @override
+  Future<Result<List<NewsRunDateRef>>> listDateRefs() async {
+    try {
+      final List<NewsRun> rows = await _db.select(_db.newsRuns).get();
+      final Map<String, NewsRunDateRef> seen = <String, NewsRunDateRef>{};
+      for (final NewsRun row in rows) {
+        seen['${row.localDate}\u0000${row.timeZone}'] = NewsRunDateRef(
+          localDate: row.localDate,
+          timeZone: row.timeZone,
+        );
+      }
+      final List<NewsRunDateRef> refs = seen.values.toList()
+        ..sort(
+          (NewsRunDateRef a, NewsRunDateRef b) =>
+              b.localDate.compareTo(a.localDate),
+        );
+      return Ok<List<NewsRunDateRef>>(List<NewsRunDateRef>.unmodifiable(refs));
+    } on Exception catch (error, stackTrace) {
+      return Err<List<NewsRunDateRef>>(
+        _storage('newsRun.listDateRefs', error, stackTrace),
+      );
+    }
+  }
+
   List<NewsRunRecord> _decodeAll(List<NewsRun> rows) {
     final List<NewsRunRecord> out = <NewsRunRecord>[];
     for (final NewsRun row in rows) {
@@ -484,6 +508,10 @@ final class DegradedNewsRunStore implements NewsRunStore {
   @override
   Future<Result<List<String>>> listDates() async =>
       const Ok<List<String>>(<String>[]);
+
+  @override
+  Future<Result<List<NewsRunDateRef>>> listDateRefs() async =>
+      const Ok<List<NewsRunDateRef>>(<NewsRunDateRef>[]);
 }
 
 /// 数据库不可用时的选材端口（读返回空 = 本次运行确实没有可读文章）。

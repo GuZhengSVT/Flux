@@ -1138,6 +1138,28 @@ abstract interface class NewsRunStore {
 
   /// 列出有记录的本地日期（日期倒序），供历史列表使用。
   Future<Result<List<String>>> listDates();
+
+  /// 列出有记录的「日期 + 时区」组合（日期倒序），供历史切换使用。
+  ///
+  /// 为什么不能只用 [listDates] 再由界面猜时区：历史记录归属**当时的**时区（架构 4.4
+  /// 「旅行后可查旧记录而不重写日期」），拿当前设备时区去查一条在别处生成的记录会查不到，
+  /// 而界面只能显示「这一天没有记录」——用户会以为自己丢了那天的总结。
+  Future<Result<List<NewsRunDateRef>>> listDateRefs();
+}
+
+/// 一条历史记录的定位（本地日期 + 当时的时区）。
+final class NewsRunDateRef {
+  /// 构造定位。
+  const NewsRunDateRef({required this.localDate, required this.timeZone});
+
+  /// 本地日期键。
+  final String localDate;
+
+  /// 当时的设备时区（IANA 名称）。
+  final String timeZone;
+
+  @override
+  String toString() => 'NewsRunDateRef($localDate/$timeZone)';
 }
 
 /// 新闻任务缺少输入的说明文案标识（界面按语言映射，不在 domain 拼中文）。

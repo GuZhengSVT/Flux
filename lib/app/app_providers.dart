@@ -59,6 +59,8 @@ import 'package:flux/features/articles/application/article_translation_providers
 import 'package:flux/features/news/application/news_source_providers.dart';
 import 'package:flux/features/news/application/news_run_providers.dart';
 import 'package:flux/features/news/application/news_run_service.dart';
+import 'package:flux/features/news/application/news_verification_service.dart';
+import 'package:flux/features/news/application/news_today_controller.dart';
 import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
 import 'package:flux/infrastructure/local/group_collapse_repository.dart';
@@ -495,6 +497,11 @@ List<Override> bootstrapOverrides(
               zone: zone,
               settings: settings,
               onStage: onStage,
+              verificationBudget: NewsVerificationBudget(
+                // SET-060 的查询上限就是核验查询的共享上限：核验是在同一份预算里追加的检索，
+                // 不另开一套额度（那会让一次生成的总查询数悄悄翻倍）。
+                maxQueries: settings.maxQueries,
+              ),
             );
           },
     ),
@@ -531,6 +538,10 @@ List<Override> bootstrapOverrides(
     // 用了一遍」这种无法解释的计数。
     summaryZoneProvider.overrideWithValue(
       sessionZone ?? DeviceLocalZone.current(),
+    ),
+    // T038：今日页的费用确认需要读 SET-060 的上限（只读，界面没有写入口）。
+    newsSettingsReaderProvider.overrideWithValue(
+      SettingsStoreReader(result.settingsStore),
     ),
     // SET-061 的单材料预算：与 aiTaskBudgetProvider 同一口径，先用注册表默认值（8000），
     // 由 T041 的同步投影统一接上「读用户值」。这里不引入第二套设置读取路径。

@@ -111,8 +111,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 初始去向为今日新闻：显示其空态标题。
-      expect(find.text('今天还没有新闻'), findsOneWidget);
+      // 初始去向为今日新闻：T038 起它是真实页面，没有生成过任何版本时显示
+      // 「这一天还没有新闻」空态（不再有「属 T036–T040」的占位说明）。
+      expect(find.text('这一天还没有新闻'), findsOneWidget);
 
       // 切到 RSS 阅读：显示「无订阅」空态（架构第 7 节要求分别提示）。
       await tester.tap(find.text('RSS 阅读').first);
@@ -133,89 +134,34 @@ void main() {
   });
 
   group('响应式栏位（架构第 7 节）', () {
-    testWidgets('<600 单栏：只有一个内容面板', (WidgetTester tester) async {
+    // T038 起三个去向都是真实页面，「壳层占位页」与它的 1/2/3 栏占位面板已删除
+    // （界面上写着「占位、无数据」而下面其实是能用的页面，比没有占位更糟）。
+    // 断点规则本身仍由 shell_layout.dart 承载，并由 shell_layout_test.dart 逐点
+    // 钉住 599/600 与 1099/1100；这里改为断言「真实页面在窄/宽窗下都能渲染」。
+    testWidgets('窄窗（<600）与宽窗（>=1100）都能渲染真实页面', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap();
       addTearDown(bootstrap.dispose);
-      await setSurfaceSize(tester, const Size(520, 900));
 
-      await tester.pumpWidget(
-        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('单栏布局（窗口宽度 <600）'), findsOneWidget);
-      expect(find.text('订阅源栏'), findsNothing);
-      expect(find.text('正文区'), findsNothing);
-    });
-
-    testWidgets('600–1099 双栏：来源栏 + 列表栏', (WidgetTester tester) async {
-      final TestBootstrap bootstrap = TestBootstrap();
-      addTearDown(bootstrap.dispose);
-      // 侧边导航占 80 左右，因此窗口 800 时内容区约 720（>=600 但 <1100）。
-      await setSurfaceSize(tester, const Size(800, 900));
-
-      await tester.pumpWidget(
-        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('双栏布局（600–1099）'), findsOneWidget);
-      expect(find.text('订阅源栏'), findsOneWidget);
-      expect(find.text('正文区'), findsNothing);
-    });
-
-    testWidgets('>=1100 三栏：来源栏 + 列表栏 + 正文区', (WidgetTester tester) async {
-      final TestBootstrap bootstrap = TestBootstrap();
-      addTearDown(bootstrap.dispose);
-      await setSurfaceSize(tester, const Size(1400, 900));
-
-      await tester.pumpWidget(
-        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('三栏布局（≥1100）'), findsOneWidget);
-      expect(find.text('订阅源栏'), findsOneWidget);
-      expect(find.text('文章列表'), findsOneWidget);
-      expect(find.text('正文区'), findsOneWidget);
-    });
-
-    testWidgets('内容区跨过 1100 才变三栏（侧栏占宽计入判断）', (WidgetTester tester) async {
-      final TestBootstrap bootstrap = TestBootstrap();
-      addTearDown(bootstrap.dispose);
-      // 侧边导航约占 95 逻辑像素，因此窗口 1180 时内容区约 1085（<1100 双栏），
-      // 窗口 1200 时内容区约 1105（>=1100 三栏）。这里正是要钉住
-      // 「断点判的是内容区，不是窗口宽度」。
-      await setSurfaceSize(tester, const Size(1180, 900));
-      await tester.pumpWidget(
-        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('双栏布局（600–1099）'), findsOneWidget);
-      expect(find.text('正文区'), findsNothing);
-
-      await setSurfaceSize(tester, const Size(1200, 900));
-      await tester.pumpAndSettle();
-      expect(find.text('三栏布局（≥1100）'), findsOneWidget);
-      expect(find.text('正文区'), findsOneWidget);
+      for (final double width in <double>[520, 800, 1400]) {
+        await setSurfaceSize(tester, Size(width, 900));
+        await tester.pumpWidget(
+          wrapFluxApp(
+            child: const AppShell(),
+            overrides: bootstrap.overrides(),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text('这一天还没有新闻'),
+          findsOneWidget,
+          reason: 'width=$width 时应渲染今日页空态',
+        );
+        expect(find.text('占位'), findsNothing, reason: '占位面板已删除');
+      }
     });
   });
 
-  group('占位与降级', () {
-    testWidgets('占位页明确标注占位与计划任务，不假装有数据', (WidgetTester tester) async {
-      final TestBootstrap bootstrap = TestBootstrap();
-      addTearDown(bootstrap.dispose);
-      await setSurfaceSize(tester, const Size(1280, 900));
-
-      await tester.pumpWidget(
-        wrapFluxApp(child: const AppShell(), overrides: bootstrap.overrides()),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('占位'), findsWidgets);
-      expect(find.textContaining('T036–T040'), findsWidgets);
-    });
-
+  group('降级', () {
     testWidgets('数据库不可用时显示降级说明', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap(degraded: true);
       addTearDown(bootstrap.dispose);

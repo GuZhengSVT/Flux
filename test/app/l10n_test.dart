@@ -64,7 +64,6 @@ void main() {
         'emptyNoFeedsTitle',
         'emptyAllReadTitle',
         'emptyNoResultsTitle',
-        'milestoneShellNotice',
       ]) {
         expect(zhKeys, contains(key), reason: '中文缺少 $key');
         expect(enKeys, contains(key), reason: '英文缺少 $key');
@@ -104,19 +103,17 @@ void main() {
       }
     });
 
-    test('占位页、空态、关于与首启文案齐备', () {
+    test('空态、关于与首启文案齐备（占位页文案已随占位页删除）', () {
       final Set<String> zhKeys = _messageKeys(zh);
       for (final String key in <String>[
-        'placeholderBadge',
-        'placeholderPageBody',
         'emptyNoFeedsTitle',
         'emptyNoFeedsBody',
         'emptyAllReadTitle',
         'emptyAllReadBody',
         'emptyNoResultsTitle',
         'emptyNoResultsBody',
-        'todayEmptyTitle',
-        'todayEmptyBody',
+        'todayNoVersionTitle',
+        'todayNoVersionBody',
         'onboardingStepIndicator',
         'onboardingSkip',
         'onboardingNext',
@@ -179,8 +176,16 @@ void main() {
       // 必访站编辑器、三个列表编辑器、prompt 模式两态与两段说明、任务/规范/高级三块、
       // 固定协议标题、恢复默认、保存版本与版本列表、差异两条、生效查询与预览，以及
       // 未实现说明）。
-      expect(_messageKeys(zh).length, 701);
-      expect(_messageKeys(en).length, 701);
+      // T038 新增 53 条今日页文案（日期切换与前一天/后一天、生成与再生成与取消、
+      // 六个阶段名、空态两条、材料数与退回条数、必访站四种状态、四个证据标签与
+      // 标签说明、引用三种获取方式与本机/外开/缺字段/未知引用五条、版本列表与
+      // 切换四句、初稿/核验后两个标记、模型与核验方法两条、费用确认四句、
+      // 生成失败与成功两条、缺输入与总开关关闭两条，以及底部说明），
+      // 并删除 11 条随「壳层占位页」一起消失的文案（milestoneShellNotice /
+      // placeholderBadge / layoutShellNote / 三个栏位名 / 三个断点名 /
+      // todayEmptyTitle / todayEmptyBody）：701 - 11 + 53 = 743。
+      expect(_messageKeys(zh).length, 743);
+      expect(_messageKeys(en).length, 743);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

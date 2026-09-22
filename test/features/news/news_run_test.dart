@@ -126,6 +126,13 @@ final class MemoryNewsRunStore implements NewsRunStore {
   Future<Result<List<String>>> listDates() async => Ok<List<String>>(
     <String>{for (final NewsRunRecord r in rows) r.localDate}.toList(),
   );
+
+  @override
+  Future<Result<List<NewsRunDateRef>>> listDateRefs() async =>
+      Ok<List<NewsRunDateRef>>(<NewsRunDateRef>[
+        for (final NewsRunRecord r in rows)
+          NewsRunDateRef(localDate: r.localDate, timeZone: r.timeZone),
+      ]);
 }
 
 /// 检索可用性替身。
@@ -220,6 +227,9 @@ void main() {
       clock: clock,
       zone: shanghai,
       settings: settings,
+      // T037 的用例覆盖「快照 → 选材 → 必访 → 检索 → 生成 → 校验 → 保存」这一段，
+      // 核验与「核验后再追加一个版本」属 T038（见 news_verification_test）。
+      verifyCitations: false,
     );
   }
 

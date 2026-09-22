@@ -10,14 +10,6 @@
   "@appTagline": {
     "description": "应用定位一句话说明"
   },
-  "milestoneShellNotice": "当前构建是 M0 应用壳：只包含导航、主题、语言与首次引导，没有业务功能。",
-  "@milestoneShellNotice": {
-    "description": "壳层顶部说明，避免被误解为已交付功能"
-  },
-  "placeholderBadge": "占位",
-  "@placeholderBadge": {
-    "description": "占位页标记"
-  },
   "placeholderPageBody": "本页目前只有应用壳占位，没有接入数据与交互。计划任务：{tasks}。",
   "@placeholderPageBody": {
     "description": "占位页正文；tasks 为任务编号列表",
@@ -27,34 +19,6 @@
         "example": "T036–T040"
       }
     }
-  },
-  "layoutPaneSource": "订阅源栏",
-  "@layoutPaneSource": {
-    "description": "响应式布局占位：来源栏"
-  },
-  "layoutPaneList": "文章列表",
-  "@layoutPaneList": {
-    "description": "响应式布局占位：列表栏"
-  },
-  "layoutPaneBody": "正文区",
-  "@layoutPaneBody": {
-    "description": "响应式布局占位：正文栏"
-  },
-  "layoutBreakpointSingle": "单栏布局（窗口宽度 <600）",
-  "@layoutBreakpointSingle": {
-    "description": "当前布局模式标注：单栏"
-  },
-  "layoutBreakpointDouble": "双栏布局（600–1099）",
-  "@layoutBreakpointDouble": {
-    "description": "当前布局模式标注：双栏"
-  },
-  "layoutBreakpointTriple": "三栏布局（≥1100）",
-  "@layoutBreakpointTriple": {
-    "description": "当前布局模式标注：三栏"
-  },
-  "layoutShellNote": "本期只做壳：以下区域都是占位面板，没有数据、没有交互，也不代表已实现这些区域的功能。",
-  "@layoutShellNote": {
-    "description": "响应式布局说明"
   },
   "navToday": "今日新闻",
   "@navToday": {
@@ -91,14 +55,6 @@
   "emptyNoResultsBody": "换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。",
   "@emptyNoResultsBody": {
     "description": "空态：无结果说明"
-  },
-  "todayEmptyTitle": "今天还没有新闻",
-  "@todayEmptyTitle": {
-    "description": "今日页空态"
-  },
-  "todayEmptyBody": "每日新闻需要先配置 AI 与搜索服务并完成首次数据发送告知。来源、prompt、生成与核验由 T036–T040 交付；未配置时本页保持空白，不会编造内容。",
-  "@todayEmptyBody": {
-    "description": "今日页空态说明"
   },
   "shellDatabaseFailedTitle": "本地数据库打不开",
   "@shellDatabaseFailedTitle": {
@@ -3094,5 +3050,158 @@
   "newsEffectiveQueriesEmpty": "当前没有可发送的查询（关键词为空或被禁词全部挡住）。",
   "@newsEffectiveQueriesEmpty": { "description": "没有生效查询时的说明" },
   "newsPlannedNotice": "今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。",
-  "@newsPlannedNotice": { "description": "未实现部分说明" }
+  "@newsPlannedNotice": { "description": "未实现部分说明" },
+
+  "todayGenerate": "生成今天的新闻",
+  "@todayGenerate": { "description": "今日页生成按钮" },
+  "todayRegenerate": "再生成一次",
+  "@todayRegenerate": { "description": "当天已有成功版本时的生成按钮" },
+  "todayCancelGenerate": "取消生成",
+  "@todayCancelGenerate": { "description": "取消正在进行的生成" },
+  "todayDateLabel": "查看日期",
+  "@todayDateLabel": { "description": "日期选择标签" },
+  "todayPreviousDay": "前一天",
+  "@todayPreviousDay": { "description": "前一天按钮" },
+  "todayNextDay": "后一天",
+  "@todayNextDay": { "description": "后一天按钮" },
+  "todayProgressTitle": "生成进度",
+  "@todayProgressTitle": { "description": "进度标题" },
+  "todayStageSnapshot": "固化输入快照",
+  "@todayStageSnapshot": { "description": "阶段：快照" },
+  "todayStageRequiredSites": "逐个获取必访网站",
+  "@todayStageRequiredSites": { "description": "阶段：必访站" },
+  "todayStageSearch": "联网检索",
+  "@todayStageSearch": { "description": "阶段：检索" },
+  "todayStageGenerate": "生成初稿",
+  "@todayStageGenerate": { "description": "阶段：生成" },
+  "todayStageVerify": "独立来源核验",
+  "@todayStageVerify": { "description": "阶段：核验" },
+  "todayStageSave": "保存版本",
+  "@todayStageSave": { "description": "阶段：保存" },
+  "todayNoVersionTitle": "这一天还没有新闻",
+  "@todayNoVersionTitle": { "description": "空态标题" },
+  "todayNoVersionBody": "新闻由你点「生成」后产生：会用当前配置的必访网站、搜索关键词与模型，基于本机文章与联网检索材料生成带引用的条目。未生成前这里是空的，不会编造内容。",
+  "@todayNoVersionBody": { "description": "空态说明" },
+  "todayMaterialCount": "本次输入材料 {count} 条",
+  "@todayMaterialCount": {
+    "description": "材料数说明",
+    "placeholders": { "count": { "type": "int", "example": "12" } }
+  },
+  "todayRejectedCount": "其中 {count} 条因引用不实被退回",
+  "@todayRejectedCount": {
+    "description": "被退回条目数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  },
+  "todaySiteFailedTitle": "必访网站获取情况",
+  "@todaySiteFailedTitle": { "description": "逐站状态标题" },
+  "todaySiteOk": "已获取（{chars} 字符）",
+  "@todaySiteOk": {
+    "description": "站点成功",
+    "placeholders": { "chars": { "type": "int", "example": "1200" } }
+  },
+  "todaySiteTimeout": "超时未完成",
+  "@todaySiteTimeout": { "description": "站点超时" },
+  "todaySiteFailed": "获取失败（{reason}）",
+  "@todaySiteFailed": {
+    "description": "站点失败",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "todaySiteSkipped": "本次未执行",
+  "@todaySiteSkipped": { "description": "站点未执行" },
+  "todayLabelSingleSource": "来源单一",
+  "@todayLabelSingleSource": { "description": "证据标签：来源单一" },
+  "todayLabelInsufficient": "材料不足",
+  "@todayLabelInsufficient": { "description": "证据标签：材料不足" },
+  "todayLabelConflict": "来源冲突",
+  "@todayLabelConflict": { "description": "证据标签：来源冲突" },
+  "todayLabelNotVerified": "未联网核验",
+  "@todayLabelNotVerified": { "description": "证据标签：未联网核验" },
+  "todayLabelLegend": "标签说明：来源单一 = 只找到一条独立来源；材料不足 = 核验没有拿到可用结果；来源冲突 = 第二条来源明确否定；未联网核验 = 没有配置搜索服务。这些是核验过程的说明，不是对真实性的保证。",
+  "@todayLabelLegend": { "description": "标签说明" },
+  "todayCitationLocal": "本机文章",
+  "@todayCitationLocal": { "description": "引用类型：本机文章" },
+  "todayCitationOpen": "在浏览器打开",
+  "@todayCitationOpen": { "description": "引用外开按钮" },
+  "todayCitationRss": "RSS",
+  "@todayCitationRss": { "description": "引用获取方式：RSS" },
+  "todayCitationFetch": "抓取",
+  "@todayCitationFetch": { "description": "引用获取方式：抓取" },
+  "todayCitationSearch": "检索片段",
+  "@todayCitationSearch": { "description": "引用获取方式：检索" },
+  "todayCitationIncomplete": "这一条引用缺字段：{fields}",
+  "@todayCitationIncomplete": {
+    "description": "引用不完整提示",
+    "placeholders": { "fields": { "type": "String", "example": "url, excerpt" } }
+  },
+  "todayUnknownCitation": "模型引用的这些材料不存在，相关条目已退回：{ids}",
+  "@todayUnknownCitation": {
+    "description": "编造引用提示",
+    "placeholders": { "ids": { "type": "String", "example": "rss.999" } }
+  },
+  "todayVersionsTitle": "历史版本",
+  "@todayVersionsTitle": { "description": "版本列表标题" },
+  "todayVersionItem": "版本 {version}（{status}）",
+  "@todayVersionItem": {
+    "description": "版本条目",
+    "placeholders": {
+      "version": { "type": "int", "example": "2" },
+      "status": { "type": "String", "example": "partial" }
+    }
+  },
+  "todayVersionCurrent": "当前展示",
+  "@todayVersionCurrent": { "description": "当前版本标记" },
+  "todayVersionUse": "切换到这一版",
+  "@todayVersionUse": { "description": "切换版本按钮" },
+  "todayVersionSwitched": "已切换到版本 {version}",
+  "@todayVersionSwitched": {
+    "description": "切换版本回执",
+    "placeholders": { "version": { "type": "int", "example": "1" } }
+  },
+  "todayDraftLabel": "初稿",
+  "@todayDraftLabel": { "description": "初稿版本标记" },
+  "todayVerifiedLabel": "核验后",
+  "@todayVerifiedLabel": { "description": "核验后版本标记" },
+  "todayModelLabel": "模型：{model}",
+  "@todayModelLabel": {
+    "description": "模型元数据",
+    "placeholders": { "model": { "type": "String", "example": "deepseek/deepseek-chat" } }
+  },
+  "todayVerificationMethod": "核验方法：{method}",
+  "@todayVerificationMethod": {
+    "description": "核验方法记录",
+    "placeholders": { "method": { "type": "String", "example": "search=yes queries=3" } }
+  },
+  "todayCostConfirmTitle": "确认生成（会产生费用）",
+  "@todayCostConfirmTitle": { "description": "费用确认标题" },
+  "todayCostConfirmBody": "生成会用到模型调用与联网检索，可能产生费用：本次最多 {articles} 篇文章、{sites} 个必访网站、{queries} 个查询，并受总时限与 Token 预算约束。这是一次真实的网络请求与数据发送。",
+  "@todayCostConfirmBody": {
+    "description": "费用确认正文",
+    "placeholders": {
+      "articles": { "type": "int", "example": "50" },
+      "sites": { "type": "int", "example": "10" },
+      "queries": { "type": "int", "example": "10" }
+    }
+  },
+  "todayCostConfirmRegenerate": "这一天已经有生成的版本；再生成一次会新增一个版本并再次产生费用。",
+  "@todayCostConfirmRegenerate": { "description": "再生成的额外说明" },
+  "todayCostConfirmSend": "确认生成",
+  "@todayCostConfirmSend": { "description": "确认按钮" },
+  "todayCostConfirmCancel": "先不生成",
+  "@todayCostConfirmCancel": { "description": "取消按钮" },
+  "todayGenerateFailed": "本次生成没有完成：{reason}",
+  "@todayGenerateFailed": {
+    "description": "生成失败说明",
+    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+  },
+  "todayGenerateSucceeded": "已保存为新版本 {version}",
+  "@todayGenerateSucceeded": {
+    "description": "生成成功回执",
+    "placeholders": { "version": { "type": "int", "example": "2" } }
+  },
+  "todayShortfallNoInput": "本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。",
+  "@todayShortfallNoInput": { "description": "缺输入说明" },
+  "todayShortfallGlobalDisabled": "RSS 内容总开关当前是关闭的，且没有其它输入（关键词/必访网站），因此没有生成。可在「设置 → 新闻生成」打开总开关。",
+  "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
+  "todayJournalNotice": "标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。",
+  "@todayJournalNotice": { "description": "今日页底部说明" }
 }

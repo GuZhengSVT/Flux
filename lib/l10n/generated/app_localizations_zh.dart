@@ -16,36 +16,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTagline => '本地优先的新闻与 RSS 阅读器';
 
   @override
-  String get milestoneShellNotice => '当前构建是 M0 应用壳：只包含导航、主题、语言与首次引导，没有业务功能。';
-
-  @override
-  String get placeholderBadge => '占位';
-
-  @override
   String placeholderPageBody(String tasks) {
     return '本页目前只有应用壳占位，没有接入数据与交互。计划任务：$tasks。';
   }
-
-  @override
-  String get layoutPaneSource => '订阅源栏';
-
-  @override
-  String get layoutPaneList => '文章列表';
-
-  @override
-  String get layoutPaneBody => '正文区';
-
-  @override
-  String get layoutBreakpointSingle => '单栏布局（窗口宽度 <600）';
-
-  @override
-  String get layoutBreakpointDouble => '双栏布局（600–1099）';
-
-  @override
-  String get layoutBreakpointTriple => '三栏布局（≥1100）';
-
-  @override
-  String get layoutShellNote => '本期只做壳：以下区域都是占位面板，没有数据、没有交互，也不代表已实现这些区域的功能。';
 
   @override
   String get navToday => '今日新闻';
@@ -74,13 +47,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get emptyNoResultsBody => '换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。';
-
-  @override
-  String get todayEmptyTitle => '今天还没有新闻';
-
-  @override
-  String get todayEmptyBody =>
-      '每日新闻需要先配置 AI 与搜索服务并完成首次数据发送告知。来源、prompt、生成与核验由 T036–T040 交付；未配置时本页保持空白，不会编造内容。';
 
   @override
   String get shellDatabaseFailedTitle => '本地数据库打不开';
@@ -2421,4 +2387,193 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get newsPlannedNotice =>
       '今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。';
+
+  @override
+  String get todayGenerate => '生成今天的新闻';
+
+  @override
+  String get todayRegenerate => '再生成一次';
+
+  @override
+  String get todayCancelGenerate => '取消生成';
+
+  @override
+  String get todayDateLabel => '查看日期';
+
+  @override
+  String get todayPreviousDay => '前一天';
+
+  @override
+  String get todayNextDay => '后一天';
+
+  @override
+  String get todayProgressTitle => '生成进度';
+
+  @override
+  String get todayStageSnapshot => '固化输入快照';
+
+  @override
+  String get todayStageRequiredSites => '逐个获取必访网站';
+
+  @override
+  String get todayStageSearch => '联网检索';
+
+  @override
+  String get todayStageGenerate => '生成初稿';
+
+  @override
+  String get todayStageVerify => '独立来源核验';
+
+  @override
+  String get todayStageSave => '保存版本';
+
+  @override
+  String get todayNoVersionTitle => '这一天还没有新闻';
+
+  @override
+  String get todayNoVersionBody =>
+      '新闻由你点「生成」后产生：会用当前配置的必访网站、搜索关键词与模型，基于本机文章与联网检索材料生成带引用的条目。未生成前这里是空的，不会编造内容。';
+
+  @override
+  String todayMaterialCount(int count) {
+    return '本次输入材料 $count 条';
+  }
+
+  @override
+  String todayRejectedCount(int count) {
+    return '其中 $count 条因引用不实被退回';
+  }
+
+  @override
+  String get todaySiteFailedTitle => '必访网站获取情况';
+
+  @override
+  String todaySiteOk(int chars) {
+    return '已获取（$chars 字符）';
+  }
+
+  @override
+  String get todaySiteTimeout => '超时未完成';
+
+  @override
+  String todaySiteFailed(String reason) {
+    return '获取失败（$reason）';
+  }
+
+  @override
+  String get todaySiteSkipped => '本次未执行';
+
+  @override
+  String get todayLabelSingleSource => '来源单一';
+
+  @override
+  String get todayLabelInsufficient => '材料不足';
+
+  @override
+  String get todayLabelConflict => '来源冲突';
+
+  @override
+  String get todayLabelNotVerified => '未联网核验';
+
+  @override
+  String get todayLabelLegend =>
+      '标签说明：来源单一 = 只找到一条独立来源；材料不足 = 核验没有拿到可用结果；来源冲突 = 第二条来源明确否定；未联网核验 = 没有配置搜索服务。这些是核验过程的说明，不是对真实性的保证。';
+
+  @override
+  String get todayCitationLocal => '本机文章';
+
+  @override
+  String get todayCitationOpen => '在浏览器打开';
+
+  @override
+  String get todayCitationRss => 'RSS';
+
+  @override
+  String get todayCitationFetch => '抓取';
+
+  @override
+  String get todayCitationSearch => '检索片段';
+
+  @override
+  String todayCitationIncomplete(String fields) {
+    return '这一条引用缺字段：$fields';
+  }
+
+  @override
+  String todayUnknownCitation(String ids) {
+    return '模型引用的这些材料不存在，相关条目已退回：$ids';
+  }
+
+  @override
+  String get todayVersionsTitle => '历史版本';
+
+  @override
+  String todayVersionItem(int version, String status) {
+    return '版本 $version（$status）';
+  }
+
+  @override
+  String get todayVersionCurrent => '当前展示';
+
+  @override
+  String get todayVersionUse => '切换到这一版';
+
+  @override
+  String todayVersionSwitched(int version) {
+    return '已切换到版本 $version';
+  }
+
+  @override
+  String get todayDraftLabel => '初稿';
+
+  @override
+  String get todayVerifiedLabel => '核验后';
+
+  @override
+  String todayModelLabel(String model) {
+    return '模型：$model';
+  }
+
+  @override
+  String todayVerificationMethod(String method) {
+    return '核验方法：$method';
+  }
+
+  @override
+  String get todayCostConfirmTitle => '确认生成（会产生费用）';
+
+  @override
+  String todayCostConfirmBody(int articles, int sites, int queries) {
+    return '生成会用到模型调用与联网检索，可能产生费用：本次最多 $articles 篇文章、$sites 个必访网站、$queries 个查询，并受总时限与 Token 预算约束。这是一次真实的网络请求与数据发送。';
+  }
+
+  @override
+  String get todayCostConfirmRegenerate => '这一天已经有生成的版本；再生成一次会新增一个版本并再次产生费用。';
+
+  @override
+  String get todayCostConfirmSend => '确认生成';
+
+  @override
+  String get todayCostConfirmCancel => '先不生成';
+
+  @override
+  String todayGenerateFailed(String reason) {
+    return '本次生成没有完成：$reason';
+  }
+
+  @override
+  String todayGenerateSucceeded(int version) {
+    return '已保存为新版本 $version';
+  }
+
+  @override
+  String get todayShortfallNoInput =>
+      '本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。';
+
+  @override
+  String get todayShortfallGlobalDisabled =>
+      'RSS 内容总开关当前是关闭的，且没有其它输入（关键词/必访网站），因此没有生成。可在「设置 → 新闻生成」打开总开关。';
+
+  @override
+  String get todayJournalNotice => '标签、版本与材料都来自本机记录；模型输出不是事实保证，请按引用自行核对。';
 }

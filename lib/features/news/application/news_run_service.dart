@@ -34,6 +34,7 @@ import 'package:flux/features/ai/domain/tool_call.dart';
 
 import 'news_run_inputs.dart';
 import 'news_source_config.dart';
+import 'news_verification_service.dart';
 
 /// 本次任务从设置读到的上限（SET-060/061/062/063）。
 ///
@@ -210,6 +211,8 @@ final class NewsRunService {
     required this.zone,
     this.settings = const NewsTaskSettings(),
     this.onStage,
+    this.verifyCitations = true,
+    this.verificationBudget = const NewsVerificationBudget(),
   });
 
   /// 选材候选读取端口。
@@ -249,6 +252,15 @@ final class NewsRunService {
 
   /// 阶段变更回调（界面进度显示）。
   final void Function(NewsRunStage stage)? onStage;
+
+  /// 是否执行 T038 的独立来源核验。
+  ///
+  /// 默认开启（架构 4.4 的流程里核验是必经一步）。允许关闭只为两种真实场景：
+  /// 用户明确只要初稿（不需要联网核验的二次检索），以及测试里把核验与生成分开验证。
+  final bool verifyCitations;
+
+  /// 核验的资源上限（T038）。
+  final NewsVerificationBudget verificationBudget;
 
   /// 执行一次任务。
   Future<NewsRunOutcome> run(NewsRunInput input) async {
@@ -629,8 +641,89 @@ final class NewsRunService {
     }
 
     // ---- 阶段 6：保存新版本 ---------------------------------------------------
+    //
+    // 分两步保存（T038）：**先存初稿版本**，再做独立来源核验，核验后追加一个带证据标签的
+    // 新版本。这样用户能在版本列表里对照「初稿」与「核验后」两份内容，而不是只看到一份
+    // 被就地改写的文本（架构 4.4「保存新版本 / 保留上个成功版本」）。
+    final bool anySiteFailed = siteResults.any(
+      (NewsSiteFetchResult r) => r.failed,
+    );
+    List<NewsDraftItem> finalItems = parsed.items;
+    NewsVerificationMethod? verificationMethod;
+    bool verificationFailed = false;
+    AppError? verificationError;
+    int verifiedCount = 0;
+
+    if (verifyCitations) {
+      _stage(NewsRunStage.save);
+      final NewsRunRecord draftRecord = NewsRunRecord(
+        localDate: snapshot.localDate,
+        timeZone: snapshot.deviceTimeZone,
+        version: await _nextVersion(snapshot),
+        status: anySiteFailed ? TaskStatus.partial : TaskStatus.succeeded,
+        snapshot: snapshot,
+        siteResults: siteResults,
+        materials: materials,
+        items: parsed.items,
+        createdAt: nowUtc,
+        isCurrent: true,
+        draftText: text,
+        providerAlias: outcome.alias,
+        modelId: outcome.modelId,
+        consumedTokens: outcome.consumedTokens,
+        attemptCount: outcome.attemptCount,
+      );
+      final Result<NewsRunRecord> draftSaved = await runs.append(draftRecord);
+      if (draftSaved.isErr) {
+        diagnostics.warning(
+          '新闻初稿保存失败 kind=${draftSaved.errorOrNull!.kind}',
+          tag: 'news.run',
+        );
+        return NewsRunOutcome(
+          status: TaskStatus.failed,
+          snapshot: snapshot,
+          aggregation: aggregation,
+          error: draftSaved.errorOrNull,
+          stage: NewsRunStage.save,
+        );
+      }
+
+      _stage(NewsRunStage.verify);
+      final NewsVerificationOutcome verification =
+          await NewsVerificationService(
+            buildTools: buildTools,
+            diagnostics: diagnostics,
+            budget: verificationBudget,
+          ).verify(
+            items: parsed.items,
+            materials: materials,
+            blockedQueryTerms: snapshot.blockedQueryTerms,
+            searchConfigured: searchConfigured,
+            cancellation: cancel,
+          );
+      finalItems = verification.items;
+      verificationMethod = verification.method;
+      verificationFailed = verification.failed;
+      verificationError = verification.error;
+      verifiedCount = verification.verifiedItemCount;
+      if (verificationFailed) {
+        // 核验失败**不丢初稿**（见 NewsVerificationService 的文件头说明）：初稿版本已经
+        // 落库且仍是当前版本，因此用户手上的东西一件都没少。
+        diagnostics.warning(
+          '核验未完成（保留初稿版本）kind=${verificationError?.kind ?? 'unknown'}',
+          tag: 'news.run',
+        );
+      }
+    }
+
     _stage(NewsRunStage.save);
-    final bool degraded = siteResults.any((NewsSiteFetchResult r) => r.failed);
+    final bool hasConflict = finalItems.any(
+      (NewsDraftItem item) =>
+          item.labels.contains(NewsEvidenceLabel.sourceConflict),
+    );
+    // 有站点失败、核验失败或出现来源冲突 → partial（部分结果，清楚标注）；
+    // 其余为完整成功。
+    final bool degraded = anySiteFailed || verificationFailed || hasConflict;
     final NewsRunRecord record = NewsRunRecord(
       localDate: snapshot.localDate,
       timeZone: snapshot.deviceTimeZone,
@@ -639,7 +732,7 @@ final class NewsRunService {
       snapshot: snapshot,
       siteResults: siteResults,
       materials: materials,
-      items: parsed.items,
+      items: finalItems,
       createdAt: nowUtc,
       isCurrent: true,
       draftText: text,
@@ -647,6 +740,7 @@ final class NewsRunService {
       modelId: outcome.modelId,
       consumedTokens: outcome.consumedTokens,
       attemptCount: outcome.attemptCount,
+      verificationMethod: verificationMethod?.describe(),
     );
     final Result<NewsRunRecord> saved = await runs.append(record);
     if (saved.isErr) {
@@ -665,7 +759,8 @@ final class NewsRunService {
     diagnostics.info(
       '新闻任务完成 date=${snapshot.localDate} status=${record.status.name} '
       'items=${parsed.keptItems.length} rejected=${parsed.rejectedItems.length} '
-      'materials=${materials.length} tokens=${outcome.consumedTokens}',
+      'materials=${materials.length} tokens=${outcome.consumedTokens} '
+      'verified=$verifiedCount',
       tag: 'news.run',
     );
     return NewsRunOutcome(
