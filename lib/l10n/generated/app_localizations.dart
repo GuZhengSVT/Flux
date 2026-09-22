@@ -5439,6 +5439,120 @@ abstract class AppLocalizations {
   /// **'正文尚未同步'**
   String get readingBodyNotSyncedBadge;
 
+  /// 备份小节标题（T046）
+  ///
+  /// In zh, this message translates to:
+  /// **'备份与恢复'**
+  String get settingsBackupSectionTitle;
+
+  /// 备份风险告知（架构 5.3）
+  ///
+  /// In zh, this message translates to:
+  /// **'明文备份包含个人订阅与正文，任何持有者均可读取；密码与 API Key 从不写入备份（它们只在系统钥匙串里）。'**
+  String get settingsBackupNotice;
+
+  /// SET-076 含媒体开关
+  ///
+  /// In zh, this message translates to:
+  /// **'包含图片缓存（体积更大；不含媒体则恢复后图片需重新下载）'**
+  String get settingsBackupIncludeMedia;
+
+  /// 导出按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'导出明文备份…'**
+  String get settingsBackupExport;
+
+  /// 恢复按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'从备份恢复…'**
+  String get settingsBackupRestore;
+
+  /// 导出回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已导出备份：{entries} 个条目，{size} KB。'**
+  String settingsBackupExportDone(int entries, int size);
+
+  /// 导出前风险确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导出明文备份'**
+  String get settingsBackupRiskConfirmTitle;
+
+  /// 风险确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'我已了解，继续导出'**
+  String get settingsBackupRiskConfirmContinue;
+
+  /// 取消按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'取消'**
+  String get settingsBackupCancel;
+
+  /// 恢复预检标题
+  ///
+  /// In zh, this message translates to:
+  /// **'备份内容'**
+  String get settingsBackupRestorePreviewTitle;
+
+  /// 恢复预检信息行
+  ///
+  /// In zh, this message translates to:
+  /// **'备份时间 {time} · schema v{schema} · {articles} 篇文章 · {feeds} 个订阅 · {media}'**
+  String settingsBackupPreviewLine(
+    String time,
+    int schema,
+    int articles,
+    int feeds,
+    String media,
+  );
+
+  /// 含媒体
+  ///
+  /// In zh, this message translates to:
+  /// **'含媒体缓存'**
+  String get settingsBackupWithMedia;
+
+  /// 不含媒体
+  ///
+  /// In zh, this message translates to:
+  /// **'不含媒体缓存'**
+  String get settingsBackupWithoutMedia;
+
+  /// 恢复二次确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复会先把备份内容写到一个新的数据目录并校验它可用；校验通过后才会切换。任何一步失败都不会改动当前数据。'**
+  String get settingsBackupRestoreConfirmBody;
+
+  /// 恢复确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复并切换'**
+  String get settingsBackupRestoreConfirmAction;
+
+  /// 恢复完成回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已恢复到新目录并校验通过：{articles} 篇文章、{media} 个媒体文件。当前数据未被改动；重启应用后使用恢复出的数据。'**
+  String settingsBackupRestoreDone(int articles, int media);
+
+  /// 失败回执
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败：{reason}（当前数据未被改动）'**
+  String settingsBackupFailed(String reason);
+
+  /// 保存路径
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存到：{path}'**
+  String settingsBackupPathNote(String path);
+
   /// 设置页同步入口说明
   ///
   /// In zh, this message translates to:

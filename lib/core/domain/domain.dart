@@ -6,6 +6,7 @@
 library;
 
 export 'article_identity.dart';
+export 'backup.dart';
 export 'article_catalog.dart';
 export 'article_search.dart';
 export 'article_summary.dart';

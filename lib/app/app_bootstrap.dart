@@ -33,21 +33,11 @@ import 'package:flux/infrastructure/local/settings_repository.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/infrastructure/platform/keychain_store.dart';
 
-/// 应用数据目录名（与包标识一致的稳定名字，便于用户定位）。
-const String fluxDataDirectoryName = 'Flux';
-
-/// 数据库文件名。
-const String fluxDatabaseFileName = 'flux.sqlite';
-
-/// 诊断日志文件名。
-const String fluxDiagnosticLogFileName = 'diagnostics.log';
-
-/// 媒体缓存目录名（T021；与数据库同放在应用数据目录下）。
-///
-/// 与数据库并列而不是放进系统临时目录：缓存要跨启动保留（「离线可读」依赖它），
-/// 而临时目录会被系统清理。放在同一个数据目录下也让「一键清缓存」与「彻底卸载」
-/// 有一个明确的边界（T047 处理清理策略）。
-const String fluxMediaCacheDirectoryName = 'media';
+// 数据目录的四个名字（T046 起定义在 lib/core/storage_layout.dart）。
+//
+// 为什么搬走：备份与恢复要知道「数据库文件叫什么、媒体目录叫什么」，而它们的实现在
+// infrastructure——那层 import lib/app 会形成目录级循环。core 是两边都能依赖的层，
+// 因此常量的归属在那儿；这里保留同名符号（同一份定义），历史调用点无需改动。
 
 /// 启动装配结果：可用依赖，以及「哪些能力被降级」的明确记录。
 final class AppBootstrapResult {

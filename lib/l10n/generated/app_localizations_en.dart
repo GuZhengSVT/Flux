@@ -3276,6 +3276,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingBodyNotSyncedBadge => 'Body not synced';
 
   @override
+  String get settingsBackupSectionTitle => 'Backup & restore';
+
+  @override
+  String get settingsBackupNotice =>
+      'A plaintext backup contains your subscriptions and article bodies, and anyone holding the file can read it. Passwords and API keys are never written into a backup (they live only in the system keychain).';
+
+  @override
+  String get settingsBackupIncludeMedia =>
+      'Include the image cache (larger file; without it, images are re-downloaded after a restore)';
+
+  @override
+  String get settingsBackupExport => 'Export plaintext backup…';
+
+  @override
+  String get settingsBackupRestore => 'Restore from a backup…';
+
+  @override
+  String settingsBackupExportDone(int entries, int size) {
+    return 'Backup exported: $entries entries, $size KB.';
+  }
+
+  @override
+  String get settingsBackupRiskConfirmTitle => 'Export a plaintext backup';
+
+  @override
+  String get settingsBackupRiskConfirmContinue => 'I understand, export it';
+
+  @override
+  String get settingsBackupCancel => 'Cancel';
+
+  @override
+  String get settingsBackupRestorePreviewTitle => 'Backup contents';
+
+  @override
+  String settingsBackupPreviewLine(
+    String time,
+    int schema,
+    int articles,
+    int feeds,
+    String media,
+  ) {
+    return 'Backed up $time · schema v$schema · $articles articles · $feeds feeds · $media';
+  }
+
+  @override
+  String get settingsBackupWithMedia => 'includes the media cache';
+
+  @override
+  String get settingsBackupWithoutMedia => 'without the media cache';
+
+  @override
+  String get settingsBackupRestoreConfirmBody =>
+      'Restoring first writes the backup into a NEW data directory and verifies it is usable; only then does it switch. If any step fails, your current data is untouched.';
+
+  @override
+  String get settingsBackupRestoreConfirmAction => 'Restore and switch';
+
+  @override
+  String settingsBackupRestoreDone(int articles, int media) {
+    return 'Restored into a new directory and verified: $articles articles, $media media files. Your current data was not modified; restart the app to use the restored data.';
+  }
+
+  @override
+  String settingsBackupFailed(String reason) {
+    return 'Operation failed: $reason (your current data was not modified)';
+  }
+
+  @override
+  String settingsBackupPathNote(String path) {
+    return 'Saved to: $path';
+  }
+
+  @override
   String get settingsSyncEntrySubtitle =>
       'WebDAV sync, sync scope, first merge and conflict handling';
 }

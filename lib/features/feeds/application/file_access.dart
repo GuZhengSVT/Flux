@@ -15,13 +15,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 用户选中的一个文件。
 class PickedFile {
   /// 构造选中文件。
-  const PickedFile({required this.path, required this.content});
+  const PickedFile({
+    required this.path,
+    required this.content,
+    this.bytes = const <int>[],
+  });
 
   /// 文件路径（仅用于显示与诊断，不写进数据库）。
   final String path;
 
   /// 文件文本内容。
   final String content;
+
+  /// 文件原始字节（T046 的备份包是二进制）。
+  ///
+  /// 与 [content] 并列而不是只留一个：OPML 是文本，用文本读更省事也更可断言；而 ZIP 用
+  /// 文本读会**破坏内容**（非法 UTF-8 序列会被替换字符改写），因此二进制入口必须存在，
+  /// 且两者不能互相冒充。
+  final List<int> bytes;
 }
 
 /// 文件读写端口。
@@ -34,6 +45,17 @@ abstract interface class FileAccessPort {
 
   /// 让用户选保存位置并写文本；用户取消时返回 `Ok(null)`；返回值为最终路径。
   Future<Result<String?>> saveOpml(String suggestedName, String content);
+
+  /// 让用户选一个**二进制**文件并读回字节（T046 的备份包）；取消时返回 `Ok(null)`。
+  Future<Result<PickedFile?>> pickArchiveToRead();
+
+  /// 让用户选保存位置并写**字节**（T046 的备份包）；取消时返回 `Ok(null)`；返回最终路径。
+  Future<Result<String?>> saveBytes(
+    String suggestedName,
+    List<int> bytes, {
+    required String mimeType,
+    required List<String> extensions,
+  });
 }
 
 /// 文件端口（由组合根注入平台实现）。

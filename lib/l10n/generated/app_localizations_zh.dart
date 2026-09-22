@@ -3114,5 +3114,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingBodyNotSyncedBadge => '正文尚未同步';
 
   @override
+  String get settingsBackupSectionTitle => '备份与恢复';
+
+  @override
+  String get settingsBackupNotice =>
+      '明文备份包含个人订阅与正文，任何持有者均可读取；密码与 API Key 从不写入备份（它们只在系统钥匙串里）。';
+
+  @override
+  String get settingsBackupIncludeMedia => '包含图片缓存（体积更大；不含媒体则恢复后图片需重新下载）';
+
+  @override
+  String get settingsBackupExport => '导出明文备份…';
+
+  @override
+  String get settingsBackupRestore => '从备份恢复…';
+
+  @override
+  String settingsBackupExportDone(int entries, int size) {
+    return '已导出备份：$entries 个条目，$size KB。';
+  }
+
+  @override
+  String get settingsBackupRiskConfirmTitle => '导出明文备份';
+
+  @override
+  String get settingsBackupRiskConfirmContinue => '我已了解，继续导出';
+
+  @override
+  String get settingsBackupCancel => '取消';
+
+  @override
+  String get settingsBackupRestorePreviewTitle => '备份内容';
+
+  @override
+  String settingsBackupPreviewLine(
+    String time,
+    int schema,
+    int articles,
+    int feeds,
+    String media,
+  ) {
+    return '备份时间 $time · schema v$schema · $articles 篇文章 · $feeds 个订阅 · $media';
+  }
+
+  @override
+  String get settingsBackupWithMedia => '含媒体缓存';
+
+  @override
+  String get settingsBackupWithoutMedia => '不含媒体缓存';
+
+  @override
+  String get settingsBackupRestoreConfirmBody =>
+      '恢复会先把备份内容写到一个新的数据目录并校验它可用；校验通过后才会切换。任何一步失败都不会改动当前数据。';
+
+  @override
+  String get settingsBackupRestoreConfirmAction => '恢复并切换';
+
+  @override
+  String settingsBackupRestoreDone(int articles, int media) {
+    return '已恢复到新目录并校验通过：$articles 篇文章、$media 个媒体文件。当前数据未被改动；重启应用后使用恢复出的数据。';
+  }
+
+  @override
+  String settingsBackupFailed(String reason) {
+    return '操作失败：$reason（当前数据未被改动）';
+  }
+
+  @override
+  String settingsBackupPathNote(String path) {
+    return '已保存到：$path';
+  }
+
+  @override
   String get settingsSyncEntrySubtitle => 'WebDAV 同步、同步范围、首次合并与冲突处理';
 }

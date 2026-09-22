@@ -29,6 +29,7 @@ import '../application/sync_manager.dart';
 import '../application/remote_deletion_use_case.dart';
 import '../application/sync_providers.dart';
 import '../application/sync_settings.dart';
+import 'backup_section.dart';
 import 'sync_status_text.dart';
 
 /// 同步与备份页（WebDAV 小节）。
@@ -498,6 +499,9 @@ class _SyncSettingsPageState extends ConsumerState<SyncSettingsPage> {
                 );
               },
             ),
+          // T046：备份与恢复小节放在同步区之后（它是同一页上的「配置 + 数据」两件事，
+          // 而用户找备份时会先想到「同步与备份」这个入口名）。
+          const BackupSection(),
         ],
       ),
     );

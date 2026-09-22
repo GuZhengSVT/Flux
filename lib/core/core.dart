@@ -5,12 +5,14 @@
 library;
 
 export 'clock.dart';
+export 'archive/zip_archive.dart';
 export 'diagnostics/diagnostic_sink.dart';
 export 'digest/sha256.dart';
 export 'domain/domain.dart';
 export 'error/app_error.dart';
 export 'error/secret_redaction.dart';
 export 'result.dart';
+export 'storage_layout.dart';
 export 'settings/settings.dart';
 export 'task/task_snapshot.dart';
 export 'task/task_status.dart';

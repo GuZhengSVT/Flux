@@ -18,6 +18,8 @@ import 'dart:async';
 // Override 类型在 riverpod 3 的 misc 入口（flutter_riverpod.dart 不再导出它）。
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import 'package:path/path.dart' as p;
+
 import 'package:flux/core/core.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/ai/application/ai_ports.dart';
@@ -112,7 +114,11 @@ import 'package:flux/features/statistics/application/reading_stats_ports.dart';
 import 'package:flux/features/sync/application/sync_engine.dart';
 import 'package:flux/features/sync/application/sync_manager.dart';
 import 'package:flux/features/sync/application/sync_providers.dart';
+import 'package:flux/features/sync/application/backup_providers.dart';
+import 'package:flux/features/sync/application/backup_use_case.dart';
 import 'package:flux/features/sync/application/sync_settings.dart';
+import 'package:flux/infrastructure/local/backup_content_source.dart';
+import 'package:flux/infrastructure/local/degraded_backup_source.dart';
 import 'package:flux/infrastructure/local/degraded_sync_local_store.dart';
 import 'package:flux/infrastructure/local/feed_tombstone_reader.dart';
 import 'package:flux/infrastructure/local/sync_local_store.dart';
@@ -214,7 +220,12 @@ List<Override> bootstrapOverrides(
   // T044：同步的只读探测端口参数化（理由同上：Riverpod 禁止重复覆盖）。测试据此构造
   // 「测试连接成功/失败/目录不存在」三种世界，而不必真的连一台服务器。
   SyncConnectionProber? syncConnectionProber,
+  // T046：备份用例与恢复目录规划器也参数化（理由同上：Riverpod 禁止重复覆盖）。测试据此
+  // 构造「导出失败」「包里哈希不符」这些无法用真实文件系统稳定制造的世界。
+  BackupUseCase? backupUseCase,
+  String Function(String token)? backupNewDirectory,
 }) {
+  _restoreDirectoryBase = result.dataDirectoryPath;
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
       AppBootstrapStatus(
@@ -401,10 +412,37 @@ List<Override> bootstrapOverrides(
       feedTombstoneReaderProvider.overrideWithValue(
         DriftFeedTombstoneReader(catalogDatabase),
       ),
+      // T046：备份与恢复。一致性快照接的是 drift 的 VACUUM INTO（不是复制活动数据库文件），
+      // 因此 WAL 里已提交的内容会被读到——复制文件会静默漏掉它们。
+      backupUseCaseProvider.overrideWithValue(
+        backupUseCase ??
+            BackupUseCase(
+              content: DriftBackupContentSource(
+                catalogDatabase,
+                dataDirectoryPath: result.dataDirectoryPath ?? '',
+              ),
+              restoreTarget: FileBackupRestoreTarget(
+                dataDirectoryPath: result.dataDirectoryPath,
+              ),
+              files: const FileSelectorAccess(),
+              currentSchemaVersion: catalogDatabase.schemaVersion,
+            ),
+      ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
       feedArticleStoreProvider.overrideWithValue(
         const DegradedFeedArticleStore(),
+      ),
+      // T046：降级启动下没有数据库可备份。给一个**明确失败**的实现，而不是一个空实现：
+      // 空实现会让「导出」看起来成功了而磁盘上什么都没有（与上面几个端口同一口径）。
+      backupUseCaseProvider.overrideWithValue(
+        backupUseCase ??
+            const BackupUseCase(
+              content: DegradedBackupContentSource(),
+              restoreTarget: FileBackupRestoreTarget(dataDirectoryPath: null),
+              files: FileSelectorAccess(),
+              currentSchemaVersion: 0,
+            ),
       ),
       // 降级模式下文章列表退到内存空实现：读返回空集合、写返回类型化失败。
       // 不返回假的成功，理由与另外两个端口一致（见 feed_store_adapter 的说明）。
@@ -668,6 +706,18 @@ List<Override> bootstrapOverrides(
       return scheduler;
     }),
 
+    // ---- T046：备份与恢复（SET-076） ------------------------------------------
+    //
+    // 三条接线，逐条对应一个「不做就成了假功能」的点：
+    //   * **一致性快照**接的是 drift 的 VACUUM INTO（不是复制活动数据库文件），因此 WAL 里
+    //     已提交的内容会被读到；
+    //   * **恢复目标目录**由组合根规划：与运行时的数据目录**并列**，因此恢复既不覆盖当前库，
+    //     也能在重启后被使用；
+    //   * **数据目录不可用时抛错**（而不是给一个空实现）：一个「什么都不做的假备份服务」
+    //     会让用户以为导出成功，而磁盘上什么都没有。
+    backupNewDirectoryProvider.overrideWithValue(
+      backupNewDirectory ?? _newRestoreDirectory,
+    ),
     //
     // 图片加载**复用 T021 的受控加载器**（地址守卫 + MIME/魔数/体积校验 + 磁盘缓存），
     // 并在超出 SET-065 单图上限时降采样：另起一条「只给视觉用」的下载路径会让两条路径的
@@ -874,3 +924,19 @@ NewsInputSnapshot _scheduledFailureSnapshot({
   singleMaterialBudget: 0,
   globalEnabled: globalEnabled,
 );
+
+/// 规划一个**新的**恢复数据目录（T046）。
+///
+/// 与运行时的数据目录**并列**（`Flux` 与 `Flux-restored-<token>`）：恢复既不覆盖当前库，也能在
+/// 用户重启后被使用。数据目录不可解析时抛错——一个返回空串的实现会让恢复写到当前工作目录，
+/// 而那可能正是运行时数据目录，「失败不动原库」会因此被静默破坏。
+String _newRestoreDirectory(String token) {
+  final String? base = _restoreDirectoryBase;
+  if (base == null) {
+    throw StateError('数据目录不可用：无法规划恢复目录');
+  }
+  return p.join(p.dirname(base), '${p.basename(base)}-restored-$token');
+}
+
+/// 供 [_newRestoreDirectory] 使用的数据目录（由装配在启动时写入）。
+String? _restoreDirectoryBase;
