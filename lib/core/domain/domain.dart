@@ -32,6 +32,7 @@ export 'reading_state.dart';
 export 'reading_session.dart';
 export 'reading_stats.dart';
 export 'reading_stats_store.dart';
+export 'remote_deletion.dart';
 export 'stable_id.dart';
 export 'sync_article_key.dart';
 export 'sync_first_merge.dart';

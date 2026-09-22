@@ -530,6 +530,7 @@ final class DriftArticleCatalogStore implements ArticleCatalogStore {
       readingState: row.readingState,
       favorite: row.favorite,
       bodyCompleteness: row.bodyCompleteness,
+      identityBasis: row.identityBasis,
       publishedAt: row.publishedAt,
       fetchedAt: row.fetchedAt,
       summary: row.summary,

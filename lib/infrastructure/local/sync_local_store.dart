@@ -181,7 +181,18 @@ final class DriftSyncLocalStore implements SyncLocalStore {
       final List<SyncTombstoneRecord> tombstones = await _db
           .select(_db.syncTombstones)
           .get();
+      // 「保留收藏」这份**操作元数据**（架构 5.2「删除订阅的保留收藏选择进入同步操作
+      // 元数据」）住在 T018 的 deletion_events：墓碑表只记「这个键被删了」，而别的设备
+      // 在应用这次删除**之前**必须能展示它的破坏性影响，因此这里按 syncId 关联它。
+      final Map<String, bool?> keepFavoritesByKey = <String, bool?>{};
+      for (final DeletionEvent event
+          in await _db.select(_db.deletionEvents).get()) {
+        keepFavoritesByKey['${event.entityType}\u0000${event.syncId}'] =
+            event.keepFavorites;
+      }
       for (final SyncTombstoneRecord row in tombstones) {
+        final bool? keepFavorites =
+            keepFavoritesByKey['${row.entityKind}\u0000${row.entityKey}'];
         deletions[deletionKey(
           kind: row.entityKind,
           key: row.entityKey,
@@ -190,6 +201,7 @@ final class DriftSyncLocalStore implements SyncLocalStore {
           key: row.entityKey,
           displayName: row.displayName,
           revision: row.revision,
+          keepFavorites: keepFavorites,
         );
       }
 

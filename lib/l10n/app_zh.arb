@@ -3582,7 +3582,7 @@
     "description": "远端删除标题",
     "placeholders": { "count": { "type": "int", "example": "1" } }
   },
-  "syncRemoteDeletionNote": "本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。",
+  "syncRemoteDeletionNote": "本机数据尚未清除：跨设备的删除要先看清影响范围再逐条确认（未确认之前一行都不会动）。",
   "@syncRemoteDeletionNote": { "description": "远端删除说明" },
   "syncSaveFailed": "保存失败：{reason}",
   "@syncSaveFailed": {
@@ -3591,6 +3591,44 @@
   },
   "settingsSyncEntryTitle": "同步与备份",
   "@settingsSyncEntryTitle": { "description": "设置页同步入口标题" },
+  "syncRemoteDeletionApply": "确认并应用这条删除",
+  "@syncRemoteDeletionApply": { "description": "应用远端删除按钮（T045）" },
+  "syncRemoteDeletionKeepFavorites": "保留收藏（非收藏文章含「稍后再读」会被清理）",
+  "@syncRemoteDeletionKeepFavorites": { "description": "保留收藏勾选项" },
+  "syncRemoteDeletionImpact": "将清理 {articles} 篇文章：保留收藏 {favorites} 篇，其余 {others} 篇（含稍后再读 {later} 篇）会被清掉；保留的收藏会脱离源并冻结来源快照。",
+  "@syncRemoteDeletionImpact": {
+    "description": "远端删除的影响范围",
+    "placeholders": {
+      "articles": { "type": "int" },
+      "favorites": { "type": "int" },
+      "others": { "type": "int" },
+      "later": { "type": "int" }
+    }
+  },
+  "syncRemoteDeletionNoArticles": "这条订阅下还没有文章。",
+  "@syncRemoteDeletionNoArticles": { "description": "无文章的影响说明" },
+  "syncRemoteDeletionUnsupported": "本机没有对齐到这项内容（{reason}），不能应用；本机数据保持不变。",
+  "@syncRemoteDeletionUnsupported": {
+    "description": "不可应用的远端删除",
+    "placeholders": { "reason": { "type": "String", "example": "feedNotAligned" } }
+  },
+  "syncRemoteDeletionApplied": "已应用远端删除：清理 {deleted} 篇，保留收藏 {kept} 篇（本机这次的选择会同步给其他设备）。",
+  "@syncRemoteDeletionApplied": {
+    "description": "应用完成回执",
+    "placeholders": {
+      "deleted": { "type": "int" },
+      "kept": { "type": "int" }
+    }
+  },
+  "syncRemoteDeletionPreviewFailed": "读取影响范围失败：{reason}",
+  "@syncRemoteDeletionPreviewFailed": {
+    "description": "预览失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "readingBodyNotSyncedNotice": "正文尚未同步：这篇文章的阅读状态来自其他设备，本机还没抓到它的正文。下次刷新这个源即可补齐；这里的空白不是「正文为空」。",
+  "@readingBodyNotSyncedNotice": { "description": "占位行详情页说明（T045）" },
+  "readingBodyNotSyncedBadge": "正文尚未同步",
+  "@readingBodyNotSyncedBadge": { "description": "占位行列表/详情徽标（T045）" },
   "settingsSyncEntrySubtitle": "WebDAV 同步、同步范围、首次合并与冲突处理",
   "@settingsSyncEntrySubtitle": { "description": "设置页同步入口说明" }
 }

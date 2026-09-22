@@ -61,6 +61,7 @@ class ArticleListEntry {
     this.feedUrl,
     this.imageUrl,
     this.bodyCompleteness = BodyCompleteness.unknown,
+    this.identityBasis,
   });
 
   /// 本机自增 id（列表操作与分页游标都以它为准）。
@@ -92,6 +93,17 @@ class ArticleListEntry {
   /// 完整性未知」——**不在这一层做判断**，因为「源内的 content 字段就是全文吗」这个
   /// 问题只有导入路径知道（它看得到源里的字段结构）。界面只负责如实显示判定结果。
   final BodyCompleteness bodyCompleteness;
+
+  /// 本行实际采用的识别规则（可空：某些读取路径不提供它）。
+  ///
+  /// T045 用它区分「**正文尚未同步**」与「正文为空」：远端状态到达而本机没有正文时落下的
+  /// 占位行（[IdentityBasis.remote]）是「这篇文章在别的设备上被读过，但本机还没抓到它」，
+  /// 与「源只给了摘要」或「提取失败」是三件不同的事。把它显示成正文为空会让用户以为这个源
+  /// 的内容坏了，而实际上它只是还没同步过来。
+  final IdentityBasis? identityBasis;
+
+  /// 是否是一条「正文尚未同步」的占位行（T045 的界面状态）。
+  bool get awaitingBodySync => identityBasis == IdentityBasis.remote;
 
   /// 标题（导入时保证非空）。
   final String title;

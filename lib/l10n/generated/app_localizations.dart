@@ -5365,7 +5365,7 @@ abstract class AppLocalizations {
   /// 远端删除说明
   ///
   /// In zh, this message translates to:
-  /// **'本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。'**
+  /// **'本机数据尚未清除：跨设备的删除要先看清影响范围再逐条确认（未确认之前一行都不会动）。'**
   String get syncRemoteDeletionNote;
 
   /// 保存失败
@@ -5379,6 +5379,65 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'同步与备份'**
   String get settingsSyncEntryTitle;
+
+  /// 应用远端删除按钮（T045）
+  ///
+  /// In zh, this message translates to:
+  /// **'确认并应用这条删除'**
+  String get syncRemoteDeletionApply;
+
+  /// 保留收藏勾选项
+  ///
+  /// In zh, this message translates to:
+  /// **'保留收藏（非收藏文章含「稍后再读」会被清理）'**
+  String get syncRemoteDeletionKeepFavorites;
+
+  /// 远端删除的影响范围
+  ///
+  /// In zh, this message translates to:
+  /// **'将清理 {articles} 篇文章：保留收藏 {favorites} 篇，其余 {others} 篇（含稍后再读 {later} 篇）会被清掉；保留的收藏会脱离源并冻结来源快照。'**
+  String syncRemoteDeletionImpact(
+    int articles,
+    int favorites,
+    int others,
+    int later,
+  );
+
+  /// 无文章的影响说明
+  ///
+  /// In zh, this message translates to:
+  /// **'这条订阅下还没有文章。'**
+  String get syncRemoteDeletionNoArticles;
+
+  /// 不可应用的远端删除
+  ///
+  /// In zh, this message translates to:
+  /// **'本机没有对齐到这项内容（{reason}），不能应用；本机数据保持不变。'**
+  String syncRemoteDeletionUnsupported(String reason);
+
+  /// 应用完成回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已应用远端删除：清理 {deleted} 篇，保留收藏 {kept} 篇（本机这次的选择会同步给其他设备）。'**
+  String syncRemoteDeletionApplied(int deleted, int kept);
+
+  /// 预览失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取影响范围失败：{reason}'**
+  String syncRemoteDeletionPreviewFailed(String reason);
+
+  /// 占位行详情页说明（T045）
+  ///
+  /// In zh, this message translates to:
+  /// **'正文尚未同步：这篇文章的阅读状态来自其他设备，本机还没抓到它的正文。下次刷新这个源即可补齐；这里的空白不是「正文为空」。'**
+  String get readingBodyNotSyncedNotice;
+
+  /// 占位行列表/详情徽标（T045）
+  ///
+  /// In zh, this message translates to:
+  /// **'正文尚未同步'**
+  String get readingBodyNotSyncedBadge;
 
   /// 设置页同步入口说明
   ///

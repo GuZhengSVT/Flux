@@ -145,6 +145,10 @@ final Provider<RefreshScheduler> refreshSchedulerProvider =
                   outcome: outcome,
                   errorKind: errorKind,
                 ),
+        // T045：已删除的源不复活。墓碑读取走**窄端口**（只读、只回答「哪些订阅被删过」）；
+        // 未接线时默认实现返回空集合，刷新照常进行而不是静默停摆。
+        listFeedTombstoneSyncIds: () =>
+            ref.read(feedTombstoneReaderProvider).readFeedTombstoneSyncIds(),
         networkConditions: ref.read(networkConditionsProvider),
         diagnostics: ref.read(diagnosticSinkProvider),
       );

@@ -1376,6 +1376,19 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
                 message: l10n.readingCompletenessSummaryOnlyNotice,
               ),
             ),
+          if (entry.awaitingBodySync)
+            // 「正文尚未同步」（T045）：这一行是远端状态到达时落下的占位行（本机还没抓到
+            // 这篇的正文），与「正文为空」「仅摘要」是三件不同的事。必须作为**独立状态**
+            // 显示出来，否则用户看到一片空白会以为源的内容坏了或提取失败，而实际上只要刷新
+            // 这个源就会补齐。
+            Padding(
+              key: const ValueKey<String>('detail-body-not-synced'),
+              padding: const EdgeInsets.only(bottom: FluxSpacing.md),
+              child: StatusBanner(
+                severity: StatusBannerSeverity.info,
+                message: l10n.readingBodyNotSyncedNotice,
+              ),
+            ),
           // T024：主动获取原站全文的入口与状态提示。放在正文**之前**：它是「要不要
           // 换一份正文来读」的决定，读者应当先看到这个选择，而不是读到一半才发现。
           _FetchOriginalBar(
@@ -1570,6 +1583,16 @@ class _Header extends ConsumerWidget {
               color: docTheme.textSecondary,
               border: docTheme.border,
             ),
+            if (entry.awaitingBodySync)
+              // 与列表卡片同一个徽标：进详情页之后「正文尚未同步」这个状态仍要可见，
+              // 否则读者只看到一片空白正文而不知道原因。
+              Text(
+                l10n.readingBodyNotSyncedBadge,
+                key: const ValueKey<String>('detail-body-not-synced-badge'),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: docTheme.textSecondary,
+                ),
+              ),
           ],
         ),
         const SizedBox(height: FluxSpacing.sm),

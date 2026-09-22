@@ -114,6 +114,7 @@ import 'package:flux/features/sync/application/sync_manager.dart';
 import 'package:flux/features/sync/application/sync_providers.dart';
 import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/infrastructure/local/degraded_sync_local_store.dart';
+import 'package:flux/infrastructure/local/feed_tombstone_reader.dart';
 import 'package:flux/infrastructure/local/sync_local_store.dart';
 import 'package:flux/infrastructure/local/sync_status_reader.dart';
 import 'package:flux/infrastructure/local/sync_store.dart';
@@ -394,6 +395,11 @@ List<Override> bootstrapOverrides(
       // T035：分段翻译的读写（译文只写自己的两张表，不碰 articles 的任何列）。
       articleTranslationStoreProvider.overrideWithValue(
         DriftArticleTranslationStore(catalogDatabase),
+      ),
+      // T045：刷新侧的墓碑过滤（「已删除条目不复活」）。刷新只需要一个 syncId 集合，
+      // 因此接的是**窄端口**而不是同步存储端口。
+      feedTombstoneReaderProvider.overrideWithValue(
+        DriftFeedTombstoneReader(catalogDatabase),
       ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),

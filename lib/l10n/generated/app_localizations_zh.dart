@@ -3062,7 +3062,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncRemoteDeletionNote =>
-      '本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。';
+      '本机数据尚未清除：跨设备的删除要先看清影响范围再逐条确认（未确认之前一行都不会动）。';
 
   @override
   String syncSaveFailed(String reason) {
@@ -3071,6 +3071,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSyncEntryTitle => '同步与备份';
+
+  @override
+  String get syncRemoteDeletionApply => '确认并应用这条删除';
+
+  @override
+  String get syncRemoteDeletionKeepFavorites => '保留收藏（非收藏文章含「稍后再读」会被清理）';
+
+  @override
+  String syncRemoteDeletionImpact(
+    int articles,
+    int favorites,
+    int others,
+    int later,
+  ) {
+    return '将清理 $articles 篇文章：保留收藏 $favorites 篇，其余 $others 篇（含稍后再读 $later 篇）会被清掉；保留的收藏会脱离源并冻结来源快照。';
+  }
+
+  @override
+  String get syncRemoteDeletionNoArticles => '这条订阅下还没有文章。';
+
+  @override
+  String syncRemoteDeletionUnsupported(String reason) {
+    return '本机没有对齐到这项内容（$reason），不能应用；本机数据保持不变。';
+  }
+
+  @override
+  String syncRemoteDeletionApplied(int deleted, int kept) {
+    return '已应用远端删除：清理 $deleted 篇，保留收藏 $kept 篇（本机这次的选择会同步给其他设备）。';
+  }
+
+  @override
+  String syncRemoteDeletionPreviewFailed(String reason) {
+    return '读取影响范围失败：$reason';
+  }
+
+  @override
+  String get readingBodyNotSyncedNotice =>
+      '正文尚未同步：这篇文章的阅读状态来自其他设备，本机还没抓到它的正文。下次刷新这个源即可补齐；这里的空白不是「正文为空」。';
+
+  @override
+  String get readingBodyNotSyncedBadge => '正文尚未同步';
 
   @override
   String get settingsSyncEntrySubtitle => 'WebDAV 同步、同步范围、首次合并与冲突处理';

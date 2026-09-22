@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/l10n/l10n.dart';
 
 import '../application/article_card_view.dart';
 import 'reader/article_image_view.dart';
@@ -142,7 +143,18 @@ class ArticleCardBody extends StatelessWidget {
     final Widget meta = Text(metaLine, style: theme.textTheme.labelSmall);
 
     final String? summary = entry.summary;
-    final Widget? summaryWidget = summary == null
+    // 「正文尚未同步」（T045）与「正文为空」是两件事：前者是远端状态到达、本机还没抓到
+    // 这篇的正文（占位行），后者是源只给了摘要。两者在卡片上都必须**分别可见**——把占位
+    // 行显示成一张没有摘要的普通卡片，用户会以为这个源的文章内容坏了，而它只是还没同步。
+    final Widget? summaryWidget = entry.awaitingBodySync
+        ? Text(
+            AppLocalizations.of(context).readingBodyNotSyncedBadge,
+            key: const ValueKey<String>('article-card-body-not-synced'),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          )
+        : summary == null
         ? null
         : Text(
             summary,

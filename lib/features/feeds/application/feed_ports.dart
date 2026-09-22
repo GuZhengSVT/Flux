@@ -55,3 +55,15 @@ final Provider<DiagnosticSink> diagnosticSinkProvider =
         'diagnosticSinkProvider 未被组合根覆盖：见 lib/app/app_bootstrap.dart',
       ),
     );
+
+/// 订阅墓碑的读取端口（T045 的「已删除条目不复活」在**刷新**侧的判据）。
+///
+/// 为什么单独一个窄端口而不是让 feeds 直接读同步端口：刷新只需要回答「这个源被删过吗」，
+/// 而同步端口还带着基线、待同步变更、占位行等一堆与刷新无关的能力。收窄之后，调度层既
+/// 无法顺手写同步状态，也不会因为同步层的接口变动而被迫改动——两者的唯一交点是这一条
+/// 只读查询。
+///
+/// 默认实现返回**空列表**（而不是抛错）：刷新是只读的后台行为，一个漏接线的墓碑端口
+/// 应当退化成「照常刷新」，而不是让用户的全部刷新因为一个与刷新无关的接线疏忽而失败。
+final Provider<FeedTombstoneReader> feedTombstoneReaderProvider =
+    Provider<FeedTombstoneReader>((Ref ref) => const NoopFeedTombstoneReader());

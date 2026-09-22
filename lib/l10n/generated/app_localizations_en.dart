@@ -3223,7 +3223,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncRemoteDeletionNote =>
-      'Nothing local has been cleared: applying cross-device deletions requires confirming the impact item by item (that part is a later task). Local content stays as it is for now.';
+      'Nothing local has been cleared: a cross-device deletion needs its impact reviewed and then confirmed item by item (until you confirm, not a single row changes).';
 
   @override
   String syncSaveFailed(String reason) {
@@ -3232,6 +3232,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSyncEntryTitle => 'Sync & backup';
+
+  @override
+  String get syncRemoteDeletionApply => 'Confirm and apply this deletion';
+
+  @override
+  String get syncRemoteDeletionKeepFavorites =>
+      'Keep favorites (non-favorited articles, including Later, are cleared)';
+
+  @override
+  String syncRemoteDeletionImpact(
+    int articles,
+    int favorites,
+    int others,
+    int later,
+  ) {
+    return 'This will clear $articles articles: $favorites favorites are kept, the other $others (including $later marked Later) are removed; kept favorites detach from the feed and keep a frozen source snapshot.';
+  }
+
+  @override
+  String get syncRemoteDeletionNoArticles => 'This feed has no articles yet.';
+
+  @override
+  String syncRemoteDeletionUnsupported(String reason) {
+    return 'This item is not aligned with anything on this device ($reason), so it cannot be applied; local data stays unchanged.';
+  }
+
+  @override
+  String syncRemoteDeletionApplied(int deleted, int kept) {
+    return 'Applied the remote deletion: $deleted articles cleared, $kept favorites kept (the choice you made here syncs to your other devices).';
+  }
+
+  @override
+  String syncRemoteDeletionPreviewFailed(String reason) {
+    return 'Could not read the impact: $reason';
+  }
+
+  @override
+  String get readingBodyNotSyncedNotice =>
+      'Body not synced yet: this article\'s reading state came from another device and this one has not fetched its body yet. Refreshing the feed will fill it in; the blank here does not mean an empty body.';
+
+  @override
+  String get readingBodyNotSyncedBadge => 'Body not synced';
 
   @override
   String get settingsSyncEntrySubtitle =>

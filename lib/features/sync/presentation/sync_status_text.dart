@@ -50,16 +50,17 @@ String describeSyncValue(Object? value) {
 String describeConflictField(SyncMergeConflict conflict) =>
     '${conflict.kind} · ${conflict.key} · ${conflict.field}';
 
-/// 渲染一条待确认的远端删除。
-String describeRemoteDeletion(SyncDeletion deletion) {
-  final String name = deletion.displayName ?? deletion.key;
-  final String policy = switch (deletion.keepFavorites) {
-    true => '（远端删除时选择保留收藏）',
-    false => '（远端删除时未保留收藏）',
-    null => '',
-  };
-  return '· $name$policy';
-}
+/// 渲染一条待确认的远端删除的**操作元数据**（远端当时选了哪一档）。
+///
+/// 只渲染这一句，不渲染影响范围：影响范围要读本机数据（订阅名、文章数、收藏数），
+/// 那属于预览用例（T045 的 RemoteDeletionUseCase），不在这个纯文案映射里算——在这里
+/// 顺手查一次库会让这个函数从「纯映射」变成「带 I/O」，而它的全部价值就是可以被逐条断言。
+String describeRemoteDeletionPolicy(SyncDeletion deletion) =>
+    switch (deletion.keepFavorites) {
+      true => '（远端删除时选择保留收藏）',
+      false => '（远端删除时未保留收藏）',
+      null => '',
+    };
 
 /// 渲染「上次同步」那一行（从未同步时给出一句明确的话，而不是空白）。
 String describeLastSynced(DateTime? lastSyncedAt, AppLocalizations l10n) =>

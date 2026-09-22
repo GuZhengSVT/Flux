@@ -131,6 +131,7 @@ void main() {
     required String title,
     String? summary,
     String? imageUrl,
+    IdentityBasis? identityBasis,
   }) => ArticleListEntry(
     id: 1,
     feedId: feedId,
@@ -142,6 +143,7 @@ void main() {
     fetchedAt: DateTime.utc(2026, 9, 20, 12),
     summary: summary,
     imageUrl: imageUrl,
+    identityBasis: identityBasis,
   );
 
   /// 页面级渲染（分批加载与锚点断言用）。
@@ -246,6 +248,34 @@ void main() {
         // 文字仍然完整（不因为缺图就少画内容）。
         expect(find.text('无图'), findsOneWidget);
       }
+    });
+
+    testWidgets('占位行（正文尚未同步）在卡片上明确标注，不显示成「没有摘要」', (WidgetTester tester) async {
+      // T045：identityBasis = remote 的行是「别的设备读过、本机还没抓到」，
+      // 与「源只给了摘要」是两件事。卡片上必须分别可见——把它画成一张没有摘要的
+      // 普通卡片，用户会以为这个源的内容坏了。
+      await pumpCard(
+        tester,
+        mode: ArticleCardViewMode.normal,
+        entry: entryOf(title: '别人读过的一篇', identityBasis: IdentityBasis.remote),
+      );
+      expect(
+        find.byKey(const ValueKey<String>('article-card-body-not-synced')),
+        findsOneWidget,
+      );
+      expect(find.text('正文尚未同步'), findsOneWidget);
+
+      // 普通行（有摘要）不出现这个标注。
+      await pumpCard(
+        tester,
+        mode: ArticleCardViewMode.normal,
+        entry: entryOf(title: '正常的一篇', summary: '摘要内容'),
+      );
+      expect(
+        find.byKey(const ValueKey<String>('article-card-body-not-synced')),
+        findsNothing,
+      );
+      expect(find.text('摘要内容'), findsOneWidget);
     });
 
     test('三种形态的行数与尺寸口径（纯 Dart，可逐项断言）', () {

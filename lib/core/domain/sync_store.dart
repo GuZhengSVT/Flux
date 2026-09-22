@@ -244,3 +244,34 @@ abstract interface class SyncStore {
     RemoteArticleState state,
   );
 }
+
+/// 一条**本机产生的**删除事实（T045；架构 5.2「删除操作元数据」）。
+///
+/// 为什么不是直接复用 [SyncDeletion]：那个类型是**快照里的形态**（键、显示名、修订号），
+/// 而这里是「要往本机记什么」——它多带一个 [keepFavorites]，并且不带修订号（修订号由
+/// 记录动作自己分配，外部给一个数字只会让「谁才是当前修订」有两个来源）。
+final class SyncDeletionFact {
+  /// 构造删除事实。
+  const SyncDeletionFact({
+    required this.entityKind,
+    required this.entityKey,
+    required this.displayName,
+    this.keepFavorites,
+  });
+
+  /// 实体类别（见 SyncEntityKind；本机目前只有 feed / group 会产生删除）。
+  final String entityKind;
+
+  /// 跨设备稳定标识（订阅/分组的 syncId；**绝不用本机自增 id**）。
+  final String entityKey;
+
+  /// 删除时的显示名（让别的设备能说明「删的是哪一个」）。
+  final String displayName;
+
+  /// 删除时是否选择保留收藏；null 表示该删除不涉及这个选择。
+  ///
+  /// 这是架构 5.2「删除订阅的保留收藏选择进入同步操作元数据」的落点：别的设备应用这次
+  /// 删除**之前**必须能展示它的破坏性影响，因此这个选择随删除事实一起传播，而不是各设备
+  /// 按自己的默认值处理（那会让一边说「留下 3 篇收藏」另一边删光）。
+  final bool? keepFavorites;
+}

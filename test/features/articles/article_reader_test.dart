@@ -317,6 +317,48 @@ void main() {
       }
     });
 
+    testWidgets('占位行（远端状态到达、本机没抓到正文）显示「正文尚未同步」，与「正文为空」区分', (
+      WidgetTester tester,
+    ) async {
+      // T045：这是一条 identityBasis = remote 的占位行——远方设备把阅读状态同步过来了，
+      // 但本机还没抓到它的正文。它必须显示成一个**独立状态**，否则用户看到一片空白会以为
+      // 源的内容坏了或提取失败，而实际上只要刷新这个源就会补齐。
+      final int id = await db
+          .into(db.articles)
+          .insert(
+            ArticlesCompanion.insert(
+              feedId: Value<int?>(feedId),
+              title: '别人读过的一篇',
+              identityBasis: IdentityBasis.remote,
+              syncKey: const Value<String?>('placeholder-key'),
+              readingState: const Value<ReadingState>(ReadingState.later),
+            ),
+          );
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: ArticleDetailPage(articleId: id, initialTitle: '别人读过的一篇'),
+          overrides: bootstrap.overrides(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey<String>('detail-body-not-synced')),
+        findsOneWidget,
+        reason: '「正文尚未同步」必须明说',
+      );
+      expect(find.textContaining('正文尚未同步'), findsWidgets);
+      // 与「仅摘要」是两回事：占位行没有源摘要，不该显示那一句。
+      expect(find.textContaining('来源只提供了摘要'), findsNothing);
+      // 阅读状态来自远端，且不被打开正文这一动作改写（它不是 unread）。
+      final Article row = await (db.select(
+        db.articles,
+      )..where((Articles t) => t.id.equals(id))).getSingle();
+      expect(row.readingState, ReadingState.later);
+      expect(row.body, isNull, reason: '占位行正文仍为空（同步不虚构正文）');
+    });
+
     testWidgets('打开 unread 文章：自动标已读，正文渲染出来', (WidgetTester tester) async {
       final int id = await seedArticle('未读文章', body: kArticleBody);
       await tester.pumpWidget(

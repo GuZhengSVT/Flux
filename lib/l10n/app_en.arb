@@ -2140,7 +2140,7 @@
     "description": "远端删除标题",
     "placeholders": { "count": { "type": "int", "example": "1" } }
   },
-  "syncRemoteDeletionNote": "Nothing local has been cleared: applying cross-device deletions requires confirming the impact item by item (that part is a later task). Local content stays as it is for now.",
+  "syncRemoteDeletionNote": "Nothing local has been cleared: a cross-device deletion needs its impact reviewed and then confirmed item by item (until you confirm, not a single row changes).",
   "@syncRemoteDeletionNote": { "description": "远端删除说明" },
   "syncSaveFailed": "Could not save: {reason}",
   "@syncSaveFailed": {
@@ -2149,6 +2149,44 @@
   },
   "settingsSyncEntryTitle": "Sync & backup",
   "@settingsSyncEntryTitle": { "description": "设置页同步入口标题" },
+  "syncRemoteDeletionApply": "Confirm and apply this deletion",
+  "@syncRemoteDeletionApply": { "description": "应用远端删除按钮（T045）" },
+  "syncRemoteDeletionKeepFavorites": "Keep favorites (non-favorited articles, including Later, are cleared)",
+  "@syncRemoteDeletionKeepFavorites": { "description": "保留收藏勾选项" },
+  "syncRemoteDeletionImpact": "This will clear {articles} articles: {favorites} favorites are kept, the other {others} (including {later} marked Later) are removed; kept favorites detach from the feed and keep a frozen source snapshot.",
+  "@syncRemoteDeletionImpact": {
+    "description": "远端删除的影响范围",
+    "placeholders": {
+      "articles": { "type": "int" },
+      "favorites": { "type": "int" },
+      "others": { "type": "int" },
+      "later": { "type": "int" }
+    }
+  },
+  "syncRemoteDeletionNoArticles": "This feed has no articles yet.",
+  "@syncRemoteDeletionNoArticles": { "description": "无文章的影响说明" },
+  "syncRemoteDeletionUnsupported": "This item is not aligned with anything on this device ({reason}), so it cannot be applied; local data stays unchanged.",
+  "@syncRemoteDeletionUnsupported": {
+    "description": "不可应用的远端删除",
+    "placeholders": { "reason": { "type": "String", "example": "feedNotAligned" } }
+  },
+  "syncRemoteDeletionApplied": "Applied the remote deletion: {deleted} articles cleared, {kept} favorites kept (the choice you made here syncs to your other devices).",
+  "@syncRemoteDeletionApplied": {
+    "description": "应用完成回执",
+    "placeholders": {
+      "deleted": { "type": "int" },
+      "kept": { "type": "int" }
+    }
+  },
+  "syncRemoteDeletionPreviewFailed": "Could not read the impact: {reason}",
+  "@syncRemoteDeletionPreviewFailed": {
+    "description": "预览失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "readingBodyNotSyncedNotice": "Body not synced yet: this article's reading state came from another device and this one has not fetched its body yet. Refreshing the feed will fill it in; the blank here does not mean an empty body.",
+  "@readingBodyNotSyncedNotice": { "description": "占位行详情页说明（T045）" },
+  "readingBodyNotSyncedBadge": "Body not synced",
+  "@readingBodyNotSyncedBadge": { "description": "占位行列表/详情徽标（T045）" },
   "settingsSyncEntrySubtitle": "WebDAV sync, sync scope, first merge and conflict handling",
   "@settingsSyncEntrySubtitle": { "description": "设置页同步入口说明" }
 }

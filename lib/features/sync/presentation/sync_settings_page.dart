@@ -19,11 +19,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flux/core/core.dart';
 import 'package:flux/core/design/design_tokens.dart';
+import 'package:flux/features/feeds/application/feed_ports.dart';
+import 'package:flux/features/feeds/presentation/feed_manager_controller.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/sync_engine.dart';
 import '../application/sync_manager.dart';
+import '../application/remote_deletion_use_case.dart';
 import '../application/sync_providers.dart';
 import '../application/sync_settings.dart';
 import 'sync_status_text.dart';
@@ -478,9 +481,22 @@ class _SyncSettingsPageState extends ConsumerState<SyncSettingsPage> {
                   unawaited(_resolveConflicts(choices)),
             ),
           if (status.pendingRemoteDeletions.isNotEmpty)
-            _RemoteDeletionCard(
+            _RemoteDeletionSection(
               deletions: status.pendingRemoteDeletions,
-              l10n: l10n,
+              onApplied: (RemoteDeletionApplication application) {
+                // 应用成功后**重新读取**待确认列表：远端墓碑仍在上游快照里，界面需要按
+                // 「本机现在还有哪些没对齐的删除」重算，而不是把已应用的那条从内存列表里
+                // 手动划掉（那会让「已应用」与「上游还有这条墓碑」两个事实打架）。
+                unawaited(
+                  ref.read(syncManagerProvider).request(SyncTrigger.manual),
+                );
+                setState(
+                  () => _notice = l10n.syncRemoteDeletionApplied(
+                    application.deletedArticles,
+                    application.keptFavorites,
+                  ),
+                );
+              },
             ),
         ],
       ),
@@ -982,43 +998,206 @@ class _ConflictCardState extends State<_ConflictCard> {
   }
 }
 
-/// 远端破坏性删除的待确认卡片（架构 5.2「未批准不自动清除本地内容」）。
-class _RemoteDeletionCard extends StatelessWidget {
-  const _RemoteDeletionCard({required this.deletions, required this.l10n});
+/// 远端破坏性删除的**确认区**（T045；架构 5.2「未批准不自动清除本地内容」）。
+///
+/// 三条与该规则对应的行为：
+///   1) **先预览再确认**：卡片先算出影响范围（订阅名/文章数/收藏数/later 数），用户看到的
+///      是「确认之后会失去什么」，而不是一句「远端删了它」；
+///   2) **只有确认按钮才写数据**：卡片本身只读；点确认才调 applyConfirmed，未确认时本机
+///      一行都不动（有用例断言未确认时文章数不变）；
+///   3) **不可应用的项不给按钮**：本机没对齐到那条删除时如实说明原因——一个点了没用的
+///      按钮会让用户以为删除已经生效。
+class _RemoteDeletionSection extends ConsumerStatefulWidget {
+  const _RemoteDeletionSection({
+    required this.deletions,
+    required this.onApplied,
+  });
 
   final List<SyncDeletion> deletions;
-  final AppLocalizations l10n;
+  final void Function(RemoteDeletionApplication application) onApplied;
+
+  @override
+  ConsumerState<_RemoteDeletionSection> createState() =>
+      _RemoteDeletionSectionState();
+}
+
+class _RemoteDeletionSectionState
+    extends ConsumerState<_RemoteDeletionSection> {
+  List<RemoteDeletionImpact>? _impacts;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  @override
+  void didUpdateWidget(_RemoteDeletionSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.deletions.length != widget.deletions.length) {
+      unawaited(_load());
+    }
+  }
+
+  /// 读一次影响范围（**只读**：预览不得改写任何数据，否则「先看看影响」就成了删除）。
+  Future<void> _load() async {
+    final Result<List<RemoteDeletionImpact>> impacts =
+        await RemoteDeletionUseCase(catalog: ref.read(feedCatalogProvider))
+            .previewAll(widget.deletions);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _loading = false;
+      if (impacts.isErr) {
+        _error = impacts.errorOrNull!.kind;
+        _impacts = null;
+      } else {
+        _error = null;
+        _impacts = impacts.unwrap();
+      }
+    });
+  }
+
+  /// 应用一条已确认的删除。
+  Future<void> _apply(RemoteDeletionImpact impact, bool keepFavorites) async {
+    final Result<RemoteDeletionApplication> applied =
+        await RemoteDeletionUseCase(
+          catalog: ref.read(feedCatalogProvider),
+          diagnostics: ref.read(diagnosticSinkProvider),
+        ).applyConfirmed(impact: impact, keepFavorites: keepFavorites);
+    if (!mounted) {
+      return;
+    }
+    if (applied.isErr) {
+      setState(() => _error = applied.errorOrNull!.kind);
+      return;
+    }
+    // 本机数据变了：订阅列表要重读（删除同时影响订阅与文章两处）。
+    ref.invalidate(feedManagerControllerProvider);
+    widget.onApplied(applied.unwrap());
+    await _load();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final ColorScheme colors = Theme.of(context).colorScheme;
-    return Container(
+    final List<RemoteDeletionImpact>? impacts = _impacts;
+    // 用 Material 而不是带 backgroundColor 的 Container 当卡片底：卡片里有 CheckboxListTile，
+    // 而 ListTile 把背景与水波画在**最近的 Material 祖先**上——隔着一层有底色的
+    // DecoratedBox 时它会直接被盖住（框架对此有断言，会在调试构建里直接失败）。
+    return Padding(
       key: const ValueKey<String>('sync-remote-deletion-card'),
-      margin: const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: FluxSpacing.md,
         vertical: FluxSpacing.xs,
       ),
-      padding: const EdgeInsets.all(FluxSpacing.sm),
-      decoration: BoxDecoration(
+      child: Material(
         color: colors.tertiaryContainer,
         borderRadius: BorderRadius.circular(FluxRadius.card),
+        child: Padding(
+          padding: const EdgeInsets.all(FluxSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                l10n.syncRemoteDeletionTitle(widget.deletions.length),
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: FluxSpacing.xxs),
+              Text(l10n.syncRemoteDeletionNote),
+              if (_loading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: FluxSpacing.xs),
+                  child: LinearProgressIndicator(),
+                ),
+              if (_error case final String reason)
+                Text(l10n.syncRemoteDeletionPreviewFailed(reason)),
+              if (impacts != null)
+                for (final RemoteDeletionImpact impact in impacts)
+                  _RemoteDeletionItem(
+                    impact: impact,
+                    onApply: (bool keepFavorites) =>
+                        unawaited(_apply(impact, keepFavorites)),
+                  ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+/// 一条待确认的远端删除（影响范围 + 保留收藏勾选 + 确认按钮）。
+class _RemoteDeletionItem extends StatefulWidget {
+  const _RemoteDeletionItem({required this.impact, required this.onApply});
+
+  final RemoteDeletionImpact impact;
+  final void Function(bool keepFavorites) onApply;
+
+  @override
+  State<_RemoteDeletionItem> createState() => _RemoteDeletionItemState();
+}
+
+class _RemoteDeletionItemState extends State<_RemoteDeletionItem> {
+  late bool _keepFavorites = widget.impact.defaultKeepFavorites;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ThemeData theme = Theme.of(context);
+    final RemoteDeletionImpact impact = widget.impact;
+    return Padding(
+      padding: const EdgeInsets.only(top: FluxSpacing.xs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            l10n.syncRemoteDeletionTitle(deletions.length),
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
+          Text(impact.displayName, style: theme.textTheme.bodyMedium),
           const SizedBox(height: FluxSpacing.xxs),
-          // 本条**没有**确认按钮：应用远端删除属 T045 的跨设备删除集成范围，
-          // 这里如实说明「本机数据未清除」，而不是放一个点了没用的按钮。
-          Text(l10n.syncRemoteDeletionNote),
-          for (final SyncDeletion deletion in deletions)
+          if (!impact.applicable)
             Text(
-              describeRemoteDeletion(deletion),
-              style: Theme.of(context).textTheme.bodySmall,
+              l10n.syncRemoteDeletionUnsupported(
+                impact.blockedReason ?? 'unknown',
+              ),
+              style: theme.textTheme.bodySmall,
+            )
+          else ...<Widget>[
+            Text(
+              impact.totalCount == 0
+                  ? l10n.syncRemoteDeletionNoArticles
+                  : l10n.syncRemoteDeletionImpact(
+                      impact.totalCount,
+                      impact.favoriteCount,
+                      impact.otherCount,
+                      impact.laterCount,
+                    ),
+              style: theme.textTheme.bodySmall,
             ),
+            if (impact.keepFavoritesIsMeaningful)
+              CheckboxListTile(
+                key: const ValueKey<String>('sync-remote-deletion-keep'),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                value: _keepFavorites,
+                onChanged: (bool? value) =>
+                    setState(() => _keepFavorites = value ?? false),
+                title: Text(
+                  l10n.syncRemoteDeletionKeepFavorites,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.tonal(
+                key: const ValueKey<String>('sync-remote-deletion-apply'),
+                onPressed: () => widget.onApply(_keepFavorites),
+                child: Text(l10n.syncRemoteDeletionApply),
+              ),
+            ),
+          ],
         ],
       ),
     );

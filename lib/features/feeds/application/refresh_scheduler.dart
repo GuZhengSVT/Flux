@@ -26,6 +26,12 @@
 //      请求**，但仍然如实记录 waitingNetwork / skippedMetered，并**不推进**上次检查
 //      时间——否则用户切回网络后会因为「刚检查过」而白等一个间隔。
 //
+//   5) **已删除的源不复活**（T045）。删除是长期事实（架构 5.2「删除使用墓碑，首发不自动
+//      清除」），而刷新**不经过同步合并**：一个在别的设备上被删掉、本机也确认应用了那次
+//      删除的源，如果它的行一时还在（确认应用与刷新之间、或墓碑写在别处），下一次刷新会把
+//      整条订阅连文章一起重新拉回来。因此派发之前按墓碑过滤一次，并把跳过的源如实记进
+//      [RefreshRunReport.skipped]（不是静默丢弃——用户会以为刷新坏了）。
+//
 // 时间来源是 [Clock]（测试注入 FakeClock），因此「定时触发窗口」这种规则不需要
 // 真实等待就能验证。
 library;
@@ -194,6 +200,7 @@ final class RefreshScheduler {
     required this.listFeeds,
     required this.refreshFeed,
     required this.recordDeferral,
+    this.listFeedTombstoneSyncIds,
     this.networkConditions = const PermissiveNetworkConditions(),
     this.diagnostics = const NoopDiagnosticSink(),
     this.clock = const SystemClock(),
@@ -223,6 +230,13 @@ final class RefreshScheduler {
     String? errorKind,
   })
   recordDeferral;
+
+  /// 读取订阅墓碑的 syncId 集合（T045 的「已删除条目不复活」在调度侧的判据）。
+  ///
+  /// 窄到一个 `Set<String>`：调度只需要回答「这个源被删过吗」。为空时**不做墓碑过滤**
+  /// （而不是当成「所有源都被删过」）：这个回调是可选的窄能力，漏接线时必须退化到
+  /// 「照常刷新」，否则一个接线疏忽会让用户的全部刷新静默停摆。
+  final Future<Result<Set<String>>> Function()? listFeedTombstoneSyncIds;
 
   /// 网络状况端口（计费/离线判定）。
   final NetworkConditionPort networkConditions;
@@ -373,6 +387,19 @@ final class RefreshScheduler {
     final List<FeedRefreshSkip> skipped = <FeedRefreshSkip>[];
     int merged = 0;
 
+    // 墓碑过滤（T045）：读一次，整轮共用。读取失败时按「没有墓碑」放行——刷新是只读的，
+    // 放行的最坏结果是「用户自己在别处删掉、但又手动重新添加的源照常刷新」，而把失败当成
+    // 「全部被删」会让整个刷新静默停摆。
+    final Set<String> tombstonedFeedSyncIds = <String>{};
+    final Future<Result<Set<String>>> Function()? readTombstones =
+        listFeedTombstoneSyncIds;
+    if (readTombstones != null) {
+      final Result<Set<String>> tombstones = await readTombstones();
+      if (tombstones.isOk) {
+        tombstonedFeedSyncIds.addAll(tombstones.unwrap());
+      }
+    }
+
     for (final FeedRecord feed in feeds.valueOrNull!) {
       // 1) 禁用源不参与刷新（SET-022）。
       if (!feed.enabled) {
@@ -381,6 +408,20 @@ final class RefreshScheduler {
             feedId: feed.id,
             feedName: feed.name,
             reason: 'disabled',
+          ),
+        );
+        continue;
+      }
+
+      // 1b) 已有墓碑的源不参与刷新（T045「已删除条目不复活」）。放在禁用判定之后、
+      // 间隔判定之前：墓碑是一条比「禁用」更强的长期事实，它不该因为间隔没到就被
+      // 跳过（那样这个源的墓碑会在报告里消失，用户看不到「为什么它一直不更新」）。
+      if (tombstonedFeedSyncIds.contains(feed.syncId)) {
+        skipped.add(
+          FeedRefreshSkip(
+            feedId: feed.id,
+            feedName: feed.name,
+            reason: 'tombstoned',
           ),
         );
         continue;

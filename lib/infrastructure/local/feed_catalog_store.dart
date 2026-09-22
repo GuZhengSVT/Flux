@@ -17,6 +17,7 @@ import 'package:drift/drift.dart';
 import 'package:flux/core/core.dart';
 
 import 'database.dart';
+import 'deletion_sync_recorder.dart';
 import 'tables/article_tables.dart';
 import 'tables/feed_tables.dart';
 import 'tables/reading_tables.dart';
@@ -160,6 +161,15 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
   @override
   Future<Result<FeedRecord>> createFeed(FeedInsert insert) async {
     try {
+      // 重新添加同一个源会得到**同一个 syncId**（它是规范化地址的摘要，T014），因此
+      // 必须忘掉旧墓碑：否则那个源会被「已删除条目不复活」判定为已删除而永远跳过刷新，
+      // 用户会看到一个加不进来内容的订阅且没有任何线索指向那次删除。这是一次新的决定，
+      // 不是复活（复活指别的设备的旧快照把本机删掉的源带回来）。
+      await forgetLocalDeletionTombstone(
+        _db,
+        entityKind: SyncEntityKind.feed,
+        entityKey: insert.syncId,
+      );
       final int id = await _db
           .into(_db.feeds)
           .insert(
@@ -484,6 +494,15 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
         await (_db.delete(
           _db.groups,
         )..where((Groups t) => t.id.equals(groupId))).go();
+        // 同步墓碑（T045）：分组也是一件跨设备不得复活的事实（移动到未分类只是改归属，
+        // 分组行本身已经不存在了）。
+        await recordLocalDeletionFact(
+          _db,
+          entityKind: SyncEntityKind.group,
+          entityKey: group.syncId,
+          displayName: group.name,
+          deletedAt: DateTime.now().toUtc(),
+        );
         await _insertDeletionEvent(
           entityType: 'group',
           syncId: group.syncId,
@@ -516,6 +535,14 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
         await (_db.delete(
           _db.groups,
         )..where((Groups t) => t.id.equals(groupId))).go();
+        // 与「移动到未分类」分支同一口径：分组行已删，就该留下墓碑。
+        await recordLocalDeletionFact(
+          _db,
+          entityKind: SyncEntityKind.group,
+          entityKey: group.syncId,
+          displayName: group.name,
+          deletedAt: DateTime.now().toUtc(),
+        );
         await _insertDeletionEvent(
           entityType: 'group',
           syncId: group.syncId,
@@ -587,6 +614,18 @@ final class DriftFeedCatalogStore implements FeedCatalogStore {
     final int deletedArticles = await _deleteArticlesOfFeed(feedId);
 
     await (_db.delete(_db.feeds)..where((Feeds t) => t.id.equals(feedId))).go();
+
+    // 同步墓碑（T045）：让这次删除成为一件**跨设备可见**的事实。必须在同一事务内——
+    // 删掉了订阅却没留下墓碑，等于把一次删除变成「源还在、本机不知道」，而它会在下一次
+    // 刷新时把整条订阅连文章一起拉回来（「已删除条目不复活」只对同步层成立，刷新入口不经过
+    // 合并）。keepFavorites 随墓碑一起传播：别的设备应用这次删除前必须能展示它的影响范围。
+    await recordLocalDeletionFact(
+      _db,
+      entityKind: SyncEntityKind.feed,
+      entityKey: feed.syncId,
+      displayName: feed.name,
+      deletedAt: DateTime.now().toUtc(),
+    );
 
     await _insertDeletionEvent(
       entityType: 'feed',

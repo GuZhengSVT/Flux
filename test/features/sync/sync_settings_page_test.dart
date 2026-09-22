@@ -11,10 +11,17 @@
 // 走的是生产代码，只有网络与凭据是替身。
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:drift/drift.dart' show Value;
 
 import 'package:flux/core/core.dart';
+import 'package:flux/features/sync/application/sync_manager.dart';
+import 'package:flux/features/sync/application/sync_providers.dart';
 import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/features/sync/presentation/sync_settings_page.dart';
+import 'package:flux/infrastructure/local/database.dart';
+import 'package:flux/infrastructure/local/feed_catalog_store.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 
 import '../../app/test_harness.dart';
@@ -248,6 +255,124 @@ void main() {
         find.byKey(const ValueKey<String>('sync-degraded-banner')),
         findsNothing,
       );
+    });
+
+    testWidgets('远端删除卡片：先显示影响范围，未确认之前一行都不动', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 900));
+
+      // 造一个源 + 三篇文章（1 收藏 / 1 稍后再读 / 1 已读）。
+      final DriftFeedCatalogStore catalog = DriftFeedCatalogStore(
+        bootstrap.database,
+      );
+      final int feedId = (await catalog.createFeed(
+        const FeedInsert(
+          syncId: 'feed.doomed',
+          normalizedUrl: 'https://doomed.example.com/feed.xml',
+          name: '远端删掉的源',
+        ),
+      )).unwrap().id;
+      for (final ({ReadingState state, bool favorite}) seed
+          in <({ReadingState state, bool favorite})>[
+            (state: ReadingState.unread, favorite: true),
+            (state: ReadingState.later, favorite: false),
+            (state: ReadingState.read, favorite: false),
+          ]) {
+        await bootstrap.database
+            .into(bootstrap.database.articles)
+            .insert(
+              ArticlesCompanion.insert(
+                feedId: Value<int?>(feedId),
+                title: '文章',
+                identityBasis: IdentityBasis.guid,
+                readingState: Value<ReadingState>(seed.state),
+                favorite: Value<bool>(seed.favorite),
+              ),
+            );
+      }
+
+      await tester.pumpWidget(
+        wrapFluxApp(
+          child: const SyncSettingsPage(),
+          overrides: <Override>[...bootstrap.overrides()],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 把「远端提出了一条破坏性删除」这个状态发布进去（走管理器唯一的状态发布点，
+      // 因此界面看到的与真实同步路径完全同源）。
+      ProviderScope.containerOf(tester.element(find.byType(SyncSettingsPage)))
+          .read(syncStatusProvider.notifier)
+          .publish(
+            const SyncStatusSnapshot(
+              enabled: true,
+              pendingRemoteDeletions: <SyncDeletion>[
+                SyncDeletion(
+                  kind: SyncEntityKind.feed,
+                  key: 'feed.doomed',
+                  displayName: '远端删掉的源',
+                  keepFavorites: true,
+                ),
+              ],
+            ),
+          );
+      await tester.pumpAndSettle();
+
+      // 卡片在长列表底部：ListView 按需构建，先滚到它（找不到时给出明确的失败）。
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey<String>('sync-remote-deletion-card')),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      // 影响范围先说清楚：3 篇、1 收藏、2 其余、其中 1 稍后再读。
+      expect(find.textContaining('远端删除了 1 项'), findsOneWidget);
+      expect(find.textContaining('本机数据尚未清除'), findsOneWidget);
+      expect(find.textContaining('将清理 3 篇文章'), findsOneWidget);
+      expect(find.textContaining('保留收藏 1 篇'), findsOneWidget);
+      expect(find.textContaining('稍后再读 1 篇'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey<String>('sync-remote-deletion-apply')),
+        findsOneWidget,
+        reason: '可应用的项必须给出确认按钮',
+      );
+      // 本机这次的选择默认沿用远端当时的选择（保留）。
+      expect(
+        tester
+            .widget<CheckboxListTile>(
+              find.byKey(const ValueKey<String>('sync-remote-deletion-keep')),
+            )
+            .value,
+        isTrue,
+      );
+
+      // **未确认之前**本机数据一行都不动（架构 5.2 的硬要求）。
+      expect(
+        (await bootstrap.database.select(bootstrap.database.articles).get())
+            .length,
+        3,
+      );
+      expect((await catalog.listFeeds()).unwrap().length, 1);
+
+      // 点确认 → 按 T018 规则执行：非收藏（含 later）清理、收藏留下并脱离源。
+      await tester.tap(
+        find.byKey(const ValueKey<String>('sync-remote-deletion-apply')),
+      );
+      await tester.pumpAndSettle();
+
+      final List<Article> remaining = await bootstrap.database
+          .select(bootstrap.database.articles)
+          .get();
+      expect(remaining.length, 1, reason: '3 篇里只剩收藏那 1 篇');
+      expect(remaining.single.favorite, isTrue);
+      expect(remaining.single.feedId, isNull, reason: '收藏脱离源');
+      expect((await catalog.listFeeds()).unwrap(), isEmpty);
+      // 回执可见（用户必须知道刚才发生了什么）：提示在页面顶部，先滚回去。
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('已应用远端删除'), findsOneWidget);
     });
   });
 }
