@@ -283,6 +283,37 @@ String versionForSnapshot(String snapshotHash) {
   return 'v-${hash.length <= 32 ? hash : hash.substring(0, 32)}';
 }
 
+/// 由版本标识在**已知的远端文件名**里找出对应的快照文件名（T043 的三方合并基线）。
+///
+/// 为什么可以这样找：快照是**内容寻址**的（[snapshotFileName]：名字即内容），而版本号
+/// 就是同一个哈希的前 32 位（[versionForSnapshot]），因此「版本 → 文件名」是一次前缀
+/// 匹配，结果必然唯一（同一个哈希不会有两个文件）。
+///
+/// 为什么值得留这条路径：三方合并需要**共同基线的内容**，而基线是上一次发布的快照。
+/// 有了这条派生规则，本机就不必把整份历史快照再存一份到本地库（那会让 `flux.sqlite`
+/// 随同步历史增长，并且与 T041 的「只记协议所需的最小事实」相悖）。
+///
+/// 返回 null 表示该版本对应的文件不在远端（被清理、或远端从未有过这个版本）：
+/// 调用方据此按「没有共同基线」处理，**不**猜一份基线出来。
+String? snapshotNameForVersion({
+  required String version,
+  required Iterable<String> availableNames,
+}) {
+  final String hash = version.startsWith('v-') ? version.substring(2) : version;
+  final String needle = hash.toLowerCase();
+  final List<String> matches = availableNames
+      .where(
+        (String name) =>
+            name.startsWith(syncSnapshotPrefix) &&
+            name
+                .substring(syncSnapshotPrefix.length)
+                .toLowerCase()
+                .startsWith(needle),
+      )
+      .toList(growable: false);
+  return matches.length == 1 ? matches.single : null;
+}
+
 /// 条件写冲突的重试上限（架构 5.2「最多 3 轮，之后等待重试」）。
 const int manifestConflictRetryLimit = 3;
 
