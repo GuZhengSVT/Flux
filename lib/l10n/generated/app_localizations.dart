@@ -4917,6 +4917,474 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'选择每天的执行时间'**
   String get newsScheduleTimePickerTitle;
+
+  /// 同步设置页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'同步与备份'**
+  String get syncSettingsTitle;
+
+  /// 服务器小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 服务器'**
+  String get syncSectionServer;
+
+  /// SET-070 地址
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 地址'**
+  String get syncUrlLabel;
+
+  /// 地址说明
+  ///
+  /// In zh, this message translates to:
+  /// **'例如 https://dav.example.com/remote.php/dav/files/yourname；内网地址也可以（你自己的 NAS 是正当用法）'**
+  String get syncUrlHint;
+
+  /// 地址非法
+  ///
+  /// In zh, this message translates to:
+  /// **'地址格式不对：请填写完整的 http/https 地址'**
+  String get syncUrlMalformed;
+
+  /// 协议不符
+  ///
+  /// In zh, this message translates to:
+  /// **'只支持 http 与 https 地址'**
+  String get syncUrlScheme;
+
+  /// 缺少主机名
+  ///
+  /// In zh, this message translates to:
+  /// **'地址缺少主机名'**
+  String get syncUrlMissingHost;
+
+  /// SET-070 用户名
+  ///
+  /// In zh, this message translates to:
+  /// **'用户名'**
+  String get syncUsernameLabel;
+
+  /// SET-071 密码
+  ///
+  /// In zh, this message translates to:
+  /// **'密码 / Token'**
+  String get syncPasswordLabel;
+
+  /// 密码已存
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存在系统钥匙串（不回显）'**
+  String get syncPasswordStored;
+
+  /// 密码未存
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未保存；保存后写入系统钥匙串，不进同步包与明文备份'**
+  String get syncPasswordNotStored;
+
+  /// 无安全存储
+  ///
+  /// In zh, this message translates to:
+  /// **'本机没有可用的安全存储，因此无法保存密码；同步不会启用'**
+  String get syncSecretStoreUnavailable;
+
+  /// SET-070 设备名
+  ///
+  /// In zh, this message translates to:
+  /// **'设备名'**
+  String get syncDeviceNameLabel;
+
+  /// 设备名说明
+  ///
+  /// In zh, this message translates to:
+  /// **'只用于在远端 manifest 里标识是哪台设备同步的'**
+  String get syncDeviceNameHint;
+
+  /// 保存地址按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存服务器'**
+  String get syncSaveEndpoint;
+
+  /// 保存密码按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'保存密码'**
+  String get syncSavePassword;
+
+  /// 密码保存成功
+  ///
+  /// In zh, this message translates to:
+  /// **'密码已保存到系统钥匙串。'**
+  String get syncPasswordSaved;
+
+  /// 密码保存失败
+  ///
+  /// In zh, this message translates to:
+  /// **'密码保存失败；密码没有被写入普通存储（那是明文）。'**
+  String get syncPasswordSaveFailed;
+
+  /// 测试连接按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'测试连接'**
+  String get syncTestConnection;
+
+  /// 只读探测说明
+  ///
+  /// In zh, this message translates to:
+  /// **'测试连接只做只读探测（列目录与读一次 manifest），不会写入或修改远端任何内容。'**
+  String get syncTestConnectionHint;
+
+  /// 探测成功
+  ///
+  /// In zh, this message translates to:
+  /// **'连接成功（{directory}）。'**
+  String syncProbeOk(String directory);
+
+  /// 目录存在
+  ///
+  /// In zh, this message translates to:
+  /// **'远端目录已存在'**
+  String get syncProbeDirExists;
+
+  /// 目录不存在
+  ///
+  /// In zh, this message translates to:
+  /// **'远端目录还不存在，第一次同步会创建它'**
+  String get syncProbeDirMissing;
+
+  /// 探测失败
+  ///
+  /// In zh, this message translates to:
+  /// **'连接失败（{reason}）；没有向远端写入任何内容。'**
+  String syncProbeFailed(String reason);
+
+  /// 触发小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'同步触发'**
+  String get syncSectionTriggers;
+
+  /// SET-072 开关
+  ///
+  /// In zh, this message translates to:
+  /// **'启用同步'**
+  String get syncEnableLabel;
+
+  /// SET-072 说明
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭时不会发起任何同步请求，手动同步也不会。'**
+  String get syncEnableHint;
+
+  /// SET-072 启动同步
+  ///
+  /// In zh, this message translates to:
+  /// **'启动时同步'**
+  String get syncOnStartLabel;
+
+  /// SET-072 变更同步
+  ///
+  /// In zh, this message translates to:
+  /// **'变更后同步'**
+  String get syncOnChangeLabel;
+
+  /// 防抖说明
+  ///
+  /// In zh, this message translates to:
+  /// **'改动会等待 {seconds} 秒静默后触发一次同步，连续改动只会同步一次。'**
+  String syncOnChangeHint(int seconds);
+
+  /// SET-073 仅手动
+  ///
+  /// In zh, this message translates to:
+  /// **'仅手动同步'**
+  String get syncManualOnlyLabel;
+
+  /// SET-073 间隔
+  ///
+  /// In zh, this message translates to:
+  /// **'自动同步间隔'**
+  String get syncIntervalLabel;
+
+  /// 间隔选项
+  ///
+  /// In zh, this message translates to:
+  /// **'{minutes} 分钟'**
+  String syncIntervalOption(int minutes);
+
+  /// 范围小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'同步范围'**
+  String get syncSectionScope;
+
+  /// 范围说明
+  ///
+  /// In zh, this message translates to:
+  /// **'范围清单由 SET 注册表的 C/D/S 分类派生，不是手抄的清单；凭证、设备路径与正文永不随之离开本机。'**
+  String get syncScopeNotice;
+
+  /// SET-074 共通设置
+  ///
+  /// In zh, this message translates to:
+  /// **'同步共通设置'**
+  String get syncScopeCommonSettings;
+
+  /// SET-074 阅读状态
+  ///
+  /// In zh, this message translates to:
+  /// **'同步阅读状态与收藏'**
+  String get syncScopeReadingState;
+
+  /// 纳入清单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'会离开本机'**
+  String get syncScopeIncludedTitle;
+
+  /// 纳入数量
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 项共通设置（C 类且可持久化），加上订阅与分组、阅读状态与收藏、新闻来源规则。'**
+  String syncScopeIncludedCount(int count);
+
+  /// 订阅字段说明
+  ///
+  /// In zh, this message translates to:
+  /// **'订阅只同步跨设备标识、地址、名称、分组、启用与加精等字段；本机自增 id、凭据引用与抓取诊断列不同步。'**
+  String get syncScopeFeedNote;
+
+  /// 排除清单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'永不离开本机'**
+  String get syncScopeExcludedTitle;
+
+  /// 排除数量
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 项（API Key、WebDAV 密码、私密订阅认证、设备路径/字体/背景、窗口布局、执行调度开关）。'**
+  String syncScopeExcludedCount(int count);
+
+  /// 内容排除说明
+  ///
+  /// In zh, this message translates to:
+  /// **'正文、图片、AI 产出与阅读时长首发也不自动同步；需要完整搬迁时用明文备份。'**
+  String get syncScopeExcludedNote;
+
+  /// 状态小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'当前状态'**
+  String get syncSectionStatus;
+
+  /// 从未同步
+  ///
+  /// In zh, this message translates to:
+  /// **'从未同步过'**
+  String get syncNeverSynced;
+
+  /// 上次同步时间
+  ///
+  /// In zh, this message translates to:
+  /// **'上次同步：{at}（UTC 存储，按本地时间显示）'**
+  String syncLastSynced(String at);
+
+  /// 待同步数
+  ///
+  /// In zh, this message translates to:
+  /// **'待同步变更：{count} 项'**
+  String syncPendingCount(int count);
+
+  /// 冲突数
+  ///
+  /// In zh, this message translates to:
+  /// **'冲突：{count} 项'**
+  String syncConflictCount(int count);
+
+  /// 能力未探测
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未探测服务器能力（下一次同步会先探测）'**
+  String get syncCapabilityUnknown;
+
+  /// 上次失败原因
+  ///
+  /// In zh, this message translates to:
+  /// **'上次未完成：{reason}'**
+  String syncLastError(String reason);
+
+  /// 正在同步
+  ///
+  /// In zh, this message translates to:
+  /// **'正在同步…'**
+  String get syncRunning;
+
+  /// 手动同步按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'立即同步'**
+  String get syncNowButton;
+
+  /// 同步在途提示
+  ///
+  /// In zh, this message translates to:
+  /// **'已有一次同步在进行；这次请求已合并，会在当前这一次结束后按顺序执行。'**
+  String get syncAlreadyRunning;
+
+  /// 同步成功
+  ///
+  /// In zh, this message translates to:
+  /// **'同步完成：本机写入 {count} 项。'**
+  String syncResultSucceeded(int count);
+
+  /// 幂等补确认
+  ///
+  /// In zh, this message translates to:
+  /// **'远端已经是本机这一版：只补了一次本地确认，没有重复上传。'**
+  String get syncResultAlreadyPublished;
+
+  /// 冲突提示
+  ///
+  /// In zh, this message translates to:
+  /// **'有 {count} 项同字段并发冲突，尚未上传；请在下面逐条选择要保留的版本。'**
+  String syncResultConflicts(int count);
+
+  /// 等待重试
+  ///
+  /// In zh, this message translates to:
+  /// **'远端在此期间被另一台设备更新，三轮重试仍未成功；未改动远端，下次同步会重试。'**
+  String get syncResultRetry;
+
+  /// 降级只读
+  ///
+  /// In zh, this message translates to:
+  /// **'此服务器不支持可靠的条件写，已降级为只读拉取：不会向远端写入任何内容。'**
+  String get syncResultReadonly;
+
+  /// 同步失败
+  ///
+  /// In zh, this message translates to:
+  /// **'同步失败：{reason}（远端与本机数据均未改动）。'**
+  String syncResultFailed(String reason);
+
+  /// 降级提示条
+  ///
+  /// In zh, this message translates to:
+  /// **'降级模式：该服务器不支持可靠的条件写（强 ETag / If-Match），因此同步只做只读拉取，不会自动覆盖远端或本机内容。'**
+  String get syncDegradedBanner;
+
+  /// 首次合并标题
+  ///
+  /// In zh, this message translates to:
+  /// **'首次合并预览'**
+  String get syncFirstMergeTitle;
+
+  /// 首次合并数量
+  ///
+  /// In zh, this message translates to:
+  /// **'远端有 {remote} 项内容，本机有 {local} 项。'**
+  String syncFirstMergeCounts(int remote, int local);
+
+  /// 差异处数
+  ///
+  /// In zh, this message translates to:
+  /// **'两边不同的字段：{count} 处。'**
+  String syncFirstMergeDifferences(int count);
+
+  /// 远端删除数
+  ///
+  /// In zh, this message translates to:
+  /// **'远端还有 {count} 项删除等着确认（本机数据尚未清除）。'**
+  String syncFirstMergeRemoteDeletions(int count);
+
+  /// 首次合并策略说明
+  ///
+  /// In zh, this message translates to:
+  /// **'确认之前不会发布任何内容、也不会建立共同基线。默认策略是保留本机内容（不覆盖本地）；只有你选「以远端为准」时，远端才会覆盖对应的字段。'**
+  String get syncFirstMergePolicyNote;
+
+  /// 首次合并保留本机
+  ///
+  /// In zh, this message translates to:
+  /// **'合并并保留本机内容'**
+  String get syncFirstMergeKeepLocal;
+
+  /// 首次合并以远端为准
+  ///
+  /// In zh, this message translates to:
+  /// **'以远端为准'**
+  String get syncFirstMergeUseRemote;
+
+  /// 冲突标题
+  ///
+  /// In zh, this message translates to:
+  /// **'需要选版：{count} 处同字段并发冲突'**
+  String syncConflictTitle(int count);
+
+  /// 冲突说明
+  ///
+  /// In zh, this message translates to:
+  /// **'同一个字段在两台设备上被改成了不同的值。这里不会替你合并（例如「已读」和「稍后再读」不存在一个中间值），请逐条选择要保留的版本。'**
+  String get syncConflictNote;
+
+  /// 基线值
+  ///
+  /// In zh, this message translates to:
+  /// **'共同基线：{value}'**
+  String syncConflictBaseValue(String value);
+
+  /// 本机值
+  ///
+  /// In zh, this message translates to:
+  /// **'本机：{value}'**
+  String syncConflictLocalValue(String value);
+
+  /// 远端值
+  ///
+  /// In zh, this message translates to:
+  /// **'远端：{value}'**
+  String syncConflictRemoteValue(String value);
+
+  /// 应用选择按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'按所选版本合并并上传'**
+  String get syncConflictApply;
+
+  /// 远端删除标题
+  ///
+  /// In zh, this message translates to:
+  /// **'远端删除了 {count} 项内容'**
+  String syncRemoteDeletionTitle(int count);
+
+  /// 远端删除说明
+  ///
+  /// In zh, this message translates to:
+  /// **'本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。'**
+  String get syncRemoteDeletionNote;
+
+  /// 保存失败
+  ///
+  /// In zh, this message translates to:
+  /// **'保存失败：{reason}'**
+  String syncSaveFailed(String reason);
+
+  /// 设置页同步入口标题
+  ///
+  /// In zh, this message translates to:
+  /// **'同步与备份'**
+  String get settingsSyncEntryTitle;
+
+  /// 设置页同步入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'WebDAV 同步、同步范围、首次合并与冲突处理'**
+  String get settingsSyncEntrySubtitle;
 }
 
 class _AppLocalizationsDelegate

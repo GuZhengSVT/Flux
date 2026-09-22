@@ -247,6 +247,36 @@ void main() {
     });
   });
 
+  group('T044 同步入口', () {
+    testWidgets('从设置页进入同步设置页（不是禁用占位项）', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 3000));
+      await bootstrap.seedLanguage('zh-Hans');
+
+      await tester.pumpWidget(wrapWrap(bootstrap));
+      await tester.pumpAndSettle();
+
+      // 入口在页面上可见，且**不是一个禁用占位项**（它是真的导航行）。
+      expect(find.text('同步与备份'), findsOneWidget);
+      await tester.tap(find.text('同步与备份'));
+      await tester.pumpAndSettle();
+
+      // 进入同步设置页：标题、服务器字段、测试连接说明都在。
+      expect(find.text('WebDAV 服务器'), findsOneWidget);
+      expect(find.byKey(const ValueKey<String>('sync-url')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey<String>('sync-test-connection')),
+        findsOneWidget,
+      );
+      // 只读探测的承诺写在界面上（而不是只在文档里）。
+      expect(find.textContaining('不会写入'), findsOneWidget);
+      // 范围清单来自投影：展示「会离开本机」与「永不离开本机」两节。
+      expect(find.text('会离开本机'), findsOneWidget);
+      expect(find.text('永不离开本机'), findsOneWidget);
+    });
+  });
+
   group('关于区', () {
     testWidgets('显示版本、MIT 与核实过的仓库地址', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap();

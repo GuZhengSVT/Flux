@@ -146,6 +146,19 @@ final class SyncEngine {
   /// 某个快照文件名的 URL。
   Uri snapshotUrl(String name) => _child(remoteRoot, name);
 
+  /// 只读远端当前快照（**不发任何写请求**）。
+  ///
+  /// 首次合并预览（T044）要用它：预览必须能做到「只看不动」——把「读远端」做成引擎上的
+  /// 一个独立动作，预览路径就不可能顺手写点什么；而它复用 [ _readRemote ] 的全部读取规则
+  /// （manifest 读不懂则明确失败、快照解析失败则失败），不会出现第二套读取语义。
+  Future<Result<SyncSnapshot?>> readRemoteSnapshotOnly() async {
+    final Result<RemoteState> remote = await _readRemote();
+    if (remote.isErr) {
+      return Err<SyncSnapshot?>(remote.errorOrNull!);
+    }
+    return Ok<SyncSnapshot?>(remote.unwrap().snapshot);
+  }
+
   /// 执行一次同步。
   ///
   /// [capability] 来自 T042 的能力探测结论：不是 `conditionalWrite` 时本方法只读远端

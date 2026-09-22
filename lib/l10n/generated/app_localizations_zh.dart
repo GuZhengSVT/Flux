@@ -2788,4 +2788,290 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get newsScheduleTimePickerTitle => '选择每天的执行时间';
+
+  @override
+  String get syncSettingsTitle => '同步与备份';
+
+  @override
+  String get syncSectionServer => 'WebDAV 服务器';
+
+  @override
+  String get syncUrlLabel => 'WebDAV 地址';
+
+  @override
+  String get syncUrlHint =>
+      '例如 https://dav.example.com/remote.php/dav/files/yourname；内网地址也可以（你自己的 NAS 是正当用法）';
+
+  @override
+  String get syncUrlMalformed => '地址格式不对：请填写完整的 http/https 地址';
+
+  @override
+  String get syncUrlScheme => '只支持 http 与 https 地址';
+
+  @override
+  String get syncUrlMissingHost => '地址缺少主机名';
+
+  @override
+  String get syncUsernameLabel => '用户名';
+
+  @override
+  String get syncPasswordLabel => '密码 / Token';
+
+  @override
+  String get syncPasswordStored => '已保存在系统钥匙串（不回显）';
+
+  @override
+  String get syncPasswordNotStored => '尚未保存；保存后写入系统钥匙串，不进同步包与明文备份';
+
+  @override
+  String get syncSecretStoreUnavailable => '本机没有可用的安全存储，因此无法保存密码；同步不会启用';
+
+  @override
+  String get syncDeviceNameLabel => '设备名';
+
+  @override
+  String get syncDeviceNameHint => '只用于在远端 manifest 里标识是哪台设备同步的';
+
+  @override
+  String get syncSaveEndpoint => '保存服务器';
+
+  @override
+  String get syncSavePassword => '保存密码';
+
+  @override
+  String get syncPasswordSaved => '密码已保存到系统钥匙串。';
+
+  @override
+  String get syncPasswordSaveFailed => '密码保存失败；密码没有被写入普通存储（那是明文）。';
+
+  @override
+  String get syncTestConnection => '测试连接';
+
+  @override
+  String get syncTestConnectionHint =>
+      '测试连接只做只读探测（列目录与读一次 manifest），不会写入或修改远端任何内容。';
+
+  @override
+  String syncProbeOk(String directory) {
+    return '连接成功（$directory）。';
+  }
+
+  @override
+  String get syncProbeDirExists => '远端目录已存在';
+
+  @override
+  String get syncProbeDirMissing => '远端目录还不存在，第一次同步会创建它';
+
+  @override
+  String syncProbeFailed(String reason) {
+    return '连接失败（$reason）；没有向远端写入任何内容。';
+  }
+
+  @override
+  String get syncSectionTriggers => '同步触发';
+
+  @override
+  String get syncEnableLabel => '启用同步';
+
+  @override
+  String get syncEnableHint => '关闭时不会发起任何同步请求，手动同步也不会。';
+
+  @override
+  String get syncOnStartLabel => '启动时同步';
+
+  @override
+  String get syncOnChangeLabel => '变更后同步';
+
+  @override
+  String syncOnChangeHint(int seconds) {
+    return '改动会等待 $seconds 秒静默后触发一次同步，连续改动只会同步一次。';
+  }
+
+  @override
+  String get syncManualOnlyLabel => '仅手动同步';
+
+  @override
+  String get syncIntervalLabel => '自动同步间隔';
+
+  @override
+  String syncIntervalOption(int minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String get syncSectionScope => '同步范围';
+
+  @override
+  String get syncScopeNotice =>
+      '范围清单由 SET 注册表的 C/D/S 分类派生，不是手抄的清单；凭证、设备路径与正文永不随之离开本机。';
+
+  @override
+  String get syncScopeCommonSettings => '同步共通设置';
+
+  @override
+  String get syncScopeReadingState => '同步阅读状态与收藏';
+
+  @override
+  String get syncScopeIncludedTitle => '会离开本机';
+
+  @override
+  String syncScopeIncludedCount(int count) {
+    return '$count 项共通设置（C 类且可持久化），加上订阅与分组、阅读状态与收藏、新闻来源规则。';
+  }
+
+  @override
+  String get syncScopeFeedNote =>
+      '订阅只同步跨设备标识、地址、名称、分组、启用与加精等字段；本机自增 id、凭据引用与抓取诊断列不同步。';
+
+  @override
+  String get syncScopeExcludedTitle => '永不离开本机';
+
+  @override
+  String syncScopeExcludedCount(int count) {
+    return '$count 项（API Key、WebDAV 密码、私密订阅认证、设备路径/字体/背景、窗口布局、执行调度开关）。';
+  }
+
+  @override
+  String get syncScopeExcludedNote => '正文、图片、AI 产出与阅读时长首发也不自动同步；需要完整搬迁时用明文备份。';
+
+  @override
+  String get syncSectionStatus => '当前状态';
+
+  @override
+  String get syncNeverSynced => '从未同步过';
+
+  @override
+  String syncLastSynced(String at) {
+    return '上次同步：$at（UTC 存储，按本地时间显示）';
+  }
+
+  @override
+  String syncPendingCount(int count) {
+    return '待同步变更：$count 项';
+  }
+
+  @override
+  String syncConflictCount(int count) {
+    return '冲突：$count 项';
+  }
+
+  @override
+  String get syncCapabilityUnknown => '尚未探测服务器能力（下一次同步会先探测）';
+
+  @override
+  String syncLastError(String reason) {
+    return '上次未完成：$reason';
+  }
+
+  @override
+  String get syncRunning => '正在同步…';
+
+  @override
+  String get syncNowButton => '立即同步';
+
+  @override
+  String get syncAlreadyRunning => '已有一次同步在进行；这次请求已合并，会在当前这一次结束后按顺序执行。';
+
+  @override
+  String syncResultSucceeded(int count) {
+    return '同步完成：本机写入 $count 项。';
+  }
+
+  @override
+  String get syncResultAlreadyPublished => '远端已经是本机这一版：只补了一次本地确认，没有重复上传。';
+
+  @override
+  String syncResultConflicts(int count) {
+    return '有 $count 项同字段并发冲突，尚未上传；请在下面逐条选择要保留的版本。';
+  }
+
+  @override
+  String get syncResultRetry => '远端在此期间被另一台设备更新，三轮重试仍未成功；未改动远端，下次同步会重试。';
+
+  @override
+  String get syncResultReadonly => '此服务器不支持可靠的条件写，已降级为只读拉取：不会向远端写入任何内容。';
+
+  @override
+  String syncResultFailed(String reason) {
+    return '同步失败：$reason（远端与本机数据均未改动）。';
+  }
+
+  @override
+  String get syncDegradedBanner =>
+      '降级模式：该服务器不支持可靠的条件写（强 ETag / If-Match），因此同步只做只读拉取，不会自动覆盖远端或本机内容。';
+
+  @override
+  String get syncFirstMergeTitle => '首次合并预览';
+
+  @override
+  String syncFirstMergeCounts(int remote, int local) {
+    return '远端有 $remote 项内容，本机有 $local 项。';
+  }
+
+  @override
+  String syncFirstMergeDifferences(int count) {
+    return '两边不同的字段：$count 处。';
+  }
+
+  @override
+  String syncFirstMergeRemoteDeletions(int count) {
+    return '远端还有 $count 项删除等着确认（本机数据尚未清除）。';
+  }
+
+  @override
+  String get syncFirstMergePolicyNote =>
+      '确认之前不会发布任何内容、也不会建立共同基线。默认策略是保留本机内容（不覆盖本地）；只有你选「以远端为准」时，远端才会覆盖对应的字段。';
+
+  @override
+  String get syncFirstMergeKeepLocal => '合并并保留本机内容';
+
+  @override
+  String get syncFirstMergeUseRemote => '以远端为准';
+
+  @override
+  String syncConflictTitle(int count) {
+    return '需要选版：$count 处同字段并发冲突';
+  }
+
+  @override
+  String get syncConflictNote =>
+      '同一个字段在两台设备上被改成了不同的值。这里不会替你合并（例如「已读」和「稍后再读」不存在一个中间值），请逐条选择要保留的版本。';
+
+  @override
+  String syncConflictBaseValue(String value) {
+    return '共同基线：$value';
+  }
+
+  @override
+  String syncConflictLocalValue(String value) {
+    return '本机：$value';
+  }
+
+  @override
+  String syncConflictRemoteValue(String value) {
+    return '远端：$value';
+  }
+
+  @override
+  String get syncConflictApply => '按所选版本合并并上传';
+
+  @override
+  String syncRemoteDeletionTitle(int count) {
+    return '远端删除了 $count 项内容';
+  }
+
+  @override
+  String get syncRemoteDeletionNote =>
+      '本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。';
+
+  @override
+  String syncSaveFailed(String reason) {
+    return '保存失败：$reason';
+  }
+
+  @override
+  String get settingsSyncEntryTitle => '同步与备份';
+
+  @override
+  String get settingsSyncEntrySubtitle => 'WebDAV 同步、同步范围、首次合并与冲突处理';
 }

@@ -3366,4 +3366,231 @@
   "@newsScheduleInterruptedNote": { "description": "中断语义说明" },
   "newsScheduleTimePickerTitle": "选择每天的执行时间",
   "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" }
+,
+
+  "syncSettingsTitle": "同步与备份",
+  "@syncSettingsTitle": { "description": "同步设置页标题" },
+  "syncSectionServer": "WebDAV 服务器",
+  "@syncSectionServer": { "description": "服务器小节标题" },
+  "syncUrlLabel": "WebDAV 地址",
+  "@syncUrlLabel": { "description": "SET-070 地址" },
+  "syncUrlHint": "例如 https://dav.example.com/remote.php/dav/files/yourname；内网地址也可以（你自己的 NAS 是正当用法）",
+  "@syncUrlHint": { "description": "地址说明" },
+  "syncUrlMalformed": "地址格式不对：请填写完整的 http/https 地址",
+  "@syncUrlMalformed": { "description": "地址非法" },
+  "syncUrlScheme": "只支持 http 与 https 地址",
+  "@syncUrlScheme": { "description": "协议不符" },
+  "syncUrlMissingHost": "地址缺少主机名",
+  "@syncUrlMissingHost": { "description": "缺少主机名" },
+  "syncUsernameLabel": "用户名",
+  "@syncUsernameLabel": { "description": "SET-070 用户名" },
+  "syncPasswordLabel": "密码 / Token",
+  "@syncPasswordLabel": { "description": "SET-071 密码" },
+  "syncPasswordStored": "已保存在系统钥匙串（不回显）",
+  "@syncPasswordStored": { "description": "密码已存" },
+  "syncPasswordNotStored": "尚未保存；保存后写入系统钥匙串，不进同步包与明文备份",
+  "@syncPasswordNotStored": { "description": "密码未存" },
+  "syncSecretStoreUnavailable": "本机没有可用的安全存储，因此无法保存密码；同步不会启用",
+  "@syncSecretStoreUnavailable": { "description": "无安全存储" },
+  "syncDeviceNameLabel": "设备名",
+  "@syncDeviceNameLabel": { "description": "SET-070 设备名" },
+  "syncDeviceNameHint": "只用于在远端 manifest 里标识是哪台设备同步的",
+  "@syncDeviceNameHint": { "description": "设备名说明" },
+  "syncSaveEndpoint": "保存服务器",
+  "@syncSaveEndpoint": { "description": "保存地址按钮" },
+  "syncSavePassword": "保存密码",
+  "@syncSavePassword": { "description": "保存密码按钮" },
+  "syncPasswordSaved": "密码已保存到系统钥匙串。",
+  "@syncPasswordSaved": { "description": "密码保存成功" },
+  "syncPasswordSaveFailed": "密码保存失败；密码没有被写入普通存储（那是明文）。",
+  "@syncPasswordSaveFailed": { "description": "密码保存失败" },
+  "syncTestConnection": "测试连接",
+  "@syncTestConnection": { "description": "测试连接按钮" },
+  "syncTestConnectionHint": "测试连接只做只读探测（列目录与读一次 manifest），不会写入或修改远端任何内容。",
+  "@syncTestConnectionHint": { "description": "只读探测说明" },
+  "syncProbeOk": "连接成功（{directory}）。",
+  "@syncProbeOk": {
+    "description": "探测成功",
+    "placeholders": { "directory": { "type": "String", "example": "远端目录已存在" } }
+  },
+  "syncProbeDirExists": "远端目录已存在",
+  "@syncProbeDirExists": { "description": "目录存在" },
+  "syncProbeDirMissing": "远端目录还不存在，第一次同步会创建它",
+  "@syncProbeDirMissing": { "description": "目录不存在" },
+  "syncProbeFailed": "连接失败（{reason}）；没有向远端写入任何内容。",
+  "@syncProbeFailed": {
+    "description": "探测失败",
+    "placeholders": { "reason": { "type": "String", "example": "unauthorized" } }
+  },
+  "syncSectionTriggers": "同步触发",
+  "@syncSectionTriggers": { "description": "触发小节标题" },
+  "syncEnableLabel": "启用同步",
+  "@syncEnableLabel": { "description": "SET-072 开关" },
+  "syncEnableHint": "关闭时不会发起任何同步请求，手动同步也不会。",
+  "@syncEnableHint": { "description": "SET-072 说明" },
+  "syncOnStartLabel": "启动时同步",
+  "@syncOnStartLabel": { "description": "SET-072 启动同步" },
+  "syncOnChangeLabel": "变更后同步",
+  "@syncOnChangeLabel": { "description": "SET-072 变更同步" },
+  "syncOnChangeHint": "改动会等待 {seconds} 秒静默后触发一次同步，连续改动只会同步一次。",
+  "@syncOnChangeHint": {
+    "description": "防抖说明",
+    "placeholders": { "seconds": { "type": "int", "example": "5" } }
+  },
+  "syncManualOnlyLabel": "仅手动同步",
+  "@syncManualOnlyLabel": { "description": "SET-073 仅手动" },
+  "syncIntervalLabel": "自动同步间隔",
+  "@syncIntervalLabel": { "description": "SET-073 间隔" },
+  "syncIntervalOption": "{minutes} 分钟",
+  "@syncIntervalOption": {
+    "description": "间隔选项",
+    "placeholders": { "minutes": { "type": "int", "example": "30" } }
+  },
+  "syncSectionScope": "同步范围",
+  "@syncSectionScope": { "description": "范围小节标题" },
+  "syncScopeNotice": "范围清单由 SET 注册表的 C/D/S 分类派生，不是手抄的清单；凭证、设备路径与正文永不随之离开本机。",
+  "@syncScopeNotice": { "description": "范围说明" },
+  "syncScopeCommonSettings": "同步共通设置",
+  "@syncScopeCommonSettings": { "description": "SET-074 共通设置" },
+  "syncScopeReadingState": "同步阅读状态与收藏",
+  "@syncScopeReadingState": { "description": "SET-074 阅读状态" },
+  "syncScopeIncludedTitle": "会离开本机",
+  "@syncScopeIncludedTitle": { "description": "纳入清单标题" },
+  "syncScopeIncludedCount": "{count} 项共通设置（C 类且可持久化），加上订阅与分组、阅读状态与收藏、新闻来源规则。",
+  "@syncScopeIncludedCount": {
+    "description": "纳入数量",
+    "placeholders": { "count": { "type": "int", "example": "42" } }
+  },
+  "syncScopeFeedNote": "订阅只同步跨设备标识、地址、名称、分组、启用与加精等字段；本机自增 id、凭据引用与抓取诊断列不同步。",
+  "@syncScopeFeedNote": { "description": "订阅字段说明" },
+  "syncScopeExcludedTitle": "永不离开本机",
+  "@syncScopeExcludedTitle": { "description": "排除清单标题" },
+  "syncScopeExcludedCount": "{count} 项（API Key、WebDAV 密码、私密订阅认证、设备路径/字体/背景、窗口布局、执行调度开关）。",
+  "@syncScopeExcludedCount": {
+    "description": "排除数量",
+    "placeholders": { "count": { "type": "int", "example": "28" } }
+  },
+  "syncScopeExcludedNote": "正文、图片、AI 产出与阅读时长首发也不自动同步；需要完整搬迁时用明文备份。",
+  "@syncScopeExcludedNote": { "description": "内容排除说明" },
+  "syncSectionStatus": "当前状态",
+  "@syncSectionStatus": { "description": "状态小节标题" },
+  "syncNeverSynced": "从未同步过",
+  "@syncNeverSynced": { "description": "从未同步" },
+  "syncLastSynced": "上次同步：{at}（UTC 存储，按本地时间显示）",
+  "@syncLastSynced": {
+    "description": "上次同步时间",
+    "placeholders": { "at": { "type": "String", "example": "2026-09-22 10:00" } }
+  },
+  "syncPendingCount": "待同步变更：{count} 项",
+  "@syncPendingCount": {
+    "description": "待同步数",
+    "placeholders": { "count": { "type": "int", "example": "3" } }
+  },
+  "syncConflictCount": "冲突：{count} 项",
+  "@syncConflictCount": {
+    "description": "冲突数",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncCapabilityUnknown": "尚未探测服务器能力（下一次同步会先探测）",
+  "@syncCapabilityUnknown": { "description": "能力未探测" },
+  "syncLastError": "上次未完成：{reason}",
+  "@syncLastError": {
+    "description": "上次失败原因",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "syncRunning": "正在同步…",
+  "@syncRunning": { "description": "正在同步" },
+  "syncNowButton": "立即同步",
+  "@syncNowButton": { "description": "手动同步按钮" },
+  "syncAlreadyRunning": "已有一次同步在进行；这次请求已合并，会在当前这一次结束后按顺序执行。",
+  "@syncAlreadyRunning": { "description": "同步在途提示" },
+  "syncResultSucceeded": "同步完成：本机写入 {count} 项。",
+  "@syncResultSucceeded": {
+    "description": "同步成功",
+    "placeholders": { "count": { "type": "int", "example": "12" } }
+  },
+  "syncResultAlreadyPublished": "远端已经是本机这一版：只补了一次本地确认，没有重复上传。",
+  "@syncResultAlreadyPublished": { "description": "幂等补确认" },
+  "syncResultConflicts": "有 {count} 项同字段并发冲突，尚未上传；请在下面逐条选择要保留的版本。",
+  "@syncResultConflicts": {
+    "description": "冲突提示",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncResultRetry": "远端在此期间被另一台设备更新，三轮重试仍未成功；未改动远端，下次同步会重试。",
+  "@syncResultRetry": { "description": "等待重试" },
+  "syncResultReadonly": "此服务器不支持可靠的条件写，已降级为只读拉取：不会向远端写入任何内容。",
+  "@syncResultReadonly": { "description": "降级只读" },
+  "syncResultFailed": "同步失败：{reason}（远端与本机数据均未改动）。",
+  "@syncResultFailed": {
+    "description": "同步失败",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "syncDegradedBanner": "降级模式：该服务器不支持可靠的条件写（强 ETag / If-Match），因此同步只做只读拉取，不会自动覆盖远端或本机内容。",
+  "@syncDegradedBanner": { "description": "降级提示条" },
+  "syncFirstMergeTitle": "首次合并预览",
+  "@syncFirstMergeTitle": { "description": "首次合并标题" },
+  "syncFirstMergeCounts": "远端有 {remote} 项内容，本机有 {local} 项。",
+  "@syncFirstMergeCounts": {
+    "description": "首次合并数量",
+    "placeholders": {
+      "remote": { "type": "int", "example": "10" },
+      "local": { "type": "int", "example": "12" }
+    }
+  },
+  "syncFirstMergeDifferences": "两边不同的字段：{count} 处。",
+  "@syncFirstMergeDifferences": {
+    "description": "差异处数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  },
+  "syncFirstMergeRemoteDeletions": "远端还有 {count} 项删除等着确认（本机数据尚未清除）。",
+  "@syncFirstMergeRemoteDeletions": {
+    "description": "远端删除数",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncFirstMergePolicyNote": "确认之前不会发布任何内容、也不会建立共同基线。默认策略是保留本机内容（不覆盖本地）；只有你选「以远端为准」时，远端才会覆盖对应的字段。",
+  "@syncFirstMergePolicyNote": { "description": "首次合并策略说明" },
+  "syncFirstMergeKeepLocal": "合并并保留本机内容",
+  "@syncFirstMergeKeepLocal": { "description": "首次合并保留本机" },
+  "syncFirstMergeUseRemote": "以远端为准",
+  "@syncFirstMergeUseRemote": { "description": "首次合并以远端为准" },
+  "syncConflictTitle": "需要选版：{count} 处同字段并发冲突",
+  "@syncConflictTitle": {
+    "description": "冲突标题",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncConflictNote": "同一个字段在两台设备上被改成了不同的值。这里不会替你合并（例如「已读」和「稍后再读」不存在一个中间值），请逐条选择要保留的版本。",
+  "@syncConflictNote": { "description": "冲突说明" },
+  "syncConflictBaseValue": "共同基线：{value}",
+  "@syncConflictBaseValue": {
+    "description": "基线值",
+    "placeholders": { "value": { "type": "String", "example": "unread" } }
+  },
+  "syncConflictLocalValue": "本机：{value}",
+  "@syncConflictLocalValue": {
+    "description": "本机值",
+    "placeholders": { "value": { "type": "String", "example": "read" } }
+  },
+  "syncConflictRemoteValue": "远端：{value}",
+  "@syncConflictRemoteValue": {
+    "description": "远端值",
+    "placeholders": { "value": { "type": "String", "example": "later" } }
+  },
+  "syncConflictApply": "按所选版本合并并上传",
+  "@syncConflictApply": { "description": "应用选择按钮" },
+  "syncRemoteDeletionTitle": "远端删除了 {count} 项内容",
+  "@syncRemoteDeletionTitle": {
+    "description": "远端删除标题",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncRemoteDeletionNote": "本机数据尚未清除：跨设备的删除应用需要你逐条确认影响范围（这部份属后续任务）。现在本机内容保持不变。",
+  "@syncRemoteDeletionNote": { "description": "远端删除说明" },
+  "syncSaveFailed": "保存失败：{reason}",
+  "@syncSaveFailed": {
+    "description": "保存失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "settingsSyncEntryTitle": "同步与备份",
+  "@settingsSyncEntryTitle": { "description": "设置页同步入口标题" },
+  "settingsSyncEntrySubtitle": "WebDAV 同步、同步范围、首次合并与冲突处理",
+  "@settingsSyncEntrySubtitle": { "description": "设置页同步入口说明" }
 }

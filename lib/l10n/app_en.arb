@@ -1924,5 +1924,231 @@
   "newsScheduleInterruptedNote": "A task still running when the app quits is marked \"interrupted\" and is not sent again automatically, so content that may already have been billed is not charged twice.",
   "@newsScheduleInterruptedNote": { "description": "中断语义说明" },
   "newsScheduleTimePickerTitle": "Pick the daily run time",
-  "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" }
+  "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" },
+
+  "syncSettingsTitle": "Sync & backup",
+  "@syncSettingsTitle": { "description": "同步设置页标题" },
+  "syncSectionServer": "WebDAV server",
+  "@syncSectionServer": { "description": "服务器小节标题" },
+  "syncUrlLabel": "WebDAV URL",
+  "@syncUrlLabel": { "description": "SET-070 地址" },
+  "syncUrlHint": "For example https://dav.example.com/remote.php/dav/files/yourname; a LAN address is fine too (running your own NAS is a legitimate setup)",
+  "@syncUrlHint": { "description": "地址说明" },
+  "syncUrlMalformed": "That does not look like a complete http/https address",
+  "@syncUrlMalformed": { "description": "地址非法" },
+  "syncUrlScheme": "Only http and https addresses are supported",
+  "@syncUrlScheme": { "description": "协议不符" },
+  "syncUrlMissingHost": "The address has no host name",
+  "@syncUrlMissingHost": { "description": "缺少主机名" },
+  "syncUsernameLabel": "Username",
+  "@syncUsernameLabel": { "description": "SET-070 用户名" },
+  "syncPasswordLabel": "Password / token",
+  "@syncPasswordLabel": { "description": "SET-071 密码" },
+  "syncPasswordStored": "Saved in the system keychain (never displayed again)",
+  "@syncPasswordStored": { "description": "密码已存" },
+  "syncPasswordNotStored": "Not saved yet; saving puts it in the system keychain, never in sync payloads or plaintext backups",
+  "@syncPasswordNotStored": { "description": "密码未存" },
+  "syncSecretStoreUnavailable": "No secure storage is available on this device, so the password cannot be saved and sync stays off",
+  "@syncSecretStoreUnavailable": { "description": "无安全存储" },
+  "syncDeviceNameLabel": "Device name",
+  "@syncDeviceNameLabel": { "description": "SET-070 设备名" },
+  "syncDeviceNameHint": "Only used to tell which device published a remote manifest",
+  "@syncDeviceNameHint": { "description": "设备名说明" },
+  "syncSaveEndpoint": "Save server",
+  "@syncSaveEndpoint": { "description": "保存地址按钮" },
+  "syncSavePassword": "Save password",
+  "@syncSavePassword": { "description": "保存密码按钮" },
+  "syncPasswordSaved": "Password saved to the system keychain.",
+  "@syncPasswordSaved": { "description": "密码保存成功" },
+  "syncPasswordSaveFailed": "Could not save the password; it was not written to plaintext storage either.",
+  "@syncPasswordSaveFailed": { "description": "密码保存失败" },
+  "syncTestConnection": "Test connection",
+  "@syncTestConnection": { "description": "测试连接按钮" },
+  "syncTestConnectionHint": "Testing only reads (it lists the folder and fetches the manifest once); it never writes to or changes anything on the server.",
+  "@syncTestConnectionHint": { "description": "只读探测说明" },
+  "syncProbeOk": "Connected ({directory}).",
+  "@syncProbeOk": {
+    "description": "探测成功",
+    "placeholders": { "directory": { "type": "String", "example": "remote folder exists" } }
+  },
+  "syncProbeDirExists": "the remote folder exists",
+  "@syncProbeDirExists": { "description": "目录存在" },
+  "syncProbeDirMissing": "the remote folder does not exist yet and will be created by the first sync",
+  "@syncProbeDirMissing": { "description": "目录不存在" },
+  "syncProbeFailed": "Could not connect ({reason}); nothing was written to the server.",
+  "@syncProbeFailed": {
+    "description": "探测失败",
+    "placeholders": { "reason": { "type": "String", "example": "unauthorized" } }
+  },
+  "syncSectionTriggers": "Triggers",
+  "@syncSectionTriggers": { "description": "触发小节标题" },
+  "syncEnableLabel": "Enable sync",
+  "@syncEnableLabel": { "description": "SET-072 开关" },
+  "syncEnableHint": "When off no sync request is made at all, not even a manual one.",
+  "@syncEnableHint": { "description": "SET-072 说明" },
+  "syncOnStartLabel": "Sync on launch",
+  "@syncOnStartLabel": { "description": "SET-072 启动同步" },
+  "syncOnChangeLabel": "Sync after changes",
+  "@syncOnChangeLabel": { "description": "SET-072 变更同步" },
+  "syncOnChangeHint": "Edits trigger one sync after {seconds} quiet seconds, so a burst of edits syncs only once.",
+  "@syncOnChangeHint": {
+    "description": "防抖说明",
+    "placeholders": { "seconds": { "type": "int", "example": "5" } }
+  },
+  "syncManualOnlyLabel": "Manual sync only",
+  "@syncManualOnlyLabel": { "description": "SET-073 仅手动" },
+  "syncIntervalLabel": "Automatic sync interval",
+  "@syncIntervalLabel": { "description": "SET-073 间隔" },
+  "syncIntervalOption": "{minutes} min",
+  "@syncIntervalOption": {
+    "description": "间隔选项",
+    "placeholders": { "minutes": { "type": "int", "example": "30" } }
+  },
+  "syncSectionScope": "Sync scope",
+  "@syncSectionScope": { "description": "范围小节标题" },
+  "syncScopeNotice": "This list is derived from the C/D/S classification in the SET registry rather than hand-copied; credentials, device paths and article bodies never leave this device.",
+  "@syncScopeNotice": { "description": "范围说明" },
+  "syncScopeCommonSettings": "Sync shared settings",
+  "@syncScopeCommonSettings": { "description": "SET-074 共通设置" },
+  "syncScopeReadingState": "Sync reading state and favourites",
+  "@syncScopeReadingState": { "description": "SET-074 阅读状态" },
+  "syncScopeIncludedTitle": "Leaves this device",
+  "@syncScopeIncludedTitle": { "description": "纳入清单标题" },
+  "syncScopeIncludedCount": "{count} shared settings (class C and persistable), plus subscriptions and folders, reading state and favourites, and news source rules.",
+  "@syncScopeIncludedCount": {
+    "description": "纳入数量",
+    "placeholders": { "count": { "type": "int", "example": "42" } }
+  },
+  "syncScopeFeedNote": "Subscriptions sync only cross-device identity, URL, name, folder, enabled and favourite fields; local ids, credential references and fetch diagnostics stay behind.",
+  "@syncScopeFeedNote": { "description": "订阅字段说明" },
+  "syncScopeExcludedTitle": "Never leaves this device",
+  "@syncScopeExcludedTitle": { "description": "排除清单标题" },
+  "syncScopeExcludedCount": "{count} items (API keys, the WebDAV password, private feed auth, device paths/fonts/backgrounds, window layout, execution toggles).",
+  "@syncScopeExcludedCount": {
+    "description": "排除数量",
+    "placeholders": { "count": { "type": "int", "example": "28" } }
+  },
+  "syncScopeExcludedNote": "Article bodies, images, AI output and reading time are not synced automatically either; use a plaintext backup for a full migration.",
+  "@syncScopeExcludedNote": { "description": "内容排除说明" },
+  "syncSectionStatus": "Current status",
+  "@syncSectionStatus": { "description": "状态小节标题" },
+  "syncNeverSynced": "Never synced",
+  "@syncNeverSynced": { "description": "从未同步" },
+  "syncLastSynced": "Last sync: {at} (stored in UTC, shown in local time)",
+  "@syncLastSynced": {
+    "description": "上次同步时间",
+    "placeholders": { "at": { "type": "String", "example": "2026-09-22 10:00" } }
+  },
+  "syncPendingCount": "Pending changes: {count}",
+  "@syncPendingCount": {
+    "description": "待同步数",
+    "placeholders": { "count": { "type": "int", "example": "3" } }
+  },
+  "syncConflictCount": "Conflicts: {count}",
+  "@syncConflictCount": {
+    "description": "冲突数",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncCapabilityUnknown": "Server capability not probed yet (the next sync probes it first)",
+  "@syncCapabilityUnknown": { "description": "能力未探测" },
+  "syncLastError": "Last attempt did not finish: {reason}",
+  "@syncLastError": {
+    "description": "上次失败原因",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "syncRunning": "Syncing…",
+  "@syncRunning": { "description": "正在同步" },
+  "syncNowButton": "Sync now",
+  "@syncNowButton": { "description": "手动同步按钮" },
+  "syncAlreadyRunning": "A sync is already running; this request was merged and will run in order once the current one finishes.",
+  "@syncAlreadyRunning": { "description": "同步在途提示" },
+  "syncResultSucceeded": "Sync finished: {count} items written locally.",
+  "@syncResultSucceeded": {
+    "description": "同步成功",
+    "placeholders": { "count": { "type": "int", "example": "12" } }
+  },
+  "syncResultAlreadyPublished": "The remote already holds this device's version, so only the local confirmation was completed — nothing was uploaded again.",
+  "@syncResultAlreadyPublished": { "description": "幂等补确认" },
+  "syncResultConflicts": "{count} same-field concurrent conflicts found; nothing was uploaded. Choose which value to keep below.",
+  "@syncResultConflicts": {
+    "description": "冲突提示",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncResultRetry": "Another device updated the remote in the meantime and three retries did not succeed; the remote is untouched and the next sync will retry.",
+  "@syncResultRetry": { "description": "等待重试" },
+  "syncResultReadonly": "This server does not support reliable conditional writes, so sync has degraded to read-only pull: nothing will be written to the remote.",
+  "@syncResultReadonly": { "description": "降级只读" },
+  "syncResultFailed": "Sync failed: {reason} (neither the remote nor local data was changed).",
+  "@syncResultFailed": {
+    "description": "同步失败",
+    "placeholders": { "reason": { "type": "String", "example": "network" } }
+  },
+  "syncDegradedBanner": "Degraded mode: this server does not support reliable conditional writes (strong ETag / If-Match), so sync only pulls. It will not overwrite remote or local content automatically.",
+  "@syncDegradedBanner": { "description": "降级提示条" },
+  "syncFirstMergeTitle": "First merge preview",
+  "@syncFirstMergeTitle": { "description": "首次合并标题" },
+  "syncFirstMergeCounts": "The remote holds {remote} items and this device {local}.",
+  "@syncFirstMergeCounts": {
+    "description": "首次合并数量",
+    "placeholders": {
+      "remote": { "type": "int", "example": "10" },
+      "local": { "type": "int", "example": "12" }
+    }
+  },
+  "syncFirstMergeDifferences": "Fields that differ: {count}.",
+  "@syncFirstMergeDifferences": {
+    "description": "差异处数",
+    "placeholders": { "count": { "type": "int", "example": "2" } }
+  },
+  "syncFirstMergeRemoteDeletions": "The remote also proposes {count} deletions awaiting confirmation (nothing local has been cleared).",
+  "@syncFirstMergeRemoteDeletions": {
+    "description": "远端删除数",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncFirstMergePolicyNote": "Nothing is published and no common baseline is established until you confirm. The default keeps this device's content; only if you pick \"use the remote\" will remote values overwrite those fields.",
+  "@syncFirstMergePolicyNote": { "description": "首次合并策略说明" },
+  "syncFirstMergeKeepLocal": "Merge and keep this device",
+  "@syncFirstMergeKeepLocal": { "description": "首次合并保留本机" },
+  "syncFirstMergeUseRemote": "Use the remote",
+  "@syncFirstMergeUseRemote": { "description": "首次合并以远端为准" },
+  "syncConflictTitle": "Choose a version: {count} same-field conflicts",
+  "@syncConflictTitle": {
+    "description": "冲突标题",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncConflictNote": "The same field was changed to different values on two devices. Nothing is merged for you here — for example there is no middle value between \"read\" and \"later\" — so pick the version to keep for each one.",
+  "@syncConflictNote": { "description": "冲突说明" },
+  "syncConflictBaseValue": "Common baseline: {value}",
+  "@syncConflictBaseValue": {
+    "description": "基线值",
+    "placeholders": { "value": { "type": "String", "example": "unread" } }
+  },
+  "syncConflictLocalValue": "This device: {value}",
+  "@syncConflictLocalValue": {
+    "description": "本机值",
+    "placeholders": { "value": { "type": "String", "example": "read" } }
+  },
+  "syncConflictRemoteValue": "Remote: {value}",
+  "@syncConflictRemoteValue": {
+    "description": "远端值",
+    "placeholders": { "value": { "type": "String", "example": "later" } }
+  },
+  "syncConflictApply": "Merge with the chosen versions and upload",
+  "@syncConflictApply": { "description": "应用选择按钮" },
+  "syncRemoteDeletionTitle": "The remote deleted {count} items",
+  "@syncRemoteDeletionTitle": {
+    "description": "远端删除标题",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "syncRemoteDeletionNote": "Nothing local has been cleared: applying cross-device deletions requires confirming the impact item by item (that part is a later task). Local content stays as it is for now.",
+  "@syncRemoteDeletionNote": { "description": "远端删除说明" },
+  "syncSaveFailed": "Could not save: {reason}",
+  "@syncSaveFailed": {
+    "description": "保存失败",
+    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+  },
+  "settingsSyncEntryTitle": "Sync & backup",
+  "@settingsSyncEntryTitle": { "description": "设置页同步入口标题" },
+  "settingsSyncEntrySubtitle": "WebDAV sync, sync scope, first merge and conflict handling",
+  "@settingsSyncEntrySubtitle": { "description": "设置页同步入口说明" }
 }

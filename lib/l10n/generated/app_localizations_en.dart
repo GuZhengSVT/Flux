@@ -2935,4 +2935,305 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newsScheduleTimePickerTitle => 'Pick the daily run time';
+
+  @override
+  String get syncSettingsTitle => 'Sync & backup';
+
+  @override
+  String get syncSectionServer => 'WebDAV server';
+
+  @override
+  String get syncUrlLabel => 'WebDAV URL';
+
+  @override
+  String get syncUrlHint =>
+      'For example https://dav.example.com/remote.php/dav/files/yourname; a LAN address is fine too (running your own NAS is a legitimate setup)';
+
+  @override
+  String get syncUrlMalformed =>
+      'That does not look like a complete http/https address';
+
+  @override
+  String get syncUrlScheme => 'Only http and https addresses are supported';
+
+  @override
+  String get syncUrlMissingHost => 'The address has no host name';
+
+  @override
+  String get syncUsernameLabel => 'Username';
+
+  @override
+  String get syncPasswordLabel => 'Password / token';
+
+  @override
+  String get syncPasswordStored =>
+      'Saved in the system keychain (never displayed again)';
+
+  @override
+  String get syncPasswordNotStored =>
+      'Not saved yet; saving puts it in the system keychain, never in sync payloads or plaintext backups';
+
+  @override
+  String get syncSecretStoreUnavailable =>
+      'No secure storage is available on this device, so the password cannot be saved and sync stays off';
+
+  @override
+  String get syncDeviceNameLabel => 'Device name';
+
+  @override
+  String get syncDeviceNameHint =>
+      'Only used to tell which device published a remote manifest';
+
+  @override
+  String get syncSaveEndpoint => 'Save server';
+
+  @override
+  String get syncSavePassword => 'Save password';
+
+  @override
+  String get syncPasswordSaved => 'Password saved to the system keychain.';
+
+  @override
+  String get syncPasswordSaveFailed =>
+      'Could not save the password; it was not written to plaintext storage either.';
+
+  @override
+  String get syncTestConnection => 'Test connection';
+
+  @override
+  String get syncTestConnectionHint =>
+      'Testing only reads (it lists the folder and fetches the manifest once); it never writes to or changes anything on the server.';
+
+  @override
+  String syncProbeOk(String directory) {
+    return 'Connected ($directory).';
+  }
+
+  @override
+  String get syncProbeDirExists => 'the remote folder exists';
+
+  @override
+  String get syncProbeDirMissing =>
+      'the remote folder does not exist yet and will be created by the first sync';
+
+  @override
+  String syncProbeFailed(String reason) {
+    return 'Could not connect ($reason); nothing was written to the server.';
+  }
+
+  @override
+  String get syncSectionTriggers => 'Triggers';
+
+  @override
+  String get syncEnableLabel => 'Enable sync';
+
+  @override
+  String get syncEnableHint =>
+      'When off no sync request is made at all, not even a manual one.';
+
+  @override
+  String get syncOnStartLabel => 'Sync on launch';
+
+  @override
+  String get syncOnChangeLabel => 'Sync after changes';
+
+  @override
+  String syncOnChangeHint(int seconds) {
+    return 'Edits trigger one sync after $seconds quiet seconds, so a burst of edits syncs only once.';
+  }
+
+  @override
+  String get syncManualOnlyLabel => 'Manual sync only';
+
+  @override
+  String get syncIntervalLabel => 'Automatic sync interval';
+
+  @override
+  String syncIntervalOption(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get syncSectionScope => 'Sync scope';
+
+  @override
+  String get syncScopeNotice =>
+      'This list is derived from the C/D/S classification in the SET registry rather than hand-copied; credentials, device paths and article bodies never leave this device.';
+
+  @override
+  String get syncScopeCommonSettings => 'Sync shared settings';
+
+  @override
+  String get syncScopeReadingState => 'Sync reading state and favourites';
+
+  @override
+  String get syncScopeIncludedTitle => 'Leaves this device';
+
+  @override
+  String syncScopeIncludedCount(int count) {
+    return '$count shared settings (class C and persistable), plus subscriptions and folders, reading state and favourites, and news source rules.';
+  }
+
+  @override
+  String get syncScopeFeedNote =>
+      'Subscriptions sync only cross-device identity, URL, name, folder, enabled and favourite fields; local ids, credential references and fetch diagnostics stay behind.';
+
+  @override
+  String get syncScopeExcludedTitle => 'Never leaves this device';
+
+  @override
+  String syncScopeExcludedCount(int count) {
+    return '$count items (API keys, the WebDAV password, private feed auth, device paths/fonts/backgrounds, window layout, execution toggles).';
+  }
+
+  @override
+  String get syncScopeExcludedNote =>
+      'Article bodies, images, AI output and reading time are not synced automatically either; use a plaintext backup for a full migration.';
+
+  @override
+  String get syncSectionStatus => 'Current status';
+
+  @override
+  String get syncNeverSynced => 'Never synced';
+
+  @override
+  String syncLastSynced(String at) {
+    return 'Last sync: $at (stored in UTC, shown in local time)';
+  }
+
+  @override
+  String syncPendingCount(int count) {
+    return 'Pending changes: $count';
+  }
+
+  @override
+  String syncConflictCount(int count) {
+    return 'Conflicts: $count';
+  }
+
+  @override
+  String get syncCapabilityUnknown =>
+      'Server capability not probed yet (the next sync probes it first)';
+
+  @override
+  String syncLastError(String reason) {
+    return 'Last attempt did not finish: $reason';
+  }
+
+  @override
+  String get syncRunning => 'Syncing…';
+
+  @override
+  String get syncNowButton => 'Sync now';
+
+  @override
+  String get syncAlreadyRunning =>
+      'A sync is already running; this request was merged and will run in order once the current one finishes.';
+
+  @override
+  String syncResultSucceeded(int count) {
+    return 'Sync finished: $count items written locally.';
+  }
+
+  @override
+  String get syncResultAlreadyPublished =>
+      'The remote already holds this device\'s version, so only the local confirmation was completed — nothing was uploaded again.';
+
+  @override
+  String syncResultConflicts(int count) {
+    return '$count same-field concurrent conflicts found; nothing was uploaded. Choose which value to keep below.';
+  }
+
+  @override
+  String get syncResultRetry =>
+      'Another device updated the remote in the meantime and three retries did not succeed; the remote is untouched and the next sync will retry.';
+
+  @override
+  String get syncResultReadonly =>
+      'This server does not support reliable conditional writes, so sync has degraded to read-only pull: nothing will be written to the remote.';
+
+  @override
+  String syncResultFailed(String reason) {
+    return 'Sync failed: $reason (neither the remote nor local data was changed).';
+  }
+
+  @override
+  String get syncDegradedBanner =>
+      'Degraded mode: this server does not support reliable conditional writes (strong ETag / If-Match), so sync only pulls. It will not overwrite remote or local content automatically.';
+
+  @override
+  String get syncFirstMergeTitle => 'First merge preview';
+
+  @override
+  String syncFirstMergeCounts(int remote, int local) {
+    return 'The remote holds $remote items and this device $local.';
+  }
+
+  @override
+  String syncFirstMergeDifferences(int count) {
+    return 'Fields that differ: $count.';
+  }
+
+  @override
+  String syncFirstMergeRemoteDeletions(int count) {
+    return 'The remote also proposes $count deletions awaiting confirmation (nothing local has been cleared).';
+  }
+
+  @override
+  String get syncFirstMergePolicyNote =>
+      'Nothing is published and no common baseline is established until you confirm. The default keeps this device\'s content; only if you pick \"use the remote\" will remote values overwrite those fields.';
+
+  @override
+  String get syncFirstMergeKeepLocal => 'Merge and keep this device';
+
+  @override
+  String get syncFirstMergeUseRemote => 'Use the remote';
+
+  @override
+  String syncConflictTitle(int count) {
+    return 'Choose a version: $count same-field conflicts';
+  }
+
+  @override
+  String get syncConflictNote =>
+      'The same field was changed to different values on two devices. Nothing is merged for you here — for example there is no middle value between \"read\" and \"later\" — so pick the version to keep for each one.';
+
+  @override
+  String syncConflictBaseValue(String value) {
+    return 'Common baseline: $value';
+  }
+
+  @override
+  String syncConflictLocalValue(String value) {
+    return 'This device: $value';
+  }
+
+  @override
+  String syncConflictRemoteValue(String value) {
+    return 'Remote: $value';
+  }
+
+  @override
+  String get syncConflictApply => 'Merge with the chosen versions and upload';
+
+  @override
+  String syncRemoteDeletionTitle(int count) {
+    return 'The remote deleted $count items';
+  }
+
+  @override
+  String get syncRemoteDeletionNote =>
+      'Nothing local has been cleared: applying cross-device deletions requires confirming the impact item by item (that part is a later task). Local content stays as it is for now.';
+
+  @override
+  String syncSaveFailed(String reason) {
+    return 'Could not save: $reason';
+  }
+
+  @override
+  String get settingsSyncEntryTitle => 'Sync & backup';
+
+  @override
+  String get settingsSyncEntrySubtitle =>
+      'WebDAV sync, sync scope, first merge and conflict handling';
 }

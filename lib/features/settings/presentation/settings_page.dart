@@ -26,6 +26,7 @@ import 'package:flux/features/ai/presentation/search_services_page.dart';
 import 'package:flux/features/feeds/presentation/subscription_manager_page.dart';
 import 'package:flux/features/news/presentation/news_source_settings_page.dart';
 import 'package:flux/features/statistics/presentation/reading_stats_page.dart';
+import 'package:flux/features/sync/presentation/sync_settings_page.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/settings_controller.dart';
@@ -182,6 +183,18 @@ class _SettingsBody extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) => const ReadingStatsPage(),
+            ),
+          ),
+        ),
+        // T044：同步与备份（SET-070–075）。放在这里是因为它是**配置**入口：真正生效的
+        // 开关、范围、首次合并与冲突处理都在该页内，而不是在本页摆一个无效开关。
+        _NavigationRow(
+          title: l10n.settingsSyncEntryTitle,
+          subtitle: l10n.settingsSyncEntrySubtitle,
+          icon: Icons.cloud_sync_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const SyncSettingsPage(),
             ),
           ),
         ),

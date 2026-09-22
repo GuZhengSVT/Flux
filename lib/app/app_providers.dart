@@ -12,6 +12,9 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'dart:async';
+
 // Override 类型在 riverpod 3 的 misc 入口（flutter_riverpod.dart 不再导出它）。
 import 'package:flutter_riverpod/misc.dart' show Override;
 
@@ -106,6 +109,19 @@ import 'package:flux/infrastructure/platform/image_save_service.dart';
 import 'package:flux/infrastructure/platform/system_share_service.dart';
 import 'package:flux/infrastructure/platform/device_local_zone.dart';
 import 'package:flux/features/statistics/application/reading_stats_ports.dart';
+import 'package:flux/features/sync/application/sync_engine.dart';
+import 'package:flux/features/sync/application/sync_manager.dart';
+import 'package:flux/features/sync/application/sync_providers.dart';
+import 'package:flux/features/sync/application/sync_settings.dart';
+import 'package:flux/infrastructure/local/degraded_sync_local_store.dart';
+import 'package:flux/infrastructure/local/sync_local_store.dart';
+import 'package:flux/infrastructure/local/sync_status_reader.dart';
+import 'package:flux/infrastructure/local/sync_store.dart';
+import 'package:flux/infrastructure/network/webdav_client.dart';
+import 'package:flux/infrastructure/network/webdav_capability_probe.dart';
+import 'package:flux/infrastructure/network/webdav_connection_prober.dart';
+import 'package:flux/infrastructure/network/webdav_transport.dart';
+import 'package:flux/infrastructure/platform/webdav_secret_store.dart';
 
 import 'app_bootstrap.dart';
 
@@ -194,6 +210,9 @@ List<Override> bootstrapOverrides(
   // T031：搜索服务的存储与适配器工厂同样参数化（理由同 aiModelStore）。
   SearchServiceStore? searchServiceStore,
   SearchProviderFactory? searchProviderFactory,
+  // T044：同步的只读探测端口参数化（理由同上：Riverpod 禁止重复覆盖）。测试据此构造
+  // 「测试连接成功/失败/目录不存在」三种世界，而不必真的连一台服务器。
+  SyncConnectionProber? syncConnectionProber,
 }) {
   return <Override>[
     appBootstrapStatusProvider.overrideWithValue(
@@ -692,6 +711,98 @@ List<Override> bootstrapOverrides(
           ? const DegradedDailySummaryCounter()
           : SettingsDailySummaryCounter(result.database!),
     ),
+    // ---- T044：同步（SET-070–075） --------------------------------------------
+    //
+    // 四条接线，逐条对应一个「不做就成了假功能」的点：
+    //   * **密码端口**与设置表读的是**同一份** result.credentialStore（组合根已决定好这次
+    //     运行用 Keychain 还是会话内存），同步不该有第二条判断路径；
+    //   * **只读探测**用与同步同一条客户端实现，因此不会出现「测试说通了、同步连不上」；
+    //   * **管理器**是长期存活对象，所有触发（启动/定时/防抖/手动）都走它，同机不并发；
+    //   * **状态发布**：管理器把每次结论写进 syncStatusProvider，界面读同一份，不在别处重算。
+    syncSecretStoreProvider.overrideWithValue(
+      WebDavSyncSecretStore(result.credentialStore),
+    ),
+    syncConnectionProberProvider.overrideWithValue(
+      syncConnectionProber ?? const WebDavConnectionProber(),
+    ),
+    syncManagerProvider.overrideWith((Ref ref) {
+      final SyncStatusController statusController = ref.read(
+        syncStatusProvider.notifier,
+      );
+      final SyncSecretStore secrets = WebDavSyncSecretStore(
+        result.credentialStore,
+      );
+      // 凭据读取是**每轮同步现读**的：用户在设置页改了密码之后，下一次同步就用新密码，
+      // 不需要重启应用；也避免把密码长期留在某个对象的字段里。
+      Future<Result<SyncCredentials>> loadCredentials(
+        SyncSettings settings,
+      ) async {
+        final Result<String> password = await secrets.readPassword();
+        if (password.isErr) {
+          return Err<SyncCredentials>(password.errorOrNull!);
+        }
+        return Ok<SyncCredentials>(
+          SyncCredentials(
+            username: settings.username,
+            password: password.unwrap(),
+          ),
+        );
+      }
+
+      final SyncManager manager = SyncManager(
+        readSettings: () => SyncSettingsReader(result.settingsStore).load(),
+        // 数据库不可用时：读一个**诚实**的空状态（本次运行确实没有基线），而不是让
+        // Provider 抛错——否则打开设置页会得到一条与同步无关的崩溃。
+        readStatusBaseline: result.database == null
+            ? () async => const Ok<SyncStatusBaseline>(
+                SyncStatusBaseline(
+                  capability: WebDavWriteCapability.unknown,
+                  pendingChangeCount: 0,
+                ),
+              )
+            : DriftSyncStatusReader(result.database!).read,
+        buildEngine: (SyncSettings settings, SyncCredentials credentials) {
+          final Uri? root = settings.remoteRoot;
+          if (root == null || result.database == null) {
+            // 端点没配好或没有数据库：返回 null（管理器会报一处 storage/配置失败），
+            // 而不是抛异常——抛出来的异常会被 Riverpod 当成装配错误报出去，
+            // 而这两种情况都是**可诊断的正常状态**。
+            return null;
+          }
+          return SyncEngine(
+            state: DriftSyncStore(result.database!),
+            content: DriftSyncLocalStore(result.database!),
+            transport: WebDavSyncTransport(
+              client: WebDavClient(),
+              credentials: credentials,
+            ),
+            remoteRoot: root,
+            deviceName: settings.deviceName.isEmpty
+                ? 'flux-device'
+                : settings.deviceName,
+            clock: const SystemClock(),
+          );
+        },
+        probeCapability: (SyncSettings settings, SyncCredentials credentials) =>
+            probeWebDavCapability(
+              client: WebDavClient(),
+              settings: settings,
+              password: credentials.password,
+            ),
+        loadCredentials: loadCredentials,
+        readLocalContentSnapshot: result.database == null
+            ? const DegradedSyncLocalStore().readLocalSnapshot
+            : DriftSyncLocalStore(result.database!).readLocalSnapshot,
+        clock: const SystemClock(),
+        onStatus: statusController.publish,
+        diagnostics: DiagnosticLogSink(result.diagnosticLog),
+      );
+      ref.onDispose(manager.dispose);
+      // 启动即按 SET-072/073 决定是否同步与起定时：与 T040 的定时总结同一口径
+      // （「应用在运行时就会按配置跑」），这也是 SET-072「启动同步」的落点。
+      unawaited(manager.onLaunch());
+      return manager;
+    }),
   ];
 }
 

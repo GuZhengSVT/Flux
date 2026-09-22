@@ -38,6 +38,7 @@ export 'sync_first_merge.dart';
 export 'sync_local_store.dart';
 export 'sync_projection.dart';
 export 'sync_snapshot.dart';
+export 'sync_status.dart';
 export 'sync_store.dart';
 export 'sync_transport.dart';
 export 'three_way_merge.dart';

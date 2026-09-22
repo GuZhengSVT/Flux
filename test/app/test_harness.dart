@@ -29,6 +29,7 @@ import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/settings_repository.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
+import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import 'fake_article_image_loader.dart';
@@ -115,6 +116,8 @@ final class TestBootstrap {
     // T031：搜索服务的存储与适配器工厂（理由同上：Riverpod 禁止重复覆盖）。
     SearchServiceStore? searchServiceStore,
     SearchProviderFactory? searchProviderFactory,
+    // T044：同步的只读探测端口（理由同上：Riverpod 禁止重复覆盖）。
+    SyncConnectionProber? syncConnectionProber,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -147,6 +150,7 @@ final class TestBootstrap {
       aiProviderFactory: aiProviderFactory,
       searchServiceStore: searchServiceStore,
       searchProviderFactory: searchProviderFactory,
+      syncConnectionProber: syncConnectionProber,
       // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
       // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
       // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），
