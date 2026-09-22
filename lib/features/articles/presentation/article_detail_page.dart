@@ -31,6 +31,9 @@ import 'package:flux/features/ai/domain/ai_message.dart';
 import 'package:flux/features/ai/domain/vision_consent.dart';
 import 'package:flux/features/ai/domain/vision_routing.dart';
 import 'package:flux/features/feeds/application/feed_ports.dart';
+import 'package:flux/features/feeds/presentation/feed_dialogs.dart';
+import 'package:flux/features/settings/application/cleanup_ports.dart';
+import 'package:flux/features/settings/application/cleanup_service.dart';
 import 'package:flux/features/settings/application/settings_controller.dart';
 import 'package:flux/features/settings/application/settings_navigation.dart';
 import 'package:flux/features/settings/application/settings_store.dart';
@@ -1213,6 +1216,94 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// 彻底删除本文（T047；架构 5.3「不能留下隐藏副本」）。
+  ///
+  /// 三步，顺序刻意如此：
+  ///   1) **先读关联范围**（只读）——用户要在知道「会连带删掉 3 份译文、2 条会话、1 张图」
+  ///      之后才做决定；
+  ///   2) **确认**（不可撤销，因此必须是一次显式点击，不是一次滑动）；
+  ///   3) **执行**后把回执写在 SnackBar 上（关联计数来自执行前的枚举，不是猜的）。
+  Future<void> _purgeArticle() async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final CleanupService service = ref.read(cleanupServiceProvider);
+    final Result<ArticlePurgeImpact> preview = await service
+        .previewArticlePurge(widget.articleId);
+    if (!mounted) {
+      return;
+    }
+    if (preview.isErr) {
+      _notify(l10n.storageFailed(preview.errorOrNull!.kind));
+      return;
+    }
+    final ArticlePurgeImpact impact = preview.unwrap();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        key: const ValueKey<String>('article-purge-dialog'),
+        title: Text(l10n.storagePurgeTitle),
+        content: SizedBox(
+          width: dialogMaxWidth,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(impact.title, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: FluxSpacing.sm),
+              Text(
+                impact.hasRelated
+                    ? l10n.storagePurgeImpact(
+                        impact.translations,
+                        impact.readingSessions,
+                        impact.cachedMedia,
+                        impact.citations,
+                      )
+                    : l10n.storagePurgeNone,
+              ),
+              const SizedBox(height: FluxSpacing.sm),
+              Text(l10n.storagePurgeNotice),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.settingsBackupCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.storagePurgeConfirmAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
+    final Result<ArticlePurgeImpact> purged = await service.purgeArticle(
+      widget.articleId,
+    );
+    if (!mounted) {
+      return;
+    }
+    if (purged.isErr) {
+      _notify(l10n.storageFailed(purged.errorOrNull!.kind));
+      return;
+    }
+    final ArticlePurgeImpact done = purged.unwrap();
+    _notify(
+      l10n.storagePurgeDone(
+        done.citations,
+        done.translations,
+        done.readingSessions,
+        done.cachedMedia,
+      ),
+    );
+    // 文章本体已经不在了：留在这一页只会显示一篇读不出来的文章，因此退回上一页。
+    if (mounted) {
+      Navigator.of(context).maybePop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
@@ -1252,6 +1343,13 @@ class _ArticleDetailPageState extends ConsumerState<ArticleDetailPage>
             tooltip: _findOpen ? l10n.readingFindClose : l10n.readingFindOpen,
             icon: Icon(_findOpen ? Icons.search_off : Icons.search),
             onPressed: _toggleFind,
+          ),
+          // 「彻底删除」（T047，架构 5.3）：列出关联（摘要/引用/缓存/媒体）并清理，不留隐藏副本。
+          // 与列表页的批量操作不同：那些改的是阅读状态与列表可见性，这条真的移除文章本体。
+          IconButton(
+            tooltip: l10n.readingPurgeArticle,
+            icon: const Icon(Icons.delete_forever_outlined),
+            onPressed: _purgeArticle,
           ),
           const SizedBox(width: FluxSpacing.xxs),
         ],

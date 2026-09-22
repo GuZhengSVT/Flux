@@ -30,6 +30,7 @@ import 'package:flux/features/sync/presentation/sync_settings_page.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/settings_controller.dart';
+import 'storage_page.dart';
 
 /// 设置页。
 class SettingsPage extends ConsumerWidget {
@@ -195,6 +196,19 @@ class _SettingsBody extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) => const SyncSettingsPage(),
+            ),
+          ),
+        ),
+        // T047：存储与清理（SET-077–080）。与「同步与备份」分开：那条管**数据出境与恢复**，
+        // 这条管**本机空间与删除**。合成一条会让「清缓存」与「导出备份」在同一个入口下，而
+        // 两者的风险方向相反（前者删本机、后者把本机内容写到磁盘上）。
+        _NavigationRow(
+          title: l10n.settingsStorageEntryTitle,
+          subtitle: l10n.settingsStorageEntrySubtitle,
+          icon: Icons.storage_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const StoragePage(),
             ),
           ),
         ),

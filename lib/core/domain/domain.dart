@@ -6,6 +6,7 @@
 library;
 
 export 'article_identity.dart';
+export 'ai_cache_bounds.dart';
 export 'backup.dart';
 export 'article_catalog.dart';
 export 'article_search.dart';
@@ -35,6 +36,7 @@ export 'reading_stats.dart';
 export 'reading_stats_store.dart';
 export 'remote_deletion.dart';
 export 'stable_id.dart';
+export 'storage_cleanup.dart';
 export 'sync_article_key.dart';
 export 'sync_first_merge.dart';
 export 'sync_local_store.dart';

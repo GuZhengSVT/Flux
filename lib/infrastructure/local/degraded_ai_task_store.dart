@@ -43,7 +43,12 @@ final class DegradedAiTaskStore implements AiTaskStore {
 }
 
 /// 降级结果缓存：永不命中、写入明确失败。
-final class DegradedAiResultCache implements AiResultCache {
+///
+/// 同时实现 [AiResultCacheMaintenance]：降级下「占用 0 条、0 字节」是**真实**答案（本次运行
+/// 确实没有缓存），而淘汰是空操作且成功——与 [clear] 同一口径。给维护能力返回失败会让设置页
+/// 在有缓存关联的每一处都显示一条与用户无关的错误。
+final class DegradedAiResultCache
+    implements AiResultCache, AiResultCacheMaintenance {
   /// 构造降级缓存。
   const DegradedAiResultCache();
 
@@ -69,4 +74,14 @@ final class DegradedAiResultCache implements AiResultCache {
   /// 清空在降级模式下是空操作且成功：没有库就没有缓存可清（与「清空失败」不同）。
   @override
   Future<Result<void>> clear() async => okUnit();
+
+  /// 降级下没有缓存，因此占用为 0——这是诚实的答案，不是「读取失败」。
+  @override
+  Future<Result<({int entries, int bytes})>> usage() async =>
+      const Ok<({int entries, int bytes})>((entries: 0, bytes: 0));
+
+  /// 没有缓存可淘汰：返回 0 条（与 clear 的「空操作且成功」同一口径）。
+  @override
+  Future<Result<int>> enforceLimits(AiCacheLimits limits) async =>
+      const Ok<int>(0);
 }

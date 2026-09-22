@@ -14,6 +14,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dart:async';
+import 'dart:io';
 
 // Override 类型在 riverpod 3 的 misc 入口（flutter_riverpod.dart 不再导出它）。
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -119,6 +120,10 @@ import 'package:flux/features/sync/application/backup_use_case.dart';
 import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/infrastructure/local/backup_content_source.dart';
 import 'package:flux/infrastructure/local/degraded_backup_source.dart';
+import 'package:flux/features/settings/application/cleanup_ports.dart';
+import 'package:flux/infrastructure/local/degraded_storage_cleanup_store.dart';
+import 'package:flux/infrastructure/local/media_cache_port_adapter.dart';
+import 'package:flux/infrastructure/local/storage_cleanup_store.dart';
 import 'package:flux/infrastructure/local/degraded_sync_local_store.dart';
 import 'package:flux/infrastructure/local/feed_tombstone_reader.dart';
 import 'package:flux/infrastructure/local/sync_local_store.dart';
@@ -224,6 +229,11 @@ List<Override> bootstrapOverrides(
   // 构造「导出失败」「包里哈希不符」这些无法用真实文件系统稳定制造的世界。
   BackupUseCase? backupUseCase,
   String Function(String token)? backupNewDirectory,
+  // T047：存储清理的端口也参数化（理由同上：Riverpod 禁止重复覆盖）。测试据此构造
+  // 「媒体缓存目录不可写」「总结表读取失败」这些无法用内存库稳定制造的世界。
+  StorageCleanupStore? storageCleanupStore,
+  MediaCachePort? mediaCachePort,
+  SnapshotGcPort? snapshotGcPort,
 }) {
   _restoreDirectoryBase = result.dataDirectoryPath;
   return <Override>[
@@ -347,6 +357,28 @@ List<Override> bootstrapOverrides(
       sessionZone ?? DeviceLocalZone.current(),
     ),
     statsClockProvider.overrideWithValue(statsClock ?? const SystemClock()),
+    // ---- T047：存储清理 --------------------------------------------------
+    //
+    // 媒体端口给**同一个**媒体目录（数据目录下的 `media`）：缓存与清理必须指向同一份文件，
+    // 否则「清缓存」会清一个空目录而用户看到的占用一动不动。数据目录不可用时给一个临时目录——
+    // 那是「本次运行不持久化」的既有语义（见 articleImageLoaderProvider 的说明），不是
+    // 「清理不可用」；统计会显示 0，而 0 是真实的（本次运行确实没落盘）。
+    mediaCachePortProvider.overrideWithValue(
+      mediaCachePort ??
+          ImageCacheMediaPort(
+            ImageCacheService(
+              root:
+                  result.mediaCacheDirectory ??
+                  Directory(p.join(Directory.systemTemp.path, 'flux-media')),
+              // 上限由设置读取后在用到它的地方套用（与 ArticleImageLoader 同一口径：装配时
+              // 只给注册表默认值，读到用户值后显式应用，避免出现第二份默认值）。
+              limitMiB: _set080DefaultMiB,
+            ),
+          ),
+    ),
+    // 远端快照 GC：**未配置同步时不提供实现**（null）。这不是降级，而是「没有远端可回收」
+    // 这一真实状态；给它一个抛错的实现会让设置页一打开就报一条与用户无关的错误。
+    snapshotGcPortProvider.overrideWithValue(snapshotGcPort),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(
         DriftFeedCatalogStore(catalogDatabase),
@@ -428,6 +460,25 @@ List<Override> bootstrapOverrides(
               currentSchemaVersion: catalogDatabase.schemaVersion,
             ),
       ),
+      // T047：存储清理（分类占用、正文释放、总结清理、缓存维护、彻底删除关联）。
+      // 数据库文件清单一起给它：存储页要显示「设置/状态数据库」占多少，而那个数字在磁盘上
+      // （主库 + `-wal` + `-shm`），不在任何一张表里。
+      storageCleanupStoreProvider.overrideWithValue(
+        storageCleanupStore ??
+            DriftStorageCleanupStore(
+              catalogDatabase,
+              databaseFiles: <String>[
+                for (final String name in <String>[
+                  fluxDatabaseFileName,
+                  '$fluxDatabaseFileName-wal',
+                  '$fluxDatabaseFileName-shm',
+                ])
+                  if (result.dataDirectoryPath case final String dir)
+                    p.join(dir, name),
+              ],
+              mediaDirectoryPath: result.mediaCacheDirectory?.path,
+            ),
+      ),
     ] else ...<Override>[
       feedCatalogProvider.overrideWithValue(const DegradedFeedCatalogStore()),
       feedArticleStoreProvider.overrideWithValue(
@@ -443,6 +494,11 @@ List<Override> bootstrapOverrides(
               files: FileSelectorAccess(),
               currentSchemaVersion: 0,
             ),
+      ),
+      // T047：数据库不可用时清理退到「读空、写明确失败」。**不返回假成功**：一个「清完了」
+      // 的回执会让用户以为空间释放了，而磁盘上什么都没变（与备份端口同一口径）。
+      storageCleanupStoreProvider.overrideWithValue(
+        storageCleanupStore ?? const DegradedStorageCleanupStore(),
       ),
       // 降级模式下文章列表退到内存空实现：读返回空集合、写返回类型化失败。
       // 不返回假的成功，理由与另外两个端口一致（见 feed_store_adapter 的说明）。
@@ -940,3 +996,14 @@ String _newRestoreDirectory(String token) {
 
 /// 供 [_newRestoreDirectory] 使用的数据目录（由装配在启动时写入）。
 String? _restoreDirectoryBase;
+
+/// SET-080 的注册表默认值（MiB）。
+///
+/// 从注册表读而不是在这里写一个 512：界面上显示的默认值与这里套用的默认值必须是同一个数字，
+/// 否则会出现「设置页说默认 512、实际按 256 裁剪」这种无从解释的差异（与 SettingsState.initial
+/// 从注册表取默认值是同一口径）。
+int get _set080DefaultMiB {
+  final Object? value = SettingRegistry.findById(SettingId.set080)
+      ?.defaultValue;
+  return value is int ? value : kDefaultCacheMiB;
+}

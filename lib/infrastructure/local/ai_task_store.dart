@@ -261,11 +261,29 @@ final class DriftAiTaskStore implements AiTaskStore {
 }
 
 /// 结果缓存的 drift 实现。
-final class DriftAiResultCache implements AiResultCache {
+///
+/// 除读写一条缓存（[AiResultCache]）外，它还实现 [AiResultCacheMaintenance]：统计与按上限
+/// 淘汰。**每次成功写入后自动执行一次淘汰**（见 [save] 的说明），因此上限不需要任何后台任务
+/// 或启动钩子来维持——「忘了调淘汰」这件事在结构上不可能发生。
+final class DriftAiResultCache
+    implements AiResultCache, AiResultCacheMaintenance {
   /// 绑定一个已打开的数据库。
-  const DriftAiResultCache(this._db);
+  ///
+  /// [limits] 是容量上限。给它一个构造参数而不是写死常量，是为了让装配层能把「这是内部资源
+  /// 策略」这一事实放在一处（见 AiCacheLimits 的说明：它不是 SET 项）。
+  const DriftAiResultCache(
+    this._db, {
+    this.limits = AiCacheLimits.defaults,
+    this.clock = const SystemClock(),
+  });
 
   final AppDatabase _db;
+
+  /// 容量上限（条数 + 字节）。
+  final AiCacheLimits limits;
+
+  /// 时钟（记录命中时刻；不参与任何判定）。
+  final Clock clock;
 
   @override
   Future<Result<AiResultCacheEntry?>> find(String key) async {
@@ -280,6 +298,12 @@ final class DriftAiResultCache implements AiResultCache {
       if (row == null) {
         return const Ok<AiResultCacheEntry?>(null);
       }
+      // 命中即是**一次使用**：LRU 需要这个事实，否则淘汰退化成 FIFO，而 FIFO 会删掉
+      // 「每天都在用、第一次生成在很久之前」的条目——那恰恰是最该留的。
+      //
+      // 这一步失败不影响本次读取：拿到结果比记准使用时间重要（一个读不出来的日志字段不该
+      // 让一次成功的缓存命中变成失败）。因此这里吞掉错误，只让命中本身成立。
+      await _touchLastUsed(key);
       // 行 → 领域对象：表里的列名与领域字段名刻意不同（result_text / cache_key），
       // 因此这里显式映射而不是直接把行对象当成领域对象返回。
       return Ok<AiResultCacheEntry?>(
@@ -315,8 +339,16 @@ final class DriftAiResultCache implements AiResultCache {
               providerAlias: Value<String>(entry.providerAlias),
               modelId: Value<String>(entry.modelId),
               createdAt: Value<DateTime>(entry.createdAt.toUtc()),
+              // 字节数在**写入时**算好：让统计与淘汰不必把全部结果文本读进内存（上限本身
+              // 是 128 MiB，全读一遍等于每次写入都扫 128 MiB 的正文）。
+              byteLength: Value<int>(utf8ByteLength(entry.text)),
+              // 刚写入即算「刚用过」：它是当前这次任务刚刚产出的结果，最可能被下一步复用。
+              lastUsedAt: Value<DateTime?>(clock.now().toUtc()),
             ),
           );
+      // 写入后立刻按上限淘汰。放在成功写入之后（而不是之前）是为了让判定看到**真实的**当前
+      // 占用；与此同时「本次刚写入的条目不被删」由核心判定保证（extra 不参与淘汰）。
+      await enforceLimits(limits);
       return okUnit();
     } on Exception catch (error, stackTrace) {
       return Err<void>(
@@ -363,6 +395,118 @@ final class DriftAiResultCache implements AiResultCache {
           stackTrace: stackTrace,
         ),
       );
+    }
+  }
+
+  @override
+  Future<Result<({int entries, int bytes})>> usage() async {
+    try {
+      // 用一条聚合 SQL 而不是「读出行再在 Dart 里求和」：缓存上限是 128 MiB，把全部结果文本
+      // 读进内存只为了求和，会让一次统计变成一次上百 MB 的读盘与分配。COUNT/SUM 只回一行。
+      //
+      // `COALESCE(SUM(...), 0)`：空表时 SUM 是 NULL，而 NULL 在 Dart 侧会被读成 null；用
+      // COALESCE 让「空缓存 = 0 字节」成为 SQL 给的事实，而不是调用方补的一个默认值。
+      final QueryRow row = await _db
+          .customSelect(
+            'SELECT COUNT(*) AS c, '
+            'COALESCE(SUM(byte_length), 0) AS b '
+            'FROM ai_result_cache_records',
+          )
+          .getSingle();
+      return Ok<({int entries, int bytes})>((
+        entries: row.read<int>('c'),
+        bytes: row.read<int>('b'),
+      ));
+    } on Exception catch (error, stackTrace) {
+      return Err<({int entries, int bytes})>(
+        StorageError(
+          operation: 'aiResultCache.usage',
+          detail: error.runtimeType.toString(),
+          cause: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Result<int>> enforceLimits(AiCacheLimits limits) async {
+    try {
+      final List<AiCacheEntryFact> facts = await _cacheFacts();
+      final AiCacheEvictionPlan plan = planAiCacheEviction(
+        entries: facts,
+        limits: limits,
+      );
+      if (plan.isEmpty) {
+        return const Ok<int>(0);
+      }
+      // 一条 DELETE ... IN (...) 而不是逐个删：逐个删在中途失败时会留下「一部分已淘汰、
+      // 一部分仍超限」的混合状态，而下一次写入又会从头算一遍——两次淘汰之间用户看到的占用
+      // 与上限对不上。
+      await (_db.delete(_db.aiResultCacheRecords)..where(
+            ($AiResultCacheRecordsTable t) =>
+                t.cacheKey.isIn(plan.keysToDelete),
+          ))
+          .go();
+      return Ok<int>(plan.keysToDelete.length);
+    } on Exception catch (error, stackTrace) {
+      return Err<int>(
+        StorageError(
+          operation: 'aiResultCache.enforceLimits',
+          detail: error.runtimeType.toString(),
+          cause: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
+  }
+
+  /// 读全部条目的**元数据**（键、字节数、时间），不读结果文本。
+  ///
+  /// 显式列出四列而不是 `select(aiResultCacheRecords)`：后者会把 result_text 一起读出来，
+  /// 而淘汰只需要元数据。上限是 128 MiB，把全部正文读进内存只为决定删哪几条，会让一次
+  /// 「省空间」的动作本身成为一次上百 MB 的分配。
+  Future<List<AiCacheEntryFact>> _cacheFacts() async {
+    final List<QueryRow> rows = await _db
+        .customSelect(
+          'SELECT cache_key AS k, byte_length AS b, '
+          'created_at AS c, last_used_at AS u '
+          'FROM ai_result_cache_records',
+        )
+        .get();
+    return rows
+        .map(
+          (QueryRow row) => AiCacheEntryFact(
+            key: row.read<String>('k'),
+            // 旧行（v17 之前写入、迁移未回填到的情况）字节数为 0：按 0 处理会让它们在上限判定
+            // 里被当成不占空间，但它们确实占着。迁移已经回填过，因此这里的 0 只可能是「结果文本
+            // 本身为空」或「迁移尚未跑到」，两者按 0 都不会删错东西（只是暂时少算一点）。
+            byteLength: row.read<int>('b'),
+            // 时间是 ISO-8601 文本（build.yaml 的 store_date_time_values_as_text），因此
+            // 用 DateTime.parse 而不是让 drift 的类型化读取器处理——这条 SQL 是手写的，
+            // 没有列的转换器可用。
+            createdAt: DateTime.parse(row.read<String>('c')).toUtc(),
+            lastUsedAt: switch (row.read<String?>('u')) {
+              final String raw => DateTime.parse(raw).toUtc(),
+              null => null,
+            },
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  /// 更新一条缓存的最近使用时刻；失败静默（见 [find] 的说明）。
+  Future<void> _touchLastUsed(String key) async {
+    try {
+      await (_db.update(
+        _db.aiResultCacheRecords,
+      )..where(($AiResultCacheRecordsTable t) => t.cacheKey.equals(key))).write(
+        AiResultCacheRecordsCompanion(
+          lastUsedAt: Value<DateTime?>(clock.now().toUtc()),
+        ),
+      );
+    } on Exception {
+      // 忽略：见 find 的说明。
     }
   }
 }

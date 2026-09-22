@@ -3187,4 +3187,228 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSyncEntrySubtitle => 'WebDAV 同步、同步范围、首次合并与冲突处理';
+
+  @override
+  String get settingsStorageEntryTitle => '存储与清理';
+
+  @override
+  String get settingsStorageEntrySubtitle => '分类占用、一键清缓存、自动清理与彻底删除';
+
+  @override
+  String get storagePageTitle => '存储与清理';
+
+  @override
+  String get storageSectionUsage => '占用分类';
+
+  @override
+  String get storageCategoryMedia => '媒体缓存（图片，可重新下载）';
+
+  @override
+  String get storageCategoryArticleBody => '文章正文';
+
+  @override
+  String get storageCategorySummary => '新闻总结（付费产出）';
+
+  @override
+  String get storageCategoryOtherCache => '其他缓存（AI 结果、失败草稿）';
+
+  @override
+  String get storageCategoryDatabase => '设置与状态数据库';
+
+  @override
+  String storageCategoryLine(String category, String size, int count) {
+    return '$category：$size（$count 项）';
+  }
+
+  @override
+  String storageTotalLine(String size) {
+    return '合计：$size';
+  }
+
+  @override
+  String storageMeasuredAt(String time) {
+    return '测量时间：$time';
+  }
+
+  @override
+  String storageMediaLimitLine(String limit) {
+    return '媒体缓存上限：$limit（SET-080，超出后按最后访问时间淘汰）';
+  }
+
+  @override
+  String get storageRefreshUsage => '刷新占用';
+
+  @override
+  String storageMeasureFailed(String reason) {
+    return '读取占用失败：$reason';
+  }
+
+  @override
+  String get storageSectionClear => '一键清缓存';
+
+  @override
+  String get storageClearNotice =>
+      '只删除可再生内容：媒体缓存、AI 结果缓存与失败任务草稿。阅读状态、收藏、订阅、prompt、密钥与付费成功结果都不会被删除。';
+
+  @override
+  String get storageClearPaidNote => '新闻总结等付费结果需要单独处理（见下方自动清理或逐条删除）。';
+
+  @override
+  String get storageClearPreview => '预览将释放的空间';
+
+  @override
+  String storageClearImpact(String size, int media, int ai, int drafts) {
+    return '将释放 $size：媒体 $media 项、AI 结果 $ai 条、失败草稿 $drafts 条。';
+  }
+
+  @override
+  String get storageClearEmpty => '没有可清理的内容（可再生的缓存已经是空的）。';
+
+  @override
+  String get storageClearConfirmTitle => '清理可再生缓存';
+
+  @override
+  String get storageClearConfirmBody =>
+      '将删除媒体缓存、AI 结果缓存与失败任务草稿。阅读状态、收藏、订阅、prompt、密钥与付费成功结果保持不变。';
+
+  @override
+  String get storageClearConfirmAction => '清理';
+
+  @override
+  String storageClearDone(String size) {
+    return '已释放 $size。';
+  }
+
+  @override
+  String get storageSectionAuto => '自动清理';
+
+  @override
+  String get storageAutoNotice =>
+      '三个开关默认关闭；关闭时不会自动删除任何内容。文章正文按发布/抓取时间释放，只清空正文并保留身份与阅读状态，因此刷新不会把文章变回未读。';
+
+  @override
+  String get storageAutoMediaSwitch => '按最后访问时间清理媒体缓存';
+
+  @override
+  String get storageAutoArticleSwitch => '释放过期文章的正文';
+
+  @override
+  String get storageAutoSummarySwitch => '清理过期的新闻总结';
+
+  @override
+  String get storageAutoDays => '保留天数';
+
+  @override
+  String get storageProtectFavorite => '自动清理包含收藏';
+
+  @override
+  String get storageProtectLater => '自动清理包含稍后再读';
+
+  @override
+  String get storageProtectWarning => '开启后，收藏与稍后再读的文章也会被自动清理规则命中。';
+
+  @override
+  String get storageAutoPreview => '预览自动清理';
+
+  @override
+  String get storageAutoRunNow => '立即执行一次';
+
+  @override
+  String storageAutoImpact(
+    String size,
+    int media,
+    int bodies,
+    int summaries,
+    int protected,
+  ) {
+    return '将释放 $size：媒体 $media 项、正文 $bodies 篇、总结 $summaries 版；因保护规则跳过 $protected 篇。';
+  }
+
+  @override
+  String get storageAutoDisabled => '三个开关都关闭，自动清理不会执行任何动作。';
+
+  @override
+  String get storageAutoConfirmTitle => '立即执行自动清理';
+
+  @override
+  String get storageAutoConfirmBody =>
+      '将按上面的开关与天数删除内容。正文会被释放（保留身份与阅读状态），媒体与总结会被删除。';
+
+  @override
+  String get storageAutoConfirmAction => '执行';
+
+  @override
+  String storageAutoDone(String size) {
+    return '已释放 $size。';
+  }
+
+  @override
+  String get storageSectionOrphan => '孤儿快照清理';
+
+  @override
+  String get storageOrphanNotice =>
+      '同步上传中断可能留下未被任何版本引用的快照。它们不是当前版本，超过 90 天且未被引用时才会被回收。';
+
+  @override
+  String get storageOrphanUnavailable => '未配置同步，没有远端快照可回收。';
+
+  @override
+  String get storageOrphanPreview => '检查孤儿快照';
+
+  @override
+  String get storageOrphanCollect => '回收孤儿快照';
+
+  @override
+  String storageOrphanResult(int considered, int collectable, int skipped) {
+    return '远端共 $considered 个快照，符合回收条件的有 $collectable 个，因缺少服务器时间跳过 $skipped 个。';
+  }
+
+  @override
+  String storageOrphanDone(int count) {
+    return '已回收 $count 个孤儿快照。';
+  }
+
+  @override
+  String storageFailed(String reason) {
+    return '操作失败：$reason';
+  }
+
+  @override
+  String get storagePurgeSection => '彻底删除文章';
+
+  @override
+  String get storagePurgeNotice =>
+      '彻底删除会移除文章本体、译文、阅读会话与它的图片缓存，并把引用里指向本机的指针断掉（引用本身保留最小快照）。这是不可撤销的。';
+
+  @override
+  String get storagePurgeTitle => '彻底删除文章';
+
+  @override
+  String storagePurgeImpact(
+    int translations,
+    int sessions,
+    int media,
+    int citations,
+  ) {
+    return '将删除：译文 $translations 份、阅读会话 $sessions 条、图片缓存 $media 个；断开引用 $citations 条（引用本身保留）。';
+  }
+
+  @override
+  String get storagePurgeNone => '这篇文章没有需要连带清理的关联内容。';
+
+  @override
+  String get storagePurgeConfirmAction => '彻底删除';
+
+  @override
+  String get readingPurgeArticle => '彻底删除这篇文章';
+
+  @override
+  String storagePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  ) {
+    return '已彻底删除：引用 $citations、译文 $translations、会话 $sessions、图片缓存 $media。';
+  }
 }

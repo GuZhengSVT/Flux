@@ -1284,5 +1284,87 @@ void main() {
         }
       }
     });
+
+    test('v17 快照只给 AI 结果缓存补容量两列（T047）', () {
+      final File v17Snapshot = File('drift_schemas/drift_schema_v17.json');
+      expect(
+        v17Snapshot.existsSync(),
+        isTrue,
+        reason: '缺少 v17 快照。可用 drift_dev schema dump 重新导出（见本文件顶部说明）。',
+      );
+      final Map<String, dynamic> v17Decoded =
+          jsonDecode(v17Snapshot.readAsStringSync()) as Map<String, dynamic>;
+      final List<Map<String, dynamic>> v17Entities =
+          (v17Decoded['entities'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> v17Names = v17Entities
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+
+      final Map<String, dynamic> v16Decoded = jsonDecode(
+        File('drift_schemas/drift_schema_v16.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final Set<String> v16Names = (v16Decoded['entities'] as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (Map<String, dynamic> e) =>
+                (e['data'] as Map<String, dynamic>)['name'] as String,
+          )
+          .toSet();
+      // v17 **只加两列**：不加表、不加索引、不删任何实体。多出一个实体就说明这一步
+      // 顺手改了别的东西，而它会让「迁移只做这件事」这条承诺失去验证力。
+      expect(v17Names, v16Names, reason: 'v17 只给一张表加两列，不得新增或删除实体');
+
+      final Map<String, dynamic> cache = v17Entities.firstWhere(
+        (Map<String, dynamic> e) =>
+            (e['data'] as Map<String, dynamic>)['name'] ==
+            'ai_result_cache_records',
+      );
+      final List<Map<String, dynamic>> cacheColumns =
+          ((cache['data'] as Map<String, dynamic>)['columns'] as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      final Set<String> cacheNames = cacheColumns
+          .map((Map<String, dynamic> c) => c['name'] as String)
+          .toSet();
+      expect(
+        cacheNames,
+        containsAll(<String>['byte_length', 'last_used_at']),
+        reason: '容量统计与 LRU 需要这两个事实；缺一个就退化成 FIFO 或必须读全部正文',
+      );
+      // byte_length 非空且有默认值 0：淘汰判定不能对一个可空列反复判空（那会让「旧行没有
+      // 这个事实」与「真的 0 字节」在实现里混在一起）。
+      final Map<String, dynamic> byteLength = cacheColumns.firstWhere(
+        (Map<String, dynamic> c) => c['name'] == 'byte_length',
+      );
+      expect(byteLength['nullable'], isFalse);
+      expect(
+        byteLength['default_dart'],
+        isA<String>(),
+        reason: '必须有默认值：非空列在 addColumn 时不给默认值会让既有行的升级失败',
+      );
+      // last_used_at 可空：历史行没有「曾经被读过」这个事实。
+      final Map<String, dynamic> lastUsed = cacheColumns.firstWhere(
+        (Map<String, dynamic> c) => c['name'] == 'last_used_at',
+      );
+      expect(lastUsed['nullable'], isTrue);
+
+      // 缓存表仍然**没有任何凭据列**（架构 5.1、第 8 节）：加两列不得顺手加一个「Key」。
+      for (final String column in cacheNames) {
+        expect(
+          column.toLowerCase(),
+          isNot(
+            anyOf(
+              contains('secret'),
+              contains('api_key'),
+              contains('token_ref'),
+            ),
+          ),
+          reason: 'ai_result_cache_records 不得持有凭据（$column）',
+        );
+      }
+    });
   });
 }

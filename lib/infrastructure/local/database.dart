@@ -94,7 +94,7 @@ class AppDatabase extends _$AppDatabase {
   static const String uncategorizedGroupName = '未分类';
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -499,11 +499,55 @@ class AppDatabase extends _$AppDatabase {
         await _seedSyncState();
       }
 
+      if (from < 17) {
+        // v16 → v17：AI 结果缓存补容量与淘汰所需的两列（T047）。
+        //
+        // 这一步的背景：`ai_result_cache_records` 在 T030 交付时**没有任何容量上限**，因此它
+        // 只增不减（这正是 T047 验收要补的遗留「缓存尚无容量上限」）。补上限需要两个事实：
+        //   * byte_length：每条结果的 UTF-8 字节数。没有它，判字节上限就必须把全部结果文本
+        //     读进内存（上限本身是 128 MiB）；
+        //   * last_used_at：最近一次命中时刻。没有它只能按创建时间淘汰（FIFO），而 FIFO 会
+        //     删掉「每天都在用、第一次生成在很久之前」的条目。
+        //
+        // **byte_length 需要回填**，这与本工程其余「可空且不回填」的新列（image_url /
+        // ai_summary / sync_key）看似矛盾，实则同一口径：那几列记录的是「当时是否发生过某件事」
+        // （有没有抓到图、有没有生成过摘要、有没有算过同步键），历史行确实没有这个事实；
+        // 而字节数是**能从既有数据确定性算出的测量值**，留 0 会让既有行在字节上限判定里被当作
+        // 「不占空间」，而它们确实占着——那正是「用假象代替状态」。
+        //
+        // 回填用 `length(CAST(result_text AS BLOB))`：SQLite 的 TEXT 以 UTF-8 存储，CAST 成 BLOB
+        // 后的 length 就是**字节数**（直接 `length(result_text)` 是**字符数**，中日韩文本会低估
+        // 约三分之一）。这与 Dart 侧 utf8ByteLength 的口径一致（有用例逐字符类比对）。
+        //
+        // last_used_at **不回填**：历史行没有「曾经被读过」这个事实，用 created_at 顶上等于伪造
+        // 一次命中。淘汰判定对 null 按「从未使用 → 用写入时刻排序」处理，因此不影响 LRU 的正确性。
+        if (!await _columnExists('ai_result_cache_records', 'byte_length')) {
+          await m.addColumn(
+            aiResultCacheRecords,
+            aiResultCacheRecords.byteLength,
+          );
+        }
+        if (!await _columnExists('ai_result_cache_records', 'last_used_at')) {
+          await m.addColumn(
+            aiResultCacheRecords,
+            aiResultCacheRecords.lastUsedAt,
+          );
+        }
+        // 回填既有行：只在确实需要时执行（byte_length 全为 0 说明这一步还没跑过或库里全是空
+        // 结果）。用一条 UPDATE 而不是逐行读改写：逐行在中途崩溃会留下「一部分回填、一部分仍是
+        // 0」的混合状态，而那条 UPDATE 在 SQLite 里是原子的。
+        await customStatement(
+          'UPDATE ai_result_cache_records '
+          'SET byte_length = length(CAST(result_text AS BLOB)) '
+          'WHERE byte_length = 0 AND length(result_text) > 0',
+        );
+      }
+
       // 未知区间兜底：如果代码要求的 to 超出这里已实现的步骤，必须失败而不是
       // 静默放过——放过会让“代码以为是 vN、库其实是 vM”的错配在运行期才爆发。
       // 必须与 schemaVersion 同步：每加一步迁移就把它改到新版本，否则一次
       // 「代码升到 vN 但忘了写步骤」的改动会被这条兜底挡住（而不是静默放过）。
-      const int highestImplemented = 16;
+      const int highestImplemented = 17;
       if (to > highestImplemented) {
         throw StorageError(
           operation: 'openDatabase',

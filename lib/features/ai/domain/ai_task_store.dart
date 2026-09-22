@@ -55,3 +55,25 @@ abstract interface class AiResultCache {
   /// 清空全部缓存（设置页的「清缓存」；不删任务状态，见 T047）。
   Future<Result<void>> clear();
 }
+
+/// 结果缓存的**维护能力**（T047：容量统计与淘汰）。
+///
+/// 为什么单独一个接口而不是往 [AiResultCache] 上加两个方法：那几个方法的调用方是**任务
+/// 执行路径**（读写一条具体缓存），而这两个是**资源维护**（看总量、按上限淘汰）。分开之后：
+///   * 任务路径拿到的接口里没有「按上限删一批」这种能力，因此一次任务执行不可能顺手清掉
+///     别人的缓存；
+///   * 已有的缓存替身（测试里的 FakeResultCache / FakeTranslationCache）只需实现它们真正
+///     参与的那一半，不必为维护能力写一个「不会被调用」的空实现——那种空实现会在将来某次
+///     真正的维护调用里返回假数据。
+///
+/// 生产实现（drift）同时实现两个接口，因此「写入后自动淘汰」与「按需统计」用的是同一份数据。
+abstract interface class AiResultCacheMaintenance {
+  /// 当前条目数与占用字节。
+  Future<Result<({int entries, int bytes})>> usage();
+
+  /// 按上限淘汰，返回本次删除的条数。
+  ///
+  /// 判定住在 core 的纯函数 [planAiCacheEviction] 里，这里只负责执行——因此「淘汰顺序
+  /// 确定」「不删刚写入的那条」这些性质可以在不碰数据库的情况下被逐条断言。
+  Future<Result<int>> enforceLimits(AiCacheLimits limits);
+}

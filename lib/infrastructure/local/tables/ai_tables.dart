@@ -174,6 +174,17 @@ class AiTasks extends Table {
 ///
 /// 只写入成功产出：failed/cancelled/interrupted 的尝试不会在此留下记录，避免一次
 /// 网络抖动被固化（架构 4.5）。
+///
+/// **容量与淘汰（T047，schema v17）**：这张表在 T030 交付时**没有上限**，因此它只增不减
+/// （一篇长文的译文、一次每日新闻的草稿都可能几万字符，而缓存键随输入/模型/语言/温度任意
+/// 变化而新增）。v17 补上三个事实：
+///   * [byteLength]：写入时的 UTF-8 字节数。用它而不是每次 `length(result_text)` 现算，是为了
+///     让「统计与淘汰」不需要把全部结果文本读进内存（缓存上限本身是 128 MiB，全读一遍等于
+///     每次写入都扫 128 MiB 的正文）；
+///   * [lastUsedAt]：最近一次被读到（命中）的时刻。LRU 需要它——只按 [createdAt] 淘汰是 FIFO，
+///     会把「每天都在用、但第一次生成是半年前」的条目删掉，而那恰恰是最该留的；
+///   * 淘汰在**每次成功写入后**执行，判定住在 core 的纯函数里（planAiCacheEviction），
+///     因此「淘汰顺序确定」「本次刚写入的条目不被删」这些性质可以用纯 Dart 逐条断言。
 /// 类名用 AiResultCacheRecords（表名 ai_result_cache_records）而不是
 /// AiResultCacheEntries：drift 按「去掉末尾 s」派生数据类名，后者会生成一个与
 /// features 层领域类型同名（AiResultCacheEntry）的数据类，两处同名会让每个使用点
@@ -191,6 +202,21 @@ class AiResultCacheRecords extends Table {
   TextColumn get modelId => text()();
 
   DateTimeColumn get createdAt => dateTime()();
+
+  /// 结果文本的 UTF-8 字节数（schema v17）。
+  ///
+  /// 非空且默认 0：迁移里对既有行用 `length(CAST(result_text AS BLOB))` 一次性回填。
+  /// 与「不回填」的那几列（image_url / ai_summary / sync_key，它们记录的是**当时是否发生过
+  /// 某件事**）不同，字节数是**可以从既有数据确定性算出**的测量值，不是伪造的事实；
+  /// 留着 0 会让既有行在字节上限判定里被当成「不占空间」，而它们确实占着。
+  IntColumn get byteLength => integer().withDefault(const Constant(0))();
+
+  /// 最近一次命中（被读到）的时刻（UTC；schema v17）。
+  ///
+  /// 可空且**不回填**：历史行没有「曾经被读过」这个事实，用 createdAt 顶上等于伪造一次命中。
+  /// 读取方（planAiCacheEviction）对 null 按「从未使用 → 用写入时刻排序」处理，因此不清空
+  /// 也不会让 LRU 退化。
+  DateTimeColumn get lastUsedAt => dateTime().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => <Column<Object>>{cacheKey};

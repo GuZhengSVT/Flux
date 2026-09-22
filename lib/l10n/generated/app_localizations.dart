@@ -5558,6 +5558,370 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'WebDAV 同步、同步范围、首次合并与冲突处理'**
   String get settingsSyncEntrySubtitle;
+
+  /// 设置页存储入口标题（T047）
+  ///
+  /// In zh, this message translates to:
+  /// **'存储与清理'**
+  String get settingsStorageEntryTitle;
+
+  /// 设置页存储入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'分类占用、一键清缓存、自动清理与彻底删除'**
+  String get settingsStorageEntrySubtitle;
+
+  /// 存储页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'存储与清理'**
+  String get storagePageTitle;
+
+  /// 占用分类小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'占用分类'**
+  String get storageSectionUsage;
+
+  /// 媒体缓存分类
+  ///
+  /// In zh, this message translates to:
+  /// **'媒体缓存（图片，可重新下载）'**
+  String get storageCategoryMedia;
+
+  /// 文章正文分类
+  ///
+  /// In zh, this message translates to:
+  /// **'文章正文'**
+  String get storageCategoryArticleBody;
+
+  /// 新闻总结分类
+  ///
+  /// In zh, this message translates to:
+  /// **'新闻总结（付费产出）'**
+  String get storageCategorySummary;
+
+  /// 其他缓存分类
+  ///
+  /// In zh, this message translates to:
+  /// **'其他缓存（AI 结果、失败草稿）'**
+  String get storageCategoryOtherCache;
+
+  /// 数据库分类
+  ///
+  /// In zh, this message translates to:
+  /// **'设置与状态数据库'**
+  String get storageCategoryDatabase;
+
+  /// 分类占用行
+  ///
+  /// In zh, this message translates to:
+  /// **'{category}：{size}（{count} 项）'**
+  String storageCategoryLine(String category, String size, int count);
+
+  /// 合计占用
+  ///
+  /// In zh, this message translates to:
+  /// **'合计：{size}'**
+  String storageTotalLine(String size);
+
+  /// 测量时间
+  ///
+  /// In zh, this message translates to:
+  /// **'测量时间：{time}'**
+  String storageMeasuredAt(String time);
+
+  /// 媒体上限说明
+  ///
+  /// In zh, this message translates to:
+  /// **'媒体缓存上限：{limit}（SET-080，超出后按最后访问时间淘汰）'**
+  String storageMediaLimitLine(String limit);
+
+  /// 刷新占用按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新占用'**
+  String get storageRefreshUsage;
+
+  /// 读取占用失败
+  ///
+  /// In zh, this message translates to:
+  /// **'读取占用失败：{reason}'**
+  String storageMeasureFailed(String reason);
+
+  /// 一键清缓存小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'一键清缓存'**
+  String get storageSectionClear;
+
+  /// 清缓存边界说明（架构 5.3）
+  ///
+  /// In zh, this message translates to:
+  /// **'只删除可再生内容：媒体缓存、AI 结果缓存与失败任务草稿。阅读状态、收藏、订阅、prompt、密钥与付费成功结果都不会被删除。'**
+  String get storageClearNotice;
+
+  /// 付费结果另行处理提示
+  ///
+  /// In zh, this message translates to:
+  /// **'新闻总结等付费结果需要单独处理（见下方自动清理或逐条删除）。'**
+  String get storageClearPaidNote;
+
+  /// 预览按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'预览将释放的空间'**
+  String get storageClearPreview;
+
+  /// 清缓存影响预览
+  ///
+  /// In zh, this message translates to:
+  /// **'将释放 {size}：媒体 {media} 项、AI 结果 {ai} 条、失败草稿 {drafts} 条。'**
+  String storageClearImpact(String size, int media, int ai, int drafts);
+
+  /// 无可清理内容
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可清理的内容（可再生的缓存已经是空的）。'**
+  String get storageClearEmpty;
+
+  /// 清缓存确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'清理可再生缓存'**
+  String get storageClearConfirmTitle;
+
+  /// 清缓存确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'将删除媒体缓存、AI 结果缓存与失败任务草稿。阅读状态、收藏、订阅、prompt、密钥与付费成功结果保持不变。'**
+  String get storageClearConfirmBody;
+
+  /// 清缓存确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'清理'**
+  String get storageClearConfirmAction;
+
+  /// 清缓存完成回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已释放 {size}。'**
+  String storageClearDone(String size);
+
+  /// 自动清理小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'自动清理'**
+  String get storageSectionAuto;
+
+  /// 自动清理说明（架构 5.3）
+  ///
+  /// In zh, this message translates to:
+  /// **'三个开关默认关闭；关闭时不会自动删除任何内容。文章正文按发布/抓取时间释放，只清空正文并保留身份与阅读状态，因此刷新不会把文章变回未读。'**
+  String get storageAutoNotice;
+
+  /// 媒体自动清理开关（SET-077）
+  ///
+  /// In zh, this message translates to:
+  /// **'按最后访问时间清理媒体缓存'**
+  String get storageAutoMediaSwitch;
+
+  /// 正文自动清理开关（SET-077）
+  ///
+  /// In zh, this message translates to:
+  /// **'释放过期文章的正文'**
+  String get storageAutoArticleSwitch;
+
+  /// 总结自动清理开关（SET-077）
+  ///
+  /// In zh, this message translates to:
+  /// **'清理过期的新闻总结'**
+  String get storageAutoSummarySwitch;
+
+  /// 保留天数输入
+  ///
+  /// In zh, this message translates to:
+  /// **'保留天数'**
+  String get storageAutoDays;
+
+  /// SET-078 收藏开关
+  ///
+  /// In zh, this message translates to:
+  /// **'自动清理包含收藏'**
+  String get storageProtectFavorite;
+
+  /// SET-078 later 开关
+  ///
+  /// In zh, this message translates to:
+  /// **'自动清理包含稍后再读'**
+  String get storageProtectLater;
+
+  /// 保护规则关闭时的警告
+  ///
+  /// In zh, this message translates to:
+  /// **'开启后，收藏与稍后再读的文章也会被自动清理规则命中。'**
+  String get storageProtectWarning;
+
+  /// 自动清理预览按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'预览自动清理'**
+  String get storageAutoPreview;
+
+  /// 立即执行自动清理
+  ///
+  /// In zh, this message translates to:
+  /// **'立即执行一次'**
+  String get storageAutoRunNow;
+
+  /// 自动清理影响
+  ///
+  /// In zh, this message translates to:
+  /// **'将释放 {size}：媒体 {media} 项、正文 {bodies} 篇、总结 {summaries} 版；因保护规则跳过 {protected} 篇。'**
+  String storageAutoImpact(
+    String size,
+    int media,
+    int bodies,
+    int summaries,
+    int protected,
+  );
+
+  /// 自动清理全关说明
+  ///
+  /// In zh, this message translates to:
+  /// **'三个开关都关闭，自动清理不会执行任何动作。'**
+  String get storageAutoDisabled;
+
+  /// 自动清理确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'立即执行自动清理'**
+  String get storageAutoConfirmTitle;
+
+  /// 自动清理确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'将按上面的开关与天数删除内容。正文会被释放（保留身份与阅读状态），媒体与总结会被删除。'**
+  String get storageAutoConfirmBody;
+
+  /// 自动清理确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'执行'**
+  String get storageAutoConfirmAction;
+
+  /// 自动清理完成
+  ///
+  /// In zh, this message translates to:
+  /// **'已释放 {size}。'**
+  String storageAutoDone(String size);
+
+  /// 孤儿快照小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'孤儿快照清理'**
+  String get storageSectionOrphan;
+
+  /// 孤儿快照说明（T042 遗留）
+  ///
+  /// In zh, this message translates to:
+  /// **'同步上传中断可能留下未被任何版本引用的快照。它们不是当前版本，超过 90 天且未被引用时才会被回收。'**
+  String get storageOrphanNotice;
+
+  /// 未配置同步
+  ///
+  /// In zh, this message translates to:
+  /// **'未配置同步，没有远端快照可回收。'**
+  String get storageOrphanUnavailable;
+
+  /// 孤儿快照检查按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'检查孤儿快照'**
+  String get storageOrphanPreview;
+
+  /// 孤儿快照回收按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'回收孤儿快照'**
+  String get storageOrphanCollect;
+
+  /// 孤儿快照结果
+  ///
+  /// In zh, this message translates to:
+  /// **'远端共 {considered} 个快照，符合回收条件的有 {collectable} 个，因缺少服务器时间跳过 {skipped} 个。'**
+  String storageOrphanResult(int considered, int collectable, int skipped);
+
+  /// 孤儿快照回收完成
+  ///
+  /// In zh, this message translates to:
+  /// **'已回收 {count} 个孤儿快照。'**
+  String storageOrphanDone(int count);
+
+  /// 存储页失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败：{reason}'**
+  String storageFailed(String reason);
+
+  /// 彻底删除小节
+  ///
+  /// In zh, this message translates to:
+  /// **'彻底删除文章'**
+  String get storagePurgeSection;
+
+  /// 彻底删除说明（架构 5.3）
+  ///
+  /// In zh, this message translates to:
+  /// **'彻底删除会移除文章本体、译文、阅读会话与它的图片缓存，并把引用里指向本机的指针断掉（引用本身保留最小快照）。这是不可撤销的。'**
+  String get storagePurgeNotice;
+
+  /// 彻底删除对话框标题
+  ///
+  /// In zh, this message translates to:
+  /// **'彻底删除文章'**
+  String get storagePurgeTitle;
+
+  /// 彻底删除关联范围
+  ///
+  /// In zh, this message translates to:
+  /// **'将删除：译文 {translations} 份、阅读会话 {sessions} 条、图片缓存 {media} 个；断开引用 {citations} 条（引用本身保留）。'**
+  String storagePurgeImpact(
+    int translations,
+    int sessions,
+    int media,
+    int citations,
+  );
+
+  /// 无关联内容
+  ///
+  /// In zh, this message translates to:
+  /// **'这篇文章没有需要连带清理的关联内容。'**
+  String get storagePurgeNone;
+
+  /// 彻底删除按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'彻底删除'**
+  String get storagePurgeConfirmAction;
+
+  /// 阅读页彻底删除入口
+  ///
+  /// In zh, this message translates to:
+  /// **'彻底删除这篇文章'**
+  String get readingPurgeArticle;
+
+  /// 彻底删除完成
+  ///
+  /// In zh, this message translates to:
+  /// **'已彻底删除：引用 {citations}、译文 {translations}、会话 {sessions}、图片缓存 {media}。'**
+  String storagePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  );
 }
 
 class _AppLocalizationsDelegate

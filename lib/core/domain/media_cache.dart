@@ -46,6 +46,22 @@ const int kMaxImageBytes = 4 * 1024 * 1024;
 const int kMinCacheMiB = 128;
 const int kMaxCacheMiB = 4096;
 
+/// 把字节长度格式化为人类可读的 MiB 描述。
+///
+/// 放在 core 而不是 infrastructure（它原先在 image_cache_service.dart）：占用统计要显示在设置页
+/// （features 层），而 features 不得 import infrastructure（架构 2.2 的守卫会拦）。格式化是纯
+/// 展示逻辑，没有实现细节，core 是正确的归属。
+///
+/// 小于 0.1 MiB 时显示 0.1 MiB 而不是 0.0：一个「0.0 MiB」的条目看起来像「没有占用」，而它其实
+/// 有几百 KB（例如几十张缩略图的元数据）。四舍五入到 0 会把一次真实的清理显示成「什么都没做」。
+String describeBytes(int bytes) {
+  final double mib = bytes / (1024 * 1024);
+  if (bytes > 0 && mib < 0.1) {
+    return '< 0.1 MiB';
+  }
+  return '${mib.toStringAsFixed(1)} MiB';
+}
+
 /// SET-080 的默认值（MiB）。
 const int kDefaultCacheMiB = 512;
 

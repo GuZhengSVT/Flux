@@ -354,6 +354,134 @@ final class ImageCacheService {
     return removed;
   }
 
+  /// 磁盘实际占用（条目 + 元数据 + 半成品 .part 文件）。
+  ///
+  /// 与 [stats] 的区别：那个只数 `.img`（条目数与**图片**字节，用于命中率与上限判定），这个把
+  /// 元数据与半成品也数进去。存储页要显示的是「这部分在磁盘上占了多少」，而元数据文件与一次被
+  /// 中断的下载同样占着磁盘——只报图片字节会让「分类占用」比实际小，用户看到的总和与系统
+  /// 显示的目录大小对不上。
+  Future<({int entryCount, int imageBytes, int metaBytes, int tempBytes})>
+  diskUsage() async {
+    await _ensureRoot();
+    int images = 0;
+    int metas = 0;
+    int temps = 0;
+    int entries = 0;
+    for (final File file in root.listSync().whereType<File>()) {
+      final String path = file.path;
+      final int size = file.statSync().size;
+      if (path.endsWith('.img')) {
+        images += size;
+        entries++;
+      } else if (path.endsWith('.meta')) {
+        metas += size;
+      } else if (path.endsWith('.part')) {
+        temps += size;
+      }
+    }
+    return (
+      entryCount: entries,
+      imageBytes: images,
+      metaBytes: metas,
+      tempBytes: temps,
+    );
+  }
+
+  /// 按**最后访问时间**统计到期条目（`mtime` 早于 [cutoffUtc] 的 `.img` 及其元数据）。
+  ///
+  /// 只统计不删除：自动清理必须先预览再执行（架构 5.3 的清理预览），而「枚举」与「删除」
+  /// 分成两个方法时，「预览说 12 条、实际删了 30 条」这种偏差在结构上不可能发生。
+  ///
+  /// 用 mtime 而不是文件创建时间：读取一次会 [_touch] 更新 mtime，因此它就是**最后访问**
+  /// 时间（POSIX 的 atime 默认不可靠，见类顶部说明）。
+  ///
+  /// `.part` 半成品按**同一规则**参与判定：一次被中断的写入不会自己恢复，因此任何超过保留期
+  /// 的半成品都是垃圾；但它**不计入** [expiredUsage] 的条目数（它不是一条缓存条目），只计入
+  /// 将被释放的字节——否则界面会说「删 12 张图」，而其中一条其实是个损坏的半成品。
+  Future<({int entries, int bytes})> expiredUsage({
+    required DateTime cutoffUtc,
+  }) async {
+    await _ensureRoot();
+    int entries = 0;
+    int bytes = 0;
+    for (final File file in _expiredFiles(cutoffUtc)) {
+      bytes += file.statSync().size;
+      if (file.path.endsWith('.img')) {
+        entries++;
+        // 元数据与它同生共死：删了图片留下 .meta 只会在下一次统计里变成一条永远删不掉的
+        // 「元数据垃圾」（它不是条目，因此既不会被淘汰也不会被计入占用）。
+        final File meta = File(
+          '${file.path.substring(0, file.path.length - 4)}.meta',
+        );
+        if (meta.existsSync()) {
+          bytes += meta.statSync().size;
+        }
+      }
+    }
+    return (entries: entries, bytes: bytes);
+  }
+
+  /// 删除到期条目；返回实际删除的条目数与字节（含元数据与半成品）。
+  Future<({int entries, int bytes})> deleteExpired({
+    required DateTime cutoffUtc,
+  }) async {
+    await _ensureRoot();
+    int entries = 0;
+    int bytes = 0;
+    for (final File file in _expiredFiles(cutoffUtc)) {
+      final bool isEntry = file.path.endsWith('.img');
+      final File meta = File(
+        '${file.path.substring(0, file.path.length - 4)}.meta',
+      );
+      int freed = file.statSync().size;
+      if (isEntry && meta.existsSync()) {
+        freed += meta.statSync().size;
+      }
+      if (await _deleteQuietly(file)) {
+        if (isEntry) {
+          await _deleteQuietly(meta);
+          // 已删除的条目必须从内存缓存里移除：否则它仍在内存里命中，表现为「刚清完又能读到」，
+          // 而磁盘上已经没有它了（下一次重启才「真的消失」）。
+          _forgetInMemory(file.path);
+        }
+        bytes += freed;
+        if (isEntry) {
+          entries++;
+        }
+      }
+    }
+    return (entries: entries, bytes: bytes);
+  }
+
+  /// 列出到期文件（`.img` 与 `.part`，按 mtime 早于截止时刻判定）。
+  List<File> _expiredFiles(DateTime cutoffUtc) {
+    if (!root.existsSync()) {
+      return const <File>[];
+    }
+    final DateTime cutoff = cutoffUtc.toUtc();
+    return root
+        .listSync()
+        .whereType<File>()
+        .where(
+          (File f) =>
+              (f.path.endsWith('.img') || f.path.endsWith('.part')) &&
+              f.statSync().modified.toUtc().isBefore(cutoff),
+        )
+        .toList(growable: false);
+  }
+
+  /// 从内存缓存里按**数据文件路径**移除一条（哈希文件名 → 键即去掉扩展名）。
+  void _forgetInMemory(String dataFilePath) {
+    final String fileName = p.basename(dataFilePath);
+    final String key = fileName.endsWith('.img')
+        ? fileName.substring(0, fileName.length - 4)
+        : fileName;
+    final CachedImage? removed = _memory.remove(key);
+    if (removed != null) {
+      _memoryBytes -= removed.bytes.length;
+    }
+  }
+
   Future<void> _ensureRoot() async {
     if (_initialized) {
       return;
@@ -437,6 +565,6 @@ final class ImageCacheService {
   int get memoryByteCount => _memoryBytes;
 }
 
-/// 把字节长度格式化为人类可读的 MiB 描述（诊断与界面提示用）。
-String describeBytes(int bytes) =>
-    '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MiB';
+// describeBytes 自 T047 起住在 lib/core/domain/media_cache.dart：存储页（features）要显示
+// 人类可读的占用，而 features 不得 import infrastructure（架构 2.2 的守卫会拦）。这里不再
+// 重复定义，调用方从 core 取（core.dart 已经转出它）。

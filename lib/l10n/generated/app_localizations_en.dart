@@ -3351,4 +3351,238 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSyncEntrySubtitle =>
       'WebDAV sync, sync scope, first merge and conflict handling';
+
+  @override
+  String get settingsStorageEntryTitle => 'Storage & cleanup';
+
+  @override
+  String get settingsStorageEntrySubtitle =>
+      'Category usage, one-tap cache clearing, automatic cleanup and permanent deletion';
+
+  @override
+  String get storagePageTitle => 'Storage & cleanup';
+
+  @override
+  String get storageSectionUsage => 'Usage by category';
+
+  @override
+  String get storageCategoryMedia => 'Media cache (images, re-downloadable)';
+
+  @override
+  String get storageCategoryArticleBody => 'Article bodies';
+
+  @override
+  String get storageCategorySummary => 'News summaries (paid output)';
+
+  @override
+  String get storageCategoryOtherCache =>
+      'Other caches (AI results, failed drafts)';
+
+  @override
+  String get storageCategoryDatabase => 'Settings & state database';
+
+  @override
+  String storageCategoryLine(String category, String size, int count) {
+    return '$category: $size ($count items)';
+  }
+
+  @override
+  String storageTotalLine(String size) {
+    return 'Total: $size';
+  }
+
+  @override
+  String storageMeasuredAt(String time) {
+    return 'Measured at: $time';
+  }
+
+  @override
+  String storageMediaLimitLine(String limit) {
+    return 'Media cache limit: $limit (SET-080; oldest accessed entries are evicted beyond it)';
+  }
+
+  @override
+  String get storageRefreshUsage => 'Refresh usage';
+
+  @override
+  String storageMeasureFailed(String reason) {
+    return 'Failed to read usage: $reason';
+  }
+
+  @override
+  String get storageSectionClear => 'One-tap cache clearing';
+
+  @override
+  String get storageClearNotice =>
+      'Only regenerable content is deleted: the media cache, the AI result cache and failed task drafts. Reading state, favorites, subscriptions, prompts, keys and successful paid output are never deleted.';
+
+  @override
+  String get storageClearPaidNote =>
+      'Paid output such as news summaries is handled separately (see automatic cleanup below, or delete it individually).';
+
+  @override
+  String get storageClearPreview => 'Preview space to be freed';
+
+  @override
+  String storageClearImpact(String size, int media, int ai, int drafts) {
+    return 'Will free $size: $media media items, $ai AI results, $drafts failed drafts.';
+  }
+
+  @override
+  String get storageClearEmpty =>
+      'Nothing to clear (the regenerable caches are already empty).';
+
+  @override
+  String get storageClearConfirmTitle => 'Clear regenerable caches';
+
+  @override
+  String get storageClearConfirmBody =>
+      'This deletes the media cache, the AI result cache and failed task drafts. Reading state, favorites, subscriptions, prompts, keys and successful paid output are left untouched.';
+
+  @override
+  String get storageClearConfirmAction => 'Clear';
+
+  @override
+  String storageClearDone(String size) {
+    return 'Freed $size.';
+  }
+
+  @override
+  String get storageSectionAuto => 'Automatic cleanup';
+
+  @override
+  String get storageAutoNotice =>
+      'All three switches default to off; while off nothing is deleted automatically. Article bodies are released by publish/fetch time — only the body is cleared, identity and reading state are kept, so a refresh will not turn an article back into unread.';
+
+  @override
+  String get storageAutoMediaSwitch =>
+      'Clean the media cache by last-accessed time';
+
+  @override
+  String get storageAutoArticleSwitch =>
+      'Release the bodies of expired articles';
+
+  @override
+  String get storageAutoSummarySwitch => 'Delete expired news summaries';
+
+  @override
+  String get storageAutoDays => 'Retention days';
+
+  @override
+  String get storageProtectFavorite => 'Automatic cleanup includes favorites';
+
+  @override
+  String get storageProtectLater => 'Automatic cleanup includes read-later';
+
+  @override
+  String get storageProtectWarning =>
+      'When enabled, favorites and read-later articles are also matched by the automatic cleanup rules.';
+
+  @override
+  String get storageAutoPreview => 'Preview automatic cleanup';
+
+  @override
+  String get storageAutoRunNow => 'Run once now';
+
+  @override
+  String storageAutoImpact(
+    String size,
+    int media,
+    int bodies,
+    int summaries,
+    int protected,
+  ) {
+    return 'Will free $size: $media media items, $bodies bodies, $summaries summaries; $protected articles skipped by protection rules.';
+  }
+
+  @override
+  String get storageAutoDisabled =>
+      'All three switches are off; automatic cleanup will not do anything.';
+
+  @override
+  String get storageAutoConfirmTitle => 'Run automatic cleanup now';
+
+  @override
+  String get storageAutoConfirmBody =>
+      'Content will be deleted according to the switches and retention days above. Bodies are released (identity and reading state are kept); media and summaries are deleted.';
+
+  @override
+  String get storageAutoConfirmAction => 'Run';
+
+  @override
+  String storageAutoDone(String size) {
+    return 'Freed $size.';
+  }
+
+  @override
+  String get storageSectionOrphan => 'Orphan snapshot cleanup';
+
+  @override
+  String get storageOrphanNotice =>
+      'An interrupted sync upload may leave snapshots that no version references. They are not the current version and are only collected once they are older than 90 days and unreferenced.';
+
+  @override
+  String get storageOrphanUnavailable =>
+      'Sync is not configured, so there is no remote snapshot to collect.';
+
+  @override
+  String get storageOrphanPreview => 'Check for orphan snapshots';
+
+  @override
+  String get storageOrphanCollect => 'Collect orphan snapshots';
+
+  @override
+  String storageOrphanResult(int considered, int collectable, int skipped) {
+    return 'The remote has $considered snapshots; $collectable are collectable and $skipped were skipped for missing server timestamps.';
+  }
+
+  @override
+  String storageOrphanDone(int count) {
+    return 'Collected $count orphan snapshots.';
+  }
+
+  @override
+  String storageFailed(String reason) {
+    return 'Operation failed: $reason';
+  }
+
+  @override
+  String get storagePurgeSection => 'Permanently delete an article';
+
+  @override
+  String get storagePurgeNotice =>
+      'Permanent deletion removes the article, its translations, reading sessions and cached images, and breaks pointers from citations (the citations themselves keep their minimal snapshot). This cannot be undone.';
+
+  @override
+  String get storagePurgeTitle => 'Permanently delete this article';
+
+  @override
+  String storagePurgeImpact(
+    int translations,
+    int sessions,
+    int media,
+    int citations,
+  ) {
+    return 'Will delete: $translations translations, $sessions reading sessions, $media cached images; will break $citations citations (the citations themselves are kept).';
+  }
+
+  @override
+  String get storagePurgeNone =>
+      'This article has no related content to clean up.';
+
+  @override
+  String get storagePurgeConfirmAction => 'Delete permanently';
+
+  @override
+  String get readingPurgeArticle => 'Permanently delete this article';
+
+  @override
+  String storagePurgeDone(
+    int citations,
+    int translations,
+    int sessions,
+    int media,
+  ) {
+    return 'Permanently deleted: $citations citations, $translations translations, $sessions sessions, $media cached images.';
+  }
 }

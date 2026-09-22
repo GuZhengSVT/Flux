@@ -8844,6 +8844,29 @@ class $AiResultCacheRecordsTable extends AiResultCacheRecords
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _byteLengthMeta = const VerificationMeta(
+    'byteLength',
+  );
+  @override
+  late final GeneratedColumn<int> byteLength = GeneratedColumn<int>(
+    'byte_length',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUsedAt = GeneratedColumn<DateTime>(
+    'last_used_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     cacheKey,
@@ -8851,6 +8874,8 @@ class $AiResultCacheRecordsTable extends AiResultCacheRecords
     providerAlias,
     modelId,
     createdAt,
+    byteLength,
+    lastUsedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8907,6 +8932,21 @@ class $AiResultCacheRecordsTable extends AiResultCacheRecords
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('byte_length')) {
+      context.handle(
+        _byteLengthMeta,
+        byteLength.isAcceptableOrUnknown(data['byte_length']!, _byteLengthMeta),
+      );
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -8936,6 +8976,14 @@ class $AiResultCacheRecordsTable extends AiResultCacheRecords
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      byteLength: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}byte_length'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_used_at'],
+      ),
     );
   }
 
@@ -8957,12 +9005,29 @@ class AiResultCacheRecord extends DataClass
   final String providerAlias;
   final String modelId;
   final DateTime createdAt;
+
+  /// 结果文本的 UTF-8 字节数（schema v17）。
+  ///
+  /// 非空且默认 0：迁移里对既有行用 `length(CAST(result_text AS BLOB))` 一次性回填。
+  /// 与「不回填」的那几列（image_url / ai_summary / sync_key，它们记录的是**当时是否发生过
+  /// 某件事**）不同，字节数是**可以从既有数据确定性算出**的测量值，不是伪造的事实；
+  /// 留着 0 会让既有行在字节上限判定里被当成「不占空间」，而它们确实占着。
+  final int byteLength;
+
+  /// 最近一次命中（被读到）的时刻（UTC；schema v17）。
+  ///
+  /// 可空且**不回填**：历史行没有「曾经被读过」这个事实，用 createdAt 顶上等于伪造一次命中。
+  /// 读取方（planAiCacheEviction）对 null 按「从未使用 → 用写入时刻排序」处理，因此不清空
+  /// 也不会让 LRU 退化。
+  final DateTime? lastUsedAt;
   const AiResultCacheRecord({
     required this.cacheKey,
     required this.text_,
     required this.providerAlias,
     required this.modelId,
     required this.createdAt,
+    required this.byteLength,
+    this.lastUsedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8972,6 +9037,10 @@ class AiResultCacheRecord extends DataClass
     map['provider_alias'] = Variable<String>(providerAlias);
     map['model_id'] = Variable<String>(modelId);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['byte_length'] = Variable<int>(byteLength);
+    if (!nullToAbsent || lastUsedAt != null) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt);
+    }
     return map;
   }
 
@@ -8982,6 +9051,10 @@ class AiResultCacheRecord extends DataClass
       providerAlias: Value(providerAlias),
       modelId: Value(modelId),
       createdAt: Value(createdAt),
+      byteLength: Value(byteLength),
+      lastUsedAt: lastUsedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUsedAt),
     );
   }
 
@@ -8996,6 +9069,8 @@ class AiResultCacheRecord extends DataClass
       providerAlias: serializer.fromJson<String>(json['providerAlias']),
       modelId: serializer.fromJson<String>(json['modelId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      byteLength: serializer.fromJson<int>(json['byteLength']),
+      lastUsedAt: serializer.fromJson<DateTime?>(json['lastUsedAt']),
     );
   }
   @override
@@ -9007,6 +9082,8 @@ class AiResultCacheRecord extends DataClass
       'providerAlias': serializer.toJson<String>(providerAlias),
       'modelId': serializer.toJson<String>(modelId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'byteLength': serializer.toJson<int>(byteLength),
+      'lastUsedAt': serializer.toJson<DateTime?>(lastUsedAt),
     };
   }
 
@@ -9016,12 +9093,16 @@ class AiResultCacheRecord extends DataClass
     String? providerAlias,
     String? modelId,
     DateTime? createdAt,
+    int? byteLength,
+    Value<DateTime?> lastUsedAt = const Value.absent(),
   }) => AiResultCacheRecord(
     cacheKey: cacheKey ?? this.cacheKey,
     text_: text_ ?? this.text_,
     providerAlias: providerAlias ?? this.providerAlias,
     modelId: modelId ?? this.modelId,
     createdAt: createdAt ?? this.createdAt,
+    byteLength: byteLength ?? this.byteLength,
+    lastUsedAt: lastUsedAt.present ? lastUsedAt.value : this.lastUsedAt,
   );
   AiResultCacheRecord copyWithCompanion(AiResultCacheRecordsCompanion data) {
     return AiResultCacheRecord(
@@ -9032,6 +9113,12 @@ class AiResultCacheRecord extends DataClass
           : this.providerAlias,
       modelId: data.modelId.present ? data.modelId.value : this.modelId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      byteLength: data.byteLength.present
+          ? data.byteLength.value
+          : this.byteLength,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
     );
   }
 
@@ -9042,14 +9129,23 @@ class AiResultCacheRecord extends DataClass
           ..write('text_: $text_, ')
           ..write('providerAlias: $providerAlias, ')
           ..write('modelId: $modelId, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('byteLength: $byteLength, ')
+          ..write('lastUsedAt: $lastUsedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(cacheKey, text_, providerAlias, modelId, createdAt);
+  int get hashCode => Object.hash(
+    cacheKey,
+    text_,
+    providerAlias,
+    modelId,
+    createdAt,
+    byteLength,
+    lastUsedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9058,7 +9154,9 @@ class AiResultCacheRecord extends DataClass
           other.text_ == this.text_ &&
           other.providerAlias == this.providerAlias &&
           other.modelId == this.modelId &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.byteLength == this.byteLength &&
+          other.lastUsedAt == this.lastUsedAt);
 }
 
 class AiResultCacheRecordsCompanion
@@ -9068,6 +9166,8 @@ class AiResultCacheRecordsCompanion
   final Value<String> providerAlias;
   final Value<String> modelId;
   final Value<DateTime> createdAt;
+  final Value<int> byteLength;
+  final Value<DateTime?> lastUsedAt;
   final Value<int> rowid;
   const AiResultCacheRecordsCompanion({
     this.cacheKey = const Value.absent(),
@@ -9075,6 +9175,8 @@ class AiResultCacheRecordsCompanion
     this.providerAlias = const Value.absent(),
     this.modelId = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.byteLength = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AiResultCacheRecordsCompanion.insert({
@@ -9083,6 +9185,8 @@ class AiResultCacheRecordsCompanion
     required String providerAlias,
     required String modelId,
     required DateTime createdAt,
+    this.byteLength = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : cacheKey = Value(cacheKey),
        text_ = Value(text_),
@@ -9095,6 +9199,8 @@ class AiResultCacheRecordsCompanion
     Expression<String>? providerAlias,
     Expression<String>? modelId,
     Expression<DateTime>? createdAt,
+    Expression<int>? byteLength,
+    Expression<DateTime>? lastUsedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9103,6 +9209,8 @@ class AiResultCacheRecordsCompanion
       if (providerAlias != null) 'provider_alias': providerAlias,
       if (modelId != null) 'model_id': modelId,
       if (createdAt != null) 'created_at': createdAt,
+      if (byteLength != null) 'byte_length': byteLength,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9113,6 +9221,8 @@ class AiResultCacheRecordsCompanion
     Value<String>? providerAlias,
     Value<String>? modelId,
     Value<DateTime>? createdAt,
+    Value<int>? byteLength,
+    Value<DateTime?>? lastUsedAt,
     Value<int>? rowid,
   }) {
     return AiResultCacheRecordsCompanion(
@@ -9121,6 +9231,8 @@ class AiResultCacheRecordsCompanion
       providerAlias: providerAlias ?? this.providerAlias,
       modelId: modelId ?? this.modelId,
       createdAt: createdAt ?? this.createdAt,
+      byteLength: byteLength ?? this.byteLength,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9143,6 +9255,12 @@ class AiResultCacheRecordsCompanion
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (byteLength.present) {
+      map['byte_length'] = Variable<int>(byteLength.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9157,6 +9275,8 @@ class AiResultCacheRecordsCompanion
           ..write('providerAlias: $providerAlias, ')
           ..write('modelId: $modelId, ')
           ..write('createdAt: $createdAt, ')
+          ..write('byteLength: $byteLength, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -20934,6 +21054,8 @@ typedef $$AiResultCacheRecordsTableCreateCompanionBuilder =
       required String providerAlias,
       required String modelId,
       required DateTime createdAt,
+      Value<int> byteLength,
+      Value<DateTime?> lastUsedAt,
       Value<int> rowid,
     });
 typedef $$AiResultCacheRecordsTableUpdateCompanionBuilder =
@@ -20943,6 +21065,8 @@ typedef $$AiResultCacheRecordsTableUpdateCompanionBuilder =
       Value<String> providerAlias,
       Value<String> modelId,
       Value<DateTime> createdAt,
+      Value<int> byteLength,
+      Value<DateTime?> lastUsedAt,
       Value<int> rowid,
     });
 
@@ -20977,6 +21101,16 @@ class $$AiResultCacheRecordsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get byteLength => $composableBuilder(
+    column: $table.byteLength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -21014,6 +21148,16 @@ class $$AiResultCacheRecordsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get byteLength => $composableBuilder(
+    column: $table.byteLength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AiResultCacheRecordsTableAnnotationComposer
@@ -21041,6 +21185,16 @@ class $$AiResultCacheRecordsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get byteLength => $composableBuilder(
+    column: $table.byteLength,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$AiResultCacheRecordsTableTableManager
@@ -21091,6 +21245,8 @@ class $$AiResultCacheRecordsTableTableManager
                 Value<String> providerAlias = const Value.absent(),
                 Value<String> modelId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<int> byteLength = const Value.absent(),
+                Value<DateTime?> lastUsedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AiResultCacheRecordsCompanion(
                 cacheKey: cacheKey,
@@ -21098,6 +21254,8 @@ class $$AiResultCacheRecordsTableTableManager
                 providerAlias: providerAlias,
                 modelId: modelId,
                 createdAt: createdAt,
+                byteLength: byteLength,
+                lastUsedAt: lastUsedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -21107,6 +21265,8 @@ class $$AiResultCacheRecordsTableTableManager
                 required String providerAlias,
                 required String modelId,
                 required DateTime createdAt,
+                Value<int> byteLength = const Value.absent(),
+                Value<DateTime?> lastUsedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AiResultCacheRecordsCompanion.insert(
                 cacheKey: cacheKey,
@@ -21114,6 +21274,8 @@ class $$AiResultCacheRecordsTableTableManager
                 providerAlias: providerAlias,
                 modelId: modelId,
                 createdAt: createdAt,
+                byteLength: byteLength,
+                lastUsedAt: lastUsedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

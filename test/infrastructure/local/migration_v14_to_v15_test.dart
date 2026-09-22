@@ -17,7 +17,7 @@ import '../../generated/schema.dart';
 import '../../generated/schema_v14.dart' as v14;
 
 /// 当前 schema 版本（与应用代码一致）。
-const int currentSchemaVersion = 16;
+const int currentSchemaVersion = 17;
 
 /// 一次写入用的固定创建时刻。
 final DateTime _createdAt = DateTime.utc(2026, 9, 22, 13);
