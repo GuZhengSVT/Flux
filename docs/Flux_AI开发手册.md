@@ -48,15 +48,7 @@
 
 当前阶段：**M3 已完全闭环**（T041–T048 全部 DONE，见 R041–R048；**M3 出口达成**）；**M2 已出口**，T025–T040 全部 DONE，见 R025–R040）。M1 已出口（T001–T024 全部 DONE，各含本机证据：T019 的验收缺口已在 T019+ 补齐，见 R019a；T021–T024 分别见 R021/R022/R023/R024）。M2 已完成 T025（统一 AIProvider 能力契约/模型管理）、T026（OpenAI 双协议适配器）、T027（Anthropic Messages 适配器）与 T028（主流预设验证矩阵）、T029（有预算的队列、五次无响应与跨模型故障转移）、T030（持久任务、结果缓存与中断恢复）、T031（三个搜索协议适配器与搜索服务管理）、T032（受控工具执行器）、T033（新闻图像理解与文本降级）与 T034（选词解释/单文摘要/自动缺摘要开关）与 T035（分段全文翻译与原译文切换）与 T036（新闻来源配置、版本化 prompt 与编辑器）、T037（每日新闻输入快照、事件聚合与初稿）与 T038（独立来源核验、引用校验与版本化结果）与 T039（今日页产品化：日期/历史/生成进度/来源跳转）与 T040（默认开启的定时总结与后台调度：纯函数时间规则、waitingConfiguration 零请求、当天补跑一次、终止记中断），见 R025–R040。**M2 出口**：T025–T040 全部完成即闭环；出口口径为「目标协议/供应商按验证矩阵交付、真实搜索/必访/证据链、视觉降级、十分钟与五次规则、定时默认开启且可控」，其中**除 DeepSeek 外无真实凭据实测**（7.3 逐行 NOT_RUN），不把接口完成说成实测通过。下一任务见任务表（T041 起），前置条件按该行所列。当前阻塞：无文档阻塞；**M3 出口已达成**：T041–T048 全部完成（双设备共通设置与三态/收藏同步、冲突不丢数据、删除与收藏保留的跨设备集成、明文备份可恢复且凭据不泄露、清理策略与缓存限额、故障恢复编排与脱敏诊断导出）。**M3 的遗留**：真实 WebDAV 双客户端验证仍为 NOT_RUN（无凭据），Mock 双客户端测试只是 fixture 证据；移动端数据目录切换（Android 沙盒路径）与恢复编排的自动化重启（macOS 无法自行重启进程，需用户手动重启）未实测；M4 起为 T049–T052。**除 DeepSeek 外的 AI 预设无凭据、三个搜索协议均无凭据**，未做真实调用（7.3 逐行标 NOT_RUN，不伪称支持）；**WebDAV 无凭据**，真实双客户端验证仍未执行（T044 记 NOT_RUN，Mock 双客户端测试作为 fixture 证据），因此 M3 的「双设备共通设置与三态/收藏同步」只在 Mock 双客户端上验证过，不宣称真实服务器兼容；Android 工程（含 Keystore 实测）与两平台正式签名仍未执行，须在对应任务获取授权后处理，不伪造完成记录。
 
-M4 进度（R049/R050 之后）：**T049 已 DONE 但范围收窄**——交付 macOS 的键盘导航、右键菜单、
-  读屏语义、大字号/窄窗回归与 SET-014 真实生效；手册 T049 原文要求的 macOS 原生菜单栏、
-  输入法专项、窗口与后台生命周期、权限/Keychain 复测、profile/release 记录与真实 VoiceOver
-  人工走查**均未做**，按 6.4 记 REVIEW（见 R049 遗留第 1 条）。**T050 单内的性能基线已执行**
-  （macOS，debug：100 订阅/50001 文章/100000 字符长文；冷启动到首帧 498ms；首批 P95 16.0ms；
-  FTS P95 21–54ms；RSS 峰值 391MiB；能耗 NOT_RUN），实测值见 §7.2，口径与遗留见 R050。
-  **手册 T050 的 Android 部分仍未做**（android/ 未初始化、无设备，逐项 NOT_RUN），本轮未把它
-  写成通过。**未批准阈值不写通过**：滚动帧在 debug 下未达「多数帧 16.7ms 内」，绝对阈值审批
-  与 release 复测属 T052/T054。
+M4 进度（R051/R052 之后）：**T049 已 DONE 但范围收窄**（键盘导航、右键菜单、读屏语义、大字号/窄窗回归与 SET-014 真实生效），其遗留的**菜单栏与 profile/release 记录已由 T052 补齐**；仍未做的输入法专项与真实 VoiceOver 人工走查按 6.4 记 REVIEW（见 R049/R052）。**T051 部分 DONE**：图标资源范围已交付（28 个 SVG 的 16px 辨识验证与四个图标重绘、原创应用图标七个尺寸、第三方许可证声明），但手册 T051 原文要求的**全设置审计（SET 表逐项 UI 入口 + 48dp/对比度走查）未做**，见 R051。**T052 macOS 部分 DONE / Android NOT_RUN**：文档归位（把 R050 的性能基线并入 T052）、`flutter build macos --release` 成功且 **Release .app 31 MB**、profile 下的滚动帧复测（真实 FrameTiming：稳态 **P50 9.34 ms**，对比 debug 23.2 ms，但仍未完全达标，记 FAIL）、macOS 原生菜单栏最小集、窗口标题修复（xib 模板占位符 `APP_NAME`），逐项见 §7.5 的平台验收矩阵。**能耗、VoiceOver 真机走查、输入法、Android 全部 NOT_RUN**，不冒充通过；**性能阈值仍未批准**，因此只记录实测值、不宣称达标（见 R052）。
 
 ### 2.2 功能状态（每轮同步维护）
 “已实现列表”：空。“已验收列表”：空。下表是未实现/延期列表，不是旧项目审计结论。
@@ -175,8 +167,8 @@ M1/M2 是内部可用里程碑，不等于首发。首发出口为 M0–M5 的�
 | --- | --- | --- | --- | --- |
 | T049 | T040、T044、T048 | macOS 专项验收 | macOS 27 + M1 级设备，菜单/输入法/键盘/窗口/权限/Keychain/后台生命周期，profile/release 记录，缺硬件则不冒充通过 | DONE（**范围收窄 + 缺失 REVIEW**）：见 R049。**已做**（本机 macOS 27 / M4 实测）：键盘导航（⌘1/2/3 切换三去向、列表上下键选择 + 回车打开、Esc 分层关闭、⌘/ 快捷键说明面板）、右键菜单（列表项：打开/浏览器打开/三态直达/收藏/彻底删除；正文：系统复制菜单 + 解释 + 在库检索 + 翻译；订阅行：与行尾菜单同一份动作表）、读屏语义（三态/收藏/卡片/图片占位/列表加载中，SemanticsHandle 断言）、大字号 2.0 倍与窄窗 599 的回归测试与两张 golden、SET-014 减少动态效果的真实生效（system/on/off 合成 + MediaQuery 覆盖）。**未做**：profile/release 记录（debug 证据）、菜单栏（macOS 原生菜单）与输入法专项、真实 VoiceOver 人工走查、窗口权限/后台生命周期专项——这些缺硬件或需人工操作，本任务按 6.4 记为 REVIEW，不冒充通过 |
 | T050 | T040、T044、T048 | Android 专项验收 | Android 17 + 目标 ARM64，返回/旋转/进程杀死/锁屏/权限/Keystore/网络限制、10min 被系统打断；目标 API 配置实际核对 | TODO（**本轮的 Android 部分未做**：android/ 工程仍未初始化，无设备与 SDK 核对，逐项 NOT_RUN，不冒充通过）。**实际执行的是 T052 的性能验收集部分**（架构第 8 节的数据集与基线测量，macOS debug），见 R050 |
-| T051 | T012、T039、T044、T049、T050 | 全设置审计与中英/浅深/可访问性 | SET 表逐项有 UI 或明确只读/动作入口，C/D/S 序列化测试；大字/窄屏/读屏/焦点/48dp/对比度和 SVG 均验收 | TODO |
-| T052 | T022、T038、T048、T049、T050 | 性能/资源/安全回归 | 固定大数据集、搜索 P95/帧时/包体/内存/能耗；无 WebView/无限重试/秘密泄露；已批准阈值通过，未批准阈值不可写通过 | TODO |
+| T051 | T012、T039、T044、T049、T050 | 全设置审计与中英/浅深/可访问性 | SET 表逐项有 UI 或明确只读/动作入口，C/D/S 序列化测试；大字/窄屏/读屏/焦点/48dp/对比度和 SVG 均验收 | DONE（**图标资源范围**）：见 R051。**已做**：28 个 SVG 在 16px 下的辨识度验证（可断言的位图断言 + 16/20/24 三档 golden），其中四个在 16px 下实测不成立的图标按小尺寸重绘（state-read/state-later/state-unread/sliders）；原创应用图标设计源 `assets/branding/flux-app-icon.svg` 与 `tool/generate_app_icon.sh` 派生的七个尺寸 macOS AppIcon（替换模板图标，已在构建产物的 .icns 中核实）；`docs/THIRD-PARTY-NOTICES.md` 由 `tool/generate_third_party_notices.dart` 从 pubspec.lock 生成（14 个直接运行时依赖逐条许可证与版权行），并由测试断言与 lock 一致；每个 SVG 的 MIT 头部声明逐文件断言。**本轮未覆盖**：手册 T051 原文的「SET 表逐项有 UI 或明确只读/动作入口 + C/D/S 序列化测试 + 48dp/对比度」属**全设置审计**，是另一块工作（SET 注册表已有完整 C/D/S 序列化测试见 T010，但「每一项都有 UI 入口」未逐项走查），如实记为**未完成**，不因图标部分交付而把 T051 整体记为 DONE |
+| T052 | T022、T038、T048、T049、T050 | 性能/资源/安全回归 | 固定大数据集、搜索 P95/帧时/包体/内存/能耗；无 WebView/无限重试/秘密泄露；已批准阈值通过，未批准阈值不可写通过 | **macOS 部分 DONE / Android NOT_RUN**：见 R052 与 §7.2/§7.5。**已做（macOS）**：文档归位（把 32c9f40 的性能基线正式并入本任务的 macOS 范围，修正 R050 的错位标注）；`flutter build macos --release` 成功，**包体 31 MB**（debug 143 MB / profile 43.5 MB）；**release/profile 下的滚动帧复测**（`flutter drive --profile` + 真实引擎 FrameTiming）：稳态 **P50 9.34 ms**、P95 27.8 ms、61 帧中 16 帧超 16.7 ms——debug 的 P50 23.2 ms **主要是 debug 成本**，profile 下已接近达标而**仍未完全达标**；macOS 原生菜单栏（文件/视图/帮助最小集，Cmd+R/Cmd+,/⌘1-3/主题三档/⌘/）；窗口标题取自 CFBundleName 并修掉 xib 模板占位符 `APP_NAME`（用户可见缺陷）。**NOT_RUN**：能耗（macOS 无公开 API）、真实 VoiceOver 人工走查、输入法专项、Android 全部（工程未初始化）。**阈值未批准**（6.4），因此只记录实测值，不宣称达标 |
 | T053 | T028、T031、T051、T052 | 对外 README/关于/版本检查完善 | 功能和供应商名单与实测台账一致；真实 repo/Release/Issue 链接、隐私边界与安装方法，未知不猜；更新只打开下载页 | TODO |
 | T054 | T053；维护者签名安排 | 生产签名/许可/包标识/发布构建 | MIT 及第三方声明完整；Android 正式签名、macOS 签名/公证或明确的分发状态；不使用 debug 签名冒充正式、不泄露密钥 | TODO |
 | T055 | T001–T054 | 干净机器构建、安装/卸载/升级演练 | 明确逐项核对全部首发前置，不能遗漏未被中间依赖覆盖的 OPML/翻译等任务；README 命令从干净 checkout 成功；最低系统真机安装、升级/恢复不损坏数据；证据齐全，未过不首发 | TODO |
@@ -4019,7 +4011,7 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
 | 外部浏览器（T020 新增） | url_launcher 6.3.2（转带 url_launcher_macos 3.2.6、url_launcher_platform_interface 2.3.2，以及 android/ios/linux/web/windows 各平台实现） | pubspec.lock（T020 实测）；只用 `launchUrl` 的 `LaunchMode.externalApplication`（**不是** inApp 模式），因此不存在内嵌浏览器路径（D-05）；协议在适配器里**再校验一次**后才交给系统。依赖由 Dart 侧直接声明（本任务的依赖白名单允许） |
 | 系统分享（T020 新增） | **无第三方依赖**：macos/Runner/SharePlugin.swift 走 NSSharingServicePicker 原生通道（通道名 `io.github.guzhengsvt.flux/share`） | 本任务允许 share_plus 或原生通道二选一，**选原生通道**并在此记录理由：本工程当前只有 macOS（D-02 之后才有 Android），而 share_plus 会把 5 个平台实现与各自的构建配置一并拉进来；原生通道约 60 行，与 T010 的 KeychainPlugin 同一注册方式，平台边界可见。不可用/失败时上层回退复制（架构 4.2） |
 | 最低设备验收 | M1、天玑 9400 级别目标 | 未运行（M0 未做真机验收）；本轮实测机为 Apple M4 |
-| 包体/内存/启动/能耗基线与阈值 | **T050 已实测（debug）**：数据集 100 订阅 / 50001 文章 / 100000 字符长文；冷启动到首帧 **498 ms**；列表首批 100 条 P95 **16.0 ms**；FTS 检索 P95：常见词 54.4 ms、稀有词 26.3 ms、单字 21.2 ms；稳态滚动帧 P50 **23.2 ms**（P95 66.8 ms，40 帧中 28 帧超 16.7 ms）；滚动到底加载下一批那一帧 P50 **159.6 ms**；RSS 峰值 **391 MiB**；FTS 索引占用 **71.2 MB**（dbstat） | 2026-09-22，macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64，Flutter 3.47.0 / Dart 3.13.0，**debug 模式**（非 release/profile，见下方说明）；命令 `flutter test test/perf/perf_baseline_test.dart --dart-define=PERF_SEED_DATASET=true` 与 `... test/perf/perf_frames_test.dart ...`，原始值在 build/perf_baseline.json 与 build/perf_frames.json。**能耗 NOT_RUN**（macOS 无公开 API）。**阈值未批准**：手册 6.4 要求「已批准阈值通过，未批准阈值不可写通过」，本轮只记录实测值，不宣称达标——绝对值审批属 T052 |
+| 包体/内存/启动/能耗基线与阈值 | **T050 已实测（debug）**：数据集 100 订阅 / 50001 文章 / 100000 字符长文；冷启动到首帧 **498 ms**；列表首批 100 条 P95 **16.0 ms**；FTS 检索 P95：常见词 54.4 ms、稀有词 26.3 ms、单字 21.2 ms；稳态滚动帧 P50 **23.2 ms**（P95 66.8 ms，40 帧中 28 帧超 16.7 ms）；滚动到底加载下一批那一帧 P50 **159.6 ms**；RSS 峰值 **391 MiB**；FTS 索引占用 **71.2 MB**（dbstat） **T052 补齐 profile 与包体**（见 §7.5）：`flutter build macos --release` 退出 0，**.app 体积 31 MB**（debug 143 MB、profile 43.5 MB）；用 `flutter drive --profile` 重测稳态滚动帧（真实引擎 FrameTiming.totalSpan）：**P50 9.34 ms**、P95 27.8 ms、max 36.1 ms、61 帧中 **16 帧**超 16.7 ms；滚动到底加载下一批：P50 61.0 ms、P95 90.1 ms（10 帧中 9 帧超预算）；profile 冷启动到首帧 113 ms。**结论**：debug 的 P50 23.2 ms 主要是 debug 成本（assert/JIT/无 AOT），profile 下已接近但**仍未完全达标**「多数帧 16.7ms 内」（16/61 = 26% 超预算）；按 6.4 阈值未批准，不宣称达标。**能耗 NOT_RUN**（macOS 无公开 API）。 |2026-09-22，macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64，Flutter 3.47.0 / Dart 3.13.0，**debug 模式**（非 release/profile，见下方说明）；命令 `flutter test test/perf/perf_baseline_test.dart --dart-define=PERF_SEED_DATASET=true` 与 `... test/perf/perf_frames_test.dart ...`，原始值在 build/perf_baseline.json 与 build/perf_frames.json。**能耗 NOT_RUN**（macOS 无公开 API）。**阈值未批准**：手册 6.4 要求「已批准阈值通过，未批准阈值不可写通过」，本轮只记录实测值，不宣称达标——绝对值审批属 T052 |  **T052（profile，2026-09-22）**：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64，Flutter 3.47.0 / Dart 3.13.0，**profile 构建**（AOT，非 debug）；命令 `flutter drive --profile --driver=test_driver/perf_test.dart --target=integration_test/t052_perf_test.dart --dart-define=PERF_SEED_DATASET=true`；原始值在 build/t052_perf_frames.json（git 忽略的构建目录）。包体用 `du -sm build/macos/Build/Products/{Release,Debug}/Flux.app` 量取。
 
 构建产物（T008 实测）：`flutter build macos --debug` 退出 0，产物 `build/macos/Build/Products/Debug/Flux.app`（debug 类型，非正式签名包，不代表可分发）。
 
@@ -4382,6 +4374,146 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       专项验收、T051 全设置审计与中英/浅深/可访问性、T052 性能/资源/安全回归）。T049 的前置
       T040/T044/T048 均已 DONE；**后续已执行**：T049 → 见 R049，T050 单内的性能基线 → 见 R050
 
+### 7.1.45 轮次记录 R051（T051）
+
+    轮次/日期：R051 / 2026-09-22
+    任务 ID 与状态变化：T051（全设置审计与中英/浅深/可访问性）TODO → **部分 DONE（图标资源范围）**。
+      手册 T051 的验收文字包含两大块：**全设置审计**（SET 表逐项有 UI 或明确只读/动作入口、
+      C/D/S 序列化测试）与**视觉/可访问性验收**（大字/窄屏/读屏/焦点/48dp/对比度和 SVG）。
+      本轮任务单把 T051 指定为「原创图标小尺寸辨识验证与资源收尾」，即**第二块里的 SVG 与资源
+      部分**。因此：图标与资源部分 DONE（下述），而「SET 表逐项 UI 入口走查」**未做**，如实记为
+      未完成——不因图标部分交付而把 T051 整体记为 DONE。
+    相关决策/功能/SET 项：架构第 7 节（「应用图标先做小尺寸辨识验证，资源纳入 MIT/第三方声明」、
+      「20/24 逻辑尺寸、1.5–2 视觉线宽」）、D-13（模型自行绘制 SVG，不得伪造来源）、
+      手册 6.4（不把没测的说成测过）。
+    修改文件与主要行为：
+      - 新增 test/ui/icon_sizes_test.dart：把 20 档图标**直接解码成 16×16 位图**再断言结构。
+        为什么不是「看一眼截图」：16px 下的典型失效不是「变模糊」而是**结构消失**（两段弧糊成
+        一条、对勾的折角被抗锯齿抹平），这类问题不会让任何现有测试失败。断言包括墨水覆盖率区间
+        （0.04–0.45）、外环左右两侧仍有墨、以及三态之间的可区分性。
+      - 三态可区分性最初写成「中心区平均墨水」，**当场以 0.333 == 0.333 失败**——平均灰度把外环
+        边缘的灰阶也算了进来，三个图标自然都是 1/3。改成「中心 0.375–0.625 窗口内 alpha ≥ 0.85
+        的像素数」（实心核心）：未读的实心点约 9 个核心像素，已读/稍后只有笔画恰好穿过中心的
+        一两个。这条修正说明「可区分」必须用能区分实心与描边的量，而不是区域平均。
+      - 按 16px 实测重绘四个图标：state-read（对勾加长加陡）、state-later（钟针开成约 90°）、
+        state-unread（实心点 2.1 → 2.4，让三态并排时权重对齐）、sliders（三行摊到 5/10/15，
+        原来「长线-圆-短线」在 16px 下糊成竖纹，实测是该组相似度最高的一个）。
+      - 新增 assets/branding/flux-app-icon.svg（原创应用图标**设计源**）与 tool/generate_app_icon.sh：
+        徽标几何**直接在 1024 画布上定义**（线宽 165、弧间净空约 105），而不是把 20 坐标系放大
+        ——后者在 16px 下线条只有约 1.0px，抗锯齿会抹成灰雾。经候选扫描后选定内弧 r=270、外弧
+        r=540、点半径 105 这一组，16/32/64/128/256/512/1024 七个尺寸一次性派生。
+      - 替换 macOS AppIcon（原为 flutter create 的模板图标）：七个 PNG 全部由设计源派生，
+        Contents.json 未改（尺寸与引用本已齐全）。已在构建产物的 AppIcon.icns 中核实与设计源一致。
+      - 新增 docs/THIRD-PARTY-NOTICES.md 与 tool/generate_third_party_notices.dart：清单**由脚本
+        从已提交的 pubspec.lock 生成**，因此不会随依赖升级静默过期；许可证名从各包 LICENSE 正文
+        推断（识别不出时写「见正文」，不猜 SPDX 标识）；版权行**要求含年份**，否则 Apache-2.0 的
+        术语正文（Licensor shall mean the copyright owner…）会被当成归属声明抄进清单——
+        第一次生成时实际踩到了这一点。
+      - 新增 test/ui/golden/icon_sizes_golden_test.dart：28 个图标 × 16/20/24 三档，每档两行
+        （实际像素 + 4× 放大复核）。只看实际尺寸无法指出具体问题，只看放大图又会忘记它实际只有
+        16 个像素；两行并排才落在正确的判断标准上。
+      - 重新生成受图标改动影响的 10 张 golden（控件状态、壳层窄窗、卡片、阅读页、a11y 两张）。
+        差异经人工确认**只落在图标像素上**（控件状态图 diff 约 0.02%），没有任何布局或配色位移。
+    实测（macOS 27.0 / M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0）：
+      - 16px 墨水覆盖率：最低 mark-check 约 0.069（细勾），最高 today 约 0.301；
+      - 三态实心核心像素数：未读 9、已读 1、稍后 1（未读远多于后两者，实心与描边可分）；
+      - 应用图标 16px：线宽约 2.6px、点直径约 3.3px，两段弧可分辨；已在 32/128/1024 复核观感。
+    用例与证据：默认全库 **2189 通过 / 4 跳过 / 0 失败**（相对 T049 前的 2181 新增 8 条）；
+      dart format --output=none --set-exit-if-changed lib test integration_test 0 changed；
+      flutter analyze 无问题；flutter build macos --debug 退出 0，产物含新的 AppIcon.icns。
+    遗留问题与未运行项：
+      1) **T051 的「全设置审计」部分未做**：SET 表逐项是否有 UI 或明确只读/动作入口**未逐项走查**
+         （C/D/S 序列化测试在 T010 已有），48dp 触控目标与对比度的系统化核对也未做。如实记为
+         未完成，不因图标部分交付而冒充 T051 整体 DONE；
+      2) **Android 侧图标未验证**：android/ 工程未初始化，同样的 SVG 在 Android 上的渲染未测；
+      3) 第三方清单的**传递依赖**只列数量（109 个）不逐条展开：它们由直接依赖引入、本应用不直接
+         引用其 API；若要发布到应用商店，通常需要把传递依赖一并展开（属发布准备，见 T053/T054）；
+      4) 清单里的版权行是各包 LICENSE 中**首个带年份的版权行**，不是完整的版权声明集合
+         （部分包有多条）；作为对外声明足够，但不等于逐字抄录全部版权段落；
+      5) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字。**缩小了本轮的交付范围**：只做
+      「图标小尺寸辨识与资源收尾」这一块，其余如实记为未完成。
+    提交/差异范围：提交 "T051: icon size validation, original app icon and third-party notices"（b2ae223）；
+      基线为 T050 的提交（32c9f40）。未 push
+    下一可执行任务及前置条件：T052（性能/资源/安全回归的 macOS 部分，见 R052）；T051 的
+      「全设置审计」部分需在后续轮次单独执行
+
+### 7.1.46 轮次记录 R052（T052）
+
+    轮次/日期：R052 / 2026-09-22
+    任务 ID 与状态变化：T052（性能/资源/安全回归）TODO → **macOS 部分 DONE / Android NOT_RUN**。
+      另外完成三件收尾：① **文档归位**——把上一轮（R050）实际执行的「性能基线」正式并入本任务的
+      macOS 范围，并修正 T050 行的错位标注；② 补齐 T049 遗留的 **macOS 原生菜单栏**与**窗口标题**；
+      ③ 补 **release 包体**与 **release/profile 下的滚动帧复测**。
+    相关决策/功能/SET 项：架构第 8 节（性能验收集与「60Hz 常规滚动多数帧 16.7ms 内」）、
+      手册 6.4（已批准阈值通过、未批准阈值不可写通过）、架构第 7 节（桌面默认支持菜单）。
+    修改文件与主要行为：
+      - **文档归位**：T052 行改为逐项列出台阶式证据（§7.2 新增 profile 数据、§7.5 新增验收矩阵）；
+        R050 的错位说明补上「已由 R052 归位」；T050 行保持 Android TODO 不变。
+      - 新增 lib/app/shell/flux_menu_bar.dart：macOS 原生菜单栏（用 Flutter 的 PlatformMenuBar，
+        走 flutter/menu 通道交给**系统**渲染）。菜单拆成「纯构建函数 buildFluxMenus + 薄壳
+        FluxMenuBar」：菜单项的**回调**只存在于 PlatformMenuItem 对象上，若把构建写在 build 里，
+        测试就只能断言「通道上发了哪些标签」，测不到「点了深色真的写了 SET-002」。
+      - 菜单内容是最小集：文件（刷新 ⌘R、设置 ⌘,）、视图（今日/阅读/我的 ⌘1/2/3、主题三档）、
+        帮助（快捷键说明 ⌘/、关于）。**不加**尚未在界面上存在的动作——菜单项一旦加进去就是
+        长期承诺，用户会依赖 ⌘R。
+      - 菜单的 l10n 需要单独解析：菜单栏挂在 MaterialApp 的 **builder** 里，而 Localizations 是
+        包在 builder 结果**外面**的（WidgetsApp.build 的 title ?? result），因此
+        AppLocalizations.of(context) 拿不到值，必须按 SET-001 自己 lookup。测试里有一条
+        「英文界面下菜单不残留中文」专门钉住这一点（写死中文或写死英文都会失败）。
+      - **修掉一个用户可见缺陷**：模板 MainMenu.xib 的标题写的是字面量 APP_NAME，而 flutter
+        工具只在**测试环境**（flutter_tester 进程）替换该占位符，打包时**不替换**——因此在
+        T052 之前构建出来的应用，菜单栏与窗口标题实际显示「APP_NAME」这七个字母。已在编译产物
+        MainMenu.nib 里用 strings 核实（6 处）。修法：xib 里的占位符改为 Flux，并在
+        MainFlutterWindow 显式设置标题（取自 Info.plist 的 CFBundleName，与应用名保持单一来源，
+        而不是依赖 nib 的静态字符串）。
+      - 新增 integration_test/t052_perf_test.dart 与 test_driver/perf_test.dart：在 **profile**
+        构建下测滚动帧，用真实引擎上报的 FrameTiming.totalSpan（而不是 Stopwatch 包住 pump——
+        后者不含光栅化、也不含 vsync 对齐，测不出「多数帧 16.7ms 内」这条验收）。
+    实测（macOS 27.0 / M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0）：
+      - **包体积**：flutter build macos --release 退出 0，**Release .app 31 MB**
+        （debug 143 MB、profile 43.5 MB）。非签名包，不代表可分发体积；
+      - **滚动帧（profile，真实 FrameTiming）**：稳态 **P50 9.34 ms**、P95 27.8 ms、max 36.1 ms，
+        61 帧中 **16 帧**超 16.7 ms；对比 debug 的 P50 23.2 ms（28/40 超预算）；
+      - **加载下一批那一帧**：profile P50 61.0 ms、P95 90.1 ms（10 帧中 9 帧超预算）；
+        对比 debug 159.6 ms；
+      - **冷启动到首帧**：profile 113 ms（debug 498 ms）；
+      - 虚拟化自检在两种构建下都通过（已加载 100 条时构建的卡片 < 60）。
+    结论（按 6.4 记，不宣称达标）：
+      1) **debug 的性能数字会严重误导**：debug P50 23.2 ms 看起来明显不达标，profile 下是 9.34 ms。
+         差额是 debug 构建本身的成本（assert、JIT 代码路径、无 AOT），不是「这一轮做了优化」；
+      2) **profile 仍未完全达标**：61 帧里 16 帧超预算（约 26%），因此滚动帧一项记 **FAIL**
+         而不是 PASS。按 6.4「未批准阈值不可写通过」，同时注明阈值尚未由维护者批准；
+      3) 剩余超出集中在列表项构建（卡片含 SVG 图标与多段文本）。**本轮不做针对性优化**：
+         在没有批准阈值、也没有分项归因（图标解码 vs 文本布局）的情况下动代码，无法证明有效，
+         还可能掩盖真实瓶颈。修法建议（减少首帧构建量、图标预解码）留待阈值获批后按数据决定。
+    用例与证据：默认全库 **2199 通过 / 4 跳过 / 0 失败**（相对 T051 的 2189 新增 10 条，全部在
+      test/app/menu_bar_test.dart）；dart format 0 changed；flutter analyze 无问题；
+      flutter build macos --debug 与 --release 均退出 0；profile 采集原始值在
+      build/t052_perf_frames.json。
+    遗留问题与未运行项：
+      1) **阈值仍未批准**：手册 6.4 要求「已批准阈值通过」，本轮只记录实测值；滚动帧在 profile 下
+         **仍未达标**（记 FAIL），其余项目为「记录值」而非「达标」；
+      2) **能耗 NOT_RUN**：macOS 无公开能耗 API，不用推断值顶替；
+      3) **内存只有 T050 的 debug 峰值（391 MiB）**：静置/阅读分项未单独采样，profile 下的分项
+         采样也未做；
+      4) **VoiceOver 真实人工走查、输入法（IME）专项、窗口权限/Keychain 复测、后台生命周期专项
+         均 NOT_RUN**：需要人工操作系统设置或真实操作，本机未做。语义树由 T049 的测试断言覆盖，
+         但测试断言**不等于**真机走查；
+      5) **Android 全部 NOT_RUN**：android/ 工程未初始化、无设备、无 SDK 核对；FTS 的 trigram
+         tokenizer 在 Android 内置 SQLite 上是否存在仍未验证（R022 同一条）；
+      6) **profile 数字仍是内存数据集**：数据集是合成文本（词频分布与真实中文语料不同），且跑在
+         memory 数据库上（没有真实磁盘 I/O 与 WAL 写放大）；
+      7) 菜单只做了最小集：输入法相关的菜单行为、菜单项在运行时的启用/禁用联动
+         （例如「无订阅时刷新置灰」）未做；
+      8) 本轮成果未 push 到远端。
+    需求是否变化、维护者是否批准：未改变任何验收条件文字。**记录了一处任务号归位**：上一轮
+      （R050）实际执行的是本任务的 macOS 性能部分，本轮把它正式并入 T052 并在任务表标注；
+      手册 T050（Android 专项验收）保持 TODO 不变，不因归位而改动其状态。
+    提交/差异范围：提交 "T052: macOS acceptance matrix, release measurements and menu bar
+      completion"；基线为 T051 的提交（b2ae223）。未 push
+    下一可执行任务及前置条件：T053（对外 README/关于/版本检查完善）；T052 的**阈值审批**需
+      维护者决定，之后才能按数据做性能优化；Android 侧任何项都需要先初始化 android/ 工程
 ### 7.2 工具链与环境记录（T008 填写）
 ### 7.1.44 轮次记录 R050（T050）
 
@@ -4464,6 +4596,8 @@ DONE 必须同时满足：需求与异常路径落实、测试/分析实际通�
       手册 T050 = Android 专项验收，本轮任务单的 T050 = 性能基线（macOS）。本轮按任务单执行，
       并在任务表与本节显式标注该错位，未把 Android 项写成通过、也未把性能基线算作 T050 的完成。
       若需要纠正任务号归属（把性能基线并入 T052），应由主代理决定后统一改文档。
+      **已归位（R052）**：主代理确认性能基线属 T052 的 macOS 范围，现已在任务表把它并入 T052
+      并在 §7.2/§7.5 逐项落表；本记录保留原样以留下当时的判断依据。
     提交/差异范围：提交 "T050: performance baseline measurement on 50k-article dataset (macOS, debug)"；
       基线为 T049 的提交（110d9ca）。未 push
     下一可执行任务及前置条件：T051（全设置审计与中英/浅深/可访问性）与 T052（性能/资源/安全
@@ -4627,6 +4761,57 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
 ### 7.4 产品决定变更记录
 
 初始 D-01–D-15 见架构说明书；本轮采用后项审阅意见，将跨块选词/桌面分页放入 M6。以后变更记录：日期、原规则、新规则、批准来源、受影响任务/设置/README。API 字段或依赖版本属于实现验证，不得用它们反向改写用户已经批准的产品边界。
+
+### 7.5 平台验收矩阵（T052）
+
+本表是 T052 的验收落表。口径按手册 6.4：逐项 PASS / FAIL / NOT_RUN / N/A，**未批准阈值不可写通过**；无硬件或需人工操作的项目记 NOT_RUN，不冒充通过。
+
+设备：macOS 27.0 (26A428) / Apple M4 / 16 GiB / arm64；Flutter 3.47.0 / Dart 3.13.0。
+数据集（固定，架构第 8 节）：100 订阅 / 50001 文章 / 100000 字符长文。
+
+| 验收项 | macOS | Android | 证据 / 口径 |
+| --- | --- | --- | --- |
+| 冷启动到首帧 | PASS（记录值，无阈值） | NOT_RUN | debug 498 ms（T050）；**profile 113 ms**（§7.2，`build/t052_perf_frames.json`） |
+| 列表首批 100 条读取 | PASS（记录值） | NOT_RUN | debug P95 16.0 ms（T050，`build/perf_baseline.json`） |
+| 搜索 P95（FTS） | PASS（远低于「P95 < 1 s」初始目标） | NOT_RUN | debug：常见词 54.4 ms / 稀有词 26.3 ms / 单字 21.2 ms（T050）。**Android 侧的 trigram tokenizer 是否存在未验证**（R022 同一条） |
+| 稳态滚动帧（多数帧 16.7ms 内） | **FAIL**（未达标，如实记录） | NOT_RUN | debug P50 23.2 ms（28/40 超预算，T050）→ **profile P50 9.34 ms、16/61 帧超预算**（§7.2）。profile 已接近但仍未达标；Android 完全未测 |
+| 滚动到底加载下一批 | FAIL（超出单帧预算） | NOT_RUN | debug P50 159.6 ms → **profile P50 61.0 ms**（含一次数据库读取 + 100 行构建）。可感知但非持续；修法（分批构建）属阈值审批之后 |
+| 包体积 | PASS（记录值，无阈值） | NOT_RUN | **Release .app 31 MB**；debug 143 MB、profile 43.5 MB（T052 实测）。非签名包，不代表可分发体积 |
+| 内存（峰值 RSS） | PASS（记录值） | NOT_RUN | debug 峰值 391 MiB（T050）。**静置/阅读分项未单独采样**（只有进程峰值），记缺口 |
+| FTS 索引占用 | PASS（记录值） | NOT_RUN | 71.2 MB（dbstat，T050） |
+| 能耗 | **NOT_RUN** | NOT_RUN | macOS 无公开能耗 API；不用推断值顶替 |
+| 虚拟化有效性（帧耗时与已加载量无关） | PASS | NOT_RUN | debug：6 轮顶部 P50 9.71 → 8.02 ms（不随加载增长）；且断言「已加载 100 条时构建的卡片 < 60」 |
+| 无 WebView / 无浏览器运行时 | PASS | PASS（结构性，与平台无关） | 依赖面核对：无 webview 类依赖；数学自绘（flutter_math_fork）、Markdown 只用解析器（`docs/THIRD-PARTY-NOTICES.md` 的取舍小节） |
+| 无无限重试 | PASS | PASS（结构性） | 重试策略由用例覆盖（T016/T029 的五次与十分钟规则）；本任务无新增网络路径 |
+| 无秘密泄露 | PASS | PASS（结构性） | 诊断导出与脱敏由 R048/T010 覆盖；本任务新增的第三方声明**不含任何凭据**，只含包名/版本/许可证 |
+| 菜单栏（macOS 原生菜单） | PASS | N/A | T052 交付：文件/视图/帮助最小集；10 条菜单测试（结构 + 动作真实落地 + 英文界面不残留中文） |
+| 窗口标题 | PASS | N/A | 取自 CFBundleName；修掉 xib 模板占位符 `APP_NAME`（此前构建产物实际显示该字符串，已在 MainMenu.nib 用 strings 核实 6 处） |
+| 图标小尺寸辨识（16px） | PASS | NOT_RUN | 28 个 SVG 的 16px 位图断言 + 16/20/24 三档 golden；四个实测不成立的图标已重绘（T051 / R051） |
+| 应用图标（全尺寸） | PASS | NOT_RUN | 原创设计源 + 七个尺寸 AppIcon；已在构建产物的 AppIcon.icns 中核实（T051 / R051） |
+| 第三方许可证声明 | PASS | PASS（与平台无关） | `docs/THIRD-PARTY-NOTICES.md` 由脚本从 pubspec.lock 生成；测试断言与 lock 一致（T051 / R051） |
+| 减少动态效果（SET-014）跟随系统 | PASS | NOT_RUN | T049 的合成规则 + T052 复核：system 档不覆盖 MediaQuery（保留对系统设置的后续响应），复核结论见 §7.5.1 第 4 条 |
+| VoiceOver 真实人工走查 | **NOT_RUN** | NOT_RUN | 需人工操作系统设置与读屏；语义树由测试断言覆盖（T049），但**不冒充**真机走查 |
+| 输入法（IME）专项 | **NOT_RUN** | NOT_RUN | 需人工在不同输入法下操作；本机未做 |
+| 窗口权限 / Keychain 复测 | NOT_RUN | NOT_RUN | Keychain 往返在 T010 有 integration_test 证据；本任务未复测 |
+| 后台生命周期（切后台/锁屏） | NOT_RUN | NOT_RUN | macOS 无「应用退出后继续同步」的保证（与 T040 同口径）；未做专项走查 |
+| Android 全部验收 | N/A | **NOT_RUN** | android/ 工程未初始化、无设备、无 SDK 核对；**不冒充通过** |
+
+#### 7.5.1 T052 的复核结论
+
+1. **滚动帧的 debug 数字会误导**。debug P50 23.2 ms 看起来「明显不达标」，但 profile 下是 9.34 ms。
+   这不是「做过了优化」，而是 debug 构建本身的成本（assert、JIT 代码路径、无 AOT）。
+   因此**任何性能结论都必须标注构建类型**；本表与 §7.2 逐项标注。
+2. **profile 仍未完全达标**：61 帧里 16 帧超过 16.7 ms（约 26%）。按 6.4 记 FAIL 而不是 PASS。
+   剩余超出集中在列表项构建（卡片含 SVG 图标与多段文本）；修法（减少首帧构建量、图标预解码）
+   应在阈值获批后按数据决定，本任务不做无依据的优化。
+3. **加载下一批那一帧（61 ms P50）是真实的可感知卡顿**：它在用户滚到底时发生，且包含一次
+   数据库读取。与稳态帧分开报告，因为两者修法不同。
+4. **SET-014 的复核**：MotionScope 在 system 档下**不包一层 MediaQuery**（直接返回子树），
+   因此系统后续改变「减少动态效果」时子树仍会响应。若改成「覆盖成与系统相同的值」，
+   会在那一瞬间把 MediaQueryData 固定成快照，用户之后改系统设置就不生效了——这条约束写在
+   motion_scope.dart 的注释里，并由 T049 的用例钉住。
+5. **能耗、VoiceOver、IME 未测**：都需要人工或系统级工具，如实记 NOT_RUN，不用推断值或
+   「应该没问题」顶替。
 
 ## 8. 给新会话的启动提示
 

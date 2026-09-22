@@ -25,6 +25,7 @@ import 'package:flux/l10n/l10n.dart';
 import 'shell/app_shell.dart';
 import 'shell/app_shortcuts.dart';
 import 'shell/app_destination.dart';
+import 'shell/flux_menu_bar.dart';
 import 'theme/flux_theme.dart';
 
 /// 应用根组件。
@@ -91,8 +92,11 @@ class FluxApp extends ConsumerWidget {
       // SET-014（减少动态效果）：放在 builder 里，覆盖范围是**路由及其后代的一切**
       // ——页面、对话框、菜单、SnackBar 都在这个 MediaQuery 之下，因此框架的路由转场
       // 与 Material 控件的动画都会读到同一个取值。
-      builder: (BuildContext context, Widget? child) =>
-          MotionScope(child: child ?? const SizedBox.shrink()),
+      // T052：macOS 原生菜单栏包在最外层。它不渲染任何东西，只把菜单描述发给平台；
+      // 放在这里意味着菜单对「当前在哪个页面」无感（菜单项是应用级动作）。
+      builder: (BuildContext context, Widget? child) => FluxMenuBar(
+        child: MotionScope(child: child ?? const SizedBox.shrink()),
+      ),
       home: _rootPage(onboarding),
     );
   }

@@ -218,8 +218,10 @@ void main() {
       // 正文选区菜单的在库检索与翻译（3）、列表项菜单的彻底删除与回执（2）、
       // 外部打开原文与地址缺失提示（2）、图片占位读屏标签（1）、
       // SET-014 减少动态效果的标题/编号/说明与三个取值（8）：989 + 31 = 1020。
-      expect(_messageKeys(zh).length, 1020);
-      expect(_messageKeys(en).length, 1020);
+      // T052 新增 6 条 macOS 菜单栏文案（三个顶层菜单：文件/视图/帮助，加上刷新
+      // 订阅、设置…、主题子菜单）：1020 + 6 = 1026。
+      expect(_messageKeys(zh).length, 1026);
+      expect(_messageKeys(en).length, 1026);
     });
 
     test('T012 共享控件文案齐备（三态、收藏、加精、控件状态）', () {

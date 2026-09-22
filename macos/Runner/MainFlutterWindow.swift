@@ -20,6 +20,19 @@ class MainFlutterWindow: NSWindow {
     // 关掉它，代码设置的默认尺寸才是真正生效的那个。
     self.isRestorable = false
 
+    // 窗口标题（T052）。
+    //
+    // 背景：模板 MainMenu.xib 里的标题写的是占位符字面量 `APP_NAME`，而 flutter
+    // 工具只在**测试环境**（flutter_test 的 flutter_tester 进程）替换这个占位符，
+    // 打包时并不替换。因此 T052 之前构建出来的应用，菜单栏与窗口标题实际显示的是
+    // 「APP_NAME」这七个字母（已在编译后的 MainMenu.nib 里用 strings 核实）。
+    // 这里显式设置标题，使它与 PRODUCT_NAME / Info.plist 的 CFBundleName 一致，
+    // 而不是依赖 nib 的静态字符串；xib 里的占位符也已同步改成 Flux。
+    //
+    // 中文界面下不改标题：两种语言的应用名都是「Flux」（见 l10n 的 appName），
+    // 所以这里没有需要本地化的内容。
+    self.title = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Flux"
+
     // 默认窗口尺寸（T011）：阅读器在宽窗下才有意义（架构第 7 节：>=1100 三栏）。
     // 取 1200×800 —— 内容区扣掉侧边导航后仍 >=1100，三栏布局可用；在
     // 1920×1080 屏幕上也不会被系统挤到屏幕外。这只是默认值，用户可自由缩放。

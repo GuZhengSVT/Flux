@@ -3802,4 +3802,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readingSourceUrlMissing =>
       'This article has no original URL to open.';
+
+  @override
+  String get menuFile => 'File';
+
+  @override
+  String get menuView => 'View';
+
+  @override
+  String get menuHelp => 'Help';
+
+  @override
+  String get menuRefresh => 'Refresh Feeds';
+
+  @override
+  String get menuSettings => 'Settings…';
+
+  @override
+  String get menuTheme => 'Theme';
 }

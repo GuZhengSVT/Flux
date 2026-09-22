@@ -6275,6 +6275,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'这篇文章没有可用的原文地址。'**
   String get readingSourceUrlMissing;
+
+  /// macOS 菜单栏：文件菜单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'文件'**
+  String get menuFile;
+
+  /// macOS 菜单栏：视图菜单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'视图'**
+  String get menuView;
+
+  /// macOS 菜单栏：帮助菜单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'帮助'**
+  String get menuHelp;
+
+  /// macOS 菜单栏：文件 → 刷新（Cmd+R）
+  ///
+  /// In zh, this message translates to:
+  /// **'刷新订阅'**
+  String get menuRefresh;
+
+  /// macOS 菜单栏：文件 → 设置（Cmd+,）
+  ///
+  /// In zh, this message translates to:
+  /// **'设置…'**
+  String get menuSettings;
+
+  /// macOS 菜单栏：视图 → 主题子菜单标题
+  ///
+  /// In zh, this message translates to:
+  /// **'主题'**
+  String get menuTheme;
 }
 
 class _AppLocalizationsDelegate

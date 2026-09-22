@@ -3897,5 +3897,30 @@
   "readingOpenOriginal": "用浏览器打开原文",
   "@readingOpenOriginal": {"description": "列表项菜单：外部打开原文"},
   "readingSourceUrlMissing": "这篇文章没有可用的原文地址。",
-  "@readingSourceUrlMissing": {"description": "原文地址缺失提示"}
+  "@readingSourceUrlMissing": {"description": "原文地址缺失提示"},
+  "menuFile": "文件",
+  "@menuFile": {
+    "description": "macOS 菜单栏：文件菜单标题"
+  },
+  "menuView": "视图",
+  "@menuView": {
+    "description": "macOS 菜单栏：视图菜单标题"
+  },
+  "menuHelp": "帮助",
+  "@menuHelp": {
+    "description": "macOS 菜单栏：帮助菜单标题"
+  },
+  "menuRefresh": "刷新订阅",
+  "@menuRefresh": {
+    "description": "macOS 菜单栏：文件 → 刷新（Cmd+R）"
+  },
+  "menuSettings": "设置…",
+  "@menuSettings": {
+    "description": "macOS 菜单栏：文件 → 设置（Cmd+,）"
+  },
+  "menuTheme": "主题",
+  "@menuTheme": {
+    "description": "macOS 菜单栏：视图 → 主题子菜单标题"
+  }
+
 }

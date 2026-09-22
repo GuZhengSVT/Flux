@@ -3615,4 +3615,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingSourceUrlMissing => '这篇文章没有可用的原文地址。';
+
+  @override
+  String get menuFile => '文件';
+
+  @override
+  String get menuView => '视图';
+
+  @override
+  String get menuHelp => '帮助';
+
+  @override
+  String get menuRefresh => '刷新订阅';
+
+  @override
+  String get menuSettings => '设置…';
+
+  @override
+  String get menuTheme => '主题';
 }

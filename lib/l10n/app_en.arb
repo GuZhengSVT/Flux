@@ -2456,5 +2456,12 @@
   "readingOpenOriginal": "Open original in browser",
   "@readingOpenOriginal": {"description": "列表项菜单：外部打开原文"},
   "readingSourceUrlMissing": "This article has no original URL to open.",
-  "@readingSourceUrlMissing": {"description": "原文地址缺失提示"}
+  "@readingSourceUrlMissing": {"description": "原文地址缺失提示"},
+  "menuFile": "File",
+  "menuView": "View",
+  "menuHelp": "Help",
+  "menuRefresh": "Refresh Feeds",
+  "menuSettings": "Settings…",
+  "menuTheme": "Theme"
+
 }
