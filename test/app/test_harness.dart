@@ -32,9 +32,12 @@ import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/features/sync/application/backup_use_case.dart';
 import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/features/settings/application/cleanup_ports.dart';
+import 'package:flux/features/settings/application/maintenance_ports.dart';
+import 'package:flux/features/feeds/application/file_access.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import 'fake_article_image_loader.dart';
+import 'fake_media_cache_port.dart';
 
 /// 一个测试用的装配结果，绑定到内存数据库。
 final class TestBootstrap {
@@ -128,6 +131,10 @@ final class TestBootstrap {
     StorageCleanupStore? storageCleanupStore,
     MediaCachePort? mediaCachePort,
     SnapshotGcPort? snapshotGcPort,
+    // T048：恢复编排与诊断导出（理由同上）。
+    RestoreOrchestrationPort? restoreOrchestrationPort,
+    DiagnosticsExportSource? diagnosticsExportSource,
+    FileAccessPort? fileAccessPort,
   }) {
     return bootstrapOverrides(
       AppBootstrapResult(
@@ -164,8 +171,14 @@ final class TestBootstrap {
       backupUseCase: backupUseCase,
       backupNewDirectory: backupNewDirectory,
       storageCleanupStore: storageCleanupStore,
-      mediaCachePort: mediaCachePort,
+      // 组件层默认用**内存**媒体端口：真实实现做文件 I/O，而 `testWidgets` 的 FakeAsync 区域
+      // 里异步文件操作永远不会完成（表现为 `pumpAndSettle` 超时）。真实文件行为由用例层的
+      // cleanup_test 在真实临时目录上覆盖。
+      mediaCachePort: mediaCachePort ?? FakeMediaCachePort(),
       snapshotGcPort: snapshotGcPort,
+      restoreOrchestrationPort: restoreOrchestrationPort,
+      diagnosticsExportSource: diagnosticsExportSource,
+      fileAccessPort: fileAccessPort,
       // 默认注入一个**不联网**的图片加载器：绝大多数用例（golden、列表、阅读器）
       // 并不关心图片字节，但它们会挂载真实的图片位控件。不注入的话，每个用例都会
       // 走真实的 DNS 解析 + HTTP 请求（在 www.example.com 这类地址上等待超时），

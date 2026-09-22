@@ -277,6 +277,43 @@ void main() {
     });
   });
 
+  group('T047/T048 入口', () {
+    testWidgets('存储与清理、诊断与恢复两个入口都能进入各自的真实页面', (WidgetTester tester) async {
+      final TestBootstrap bootstrap = TestBootstrap();
+      addTearDown(bootstrap.dispose);
+      await setSurfaceSize(tester, const Size(1200, 3000));
+      await bootstrap.seedLanguage('zh-Hans');
+
+      await tester.pumpWidget(wrapWrap(bootstrap));
+      await tester.pumpAndSettle();
+
+      // 两条入口都在列表里，且不是「即将推出」的禁用占位行。
+      expect(find.text('存储与清理'), findsWidgets);
+      expect(find.text('诊断与恢复'), findsWidgets);
+
+      // 进入存储页：占用分类小节与自动清理开关都在。
+      await tester.tap(find.text('存储与清理').first);
+      await tester.pumpAndSettle();
+      expect(find.text('占用分类'), findsOneWidget);
+      expect(find.text('一键清缓存'), findsOneWidget);
+      expect(find.text('自动清理'), findsWidgets);
+
+      // 返回后进入诊断页：导出入口与恢复编排小节都在。
+      // 用 Navigator 直接返回：AppBar 的返回按钮在测试环境的 Material/Cupertino 判定下
+      // 不一定是 `pageBack()` 期待的那一种控件，而这里要验的是「两个入口都通往真实页面」。
+      final NavigatorState navigator = tester.state<NavigatorState>(
+        find.byType(Navigator),
+      );
+      navigator.pop();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('诊断与恢复').first);
+      await tester.pumpAndSettle();
+      expect(find.text('导出诊断包'), findsOneWidget);
+      expect(find.text('恢复编排'), findsOneWidget);
+      expect(find.textContaining('不含'), findsWidgets);
+    });
+  });
+
   group('关于区', () {
     testWidgets('显示版本、MIT 与核实过的仓库地址', (WidgetTester tester) async {
       final TestBootstrap bootstrap = TestBootstrap();

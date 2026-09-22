@@ -3585,4 +3585,111 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return 'Permanently deleted: $citations citations, $translations translations, $sessions sessions, $media cached images.';
   }
+
+  @override
+  String get settingsDiagnosticsEntryTitle => 'Diagnostics & recovery';
+
+  @override
+  String get settingsDiagnosticsEntrySubtitle =>
+      'Export a sanitized diagnostics bundle and inspect restore orchestration';
+
+  @override
+  String get diagnosticsPageTitle => 'Diagnostics & recovery';
+
+  @override
+  String get diagnosticsSectionExport => 'Export diagnostics';
+
+  @override
+  String get diagnosticsExportNotice =>
+      'The bundle contains system information (OS and Dart versions, architecture, locale and theme), storage statistics, a sync status summary and already-sanitized logs. It does **not** contain article text, AI inputs or prompts, keys or subscription addresses.';
+
+  @override
+  String get diagnosticsExportConfirmTitle => 'Export sanitized diagnostics';
+
+  @override
+  String get diagnosticsExportConfirmBody =>
+      'The content is limited by an allowlist and has been sanitized twice; it contains no article text, prompts or credentials. Please still treat it as internal material.';
+
+  @override
+  String get diagnosticsExportConfirmAction => 'Export';
+
+  @override
+  String get diagnosticsExportAction => 'Export diagnostics…';
+
+  @override
+  String diagnosticsExportDone(int fields, int logEntries, String size) {
+    return 'Exported $fields fields and $logEntries log lines ($size).';
+  }
+
+  @override
+  String diagnosticsExportFailed(String reason) {
+    return 'Export failed: $reason';
+  }
+
+  @override
+  String diagnosticsExportPath(String path) {
+    return 'Saved to: $path';
+  }
+
+  @override
+  String get diagnosticsSectionRestore => 'Restore orchestration';
+
+  @override
+  String get diagnosticsRestoreIdle =>
+      'No restore is waiting to be orchestrated. Restoring into a new directory takes effect after restarting the app.';
+
+  @override
+  String get diagnosticsRestorePending =>
+      'Restored into a new directory and verified; this takes effect after restarting the app. Your current data directory is still the original one and remains fully usable until then.';
+
+  @override
+  String get diagnosticsRestoreSwitched =>
+      'The restore is in effect. The previous data directory is still on disk; delete it once you have confirmed everything.';
+
+  @override
+  String diagnosticsRestoreSuperseded(String path) {
+    return 'Previous data directory: $path';
+  }
+
+  @override
+  String diagnosticsRestoreRestored(String path) {
+    return 'Restored data directory: $path';
+  }
+
+  @override
+  String get diagnosticsRestoreCleanupAction =>
+      'Delete the previous data directory';
+
+  @override
+  String get diagnosticsRestoreCleanupConfirmTitle =>
+      'Delete the previous data directory';
+
+  @override
+  String get diagnosticsRestoreCleanupConfirmBody =>
+      'This permanently deletes the superseded data directory (the data from before the restore). The data currently in use is not affected.';
+
+  @override
+  String get diagnosticsRestoreCleanupDone =>
+      'The previous data directory was deleted.';
+
+  @override
+  String get diagnosticsRestoreAbandonAction => 'Abandon this restore';
+
+  @override
+  String get diagnosticsRestoreAbandonDone =>
+      'This restore was abandoned. The restored directory is left on disk and was not deleted.';
+
+  @override
+  String diagnosticsRestoreFailure(String reason) {
+    return 'The last restore orchestration did not finish: $reason. Your current data directory was not modified and remains usable.';
+  }
+
+  @override
+  String get diagnosticsRestoreRolledBack =>
+      'The last restore switch failed and rolled back to the original data directory.';
+
+  @override
+  String diagnosticsFailed(String reason) {
+    return 'Operation failed: $reason';
+  }
 }

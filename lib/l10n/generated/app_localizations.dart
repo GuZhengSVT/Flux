@@ -5922,6 +5922,168 @@ abstract class AppLocalizations {
     int sessions,
     int media,
   );
+
+  /// 设置页诊断入口标题（T048）
+  ///
+  /// In zh, this message translates to:
+  /// **'诊断与恢复'**
+  String get settingsDiagnosticsEntryTitle;
+
+  /// 设置页诊断入口说明
+  ///
+  /// In zh, this message translates to:
+  /// **'导出脱敏诊断包、查看恢复编排状态'**
+  String get settingsDiagnosticsEntrySubtitle;
+
+  /// 诊断页标题
+  ///
+  /// In zh, this message translates to:
+  /// **'诊断与恢复'**
+  String get diagnosticsPageTitle;
+
+  /// 导出小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导出诊断包'**
+  String get diagnosticsSectionExport;
+
+  /// 诊断包内容与排除项说明（架构第 8 节）
+  ///
+  /// In zh, this message translates to:
+  /// **'诊断包包含系统信息（系统与 Dart 版本、架构、语言与主题）、存储统计、同步状态摘要与已脱敏的日志。**不含**文章原文、AI 输入与 prompt、密钥与订阅地址。'**
+  String get diagnosticsExportNotice;
+
+  /// 导出确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'导出脱敏诊断包'**
+  String get diagnosticsExportConfirmTitle;
+
+  /// 导出确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'导出内容已由白名单限定并经过两层脱敏，不含原文、prompt 与凭据。请仍按内部资料处理。'**
+  String get diagnosticsExportConfirmBody;
+
+  /// 导出确认按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'导出'**
+  String get diagnosticsExportConfirmAction;
+
+  /// 导出按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'导出诊断包…'**
+  String get diagnosticsExportAction;
+
+  /// 导出回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已导出 {fields} 个字段、{logEntries} 条日志（{size}）。'**
+  String diagnosticsExportDone(int fields, int logEntries, String size);
+
+  /// 导出失败
+  ///
+  /// In zh, this message translates to:
+  /// **'导出失败：{reason}'**
+  String diagnosticsExportFailed(String reason);
+
+  /// 保存路径
+  ///
+  /// In zh, this message translates to:
+  /// **'已保存到：{path}'**
+  String diagnosticsExportPath(String path);
+
+  /// 恢复编排小节标题
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复编排'**
+  String get diagnosticsSectionRestore;
+
+  /// 无待编排恢复
+  ///
+  /// In zh, this message translates to:
+  /// **'没有待编排的恢复。恢复到新目录后需要重启应用才能生效。'**
+  String get diagnosticsRestoreIdle;
+
+  /// 待重启切换
+  ///
+  /// In zh, this message translates to:
+  /// **'已恢复到新目录并通过校验，**重启应用后生效**。当前数据目录仍是原来的那一份，重启前可以正常使用。'**
+  String get diagnosticsRestorePending;
+
+  /// 已切换（待清理旧目录）
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复已生效。旧数据目录仍在原处，确认无误后可以删除它。'**
+  String get diagnosticsRestoreSwitched;
+
+  /// 旧数据目录路径
+  ///
+  /// In zh, this message translates to:
+  /// **'旧数据目录：{path}'**
+  String diagnosticsRestoreSuperseded(String path);
+
+  /// 恢复出的目录路径
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复出的数据目录：{path}'**
+  String diagnosticsRestoreRestored(String path);
+
+  /// 清理旧目录按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'删除旧数据目录'**
+  String get diagnosticsRestoreCleanupAction;
+
+  /// 清理确认标题
+  ///
+  /// In zh, this message translates to:
+  /// **'删除旧数据目录'**
+  String get diagnosticsRestoreCleanupConfirmTitle;
+
+  /// 清理确认正文
+  ///
+  /// In zh, this message translates to:
+  /// **'将永久删除被顶替的旧数据目录（里面是恢复前的数据）。当前正在使用的数据不受影响。'**
+  String get diagnosticsRestoreCleanupConfirmBody;
+
+  /// 清理完成
+  ///
+  /// In zh, this message translates to:
+  /// **'已删除旧数据目录。'**
+  String get diagnosticsRestoreCleanupDone;
+
+  /// 放弃恢复按钮
+  ///
+  /// In zh, this message translates to:
+  /// **'放弃这次恢复'**
+  String get diagnosticsRestoreAbandonAction;
+
+  /// 放弃恢复回执
+  ///
+  /// In zh, this message translates to:
+  /// **'已放弃这次恢复。恢复出来的目录仍保留在磁盘上，未删除。'**
+  String get diagnosticsRestoreAbandonDone;
+
+  /// 编排失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'上次恢复编排未完成：{reason}。当前数据目录未被改动，可以继续使用。'**
+  String diagnosticsRestoreFailure(String reason);
+
+  /// 切换回退提示
+  ///
+  /// In zh, this message translates to:
+  /// **'上次恢复切换失败，已自动回退到原来的数据目录。'**
+  String get diagnosticsRestoreRolledBack;
+
+  /// 诊断页失败提示
+  ///
+  /// In zh, this message translates to:
+  /// **'操作失败：{reason}'**
+  String diagnosticsFailed(String reason);
 }
 
 class _AppLocalizationsDelegate

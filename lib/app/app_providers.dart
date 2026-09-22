@@ -20,8 +20,10 @@ import 'dart:io';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'package:path/path.dart' as p;
+import 'package:drift/drift.dart' show QueryRow;
 
 import 'package:flux/core/core.dart';
+import 'package:flux/core/app_metadata.dart';
 import 'package:flux/features/articles/application/article_ports.dart';
 import 'package:flux/features/ai/application/ai_ports.dart';
 import 'package:flux/features/ai/application/ai_task_budget.dart';
@@ -121,6 +123,9 @@ import 'package:flux/features/sync/application/sync_settings.dart';
 import 'package:flux/infrastructure/local/backup_content_source.dart';
 import 'package:flux/infrastructure/local/degraded_backup_source.dart';
 import 'package:flux/features/settings/application/cleanup_ports.dart';
+import 'package:flux/features/settings/application/maintenance_ports.dart';
+import 'package:flux/infrastructure/local/diagnostics_export_source.dart';
+import 'package:flux/infrastructure/local/restore_orchestration_store.dart';
 import 'package:flux/infrastructure/local/degraded_storage_cleanup_store.dart';
 import 'package:flux/infrastructure/local/media_cache_port_adapter.dart';
 import 'package:flux/infrastructure/local/storage_cleanup_store.dart';
@@ -234,6 +239,13 @@ List<Override> bootstrapOverrides(
   StorageCleanupStore? storageCleanupStore,
   MediaCachePort? mediaCachePort,
   SnapshotGcPort? snapshotGcPort,
+  // T048：恢复编排与诊断导出（理由同上：Riverpod 禁止重复覆盖）。测试据此构造「切换失败要回退」
+  // 「诊断包内容」这些需要受控文件系统行为的世界。
+  RestoreOrchestrationPort? restoreOrchestrationPort,
+  DiagnosticsExportSource? diagnosticsExportSource,
+  // T048：文件端口也参数化（理由同上：Riverpod 禁止重复覆盖）。测试据此让诊断导出写到内存，
+  // 而不弹系统保存面板。
+  FileAccessPort? fileAccessPort,
 }) {
   _restoreDirectoryBase = result.dataDirectoryPath;
   return <Override>[
@@ -296,7 +308,9 @@ List<Override> bootstrapOverrides(
     // 与数据库无关（它只需要系统文件面板），因此两种启动状态下都给真实实现：
     // 降级模式下仍可导出当前（可能为空的）清单、仍可读文件做预览，只有入库会
     // 因存储失败而明确报错。
-    fileAccessProvider.overrideWithValue(const FileSelectorAccess()),
+    fileAccessProvider.overrideWithValue(
+      fileAccessPort ?? const FileSelectorAccess(),
+    ),
     // ---- T020：正文的平台动作（外开 / 图片保存 / 系统分享 / 去设置） --------------
     // 四个端口都与数据库无关，因此两种启动状态下都给真实实现：降级模式只是不持久化
     // 数据，打开浏览器、保存一张图、弹出分享面板都不需要数据库。
@@ -379,6 +393,88 @@ List<Override> bootstrapOverrides(
     // 远端快照 GC：**未配置同步时不提供实现**（null）。这不是降级，而是「没有远端可回收」
     // 这一真实状态；给它一个抛错的实现会让设置页一打开就报一条与用户无关的错误。
     snapshotGcPortProvider.overrideWithValue(snapshotGcPort),
+    // ---- T048：恢复编排与诊断导出 ----------------------------------------
+    // 编排端口给**真实的数据目录**（它是「恢复标记在哪、数据目录叫什么」的唯一来源）；
+    // 结果写入 restoreActionProvider，界面据此展示启动结论（而不是重读标记——重读会带上
+    // 「清掉残留 cleaned 标记」这类副作用，见该 Provider 的说明）。
+    restoreOrchestrationPortProvider.overrideWithValue(
+      restoreOrchestrationPort ??
+          FileRestoreOrchestrationStore(
+            dataDirectoryPath: result.dataDirectoryPath,
+            diagnostics: DiagnosticLogSink(result.diagnosticLog),
+          ),
+    ),
+    diagnosticsExportSourceProvider.overrideWithValue(
+      diagnosticsExportSource ??
+          LocalDiagnosticsExportSource(
+            log: result.diagnosticLog,
+            appVersion: fluxAppVersion,
+            // 同步摘要走 T044 的窄读取端口（它本来就只读本机状态、不发任何网络请求）。
+            syncSummary: result.database == null
+                ? null
+                : DriftSyncStatusReader(result.database!).read,
+            cleanupStore: result.database == null
+                ? null
+                : DriftStorageCleanupStore(
+                    result.database!,
+                    databaseFiles: <String>[
+                      for (final String name in <String>[
+                        fluxDatabaseFileName,
+                        '$fluxDatabaseFileName-wal',
+                        '$fluxDatabaseFileName-shm',
+                      ])
+                        if (result.dataDirectoryPath case final String dir)
+                          p.join(dir, name),
+                    ],
+                    mediaDirectoryPath: result.mediaCacheDirectory?.path,
+                  ),
+            mediaCache:
+                mediaCachePort ??
+                ImageCacheMediaPort(
+                  ImageCacheService(
+                    root:
+                        result.mediaCacheDirectory ??
+                        Directory(
+                          p.join(Directory.systemTemp.path, 'flux-media'),
+                        ),
+                    limitMiB: _set080DefaultMiB,
+                  ),
+                ),
+            // 订阅与文章数走一条**只读计数**查询（不读任何标题或正文）。
+            counts: result.database == null
+                ? null
+                : () async {
+                    final AppDatabase db = result.database!;
+                    final QueryRow feeds = await db
+                        .customSelect('SELECT COUNT(*) AS c FROM feeds')
+                        .getSingle();
+                    final QueryRow articles = await db
+                        .customSelect('SELECT COUNT(*) AS c FROM articles')
+                        .getSingle();
+                    return (
+                      feeds: feeds.read<int>('c'),
+                      articles: articles.read<int>('c'),
+                    );
+                  },
+            environment: DiagnosticsEnvironment.current(),
+            // 语言与主题取**有效值**（读不到时如实报 unavailable，不填占位字符串）。
+            settingsSummary: () async {
+              final Result<Map<String, Object?>> effective = await result
+                  .settingsStore
+                  .readEffectiveSettings();
+              if (effective.isErr) {
+                return (locale: 'unavailable', themeMode: 'unavailable');
+              }
+              final Map<String, Object?> values = effective.unwrap();
+              return (
+                locale: values['SET-001']?.toString() ?? 'unavailable',
+                themeMode: values['SET-002']?.toString() ?? 'unavailable',
+              );
+            },
+            dataDirectoryPresent: result.dataDirectoryPath != null,
+            mediaLimitMiB: _set080DefaultMiB,
+          ),
+    ),
     if (result.database case final AppDatabase catalogDatabase) ...<Override>[
       feedCatalogProvider.overrideWithValue(
         DriftFeedCatalogStore(catalogDatabase),

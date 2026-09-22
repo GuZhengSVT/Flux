@@ -29,7 +29,9 @@ import 'package:flux/infrastructure/local/ai_task_store.dart';
 import 'package:flux/infrastructure/local/device_state_repository.dart';
 import 'package:flux/infrastructure/local/diagnostics.dart';
 import 'package:flux/infrastructure/local/feed_store_adapter.dart';
+import 'package:flux/infrastructure/local/restore_orchestration_store.dart';
 import 'package:flux/infrastructure/local/settings_repository.dart';
+import 'package:flux/features/settings/application/restore_orchestrator.dart';
 import 'package:flux/infrastructure/platform/credential_store.dart';
 import 'package:flux/infrastructure/platform/keychain_store.dart';
 
@@ -52,6 +54,8 @@ final class AppBootstrapResult {
     required this.dataDirectoryPath,
     this.mediaCacheDirectory,
     this.interruptedTaskCount = 0,
+    this.restoreAction = RestoreAction.nothingToDo,
+    this.restoreFailureKind,
   });
 
   /// 已打开的数据库；启动失败时为 null。
@@ -88,6 +92,15 @@ final class AppBootstrapResult {
   /// （正常情况，不需要任何提示）。
   final int interruptedTaskCount;
 
+  /// 本次启动的恢复编排结论（T048）。
+  ///
+  /// 为什么带到装配结果里：用户需要在重启后看到「刚才那次恢复到底生效了没有」。默认
+  /// [RestoreAction.nothingToDo] 表示本次启动没有待编排的恢复（绝大多数启动都是这样）。
+  final RestoreAction restoreAction;
+
+  /// 恢复编排失败的原因（稳定类别名）；成功或无事可做时为 null。
+  final String? restoreFailureKind;
+
   /// 数据库是否不可用（界面据此显示「本次运行不保存改动」）。
   bool get isDegraded => database == null;
 
@@ -118,16 +131,55 @@ Future<AppBootstrapResult> bootstrapApp({
     }
   }
 
-  // ---- 2. 诊断日志（先建，后面的步骤才能记日志） --------------------------
+  // ---- 1b. 恢复编排（T048） ----------------------------------------------
+  //
+  // **必须在打开数据库之前**：T046 恢复到新目录后写了 pendingRestart 标记，而切换是一个目录
+  // 改名动作。若先打开旧库建好连接再改名，数据库文件会在使用中被搬动（WAL 与连接状态一起
+  // 错位），而这正是「数据目录切换原子完成」要避免的事。
+  //
+  // 装配阶段还没建日志文件 sink（它写在数据目录里，而数据目录可能正要被换掉），因此这里用
+  // 纯内存日志记录编排结论；随后步骤 2 建 sink 时会保留这些条目（同一个 DiagnosticLog 实例）。
   DiagnosticLog diagnostics = DiagnosticLog();
+  RestoreAction restoreAction = RestoreAction.nothingToDo;
+  String? restoreFailureKind;
+  if (dataDirectory != null) {
+    final RestoreOrchestrator orchestrator = RestoreOrchestrator(
+      port: FileRestoreOrchestrationStore(
+        dataDirectoryPath: dataDirectory.path,
+        diagnostics: DiagnosticLogSink(diagnostics),
+      ),
+      diagnostics: DiagnosticLogSink(diagnostics),
+    );
+    final Result<RestoreAction> orchestrated = await orchestrator
+        .runOnStartup();
+    if (orchestrated.isOk) {
+      restoreAction = orchestrated.unwrap();
+      if (restoreAction == RestoreAction.dropMarkerAndReport) {
+        restoreFailureKind = 'restoredUnusable';
+      }
+      // 切换成功后**数据目录本身已经指向新位置**（新目录被改名成原数据目录的路径），因此这里
+      // 的 `dataDirectory` 变量仍然有效——切换保留的是「路径」而不是「inode」。
+    } else {
+      restoreFailureKind = orchestrated.errorOrNull!.kind;
+      diagnostics.error('恢复编排失败：$restoreFailureKind', tag: 'bootstrap');
+    }
+  }
+
+  // ---- 2. 诊断日志（先建，后面的步骤才能记日志） --------------------------
   if (enableFileLog && dataDirectory != null) {
     try {
       await dataDirectory.create(recursive: true);
-      diagnostics = DiagnosticLog(
+      // 保留编排阶段已经写入的内存条目：把 DiagnosticLog 换成带 sink 的新实例，但把旧条目
+      // 搬过去，否则「恢复编排做了什么」在诊断包里会凭空消失。
+      final DiagnosticLog withFile = DiagnosticLog(
         fileSink: FileDiagnosticSink(
           file: File(p.join(dataDirectory.path, fluxDiagnosticLogFileName)),
         ),
       );
+      for (final DiagnosticEntry entry in diagnostics.entries) {
+        withFile.record(entry.level, entry.message, tag: entry.tag);
+      }
+      diagnostics = withFile;
     } on Exception {
       // 文件 sink 不可用（只读目录、磁盘满）时退回纯内存日志，不阻断启动。
       diagnostics = DiagnosticLog();
@@ -208,6 +260,8 @@ Future<AppBootstrapResult> bootstrapApp({
         ? null
         : Directory(p.join(dataDirectory.path, fluxMediaCacheDirectoryName)),
     interruptedTaskCount: interrupted,
+    restoreAction: restoreAction,
+    restoreFailureKind: restoreFailureKind,
   );
 }
 

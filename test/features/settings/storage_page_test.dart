@@ -12,77 +12,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flux/core/core.dart';
-import 'package:flux/features/settings/application/cleanup_ports.dart';
 import 'package:flux/features/settings/presentation/storage_page.dart';
 import 'package:flux/infrastructure/local/storage_cleanup_store.dart';
 
 import '../../app/test_harness.dart';
-
-/// 内存媒体端口替身：条目与字节都可直接设定，**不碰文件系统**。
-///
-/// 组件层用它的理由：`testWidgets` 的 body 跑在 FakeAsync 区域，而真实文件删除依赖事件循环
-/// 在真实时间上推进——写在用例里的 `await file.delete()` 永远不会完成，测试会静默挂死
-/// （没有失败、也没有结束）。**真正「文件被删掉了吗」由用例层的 cleanup_test 在真实临时目录
-/// 上验证**（那里跑在真实异步环境里）；这一层要验的是「页面把预览、确认与回执串对了」。
-final class _FakeMediaPort implements MediaCachePort {
-  int entries = 0;
-  int bytes = 0;
-  int cleared = 0;
-
-  @override
-  Future<Result<({int entries, int bytes})>> stats() async =>
-      Ok<({int entries, int bytes})>((entries: entries, bytes: bytes));
-
-  @override
-  Future<
-    Result<({int entryCount, int imageBytes, int metaBytes, int tempBytes})>
-  >
-  diskUsage() async =>
-      Ok<({int entryCount, int imageBytes, int metaBytes, int tempBytes})>((
-        entryCount: entries,
-        imageBytes: bytes,
-        metaBytes: 0,
-        tempBytes: 0,
-      ));
-
-  @override
-  Future<Result<({int entries, int bytes})>> expiredUsage({
-    required DateTime cutoffUtc,
-  }) async => Ok<({int entries, int bytes})>((entries: entries, bytes: bytes));
-
-  @override
-  Future<Result<({int entries, int bytes})>> deleteExpired({
-    required DateTime cutoffUtc,
-  }) async {
-    final ({int entries, int bytes}) removed = (entries: entries, bytes: bytes);
-    entries = 0;
-    bytes = 0;
-    return Ok<({int entries, int bytes})>(removed);
-  }
-
-  @override
-  Future<Result<int>> clearAll() async {
-    cleared++;
-    final int removed = entries;
-    entries = 0;
-    bytes = 0;
-    return Ok<int>(removed);
-  }
-
-  @override
-  Future<Result<int>> enforceLimit() async => const Ok<int>(0);
-
-  @override
-  Future<Result<void>> applyLimitMiB(int limitMiB) async => okUnit();
-}
+import '../../app/fake_media_cache_port.dart';
 
 void main() {
   late Directory mediaDir;
-  late _FakeMediaPort media;
+  late FakeMediaCachePort media;
 
   setUp(() {
     mediaDir = Directory.systemTemp.createTempSync('flux_t047_page_');
-    media = _FakeMediaPort();
+    media = FakeMediaCachePort();
   });
 
   tearDown(() {
@@ -158,7 +100,7 @@ void main() {
 
     expect(find.textContaining('已释放'), findsWidgets);
     // 清缓存真的调用了媒体端口的清空（真实文件删除由用例层的 cleanup_test 验证）。
-    expect(media.cleared, 1);
+    expect(media.clearCalls, 1);
     expect(media.entries, 0);
     // 界面上重新测量后的媒体占用是 0.0 MiB。
     expect(find.textContaining('媒体缓存'), findsWidgets);

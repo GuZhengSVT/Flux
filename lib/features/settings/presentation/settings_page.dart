@@ -30,6 +30,7 @@ import 'package:flux/features/sync/presentation/sync_settings_page.dart';
 import 'package:flux/l10n/l10n.dart';
 
 import '../application/settings_controller.dart';
+import 'diagnostics_page.dart';
 import 'storage_page.dart';
 
 /// 设置页。
@@ -209,6 +210,18 @@ class _SettingsBody extends ConsumerWidget {
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (BuildContext context) => const StoragePage(),
+            ),
+          ),
+        ),
+        // T048：诊断与恢复（SET-082）。放在「存储与清理」之后：那条管「更少占空间」，这条管
+        // 「出问题时能带走什么、恢复完成的最后一公里走完了没有」。
+        _NavigationRow(
+          title: l10n.settingsDiagnosticsEntryTitle,
+          subtitle: l10n.settingsDiagnosticsEntrySubtitle,
+          icon: Icons.bug_report_outlined,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const DiagnosticsPage(),
             ),
           ),
         ),

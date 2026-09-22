@@ -3411,4 +3411,103 @@ class AppLocalizationsZh extends AppLocalizations {
   ) {
     return '已彻底删除：引用 $citations、译文 $translations、会话 $sessions、图片缓存 $media。';
   }
+
+  @override
+  String get settingsDiagnosticsEntryTitle => '诊断与恢复';
+
+  @override
+  String get settingsDiagnosticsEntrySubtitle => '导出脱敏诊断包、查看恢复编排状态';
+
+  @override
+  String get diagnosticsPageTitle => '诊断与恢复';
+
+  @override
+  String get diagnosticsSectionExport => '导出诊断包';
+
+  @override
+  String get diagnosticsExportNotice =>
+      '诊断包包含系统信息（系统与 Dart 版本、架构、语言与主题）、存储统计、同步状态摘要与已脱敏的日志。**不含**文章原文、AI 输入与 prompt、密钥与订阅地址。';
+
+  @override
+  String get diagnosticsExportConfirmTitle => '导出脱敏诊断包';
+
+  @override
+  String get diagnosticsExportConfirmBody =>
+      '导出内容已由白名单限定并经过两层脱敏，不含原文、prompt 与凭据。请仍按内部资料处理。';
+
+  @override
+  String get diagnosticsExportConfirmAction => '导出';
+
+  @override
+  String get diagnosticsExportAction => '导出诊断包…';
+
+  @override
+  String diagnosticsExportDone(int fields, int logEntries, String size) {
+    return '已导出 $fields 个字段、$logEntries 条日志（$size）。';
+  }
+
+  @override
+  String diagnosticsExportFailed(String reason) {
+    return '导出失败：$reason';
+  }
+
+  @override
+  String diagnosticsExportPath(String path) {
+    return '已保存到：$path';
+  }
+
+  @override
+  String get diagnosticsSectionRestore => '恢复编排';
+
+  @override
+  String get diagnosticsRestoreIdle => '没有待编排的恢复。恢复到新目录后需要重启应用才能生效。';
+
+  @override
+  String get diagnosticsRestorePending =>
+      '已恢复到新目录并通过校验，**重启应用后生效**。当前数据目录仍是原来的那一份，重启前可以正常使用。';
+
+  @override
+  String get diagnosticsRestoreSwitched => '恢复已生效。旧数据目录仍在原处，确认无误后可以删除它。';
+
+  @override
+  String diagnosticsRestoreSuperseded(String path) {
+    return '旧数据目录：$path';
+  }
+
+  @override
+  String diagnosticsRestoreRestored(String path) {
+    return '恢复出的数据目录：$path';
+  }
+
+  @override
+  String get diagnosticsRestoreCleanupAction => '删除旧数据目录';
+
+  @override
+  String get diagnosticsRestoreCleanupConfirmTitle => '删除旧数据目录';
+
+  @override
+  String get diagnosticsRestoreCleanupConfirmBody =>
+      '将永久删除被顶替的旧数据目录（里面是恢复前的数据）。当前正在使用的数据不受影响。';
+
+  @override
+  String get diagnosticsRestoreCleanupDone => '已删除旧数据目录。';
+
+  @override
+  String get diagnosticsRestoreAbandonAction => '放弃这次恢复';
+
+  @override
+  String get diagnosticsRestoreAbandonDone => '已放弃这次恢复。恢复出来的目录仍保留在磁盘上，未删除。';
+
+  @override
+  String diagnosticsRestoreFailure(String reason) {
+    return '上次恢复编排未完成：$reason。当前数据目录未被改动，可以继续使用。';
+  }
+
+  @override
+  String get diagnosticsRestoreRolledBack => '上次恢复切换失败，已自动回退到原来的数据目录。';
+
+  @override
+  String diagnosticsFailed(String reason) {
+    return '操作失败：$reason';
+  }
 }
