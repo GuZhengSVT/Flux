@@ -182,6 +182,10 @@ final class AiRequest {
     this.maxTokens,
     this.temperature,
     this.tools = const <AiToolDeclaration>[],
+    // 请求服务商**内置**联网检索（Responses 协议的 tools: [{'type':'web_search'}]）。
+    // 只有「模型声明了工具能力且任务明确允许模型自检索」时才置真；Chat Completions
+    // 协议没有对应的内置工具形状，适配器会忽略它。
+    this.builtInWebSearch = false,
     AiCancellation? cancellation,
   }) : cancellation = cancellation ?? AiCancellation();
 
@@ -202,6 +206,9 @@ final class AiRequest {
 
   /// 工具声明（T032 使用；空列表表示不发送 tools 字段）。
   final List<AiToolDeclaration> tools;
+
+  /// 是否请求服务商内置联网检索（见构造函数注释）。
+  final bool builtInWebSearch;
 
   /// 取消信号。
   final AiCancellation cancellation;

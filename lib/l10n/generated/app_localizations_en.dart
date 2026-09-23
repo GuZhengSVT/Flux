@@ -34,7 +34,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyNoFeedsBody =>
-      'Articles will appear here once you add a feed or import OPML. The subscription UI and use cases ship in T013–T016.';
+      'Articles will appear here once you add a feed or import OPML.';
 
   @override
   String get emptyAllReadTitle => 'Everything is read';
@@ -48,7 +48,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emptyNoResultsBody =>
-      'Try another keyword, or adjust the search scope and filters. Local full-text search ships in T022.';
+      'Try another keyword, or adjust the search scope and filters.';
 
   @override
   String get shellDatabaseFailedTitle => 'The local database cannot be opened';
@@ -90,7 +90,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingFeedsBody =>
-      'Single-feed add/edit, groups and OPML batch import ship in T013–T016. There is no usable import UI yet, so this step creates nothing and fabricates no sample data; skip it and add feeds later inside the app.';
+      'You can add feeds here, or later in Feed management; you can also import OPML. You may skip this step.';
 
   @override
   String get onboardingFeedsSkipNote =>
@@ -101,7 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingAiBody =>
-      'Offline reading, local search and reading statistics work fully without AI or search services. Provider protocols, model management, credentials, connectivity tests and cost warnings ship in T025/T031; until then this step asks for no credential and sends no request.';
+      'Offline reading, local search and reading statistics work fully without AI or search services. Configure them anytime in Settings; you may skip this step.';
 
   @override
   String get onboardingAiSkipNote =>
@@ -128,7 +128,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageLabel => 'Interface language';
 
   @override
-  String get settingsLanguageId => 'SET-001';
+  String get settingsLanguageId => '';
 
   @override
   String get settingsLanguageHint =>
@@ -138,7 +138,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThemeLabel => 'Theme';
 
   @override
-  String get settingsThemeId => 'SET-002';
+  String get settingsThemeId => '';
 
   @override
   String get settingsThemeHint =>
@@ -231,7 +231,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String aboutVersionValue(String version) {
-    return '$version (M0 skeleton version placeholder; the release version is fixed in T054)';
+    return '$version';
   }
 
   @override
@@ -242,7 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLicenseNote =>
-      'The repository LICENSE is MIT; the full third-party and original-asset notices land in T054.';
+      'The repository LICENSE is MIT; full third-party and original-asset notices are in the repository.';
 
   @override
   String get aboutRepositoryLabel => 'GitHub repository';
@@ -266,12 +266,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutNotConfigured => 'Not configured';
 
   @override
-  String get aboutReadOnlyNote =>
-      'About shows read-only release metadata (SET-084).';
+  String get aboutReadOnlyNote => 'About shows read-only release metadata.';
 
   @override
   String get aboutUnverifiedNote =>
-      'The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub\'s public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053.';
+      'Repository and issue URLs come from release metadata built into this app; when empty they show as “Not configured” instead of a guessed address.';
 
   @override
   String get readingStateLabel => 'Reading state';
@@ -326,8 +325,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionManagerTitle => 'Subscriptions';
 
   @override
-  String get subscriptionManagerNotice =>
-      'This page manages feeds and groups; the article list and batch state actions ship in T017-T019.';
+  String get subscriptionManagerNotice => 'This page manages feeds and groups.';
 
   @override
   String get subscriptionGroupsSection => 'Groups and feeds';
@@ -467,11 +465,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionGroupDeleteFeedsHint =>
-      'Keeping favourites takes effect in T018; for now this is recorded only and nothing is deleted';
+      'You can keep favourites when deleting a group; deletion happens only after confirmation.';
 
   @override
   String subscriptionGroupDeleteFeedsPending(int count) {
-    return 'Recorded $count feeds as pending; the keep-favourites rule lands in T018 and nothing was deleted here';
+    return 'Recorded $count feeds as pending; deletion happens only after confirmation.';
   }
 
   @override
@@ -519,14 +517,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionEmptyBody =>
-      'Use Add feed to enter an RSS/Atom address; OPML import and export ship in T015.';
+      'Use Add feed to enter an RSS/Atom address; you can also import or export OPML.';
 
   @override
   String get subscriptionRefreshPolicyTitle => 'Refresh policy';
 
   @override
   String get subscriptionRefreshPolicyNote =>
-      'These are saved settings only; background scheduling lands in T016, so nothing goes online from this page yet.';
+      'These are saved settings; automatic refresh runs on schedule in the background.';
 
   @override
   String get subscriptionGlobalRefreshLabel => 'Global automatic refresh';
@@ -577,11 +575,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subscriptionEnabledNote =>
-      'Paused: automatic refresh skips this feed (SET-022)';
+      'Paused: automatic refresh skips this feed';
 
   @override
   String get subscriptionFavoriteNote =>
-      'Featured only affects display and never changes news selection (SET-023)';
+      'Featured only affects display and never changes news selection';
 
   @override
   String get subscriptionDragHandleLabel =>
@@ -910,7 +908,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingDetailPlaceholderNotice =>
-      'The full reader (typography, code, math, outline, prev/next) ships in T019; this is a minimal placeholder showing the title and plain-text body.';
+      'The full reader supports typography, code, math, outline and prev/next.';
 
   @override
   String get readingDetailNoBody =>
@@ -1138,7 +1136,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingImageNotice =>
-      'Remote images load on demand and are cached on this device (SET-080 limit); tap to open the viewer.';
+      'Remote images load on demand and are cached on this device; tap to open the viewer.';
 
   @override
   String get readingImageRetry => 'Reload this image';
@@ -1163,8 +1161,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readingLinkCopied => 'Link copied';
 
   @override
-  String get readingLinkOpenHint =>
-      'Opening links in the browser ships in T020; you can copy the address now.';
+  String get readingLinkOpenHint => 'Links open in the system browser.';
 
   @override
   String get readingCopyAll => 'Copy article text';
@@ -1193,7 +1190,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingSelectionExplainPending =>
-      'Explaining a selection needs an AI service; the call itself is T034. This round only adds the entry point and notice, and sends no request.';
+      'Explaining a selection requires an AI service configured in Settings.';
 
   @override
   String get readingImageAnalyzeAction => 'Analyze this image';
@@ -1281,7 +1278,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingSummaryTruncatedNotice =>
-      'The article exceeds the single-article budget (SET-061, 8000 characters), so the summary only uses the first part.';
+      'The article exceeds the single-article budget, so the summary only uses the first part.';
 
   @override
   String get readingSummarySourceKept =>
@@ -1306,7 +1303,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingSummaryAutoToggleHint =>
-      'Off by default. When on, missing summaries are filled only during a list refresh; each summary is billed separately and is capped by the daily limit (SET-064, default 50). When off, the list uses an excerpt of the body as a fallback.';
+      'Off by default. When on, missing summaries are filled only during a list refresh; each summary is billed separately and is capped by the daily limit. When off, the list uses an excerpt of the body as a fallback.';
 
   @override
   String get readingSummaryAutoToggleDone =>
@@ -1396,7 +1393,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingImageAutoLoadOff =>
-      'Loading remote images automatically is off (SET-012); tap an image to download that one.';
+      'Loading remote images automatically is off; tap an image to download that one.';
 
   @override
   String get readingShareUnavailable =>
@@ -1590,7 +1587,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsDisabledNotice =>
-      'Reading stats are off (SET-015); this page shows the history already recorded.';
+      'Reading stats are off; this page shows the history already recorded.';
 
   @override
   String statsLoadFailed(Object reason) {
@@ -1661,7 +1658,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAiEntrySubtitle =>
-      'Providers, models, capabilities and credentials (SET-030-033)';
+      'Providers, models, capabilities and credentials';
 
   @override
   String get aiPageTitle => 'AI services';
@@ -1759,7 +1756,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can type it by hand when no list endpoint exists; it must match the provider\'s model name exactly.';
 
   @override
-  String get aiApiKeyLabel => 'API key (SET-031)';
+  String get aiApiKeyLabel => 'API key';
 
   @override
   String aiApiKeyConfigured(String preview) {
@@ -1784,7 +1781,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Secure storage is unavailable on this device; a key entered now will not be saved.';
 
   @override
-  String get aiCapabilitySection => 'Capabilities (SET-033)';
+  String get aiCapabilitySection => 'Capabilities';
 
   @override
   String get aiCapabilityHint =>
@@ -1833,7 +1830,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiSortHint =>
-      'Order decides the failover sequence (SET-032/035); disabled models do not take part.';
+      'Order decides the failover sequence; disabled models do not take part.';
 
   @override
   String get aiSaveAction => 'Save';
@@ -1948,10 +1945,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiReferenceDefaultForTasks => 'Default model for tasks';
 
   @override
-  String get aiReferenceVisionModel => 'SET-034 vision model';
+  String get aiReferenceVisionModel => 'vision model';
 
   @override
-  String get aiReferenceFailover => 'SET-035 failover allow list';
+  String get aiReferenceFailover => 'failover allow list';
 
   @override
   String get aiDeleteConfirmYes => 'Delete anyway';
@@ -1974,7 +1971,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPlannedNotice =>
-      'The automatic-summary switch (SET-037) belongs to T034; this page only configures providers and models. The five-no-response failover rule, total timeout and token budget are implemented by T029 (see Settings → AI tasks).';
+      'This page configures providers and models only; failover limits are in Settings → AI task history.';
 
   @override
   String get aiTaskListTitle => 'AI tasks';
@@ -2096,12 +2093,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String searchBudgetHint(int maxResults, int timeoutSeconds) {
-    return '$maxResults results per query · ${timeoutSeconds}s timeout (SET-040)';
+    return '$maxResults results per query · ${timeoutSeconds}s timeout';
   }
 
   @override
   String get searchPrivateApproved =>
-      'Private/HTTP endpoint explicitly approved (SET-041)';
+      'Private/HTTP endpoint explicitly approved';
 
   @override
   String get searchCredentialMissingHint =>
@@ -2203,7 +2200,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTimeoutField => 'Timeout seconds (5–60)';
 
   @override
-  String get searchAllowPrivateLabel => 'Allow private/HTTP endpoint (SET-041)';
+  String get searchAllowPrivateLabel => 'Allow private/HTTP endpoint';
 
   @override
   String get searchAllowPrivateHint =>
@@ -2211,7 +2208,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchPlannedNotice =>
-      'The query keyword list (SET-052), forbidden query terms and topic filters (SET-053), and the daily-news search orchestration (T036/T037) come later; this page only manages the search services themselves.';
+      'This page configures the search service itself; query keywords and filters are in the news settings.';
 
   @override
   String get readingTranslateAction => 'Translate';
@@ -2266,7 +2263,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readingTranslateTruncatedNotice =>
-      'Some paragraphs exceed the single-material budget (SET-061, 8000 characters) and were only translated in part.';
+      'Some paragraphs exceed the single-material budget and were only translated in part.';
 
   @override
   String get readingTranslateStale =>
@@ -2312,7 +2309,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newsSettingsEntrySubtitle =>
-      'Source selection, required sites, keywords and the overall prompt (SET-050–055); the daily-news pipeline itself comes with T037–T040.';
+      'Source selection, required sites, keywords and the overall prompt';
 
   @override
   String get newsPageTitle => 'News sources and prompt';
@@ -2331,7 +2328,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'When off, no subscription content is used at all; the per-source switches only affect a single source and are unrelated to starring.';
 
   @override
-  String get newsFeedSectionTitle => 'Per-source switches (SET-050)';
+  String get newsFeedSectionTitle => 'Per-source switches';
 
   @override
   String get newsFeedSectionHint =>
@@ -2354,7 +2351,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No subscriptions yet; add one and you can configure it per source here.';
 
   @override
-  String get newsRequiredSectionTitle => 'Required sites (SET-051)';
+  String get newsRequiredSectionTitle => 'Required sites';
 
   @override
   String get newsRequiredSectionHint =>
@@ -2381,21 +2378,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get newsListKeywordsTitle => 'Search keywords (SET-052)';
+  String get newsListKeywordsTitle => 'Search keywords';
 
   @override
   String get newsListKeywordsHint =>
       'With an empty list and no RSS material, the task reports missing input instead of inventing news.';
 
   @override
-  String get newsListBlockedTitle => 'Blocked query terms (SET-053)';
+  String get newsListBlockedTitle => 'Blocked query terms';
 
   @override
   String get newsListBlockedHint =>
       'Queries containing these terms are never sent to search services (substring match); this does not affect which topics are excluded.';
 
   @override
-  String get newsListTopicsTitle => 'Excluded topics (SET-053)';
+  String get newsListTopicsTitle => 'Excluded topics';
 
   @override
   String get newsListTopicsHint =>
@@ -2416,7 +2413,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get newsPromptModeTitle => 'Overall prompt mode (SET-055)';
+  String get newsPromptModeTitle => 'Overall prompt mode';
 
   @override
   String get newsPromptModeComposed => 'Composed';
@@ -2517,7 +2514,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newsPlannedNotice =>
-      'Daily-news retrieval orchestration and drafting (T037), source verification (T038) and scheduling (T040) come later; this page only covers the SET-050–055 configuration.';
+      'Daily-news retrieval orchestration and drafting, source verification and scheduling come later; this page only covers the –055 configuration.';
 
   @override
   String get todayGenerate => 'Generate today\'s news';
@@ -2700,7 +2697,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayShortfallNoInput =>
-      'There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the SET-050 per-feed switches, the required-sites list, and whether your articles have been refreshed.';
+      'There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the per-feed switches, the required-sites list, and whether your articles have been refreshed.';
 
   @override
   String get todayShortfallGlobalDisabled =>
@@ -3398,7 +3395,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String storageMediaLimitLine(String limit) {
-    return 'Media cache limit: $limit (SET-080; oldest accessed entries are evicted beyond it)';
+    return 'Media cache limit: $limit';
   }
 
   @override
@@ -3781,7 +3778,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMotionLabel => 'Reduce motion';
 
   @override
-  String get settingsMotionId => 'SET-014 · Device-only';
+  String get settingsMotionId => '· Device-only';
 
   @override
   String get settingsMotionHint =>

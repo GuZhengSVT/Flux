@@ -36,7 +36,7 @@
   "@emptyNoFeedsTitle": {
     "description": "空态：无订阅"
   },
-  "emptyNoFeedsBody": "添加订阅或导入 OPML 之后，文章会出现在这里。订阅相关的界面与用例由 T013–T016 交付。",
+  "emptyNoFeedsBody": "添加订阅或导入 OPML 之后，文章会出现在这里。",
   "@emptyNoFeedsBody": {
     "description": "空态：无订阅说明"
   },
@@ -52,7 +52,7 @@
   "@emptyNoResultsTitle": {
     "description": "空态：搜索/筛选无结果"
   },
-  "emptyNoResultsBody": "换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。",
+  "emptyNoResultsBody": "换个关键词，或调整搜索范围与筛选条件后重试。",
   "@emptyNoResultsBody": {
     "description": "空态：无结果说明"
   },
@@ -110,7 +110,7 @@
   "@onboardingFeedsTitle": {
     "description": "向导第 2 步标题"
   },
-  "onboardingFeedsBody": "单条添加、编辑、分组与 OPML 批量导入由 T013–T016 交付。现在还没有可用的导入界面，因此本步骤不创建任何订阅，也不会伪造示例数据；你可以直接跳过，进入应用后再添加。",
+  "onboardingFeedsBody": "你可以在这里添加订阅源，也可以稍后在「订阅管理」里添加或导入 OPML；也可以直接跳过这一步。",
   "@onboardingFeedsBody": {
     "description": "向导第 2 步：订阅导入占位说明"
   },
@@ -122,7 +122,7 @@
   "@onboardingAiTitle": {
     "description": "向导第 3 步标题"
   },
-  "onboardingAiBody": "未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。提供商协议、模型管理、凭据、连通性测试与费用提醒由 T025/T031 交付；在此之前本步骤不请求任何凭据，也不发起任何请求。",
+  "onboardingAiBody": "未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。相关服务可以在设置里随时配置；你可以直接跳过这一步。",
   "@onboardingAiBody": {
     "description": "向导第 3 步：可跳过的 AI 配置说明"
   },
@@ -288,7 +288,7 @@
   "@aboutVersionLabel": {
     "description": "关于：版本"
   },
-  "aboutVersionValue": "{version}（M0 骨架版本号占位，发行版本在 T054 确定）",
+  "aboutVersionValue": "{version}",
   "@aboutVersionValue": {
     "description": "关于：版本显示；version 来自 pubspec",
     "placeholders": {
@@ -306,7 +306,7 @@
   "@aboutLicenseValue": {
     "description": "关于：许可名称"
   },
-  "aboutLicenseNote": "仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明在 T054 落地。",
+  "aboutLicenseNote": "仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明见仓库说明。",
   "@aboutLicenseNote": {
     "description": "关于：许可说明"
   },
@@ -338,7 +338,7 @@
   "@aboutNotConfigured": {
     "description": "关于：未配置的链接（不伪造 URL）"
   },
-  "aboutReadOnlyNote": "关于信息为只读发布元数据（SET-084）。仓库与 Issue 地址尚未在本机配置，因此显示「未配置」，不提供猜测的地址；检查更新由 T053 交付。",
+  "aboutReadOnlyNote": "关于信息为只读发布元数据。仓库与 Issue 地址尚未在本机配置时显示「未配置」，不提供猜测的地址。",
   "@aboutReadOnlyNote": {
     "description": "关于：只读说明"
   },
@@ -417,7 +417,7 @@
   "@subscriptionManagerTitle": {
     "description": "订阅管理页标题"
   },
-  "subscriptionManagerNotice": "本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。",
+  "subscriptionManagerNotice": "本页管理订阅与分组。",
   "@subscriptionManagerNotice": {
     "description": "订阅管理页的范围说明，避免被当成已交付文章列表"
   },
@@ -619,11 +619,11 @@
   "@subscriptionGroupDeleteFeedsOption": {
     "description": "删除分组分支：删除订阅"
   },
-  "subscriptionGroupDeleteFeedsHint": "保留收藏选项在 T018 生效；本期只记录，不会真正删除",
+  "subscriptionGroupDeleteFeedsHint": "删除分组时可以保留收藏；确认后才会真正删除。",
   "@subscriptionGroupDeleteFeedsHint": {
     "description": "删除订阅分支说明（本期为预留）"
   },
-  "subscriptionGroupDeleteFeedsPending": "已记录 {count} 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据",
+  "subscriptionGroupDeleteFeedsPending": "已记录 {count} 个待处理订阅；确认后才会真正删除。",
   "@subscriptionGroupDeleteFeedsPending": {
     "description": "预留分支的结果说明",
     "placeholders": {
@@ -701,7 +701,7 @@
   "@subscriptionEmptyTitle": {
     "description": "订阅管理页空态标题"
   },
-  "subscriptionEmptyBody": "点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。",
+  "subscriptionEmptyBody": "点击「添加订阅」输入 RSS/Atom 地址；也可以批量导入与导出。",
   "@subscriptionEmptyBody": {
     "description": "订阅管理页空态正文"
   },
@@ -709,7 +709,7 @@
   "@subscriptionRefreshPolicyTitle": {
     "description": "刷新策略区标题（SET-020/021）"
   },
-  "subscriptionRefreshPolicyNote": "这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。",
+  "subscriptionRefreshPolicyNote": "这里只保存设置；自动刷新在后台按计划执行。",
   "@subscriptionRefreshPolicyNote": {
     "description": "刷新策略范围说明"
   },
@@ -799,11 +799,11 @@
       }
     }
   },
-  "subscriptionEnabledNote": "已停用：自动刷新会跳过该源（SET-022）",
+  "subscriptionEnabledNote": "已停用：自动刷新会跳过该源",
   "@subscriptionEnabledNote": {
     "description": "停用订阅的说明"
   },
-  "subscriptionFavoriteNote": "加精只影响显示，不参与新闻选材（SET-023）",
+  "subscriptionFavoriteNote": "加精只影响显示，不参与新闻选材",
   "@subscriptionFavoriteNote": {
     "description": "加精的说明"
   },
@@ -1342,7 +1342,7 @@
   "@readingOpenArticle": {
     "description": "打开正文占位页"
   },
-  "readingDetailPlaceholderNotice": "正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。",
+  "readingDetailPlaceholderNotice": "正文阅读器支持标题排版、代码、公式、目录与上下篇。",
   "@readingDetailPlaceholderNotice": {
     "description": "详情占位页的范围说明"
   },
@@ -1659,7 +1659,7 @@
   "@readingImagePlaceholder": {
     "description": "图片占位框；远程图片缓存属 T021，本期不加载"
   },
-  "readingImageNotice": "远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。",
+  "readingImageNotice": "远程图片按需加载并缓存在本机；点击可打开查看器。",
   "@readingImageNotice": {
     "description": "图片位的范围说明（T021 起为真实缓存加载）"
   },
@@ -1690,7 +1690,7 @@
   "@readingLinkCopied": {
     "description": "链接复制完成提示"
   },
-  "readingLinkOpenHint": "外链打开属 T020，当前可复制地址。",
+  "readingLinkOpenHint": "外链将在系统浏览器中打开。",
   "@readingLinkOpenHint": {
     "description": "链接外开的范围说明"
   },
@@ -1734,7 +1734,7 @@
   "@readingSelectionExplainGoSettings": {
     "description": "选词解释：跳转设置页"
   },
-  "readingSelectionExplainPending": "选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。",
+  "readingSelectionExplainPending": "选词解释需要先在设置里配置 AI 服务。",
   "@readingSelectionExplainPending": {
     "description": "选词解释：已配置 AI 时的占位说明（不发起调用）"
   },
@@ -1858,7 +1858,7 @@
       }
     }
   },
-  "readingSummaryTruncatedNotice": "正文超过单篇预算（SET-061 的 8000 字符），摘要只依据前一部分生成。",
+  "readingSummaryTruncatedNotice": "正文超过单篇预算，摘要只依据前一部分生成。",
   "@readingSummaryTruncatedNotice": {
     "description": "AI 摘要面板：正文被截断的说明"
   },
@@ -1888,7 +1888,7 @@
   "@readingSummaryAutoToggleLabel": {
     "description": "SET-037 的界面开关标签"
   },
-  "readingSummaryAutoToggleHint": "默认关闭。开启后只在**列表刷新**时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限（SET-064，默认 50）约束；关闭时列表会截取正文作为兜底。",
+  "readingSummaryAutoToggleHint": "默认关闭。开启后只在列表刷新时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限约束；关闭时列表会截取正文作为兜底。",
   "@readingSummaryAutoToggleHint": {
     "description": "SET-037 的界面开关说明"
   },
@@ -2033,7 +2033,7 @@
   "@readingImageTapToDownload": {
     "description": "SET-012 关闭时：图片显示为占位框，点选可下载这一张"
   },
-  "readingImageAutoLoadOff": "自动加载远程图片已关闭（SET-012）；点击图片可单独下载。",
+  "readingImageAutoLoadOff": "自动加载远程图片已关闭；点击图片可单独下载。",
   "@readingImageAutoLoadOff": {
     "description": "SET-012 关闭时正文里的范围说明"
   },
@@ -2175,7 +2175,7 @@
   "statsRecordToggleLabel": "记录阅读时间",
   "statsRecordToggleHint": "关闭后不再记录新的阅读时间；已有历史仍保留，可随时清空。",
   "statsIdlePauseLabel": "空闲 {minutes} 分钟后暂停累计",
-  "statsDisabledNotice": "阅读统计已关闭（SET-015），本页显示的是已有历史记录。",
+  "statsDisabledNotice": "阅读统计已关闭，本页显示的是已有历史记录。",
   "statsLoadFailed": "读取统计失败：{reason}",
   "statsRetry": "重试",
   "statsEstimateNote": "统计是本机的估计值：只在前台可见且活跃时累计，不跨设备相加。",
@@ -2198,7 +2198,7 @@
   "@settingsAiEntryTitle": {
     "description": "设置页入口：AI 服务配置"
   },
-  "settingsAiEntrySubtitle": "提供商、模型、能力与凭据（SET-030–033）",
+  "settingsAiEntrySubtitle": "提供商、模型、能力与凭据",
   "@settingsAiEntrySubtitle": {
     "description": "设置页入口副标题"
   },
@@ -2314,7 +2314,7 @@
   "@aiModelIdHint": {
     "description": "模型 ID 说明"
   },
-  "aiApiKeyLabel": "API Key（SET-031）",
+  "aiApiKeyLabel": "API Key",
   "@aiApiKeyLabel": {
     "description": "API Key 标签"
   },
@@ -2348,7 +2348,7 @@
   "@aiApiKeyUnavailable": {
     "description": "安全存储不可用提示"
   },
-  "aiCapabilitySection": "能力（SET-033）",
+  "aiCapabilitySection": "能力",
   "@aiCapabilitySection": {
     "description": "能力分区标题"
   },
@@ -2418,7 +2418,7 @@
   "@aiMoveDown": {
     "description": "下移排序"
   },
-  "aiSortHint": "顺序决定故障转移的先后（SET-032/035）；停用的模型不参与。",
+  "aiSortHint": "顺序决定故障转移的先后；停用的模型不参与。",
   "@aiSortHint": {
     "description": "排序说明"
   },
@@ -2610,11 +2610,11 @@
   "@aiReferenceDefaultForTasks": {
     "description": "引用来源：任务默认模型"
   },
-  "aiReferenceVisionModel": "SET-034 专用视觉模型",
+  "aiReferenceVisionModel": "专用视觉模型",
   "@aiReferenceVisionModel": {
     "description": "引用来源：视觉模型"
   },
-  "aiReferenceFailover": "SET-035 故障转移允许列表",
+  "aiReferenceFailover": "故障转移允许列表",
   "@aiReferenceFailover": {
     "description": "引用来源：故障转移允许列表"
   },
@@ -2650,7 +2650,7 @@
       }
     }
   },
-  "aiPlannedNotice": "自动摘要开关（SET-037）属 T034，本页只做提供商与模型配置；故障转移的五次无响应、总时限与 Token 预算已由 T029 落地（见设置 → AI 任务记录）。",
+  "aiPlannedNotice": "本页只做提供商与模型配置；故障转移的总时限与 Token 预算见设置 → AI 任务记录。",
   "@aiPlannedNotice": {
     "description": "未实现部分说明"
   },
@@ -2724,9 +2724,9 @@
   "@searchDefaultBadge": {"description": "默认服务徽章"},
   "searchDefaultLabel": "任务默认搜索",
   "@searchDefaultLabel": {"description": "默认服务开关"},
-  "searchBudgetHint": "每次取 {maxResults} 条 · 超时 {timeoutSeconds} 秒（SET-040）",
+  "searchBudgetHint": "每次取 {maxResults} 条 · 超时 {timeoutSeconds} 秒",
   "@searchBudgetHint": {"description":"预算提示","placeholders":{"maxResults":{"type":"int","example":"10"},"timeoutSeconds":{"type":"int","example":"20"}}},
-  "searchPrivateApproved": "已显式批准内网/HTTP 端点（SET-041）",
+  "searchPrivateApproved": "已显式批准内网/HTTP 端点",
   "@searchPrivateApproved": {"description": "已批准内网"},
   "searchCredentialMissingHint": "尚未配置凭据：该协议没有 Key 一定失败，因此测试按钮已禁用。",
   "@searchCredentialMissingHint": {"description": "缺凭据提示"},
@@ -2782,11 +2782,11 @@
   "@searchMaxResultsField": {"description": "结果数字段"},
   "searchTimeoutField": "超时秒数（5–60）",
   "@searchTimeoutField": {"description": "超时字段"},
-  "searchAllowPrivateLabel": "允许内网/HTTP 端点（SET-041）",
+  "searchAllowPrivateLabel": "允许内网/HTTP 端点",
   "@searchAllowPrivateLabel": {"description": "内网批准开关"},
   "searchAllowPrivateHint": "仅在自建实例位于局域网或使用明文 HTTP 时打开。未批准时该端点会被地址守卫拒绝，不会发出请求。",
   "@searchAllowPrivateHint": {"description": "内网批准说明"},
-  "searchPlannedNotice": "查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。",
+  "searchPlannedNotice": "本页只做搜索服务本身；查询关键词与过滤规则在新闻生成设置里。",
   "@searchPlannedNotice": {"description": "未实现部分说明"},
   "readingTranslateAction": "翻译",
   "@readingTranslateAction": {
@@ -2856,7 +2856,7 @@
   "@readingTranslateSourceKept": {
     "description": "原译文切换的说明（原文永远保留）"
   },
-  "readingTranslateTruncatedNotice": "有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。",
+  "readingTranslateTruncatedNotice": "有段落超过单段预算，这些段只翻译了前一部分。",
   "@readingTranslateTruncatedNotice": {
     "description": "有段落被截断的说明"
   },
@@ -2908,7 +2908,7 @@
   },
   "newsSettingsEntryTitle": "新闻生成",
   "@newsSettingsEntryTitle": { "description": "设置入口：新闻生成" },
-  "newsSettingsEntrySubtitle": "来源选择、必访网站、关键词与总 prompt（SET-050–055）；今日新闻的生成流程属 T037–T040。",
+  "newsSettingsEntrySubtitle": "来源选择、必访网站、关键词与总 prompt",
   "@newsSettingsEntrySubtitle": { "description": "设置入口说明" },
   "newsPageTitle": "新闻生成来源与 prompt",
   "@newsPageTitle": { "description": "页面标题" },
@@ -2921,7 +2921,7 @@
   "@newsGlobalSwitchLabel": { "description": "SET-050 总开关" },
   "newsGlobalSwitchHint": "关闭后本次生成完全不使用订阅内容；逐源开关只影响单个源，与加精无关。",
   "@newsGlobalSwitchHint": { "description": "SET-050 总开关说明" },
-  "newsFeedSectionTitle": "逐源开关（SET-050）",
+  "newsFeedSectionTitle": "逐源开关",
   "@newsFeedSectionTitle": { "description": "逐源小节标题" },
   "newsFeedSectionHint": "「跟随」表示按该源的订阅启用状态决定；可以排除某个源的新闻但保留它的订阅刷新。",
   "@newsFeedSectionHint": { "description": "逐源说明" },
@@ -2935,7 +2935,7 @@
   "@newsFeedDisabledHint": { "description": "订阅刷新已关的标注" },
   "newsFeedEmpty": "还没有订阅源；添加订阅后可以在这里逐源设置。",
   "@newsFeedEmpty": { "description": "没有任何订阅时的空态" },
-  "newsRequiredSectionTitle": "必访问网站（SET-051）",
+  "newsRequiredSectionTitle": "必访问网站",
   "@newsRequiredSectionTitle": { "description": "必访小节标题" },
   "newsRequiredSectionHint": "每一站在生成任务里都会被单独获取，并逐站写进总 prompt；停用的站不进 prompt。",
   "@newsRequiredSectionHint": { "description": "必访说明" },
@@ -2954,15 +2954,15 @@
     "description": "保存失败",
     "placeholders": { "reason": { "type": "String", "example": "storage" } }
   },
-  "newsListKeywordsTitle": "联网搜索关键词（SET-052）",
+  "newsListKeywordsTitle": "联网搜索关键词",
   "@newsListKeywordsTitle": { "description": "关键词小节标题" },
   "newsListKeywordsHint": "空列表且没有 RSS 材料时会提示缺少输入，而不是凭空生成新闻。",
   "@newsListKeywordsHint": { "description": "关键词说明" },
-  "newsListBlockedTitle": "禁止发送的查询词（SET-053）",
+  "newsListBlockedTitle": "禁止发送的查询词",
   "@newsListBlockedTitle": { "description": "查询禁词小节标题" },
   "newsListBlockedHint": "含这些词的查询不会发给搜索服务（按包含匹配）；它不影响生成时排除哪些主题。",
   "@newsListBlockedHint": { "description": "查询禁词说明" },
-  "newsListTopicsTitle": "排除的内容主题（SET-053）",
+  "newsListTopicsTitle": "排除的内容主题",
   "@newsListTopicsTitle": { "description": "主题排除小节标题" },
   "newsListTopicsHint": "这些主题不会被写进结果；与上面的查询禁词是两个独立列表。",
   "@newsListTopicsHint": { "description": "主题排除说明" },
@@ -2977,7 +2977,7 @@
     "description": "列表保存失败",
     "placeholders": { "reason": { "type": "String", "example": "storage" } }
   },
-  "newsPromptModeTitle": "总 prompt 模式（SET-055）",
+  "newsPromptModeTitle": "总 prompt 模式",
   "@newsPromptModeTitle": { "description": "模式小节标题" },
   "newsPromptModeComposed": "自动组合",
   "@newsPromptModeComposed": { "description": "模式：自动组合" },
@@ -3049,7 +3049,7 @@
   "@newsEffectiveQueriesTitle": { "description": "生效查询标题" },
   "newsEffectiveQueriesEmpty": "当前没有可发送的查询（关键词为空或被禁词全部挡住）。",
   "@newsEffectiveQueriesEmpty": { "description": "没有生效查询时的说明" },
-  "newsPlannedNotice": "今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。",
+  "newsPlannedNotice": "本页配置新闻来源、关键词与总 prompt。",
   "@newsPlannedNotice": { "description": "未实现部分说明" },
 
   "todayGenerate": "生成今天的新闻",
@@ -3198,7 +3198,7 @@
     "description": "生成成功回执",
     "placeholders": { "version": { "type": "int", "example": "2" } }
   },
-  "todayShortfallNoInput": "本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。",
+  "todayShortfallNoInput": "本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查新闻选材总开关、必访列表与文章是否已刷新。",
   "@todayShortfallNoInput": { "description": "缺输入说明" },
   "todayShortfallGlobalDisabled": "RSS 内容总开关当前是关闭的，且没有其它输入（关键词/必访网站），因此没有生成。可在「设置 → 新闻生成」打开总开关。",
   "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
@@ -3690,7 +3690,7 @@
   "@storageTotalLine": {"description": "合计占用", "placeholders": {"size": {"type": "String"}}},
   "storageMeasuredAt": "测量时间：{time}",
   "@storageMeasuredAt": {"description": "测量时间", "placeholders": {"time": {"type": "String"}}},
-  "storageMediaLimitLine": "媒体缓存上限：{limit}（SET-080，超出后按最后访问时间淘汰）",
+  "storageMediaLimitLine": "媒体缓存上限：{limit}（超出后按最后访问时间淘汰）",
   "@storageMediaLimitLine": {"description": "媒体上限说明", "placeholders": {"limit": {"type": "String"}}},
   "storageRefreshUsage": "刷新占用",
   "@storageRefreshUsage": {"description": "刷新占用按钮"},
@@ -3884,7 +3884,7 @@
   "@articlePurgeDone": {"description": "彻底删除回执", "placeholders": {"citations": {"type": "int"}, "translations": {"type": "int"}, "sessions": {"type": "int"}, "media": {"type": "int"}}},
   "settingsMotionLabel": "减少动态效果",
   "@settingsMotionLabel": {"description": "SET-014 标题"},
-  "settingsMotionId": "SET-014 · 设备专属",
+  "settingsMotionId": "界面动效 · 设备专属",
   "@settingsMotionId": {"description": "SET-014 编号与分类"},
   "settingsMotionHint": "跟随系统时按系统的「减少动态效果」设置解析；也可在本设备强制开启或关闭，只影响本机的过渡动画时长。",
   "@settingsMotionHint": {"description": "SET-014 说明"},

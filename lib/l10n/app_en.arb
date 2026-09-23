@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "@@last_modified": "2026-09-21",
-
   "appName": "Flux",
   "appTagline": "Local-first news & RSS reader",
   "placeholderPageBody": "This page is an app-shell placeholder with no data or interaction. Planned tasks: {tasks}.",
@@ -17,11 +16,11 @@
   "navReading": "Reading",
   "navMine": "Mine",
   "emptyNoFeedsTitle": "No subscriptions yet",
-  "emptyNoFeedsBody": "Articles will appear here once you add a feed or import OPML. The subscription UI and use cases ship in T013–T016.",
+  "emptyNoFeedsBody": "Articles will appear here once you add a feed or import OPML.",
   "emptyAllReadTitle": "Everything is read",
   "emptyAllReadBody": "No unread articles match the current filter. Switch to Later or Favorites to review what you already handled.",
   "emptyNoResultsTitle": "No matching results",
-  "emptyNoResultsBody": "Try another keyword, or adjust the search scope and filters. Local full-text search ships in T022.",
+  "emptyNoResultsBody": "Try another keyword, or adjust the search scope and filters.",
   "shellDatabaseFailedTitle": "The local database cannot be opened",
   "shellDatabaseFailedBody": "This run can only show the shell: language and theme changes will not be saved. The original database file is left untouched — check disk space and file permissions, then restart.",
   "onboardingStepIndicator": "Step {current} of {total}",
@@ -45,10 +44,10 @@
   "onboardingWelcomeBody": "Subscriptions, article text, reading state and summaries all stay on your own device. Flux has no account and no backend service; AI, web search and WebDAV are configured by you at your own cost. Before data is first sent to a service, Flux tells you the recipient and the allowed capabilities item by item.",
   "onboardingOfflineNote": "Offline reading and local search do not depend on AI and keep working without a network.",
   "onboardingFeedsTitle": "Add subscriptions",
-  "onboardingFeedsBody": "Single-feed add/edit, groups and OPML batch import ship in T013–T016. There is no usable import UI yet, so this step creates nothing and fabricates no sample data; skip it and add feeds later inside the app.",
+  "onboardingFeedsBody": "You can add feeds here, or later in Feed management; you can also import OPML. You may skip this step.",
   "onboardingFeedsSkipNote": "Skipping changes no future behaviour and writes no subscription.",
   "onboardingAiTitle": "AI and search (optional)",
-  "onboardingAiBody": "Offline reading, local search and reading statistics work fully without AI or search services. Provider protocols, model management, credentials, connectivity tests and cost warnings ship in T025/T031; until then this step asks for no credential and sends no request.",
+  "onboardingAiBody": "Offline reading, local search and reading statistics work fully without AI or search services. Configure them anytime in Settings; you may skip this step.",
   "onboardingAiSkipNote": "You can start without configuring AI: every local feature is unaffected.",
   "onboardingAppearanceNote": "Interface language and theme stay editable in Mine → Reading & appearance. Changing the language never rewrites AI output that was already generated.",
   "settingsTitle": "Mine",
@@ -56,10 +55,10 @@
   "settingsSectionAppearancePlanned": "Reading & appearance settings not implemented yet",
   "settingsSectionAbout": "About",
   "settingsLanguageLabel": "Interface language",
-  "settingsLanguageId": "SET-001",
+  "settingsLanguageId": "",
   "settingsLanguageHint": "Following the system resolves per device; when nothing matches, English is used. Articles are never auto-translated.",
   "settingsThemeLabel": "Theme",
-  "settingsThemeId": "SET-002",
+  "settingsThemeId": "",
   "settingsThemeHint": "Light, dark or follow the system; following the system resolves independently on each device.",
   "settingsOptionFollowSystem": "Follow system",
   "settingsOptionChinese": "简体中文",
@@ -96,7 +95,7 @@
     }
   },
   "aboutVersionLabel": "Version",
-  "aboutVersionValue": "{version} (M0 skeleton version placeholder; the release version is fixed in T054)",
+  "aboutVersionValue": "{version}",
   "@aboutVersionValue": {
     "placeholders": {
       "version": {
@@ -107,7 +106,7 @@
   },
   "aboutLicenseLabel": "License",
   "aboutLicenseValue": "MIT License",
-  "aboutLicenseNote": "The repository LICENSE is MIT; the full third-party and original-asset notices land in T054.",
+  "aboutLicenseNote": "The repository LICENSE is MIT; full third-party and original-asset notices are in the repository.",
   "aboutRepositoryLabel": "GitHub repository",
   "aboutRepositoryValue": "https://github.com/GuZhengSVT/Flux",
   "aboutIssueLabel": "Issue tracker",
@@ -115,8 +114,8 @@
   "aboutDeveloperLabel": "Developer",
   "aboutDeveloperValue": "GuZhengSVT",
   "aboutNotConfigured": "Not configured",
-  "aboutReadOnlyNote": "About shows read-only release metadata (SET-084).",
-  "aboutUnverifiedNote": "The repository and issue URLs come from release metadata built into this app and were verified on 2026-09-21 through GitHub's public API (exists, not archived, issues enabled). An empty address reads \"Not configured\" instead of a guess. Update checking and the release link ship in T053.",
+  "aboutReadOnlyNote": "About shows read-only release metadata.",
+  "aboutUnverifiedNote": "Repository and issue URLs come from release metadata built into this app; when empty they show as “Not configured” instead of a guessed address.",
   "readingStateLabel": "Reading state",
   "readingStateUnread": "Unread",
   "readingStateRead": "Read",
@@ -140,9 +139,8 @@
   "controlSuccessLabel": "Done",
   "controlErrorLabel": "Failed",
   "controlDisabledLabelSuffix": "unavailable",
-
   "subscriptionManagerTitle": "Subscriptions",
-  "subscriptionManagerNotice": "This page manages feeds and groups; the article list and batch state actions ship in T017-T019.",
+  "subscriptionManagerNotice": "This page manages feeds and groups.",
   "subscriptionGroupsSection": "Groups and feeds",
   "subscriptionAddFeed": "Add feed",
   "subscriptionAddFeedTitle": "Add a feed",
@@ -241,8 +239,8 @@
   "subscriptionGroupDeleteMoveOption": "Move to Uncategorized",
   "subscriptionGroupDeleteMoveHint": "Feeds and articles are kept; only the group changes",
   "subscriptionGroupDeleteFeedsOption": "Delete the feeds",
-  "subscriptionGroupDeleteFeedsHint": "Keeping favourites takes effect in T018; for now this is recorded only and nothing is deleted",
-  "subscriptionGroupDeleteFeedsPending": "Recorded {count} feeds as pending; the keep-favourites rule lands in T018 and nothing was deleted here",
+  "subscriptionGroupDeleteFeedsHint": "You can keep favourites when deleting a group; deletion happens only after confirmation.",
+  "subscriptionGroupDeleteFeedsPending": "Recorded {count} feeds as pending; deletion happens only after confirmation.",
   "@subscriptionGroupDeleteFeedsPending": {
     "placeholders": {
       "count": {
@@ -284,9 +282,9 @@
     }
   },
   "subscriptionEmptyTitle": "No subscriptions yet",
-  "subscriptionEmptyBody": "Use Add feed to enter an RSS/Atom address; OPML import and export ship in T015.",
+  "subscriptionEmptyBody": "Use Add feed to enter an RSS/Atom address; you can also import or export OPML.",
   "subscriptionRefreshPolicyTitle": "Refresh policy",
-  "subscriptionRefreshPolicyNote": "These are saved settings only; background scheduling lands in T016, so nothing goes online from this page yet.",
+  "subscriptionRefreshPolicyNote": "These are saved settings; automatic refresh runs on schedule in the background.",
   "subscriptionGlobalRefreshLabel": "Global automatic refresh",
   "subscriptionGlobalIntervalLabel": "Refresh interval",
   "subscriptionStartupRefreshLabel": "Refresh on launch",
@@ -347,8 +345,8 @@
       }
     }
   },
-  "subscriptionEnabledNote": "Paused: automatic refresh skips this feed (SET-022)",
-  "subscriptionFavoriteNote": "Featured only affects display and never changes news selection (SET-023)",
+  "subscriptionEnabledNote": "Paused: automatic refresh skips this feed",
+  "subscriptionFavoriteNote": "Featured only affects display and never changes news selection",
   "subscriptionDragHandleLabel": "Drag or press the arrow keys to reorder",
   "subscriptionMoveUp": "Move up",
   "subscriptionMoveDown": "Move down",
@@ -554,7 +552,7 @@
   "readingBatchDone": "Updated {count} articles",
   "readingItemMenu": "Article actions",
   "readingOpenArticle": "Open article",
-  "readingDetailPlaceholderNotice": "The full reader (typography, code, math, outline, prev/next) ships in T019; this is a minimal placeholder showing the title and plain-text body.",
+  "readingDetailPlaceholderNotice": "The full reader supports typography, code, math, outline and prev/next.",
   "readingDetailNoBody": "This article has no body to show (the feed only provided a summary).",
   "readingActionError": "Action failed: {reason}",
   "readingLoadFailed": "Could not load the article list: {reason}",
@@ -613,14 +611,14 @@
   "readingMathUnsupported": "This formula could not be rendered; the source is shown instead",
   "readingMathUnsupportedReason": "Reason: {reason}",
   "readingImagePlaceholder": "Image placeholder",
-  "readingImageNotice": "Remote images load on demand and are cached on this device (SET-080 limit); tap to open the viewer.",
+  "readingImageNotice": "Remote images load on demand and are cached on this device; tap to open the viewer.",
   "readingImageRetry": "Reload this image",
   "readingImageBlockedPrivate": "Blocked: this image address points at your device or private network.",
   "readingImageTooLarge": "This image exceeds the per-image size limit and was not downloaded.",
   "readingLinkBlocked": "Blocked: {reason}",
   "readingLinkCopy": "Copy link",
   "readingLinkCopied": "Link copied",
-  "readingLinkOpenHint": "Opening links in the browser ships in T020; you can copy the address now.",
+  "readingLinkOpenHint": "Links open in the system browser.",
   "readingCopyAll": "Copy article text",
   "readingCopyAllDone": "Article text copied ({characters} characters)",
   "readingCopyAllEmpty": "This article has no body text to copy.",
@@ -628,7 +626,7 @@
   "readingSelectionExplainNoAiTitle": "No AI service configured yet",
   "readingSelectionExplainNoAiBody": "Explaining a selection needs an AI service. Only the selected text plus one short paragraph of context on each side (at most {limit} characters) is sent.",
   "readingSelectionExplainGoSettings": "Open settings",
-  "readingSelectionExplainPending": "Explaining a selection needs an AI service; the call itself is T034. This round only adds the entry point and notice, and sends no request.",
+  "readingSelectionExplainPending": "Explaining a selection requires an AI service configured in Settings.",
   "readingImageAnalyzeAction": "Analyze this image",
   "visionConsentTitle": "First time sending images to this service",
   "visionConsentBody": "This image will be sent to {endpoint} for analysis. It leaves your device and cannot be recalled; the result is generated by that model and may be wrong. The acknowledgement is stored on this device only, and you will be asked again if the endpoint changes.",
@@ -652,13 +650,13 @@
   "readingSummaryCancelAction": "Cancel summary",
   "readingSummaryCancelled": "Summary generation cancelled; the article is unchanged.",
   "readingAiSummaryLabel": "AI summary · {model} · {date}",
-  "readingSummaryTruncatedNotice": "The article exceeds the single-article budget (SET-061, 8000 characters), so the summary only uses the first part.",
+  "readingSummaryTruncatedNotice": "The article exceeds the single-article budget, so the summary only uses the first part.",
   "readingSummarySourceKept": "The source summary is still kept and was not overwritten by the AI summary.",
   "readingSummaryNoBody": "This article has no body to summarize (the source only provided a summary); the source summary is kept.",
   "readingSummaryNoModelBody": "Summaries need an AI service. Configure at least one enabled model first; without one the list falls back to an excerpt of the body.",
   "readingSummaryFailed": "Summary failed: {reason}",
   "readingSummaryAutoToggleLabel": "Auto AI summary for missing summaries",
-  "readingSummaryAutoToggleHint": "Off by default. When on, missing summaries are filled only during a list refresh; each summary is billed separately and is capped by the daily limit (SET-064, default 50). When off, the list uses an excerpt of the body as a fallback.",
+  "readingSummaryAutoToggleHint": "Off by default. When on, missing summaries are filled only during a list refresh; each summary is billed separately and is capped by the daily limit. When off, the list uses an excerpt of the body as a fallback.",
   "readingSummaryAutoToggleDone": "Auto summary enabled; missing summaries will be filled on the next refresh.",
   "readingSummaryAutoBatchReport": "Auto summary: {succeeded} succeeded, {failed} failed, {cached} from cache (daily limit {limit}).",
   "readingSummaryAutoQuotaReached": "Today's auto-summary quota is used up ({limit}); manual summaries are not affected.",
@@ -680,7 +678,7 @@
   "readingImageSaveFailed": "Save failed: {reason}",
   "readingImageLoadFailed": "Image failed to load.",
   "readingImageTapToDownload": "Tap to download this image",
-  "readingImageAutoLoadOff": "Loading remote images automatically is off (SET-012); tap an image to download that one.",
+  "readingImageAutoLoadOff": "Loading remote images automatically is off; tap an image to download that one.",
   "readingShareUnavailable": "System share is unavailable; copied instead.",
   "readingShareDone": "System share opened.",
   "readingShareFailed": "Share did not complete; copied to the clipboard instead.",
@@ -734,14 +732,14 @@
   "statsRecordToggleLabel": "Record reading time",
   "statsRecordToggleHint": "Turning this off stops recording new reading time; existing history is kept and can be cleared at any time.",
   "statsIdlePauseLabel": "Pause after {minutes} min idle",
-  "statsDisabledNotice": "Reading stats are off (SET-015); this page shows the history already recorded.",
+  "statsDisabledNotice": "Reading stats are off; this page shows the history already recorded.",
   "statsLoadFailed": "Could not load stats: {reason}",
   "statsRetry": "Retry",
   "statsEstimateNote": "Stats are a local estimate: time only counts while visible and active, and is never summed across devices.",
   "settingsStatsEntryTitle": "Reading stats",
   "settingsStatsEntrySubtitle": "Year heatmap and last-7-day reading time",
   "readingFetchFullTextAction": "Fetch full text from source",
-  "readingFetchFullTextLoading": "Fetching the source page\u2026",
+  "readingFetchFullTextLoading": "Fetching the source page…",
   "readingFetchFullTextDone": "Extracted source text ({chars} chars)",
   "readingFetchFullTextFailed": "Could not fetch the source text: {reason}",
   "readingFetchFullTextViewOriginal": "View original",
@@ -752,12 +750,11 @@
   "readingFetchFullTextNoUrl": "This article has no reachable source address.",
   "readingFetchFullTextNoScript": "HTTP fetch and static parsing only: no scripts are run and no paywall or sign-in is bypassed.",
   "readingFetchFullTextButtonHint": "Fetches the source only when you click, never automatically or in the background.",
-
   "settingsAiEntryTitle": "AI services",
   "@settingsAiEntryTitle": {
     "description": "Settings entry: AI service configuration"
   },
-  "settingsAiEntrySubtitle": "Providers, models, capabilities and credentials (SET-030-033)",
+  "settingsAiEntrySubtitle": "Providers, models, capabilities and credentials",
   "@settingsAiEntrySubtitle": {
     "description": "Settings entry subtitle"
   },
@@ -873,7 +870,7 @@
   "@aiModelIdHint": {
     "description": "Model ID explanation"
   },
-  "aiApiKeyLabel": "API key (SET-031)",
+  "aiApiKeyLabel": "API key",
   "@aiApiKeyLabel": {
     "description": "API key label"
   },
@@ -907,7 +904,7 @@
   "@aiApiKeyUnavailable": {
     "description": "Secure storage unavailable notice"
   },
-  "aiCapabilitySection": "Capabilities (SET-033)",
+  "aiCapabilitySection": "Capabilities",
   "@aiCapabilitySection": {
     "description": "Capability section title"
   },
@@ -977,7 +974,7 @@
   "@aiMoveDown": {
     "description": "Move down in order"
   },
-  "aiSortHint": "Order decides the failover sequence (SET-032/035); disabled models do not take part.",
+  "aiSortHint": "Order decides the failover sequence; disabled models do not take part.",
   "@aiSortHint": {
     "description": "Ordering explanation"
   },
@@ -1025,7 +1022,7 @@
   "@aiTestCostConfirm": {
     "description": "Cost confirmation confirm button"
   },
-  "aiTestRunning": "Testing\u2026",
+  "aiTestRunning": "Testing…",
   "@aiTestRunning": {
     "description": "Test in progress"
   },
@@ -1141,7 +1138,7 @@
       }
     }
   },
-  "aiDeleteConfirmTitle": "Delete model \u201c{alias}\u201d?",
+  "aiDeleteConfirmTitle": "Delete model “{alias}”?",
   "@aiDeleteConfirmTitle": {
     "description": "Delete confirmation title",
     "placeholders": {
@@ -1169,11 +1166,11 @@
   "@aiReferenceDefaultForTasks": {
     "description": "Reference source: default model"
   },
-  "aiReferenceVisionModel": "SET-034 vision model",
+  "aiReferenceVisionModel": "vision model",
   "@aiReferenceVisionModel": {
     "description": "Reference source: vision model"
   },
-  "aiReferenceFailover": "SET-035 failover allow list",
+  "aiReferenceFailover": "failover allow list",
   "@aiReferenceFailover": {
     "description": "Reference source: failover allow list"
   },
@@ -1209,144 +1206,354 @@
       }
     }
   },
-  "aiPlannedNotice": "The automatic-summary switch (SET-037) belongs to T034; this page only configures providers and models. The five-no-response failover rule, total timeout and token budget are implemented by T029 (see Settings → AI tasks).",
+  "aiPlannedNotice": "This page configures providers and models only; failover limits are in Settings → AI task history.",
   "@aiPlannedNotice": {
     "description": "Not-yet-implemented notice"
   },
   "aiTaskListTitle": "AI tasks",
-  "@aiTaskListTitle": {"description":"Tasks page title"},
+  "@aiTaskListTitle": {
+    "description": "Tasks page title"
+  },
   "settingsAiTasksEntryTitle": "AI tasks",
-  "@settingsAiTasksEntryTitle": {"description":"Settings entry"},
+  "@settingsAiTasksEntryTitle": {
+    "description": "Settings entry"
+  },
   "settingsAiTasksEntrySubtitle": "Review past tasks and interruptions; restart them by hand",
-  "@settingsAiTasksEntrySubtitle": {"description":"Settings entry subtitle"},
+  "@settingsAiTasksEntrySubtitle": {
+    "description": "Settings entry subtitle"
+  },
   "aiTaskListEmpty": "No AI tasks yet.",
-  "@aiTaskListEmpty": {"description":"Empty state"},
+  "@aiTaskListEmpty": {
+    "description": "Empty state"
+  },
   "aiTaskListLoadFailed": "Could not load AI tasks: {reason}",
-  "@aiTaskListLoadFailed": {"description":"Load failure","placeholders":{"reason":{"type":"String","example":"storage"}}},
+  "@aiTaskListLoadFailed": {
+    "description": "Load failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
+  },
   "aiTaskRestart": "Restart",
-  "@aiTaskRestart": {"description":"Restart button"},
+  "@aiTaskRestart": {
+    "description": "Restart button"
+  },
   "aiTaskRestartBlocked": "This task is still running; it cannot be started again",
-  "@aiTaskRestartBlocked": {"description":"Active task cannot restart"},
+  "@aiTaskRestartBlocked": {
+    "description": "Active task cannot restart"
+  },
   "aiTaskRestartSuccess": "A new task finished; the original record is unchanged",
-  "@aiTaskRestartSuccess": {"description":"Restart receipt"},
+  "@aiTaskRestartSuccess": {
+    "description": "Restart receipt"
+  },
   "aiTaskFromCache": "Cache hit (no request sent)",
-  "@aiTaskFromCache": {"description":"Cache-hit badge"},
+  "@aiTaskFromCache": {
+    "description": "Cache-hit badge"
+  },
   "aiTaskMeta": "{tokens} tokens total · {attempts} attempts",
-  "@aiTaskMeta": {"description":"Task metadata","placeholders":{"tokens":{"type":"int","example":"128"},"attempts":{"type":"int","example":"2"}}},
+  "@aiTaskMeta": {
+    "description": "Task metadata",
+    "placeholders": {
+      "tokens": {
+        "type": "int",
+        "example": "128"
+      },
+      "attempts": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
   "aiTaskStatusQueued": "Queued",
-  "@aiTaskStatusQueued": {"description":"Status and task kind labels"},
+  "@aiTaskStatusQueued": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusRunning": "Running",
-  "@aiTaskStatusRunning": {"description":"Status and task kind labels"},
+  "@aiTaskStatusRunning": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusWaitingConfiguration": "Waiting for configuration",
-  "@aiTaskStatusWaitingConfiguration": {"description":"Status and task kind labels"},
+  "@aiTaskStatusWaitingConfiguration": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusWaitingNetwork": "Waiting for network",
-  "@aiTaskStatusWaitingNetwork": {"description":"Status and task kind labels"},
+  "@aiTaskStatusWaitingNetwork": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusSucceeded": "Succeeded",
-  "@aiTaskStatusSucceeded": {"description":"Status and task kind labels"},
+  "@aiTaskStatusSucceeded": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusPartial": "Partially finished",
-  "@aiTaskStatusPartial": {"description":"Status and task kind labels"},
+  "@aiTaskStatusPartial": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusFailed": "Failed",
-  "@aiTaskStatusFailed": {"description":"Status and task kind labels"},
+  "@aiTaskStatusFailed": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusCancelled": "Cancelled",
-  "@aiTaskStatusCancelled": {"description":"Status and task kind labels"},
+  "@aiTaskStatusCancelled": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskStatusInterrupted": "Interrupted (not resent automatically)",
-  "@aiTaskStatusInterrupted": {"description":"Status and task kind labels"},
+  "@aiTaskStatusInterrupted": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskKindSummary": "Daily summary",
-  "@aiTaskKindSummary": {"description":"Status and task kind labels"},
+  "@aiTaskKindSummary": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskKindExplain": "Explain selection",
-  "@aiTaskKindExplain": {"description":"Status and task kind labels"},
+  "@aiTaskKindExplain": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskKindTranslate": "Full translation",
-  "@aiTaskKindTranslate": {"description":"Status and task kind labels"},
+  "@aiTaskKindTranslate": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskKindNews": "Today's news",
-  "@aiTaskKindNews": {"description":"Status and task kind labels"},
+  "@aiTaskKindNews": {
+    "description": "Status and task kind labels"
+  },
   "aiTaskKindOther": "Other task",
-  "@aiTaskKindOther": {"description":"Status and task kind labels"},
+  "@aiTaskKindOther": {
+    "description": "Status and task kind labels"
+  },
   "searchPageTitle": "Search services",
-  "@searchPageTitle": {"description": "Search services page title"},
+  "@searchPageTitle": {
+    "description": "Search services page title"
+  },
   "settingsSearchEntryTitle": "Search services",
-  "@settingsSearchEntryTitle": {"description": "Settings entry"},
+  "@settingsSearchEntryTitle": {
+    "description": "Settings entry"
+  },
   "settingsSearchEntrySubtitle": "Endpoints and credentials for Tavily / Brave / self-hosted SearXNG",
-  "@settingsSearchEntrySubtitle": {"description": "Settings entry subtitle"},
+  "@settingsSearchEntrySubtitle": {
+    "description": "Settings entry subtitle"
+  },
   "searchAddService": "Add search service",
-  "@searchAddService": {"description": "Add button"},
+  "@searchAddService": {
+    "description": "Add button"
+  },
   "searchEditService": "Edit search service",
-  "@searchEditService": {"description": "Edit dialog title"},
+  "@searchEditService": {
+    "description": "Edit dialog title"
+  },
   "searchServicesSection": "Configured search services",
-  "@searchServicesSection": {"description": "List section title"},
+  "@searchServicesSection": {
+    "description": "List section title"
+  },
   "searchSortHint": "The order is the order the tool executor picks services in; a disabled service is skipped.",
-  "@searchSortHint": {"description": "Ordering hint"},
+  "@searchSortHint": {
+    "description": "Ordering hint"
+  },
   "searchEmptyNotice": "No search service is configured yet. Without one, web-search tasks say configuration is missing instead of silently skipping search.",
-  "@searchEmptyNotice": {"description": "Empty state"},
+  "@searchEmptyNotice": {
+    "description": "Empty state"
+  },
   "searchLoadFailed": "Could not load search services: {reason}",
-  "@searchLoadFailed": {"description":"Load failure","placeholders":{"reason":{"type":"String","example":"storage"}}},
+  "@searchLoadFailed": {
+    "description": "Load failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
+  },
   "searchDefaultBadge": "Task default",
-  "@searchDefaultBadge": {"description": "Default badge"},
+  "@searchDefaultBadge": {
+    "description": "Default badge"
+  },
   "searchDefaultLabel": "Default for tasks",
-  "@searchDefaultLabel": {"description": "Default switch"},
-  "searchBudgetHint": "{maxResults} results per query · {timeoutSeconds}s timeout (SET-040)",
-  "@searchBudgetHint": {"description":"Budget hint","placeholders":{"maxResults":{"type":"int","example":"10"},"timeoutSeconds":{"type":"int","example":"20"}}},
-  "searchPrivateApproved": "Private/HTTP endpoint explicitly approved (SET-041)",
-  "@searchPrivateApproved": {"description": "Private approved"},
+  "@searchDefaultLabel": {
+    "description": "Default switch"
+  },
+  "searchBudgetHint": "{maxResults} results per query · {timeoutSeconds}s timeout",
+  "@searchBudgetHint": {
+    "description": "Budget hint",
+    "placeholders": {
+      "maxResults": {
+        "type": "int",
+        "example": "10"
+      },
+      "timeoutSeconds": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  },
+  "searchPrivateApproved": "Private/HTTP endpoint explicitly approved",
+  "@searchPrivateApproved": {
+    "description": "Private approved"
+  },
   "searchCredentialMissingHint": "No credential yet: this protocol always fails without a key, so the test button is disabled.",
-  "@searchCredentialMissingHint": {"description": "Missing credential hint"},
+  "@searchCredentialMissingHint": {
+    "description": "Missing credential hint"
+  },
   "searchTestDisabledNoCredential": "Save a credential first; this protocol cannot be called without a key",
-  "@searchTestDisabledNoCredential": {"description": "Test disabled reason"},
+  "@searchTestDisabledNoCredential": {
+    "description": "Test disabled reason"
+  },
   "searchTestButton": "Test",
-  "@searchTestButton": {"description": "Test button"},
+  "@searchTestButton": {
+    "description": "Test button"
+  },
   "searchTestConfirmTitle": "Send one real search?",
-  "@searchTestConfirmTitle": {"description": "Test confirmation title"},
+  "@searchTestConfirmTitle": {
+    "description": "Test confirmation title"
+  },
   "searchTestConfirmBody": "This sends the query to the {protocol} endpoint {endpoint} and may incur cost. The query leaves this device.",
-  "@searchTestConfirmBody": {"description":"Test confirmation body (cost and data destination)","placeholders":{"protocol":{"type":"String","example":"Tavily"},"endpoint":{"type":"String","example":"https://api.tavily.com/search"}}},
+  "@searchTestConfirmBody": {
+    "description": "Test confirmation body (cost and data destination)",
+    "placeholders": {
+      "protocol": {
+        "type": "String",
+        "example": "Tavily"
+      },
+      "endpoint": {
+        "type": "String",
+        "example": "https://api.tavily.com/search"
+      }
+    }
+  },
   "searchTestConfirmYes": "Send",
-  "@searchTestConfirmYes": {"description": "Confirm send"},
+  "@searchTestConfirmYes": {
+    "description": "Confirm send"
+  },
   "searchTestConfirmCancel": "Cancel",
-  "@searchTestConfirmCancel": {"description": "Cancel send"},
+  "@searchTestConfirmCancel": {
+    "description": "Cancel send"
+  },
   "searchTestSuccess": "Search succeeded: {elapsedMs} ms, {count} result(s)",
-  "@searchTestSuccess": {"description":"Test receipt","placeholders":{"elapsedMs":{"type":"int","example":"320"},"count":{"type":"int","example":"1"}}},
+  "@searchTestSuccess": {
+    "description": "Test receipt",
+    "placeholders": {
+      "elapsedMs": {
+        "type": "int",
+        "example": "320"
+      },
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
   "searchDeleteConfirmTitle": "Delete search service \"{label}\"?",
-  "@searchDeleteConfirmTitle": {"description":"Delete title","placeholders":{"label":{"type":"String","example":"tavily"}}},
+  "@searchDeleteConfirmTitle": {
+    "description": "Delete title",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "tavily"
+      }
+    }
+  },
   "searchDeleteConfirmBody": "This search service becomes unavailable. The stored key is not deleted.",
-  "@searchDeleteConfirmBody": {"description": "Delete body"},
+  "@searchDeleteConfirmBody": {
+    "description": "Delete body"
+  },
   "searchDeleteInUseBody": "This search service is still referenced by: {references}. After deletion those settings point at a service that no longer exists, and you must fix them by hand.",
-  "@searchDeleteInUseBody": {"description":"Delete body when referenced","placeholders":{"references":{"type":"String","example":"Default search service"}}},
+  "@searchDeleteInUseBody": {
+    "description": "Delete body when referenced",
+    "placeholders": {
+      "references": {
+        "type": "String",
+        "example": "Default search service"
+      }
+    }
+  },
   "searchDeleteConfirmYes": "Delete anyway",
-  "@searchDeleteConfirmYes": {"description": "Confirm delete"},
+  "@searchDeleteConfirmYes": {
+    "description": "Confirm delete"
+  },
   "searchDeleteCancel": "Cancel",
-  "@searchDeleteCancel": {"description": "Cancel delete"},
+  "@searchDeleteCancel": {
+    "description": "Cancel delete"
+  },
   "searchDeleteFailed": "Delete failed: {reason}",
-  "@searchDeleteFailed": {"description":"Delete failure","placeholders":{"reason":{"type":"String","example":"storage failure"}}},
+  "@searchDeleteFailed": {
+    "description": "Delete failure",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage failure"
+      }
+    }
+  },
   "searchSaveService": "Save",
-  "@searchSaveService": {"description": "Save button"},
+  "@searchSaveService": {
+    "description": "Save button"
+  },
   "searchLabelField": "Service name",
-  "@searchLabelField": {"description": "Name field"},
+  "@searchLabelField": {
+    "description": "Name field"
+  },
   "searchProtocolField": "Protocol",
-  "@searchProtocolField": {"description": "Protocol field"},
+  "@searchProtocolField": {
+    "description": "Protocol field"
+  },
   "searchEndpointField": "Endpoint",
-  "@searchEndpointField": {"description": "Endpoint field"},
+  "@searchEndpointField": {
+    "description": "Endpoint field"
+  },
   "searchEndpointRequiredHint": "A self-hosted SearXNG has no default address; enter your own instance URL.",
-  "@searchEndpointRequiredHint": {"description": "Endpoint required hint"},
+  "@searchEndpointRequiredHint": {
+    "description": "Endpoint required hint"
+  },
   "searchEndpointResolved": "Will request: {endpoint}",
-  "@searchEndpointResolved": {"description":"Resolved endpoint hint","placeholders":{"endpoint":{"type":"String","example":"https://api.tavily.com/search"}}},
+  "@searchEndpointResolved": {
+    "description": "Resolved endpoint hint",
+    "placeholders": {
+      "endpoint": {
+        "type": "String",
+        "example": "https://api.tavily.com/search"
+      }
+    }
+  },
   "searchKeyField": "API key / instance auth",
-  "@searchKeyField": {"description": "Credential field"},
+  "@searchKeyField": {
+    "description": "Credential field"
+  },
   "searchKeyConfigured": "Configured (never echoed; leave empty to keep it)",
-  "@searchKeyConfigured": {"description": "Credential configured"},
+  "@searchKeyConfigured": {
+    "description": "Credential configured"
+  },
   "searchKeyNotConfigured": "Not configured",
-  "@searchKeyNotConfigured": {"description": "Credential absent"},
+  "@searchKeyNotConfigured": {
+    "description": "Credential absent"
+  },
   "searchKeyOptionalHint": "Credential is optional for this protocol: leaving it empty sends no auth header (typical when a reverse proxy authenticates the instance).",
-  "@searchKeyOptionalHint": {"description": "Optional credential hint"},
+  "@searchKeyOptionalHint": {
+    "description": "Optional credential hint"
+  },
   "searchDeleteKey": "Delete stored credential",
-  "@searchDeleteKey": {"description": "Delete credential button"},
+  "@searchDeleteKey": {
+    "description": "Delete credential button"
+  },
   "searchMaxResultsField": "Results per query (1–20)",
-  "@searchMaxResultsField": {"description": "Results field"},
+  "@searchMaxResultsField": {
+    "description": "Results field"
+  },
   "searchTimeoutField": "Timeout seconds (5–60)",
-  "@searchTimeoutField": {"description": "Timeout field"},
-  "searchAllowPrivateLabel": "Allow private/HTTP endpoint (SET-041)",
-  "@searchAllowPrivateLabel": {"description": "Private approval switch"},
+  "@searchTimeoutField": {
+    "description": "Timeout field"
+  },
+  "searchAllowPrivateLabel": "Allow private/HTTP endpoint",
+  "@searchAllowPrivateLabel": {
+    "description": "Private approval switch"
+  },
   "searchAllowPrivateHint": "Turn this on only for a self-hosted instance on your LAN or over plain HTTP. Without approval the endpoint is rejected by the URL guard and no request is sent.",
-  "@searchAllowPrivateHint": {"description": "Private approval hint"},
-  "searchPlannedNotice": "The query keyword list (SET-052), forbidden query terms and topic filters (SET-053), and the daily-news search orchestration (T036/T037) come later; this page only manages the search services themselves.",
-  "@searchPlannedNotice": {"description": "Not-yet-implemented notice"},
+  "@searchAllowPrivateHint": {
+    "description": "Private approval hint"
+  },
+  "searchPlannedNotice": "This page configures the search service itself; query keywords and filters are in the news settings.",
+  "@searchPlannedNotice": {
+    "description": "Not-yet-implemented notice"
+  },
   "readingTranslateAction": "Translate",
   "@readingTranslateAction": {
     "description": "Detail page: full translation entry"
@@ -1359,25 +1566,46 @@
   "@readingTranslateRunning": {
     "description": "Translation progress",
     "placeholders": {
-      "done": { "type": "int", "example": "3" },
-      "total": { "type": "int", "example": "8" }
+      "done": {
+        "type": "int",
+        "example": "3"
+      },
+      "total": {
+        "type": "int",
+        "example": "8"
+      }
     }
   },
   "readingTranslateDone": "Translation finished: {done}/{total} paragraphs done.",
   "@readingTranslateDone": {
     "description": "Translation finished receipt",
     "placeholders": {
-      "done": { "type": "int", "example": "8" },
-      "total": { "type": "int", "example": "8" }
+      "done": {
+        "type": "int",
+        "example": "8"
+      },
+      "total": {
+        "type": "int",
+        "example": "8"
+      }
     }
   },
   "readingTranslatePartial": "Translation finished: {done}/{total} paragraphs done, {failed} failed (you can retry only the failures).",
   "@readingTranslatePartial": {
     "description": "Partial success receipt",
     "placeholders": {
-      "done": { "type": "int", "example": "6" },
-      "total": { "type": "int", "example": "8" },
-      "failed": { "type": "int", "example": "2" }
+      "done": {
+        "type": "int",
+        "example": "6"
+      },
+      "total": {
+        "type": "int",
+        "example": "8"
+      },
+      "failed": {
+        "type": "int",
+        "example": "2"
+      }
     }
   },
   "readingTranslateCancelAction": "Cancel translation",
@@ -1392,7 +1620,10 @@
   "@readingTranslateRetryFailed": {
     "description": "Retry failed paragraphs button",
     "placeholders": {
-      "count": { "type": "int", "example": "2" }
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
     }
   },
   "readingTranslateRetryHint": "Only failed paragraphs are re-run; finished translations are kept.",
@@ -1415,7 +1646,7 @@
   "@readingTranslateSourceKept": {
     "description": "Original is preserved note"
   },
-  "readingTranslateTruncatedNotice": "Some paragraphs exceed the single-material budget (SET-061, 8000 characters) and were only translated in part.",
+  "readingTranslateTruncatedNotice": "Some paragraphs exceed the single-material budget and were only translated in part.",
   "@readingTranslateTruncatedNotice": {
     "description": "Truncated paragraphs note"
   },
@@ -1443,22 +1674,34 @@
   "@readingTranslateFailed": {
     "description": "Translation failure note",
     "placeholders": {
-      "reason": { "type": "String", "example": "network" }
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
     }
   },
   "readingTranslateSavedLabel": "Translation · {model} · {date}",
   "@readingTranslateSavedLabel": {
     "description": "Translation origin label",
     "placeholders": {
-      "model": { "type": "String", "example": "deepseek/deepseek-chat" },
-      "date": { "type": "String", "example": "2026-09-22" }
+      "model": {
+        "type": "String",
+        "example": "deepseek/deepseek-chat"
+      },
+      "date": {
+        "type": "String",
+        "example": "2026-09-22"
+      }
     }
   },
   "readingTranslateLanguage": "Target language: {language}",
   "@readingTranslateLanguage": {
     "description": "Current target language (SET-011)",
     "placeholders": {
-      "language": { "type": "String", "example": "Simplified Chinese" }
+      "language": {
+        "type": "String",
+        "example": "Simplified Chinese"
+      }
     }
   },
   "readingTranslateInterrupted": "The previous translation did not finish (the process was interrupted). Finished paragraphs are kept; you can retry the failures.",
@@ -1466,1002 +1709,2211 @@
     "description": "Interrupted translation note"
   },
   "newsSettingsEntryTitle": "News generation",
-  "@newsSettingsEntryTitle": { "description": "设置入口：新闻生成" },
-  "newsSettingsEntrySubtitle": "Source selection, required sites, keywords and the overall prompt (SET-050–055); the daily-news pipeline itself comes with T037–T040.",
-  "@newsSettingsEntrySubtitle": { "description": "设置入口说明" },
+  "@newsSettingsEntryTitle": {
+    "description": "设置入口：新闻生成"
+  },
+  "newsSettingsEntrySubtitle": "Source selection, required sites, keywords and the overall prompt",
+  "@newsSettingsEntrySubtitle": {
+    "description": "设置入口说明"
+  },
   "newsPageTitle": "News sources and prompt",
-  "@newsPageTitle": { "description": "页面标题" },
+  "@newsPageTitle": {
+    "description": "页面标题"
+  },
   "newsLoadingFailed": "Failed to load configuration: {reason}; what follows is this run's initial value, not your saved configuration.",
   "@newsLoadingFailed": {
     "description": "读取失败提示",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
   "newsGlobalSwitchLabel": "Let RSS subscriptions feed the news selection",
-  "@newsGlobalSwitchLabel": { "description": "SET-050 总开关" },
+  "@newsGlobalSwitchLabel": {
+    "description": "SET-050 总开关"
+  },
   "newsGlobalSwitchHint": "When off, no subscription content is used at all; the per-source switches only affect a single source and are unrelated to starring.",
-  "@newsGlobalSwitchHint": { "description": "SET-050 总开关说明" },
-  "newsFeedSectionTitle": "Per-source switches (SET-050)",
-  "@newsFeedSectionTitle": { "description": "逐源小节标题" },
+  "@newsGlobalSwitchHint": {
+    "description": "SET-050 总开关说明"
+  },
+  "newsFeedSectionTitle": "Per-source switches",
+  "@newsFeedSectionTitle": {
+    "description": "逐源小节标题"
+  },
   "newsFeedSectionHint": "\"Follow\" defers to the source's subscription refresh state; you can exclude a source from the news while keeping its refresh.",
-  "@newsFeedSectionHint": { "description": "逐源说明" },
+  "@newsFeedSectionHint": {
+    "description": "逐源说明"
+  },
   "newsFeedFollow": "Follow subscription",
-  "@newsFeedFollow": { "description": "三态：跟随" },
+  "@newsFeedFollow": {
+    "description": "三态：跟随"
+  },
   "newsFeedInclude": "Include in news",
-  "@newsFeedInclude": { "description": "三态：参与" },
+  "@newsFeedInclude": {
+    "description": "三态：参与"
+  },
   "newsFeedExclude": "Exclude from news",
-  "@newsFeedExclude": { "description": "三态：不参与" },
+  "@newsFeedExclude": {
+    "description": "三态：不参与"
+  },
   "newsFeedDisabledHint": " (subscription refresh is off)",
-  "@newsFeedDisabledHint": { "description": "订阅刷新已关的标注" },
+  "@newsFeedDisabledHint": {
+    "description": "订阅刷新已关的标注"
+  },
   "newsFeedEmpty": "No subscriptions yet; add one and you can configure it per source here.",
-  "@newsFeedEmpty": { "description": "没有任何订阅时的空态" },
-  "newsRequiredSectionTitle": "Required sites (SET-051)",
-  "@newsRequiredSectionTitle": { "description": "必访小节标题" },
+  "@newsFeedEmpty": {
+    "description": "没有任何订阅时的空态"
+  },
+  "newsRequiredSectionTitle": "Required sites",
+  "@newsRequiredSectionTitle": {
+    "description": "必访小节标题"
+  },
   "newsRequiredSectionHint": "Each site is fetched individually during the task and written into the overall prompt one by one; disabled sites stay out of the prompt.",
-  "@newsRequiredSectionHint": { "description": "必访说明" },
+  "@newsRequiredSectionHint": {
+    "description": "必访说明"
+  },
   "newsRequiredEmpty": "No required sites configured yet.",
-  "@newsRequiredEmpty": { "description": "必访空态" },
+  "@newsRequiredEmpty": {
+    "description": "必访空态"
+  },
   "newsRequiredAdd": "Add site",
-  "@newsRequiredAdd": { "description": "添加必访站按钮" },
+  "@newsRequiredAdd": {
+    "description": "添加必访站按钮"
+  },
   "newsRequiredNameField": "Site name",
-  "@newsRequiredNameField": { "description": "站点名字段" },
+  "@newsRequiredNameField": {
+    "description": "站点名字段"
+  },
   "newsRequiredUrlField": "Site URL",
-  "@newsRequiredUrlField": { "description": "站点地址字段" },
+  "@newsRequiredUrlField": {
+    "description": "站点地址字段"
+  },
   "newsRequiredSaved": "Required sites saved.",
-  "@newsRequiredSaved": { "description": "保存回执" },
+  "@newsRequiredSaved": {
+    "description": "保存回执"
+  },
   "newsRequiredSaveFailed": "Save failed: {reason}",
   "@newsRequiredSaveFailed": {
     "description": "保存失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
-  "newsListKeywordsTitle": "Search keywords (SET-052)",
-  "@newsListKeywordsTitle": { "description": "关键词小节标题" },
+  "newsListKeywordsTitle": "Search keywords",
+  "@newsListKeywordsTitle": {
+    "description": "关键词小节标题"
+  },
   "newsListKeywordsHint": "With an empty list and no RSS material, the task reports missing input instead of inventing news.",
-  "@newsListKeywordsHint": { "description": "关键词说明" },
-  "newsListBlockedTitle": "Blocked query terms (SET-053)",
-  "@newsListBlockedTitle": { "description": "查询禁词小节标题" },
+  "@newsListKeywordsHint": {
+    "description": "关键词说明"
+  },
+  "newsListBlockedTitle": "Blocked query terms",
+  "@newsListBlockedTitle": {
+    "description": "查询禁词小节标题"
+  },
   "newsListBlockedHint": "Queries containing these terms are never sent to search services (substring match); this does not affect which topics are excluded.",
-  "@newsListBlockedHint": { "description": "查询禁词说明" },
-  "newsListTopicsTitle": "Excluded topics (SET-053)",
-  "@newsListTopicsTitle": { "description": "主题排除小节标题" },
+  "@newsListBlockedHint": {
+    "description": "查询禁词说明"
+  },
+  "newsListTopicsTitle": "Excluded topics",
+  "@newsListTopicsTitle": {
+    "description": "主题排除小节标题"
+  },
   "newsListTopicsHint": "These topics are kept out of the result; this is a separate list from the blocked query terms above.",
-  "@newsListTopicsHint": { "description": "主题排除说明" },
+  "@newsListTopicsHint": {
+    "description": "主题排除说明"
+  },
   "newsListEmpty": "The list is empty.",
-  "@newsListEmpty": { "description": "列表空态" },
+  "@newsListEmpty": {
+    "description": "列表空态"
+  },
   "newsListAddHint": "Type and press Enter to add",
-  "@newsListAddHint": { "description": "添加输入提示" },
+  "@newsListAddHint": {
+    "description": "添加输入提示"
+  },
   "newsListSaved": "List saved.",
-  "@newsListSaved": { "description": "列表保存回执" },
+  "@newsListSaved": {
+    "description": "列表保存回执"
+  },
   "newsListSaveFailed": "Save failed: {reason}",
   "@newsListSaveFailed": {
     "description": "列表保存失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
-  "newsPromptModeTitle": "Overall prompt mode (SET-055)",
-  "@newsPromptModeTitle": { "description": "模式小节标题" },
+  "newsPromptModeTitle": "Overall prompt mode",
+  "@newsPromptModeTitle": {
+    "description": "模式小节标题"
+  },
   "newsPromptModeComposed": "Composed",
-  "@newsPromptModeComposed": { "description": "模式：自动组合" },
+  "@newsPromptModeComposed": {
+    "description": "模式：自动组合"
+  },
   "newsPromptModeAdvanced": "Advanced override",
-  "@newsPromptModeAdvanced": { "description": "模式：高级覆盖" },
+  "@newsPromptModeAdvanced": {
+    "description": "模式：高级覆盖"
+  },
   "newsPromptModeComposedHint": "Composed from task + sources + spec + fixed protocol; the preview below is exactly what will be sent.",
-  "@newsPromptModeComposedHint": { "description": "组合模式说明" },
+  "@newsPromptModeComposedHint": {
+    "description": "组合模式说明"
+  },
   "newsPromptModeAdvancedHint": "Edit the overall prompt directly. The fixed citation protocol is still appended, and missing required sites are reported.",
-  "@newsPromptModeAdvancedHint": { "description": "高级模式说明" },
+  "@newsPromptModeAdvancedHint": {
+    "description": "高级模式说明"
+  },
   "newsPromptTaskField": "Task instruction",
-  "@newsPromptTaskField": { "description": "任务说明字段" },
+  "@newsPromptTaskField": {
+    "description": "任务说明字段"
+  },
   "newsPromptSpecField": "Output spec",
-  "@newsPromptSpecField": { "description": "输出规范字段" },
+  "@newsPromptSpecField": {
+    "description": "输出规范字段"
+  },
   "newsPromptAdvancedField": "Overall prompt (advanced override)",
-  "@newsPromptAdvancedField": { "description": "高级 prompt 字段" },
+  "@newsPromptAdvancedField": {
+    "description": "高级 prompt 字段"
+  },
   "newsPromptCitationFixed": "Fixed output protocol (cannot be removed; always appended)",
-  "@newsPromptCitationFixed": { "description": "固定协议段标题" },
+  "@newsPromptCitationFixed": {
+    "description": "固定协议段标题"
+  },
   "newsPromptRestoreDefaults": "Restore default template",
-  "@newsPromptRestoreDefaults": { "description": "恢复默认按钮" },
+  "@newsPromptRestoreDefaults": {
+    "description": "恢复默认按钮"
+  },
   "newsPromptRestored": "Built-in template restored (not saved yet).",
-  "@newsPromptRestored": { "description": "恢复默认回执" },
+  "@newsPromptRestored": {
+    "description": "恢复默认回执"
+  },
   "newsPromptSaveVersion": "Save as new version",
-  "@newsPromptSaveVersion": { "description": "保存版本按钮" },
+  "@newsPromptSaveVersion": {
+    "description": "保存版本按钮"
+  },
   "newsPromptVersionSaved": "Saved as version {version}.",
   "@newsPromptVersionSaved": {
     "description": "保存版本回执",
-    "placeholders": { "version": { "type": "int", "example": "3" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   },
   "newsPromptSaveFailed": "Save failed: {reason}",
   "@newsPromptSaveFailed": {
     "description": "保存失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
   "newsPromptVersionsTitle": "Versions (roll back any time)",
-  "@newsPromptVersionsTitle": { "description": "版本列表标题" },
+  "@newsPromptVersionsTitle": {
+    "description": "版本列表标题"
+  },
   "newsPromptVersionNone": "No saved versions yet; the built-in template is in use.",
-  "@newsPromptVersionNone": { "description": "没有版本时的说明" },
+  "@newsPromptVersionNone": {
+    "description": "没有版本时的说明"
+  },
   "newsPromptVersionItem": "Version {version} · {mode}",
   "@newsPromptVersionItem": {
     "description": "版本条目",
     "placeholders": {
-      "version": { "type": "int", "example": "2" },
-      "mode": { "type": "String", "example": "自动组合" }
+      "version": {
+        "type": "int",
+        "example": "2"
+      },
+      "mode": {
+        "type": "String",
+        "example": "自动组合"
+      }
     }
   },
   "newsPromptVersionUse": "Load this version",
-  "@newsPromptVersionUse": { "description": "载入某个版本按钮" },
+  "@newsPromptVersionUse": {
+    "description": "载入某个版本按钮"
+  },
   "newsPromptVersionLoaded": "Version {version} loaded; save it to make it current.",
   "@newsPromptVersionLoaded": {
     "description": "载入版本回执",
-    "placeholders": { "version": { "type": "int", "example": "2" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "newsPromptVersionDelete": "Delete this version",
-  "@newsPromptVersionDelete": { "description": "删除版本按钮" },
+  "@newsPromptVersionDelete": {
+    "description": "删除版本按钮"
+  },
   "newsPromptDiffTitle": "Missing required-site tasks",
-  "@newsPromptDiffTitle": { "description": "差异提示标题" },
+  "@newsPromptDiffTitle": {
+    "description": "差异提示标题"
+  },
   "newsPromptDiffMissing": "These required sites do not appear in your overall prompt: {sites}. They are still listed as required tasks and will be fetched one by one; confirm that is what you want.",
   "@newsPromptDiffMissing": {
     "description": "缺失必访站提示",
-    "placeholders": { "sites": { "type": "String", "example": "甲站、乙站" } }
+    "placeholders": {
+      "sites": {
+        "type": "String",
+        "example": "甲站、乙站"
+      }
+    }
   },
   "newsPromptDiffCitationMissing": "Your overall prompt has no citation marker (like [sourceId]); the fixed protocol is still appended when sending, but keeping your own citation requirement is recommended.",
-  "@newsPromptDiffCitationMissing": { "description": "缺引用标记提示" },
+  "@newsPromptDiffCitationMissing": {
+    "description": "缺引用标记提示"
+  },
   "newsPromptPreviewTitle": "Prompt that will actually be sent",
-  "@newsPromptPreviewTitle": { "description": "预览标题" },
+  "@newsPromptPreviewTitle": {
+    "description": "预览标题"
+  },
   "newsPromptPreviewHint": "Below is the full composed or overridden text (including the fixed protocol). Copy it to verify what will actually be requested.",
-  "@newsPromptPreviewHint": { "description": "预览说明" },
+  "@newsPromptPreviewHint": {
+    "description": "预览说明"
+  },
   "newsEffectiveQueriesTitle": "Queries that will actually be sent (blocked terms applied)",
-  "@newsEffectiveQueriesTitle": { "description": "生效查询标题" },
+  "@newsEffectiveQueriesTitle": {
+    "description": "生效查询标题"
+  },
   "newsEffectiveQueriesEmpty": "There are no sendable queries right now (keywords are empty or all blocked).",
-  "@newsEffectiveQueriesEmpty": { "description": "没有生效查询时的说明" },
-  "newsPlannedNotice": "Daily-news retrieval orchestration and drafting (T037), source verification (T038) and scheduling (T040) come later; this page only covers the SET-050–055 configuration.",
-  "@newsPlannedNotice": { "description": "未实现部分说明" },
-
+  "@newsEffectiveQueriesEmpty": {
+    "description": "没有生效查询时的说明"
+  },
+  "newsPlannedNotice": "Daily-news retrieval orchestration and drafting, source verification and scheduling come later; this page only covers the –055 configuration.",
+  "@newsPlannedNotice": {
+    "description": "未实现部分说明"
+  },
   "todayGenerate": "Generate today's news",
-  "@todayGenerate": { "description": "今日页生成按钮" },
+  "@todayGenerate": {
+    "description": "今日页生成按钮"
+  },
   "todayRegenerate": "Generate again",
-  "@todayRegenerate": { "description": "当天已有成功版本时的生成按钮" },
+  "@todayRegenerate": {
+    "description": "当天已有成功版本时的生成按钮"
+  },
   "todayCancelGenerate": "Cancel generation",
-  "@todayCancelGenerate": { "description": "取消正在进行的生成" },
+  "@todayCancelGenerate": {
+    "description": "取消正在进行的生成"
+  },
   "todayDateLabel": "Date",
-  "@todayDateLabel": { "description": "日期选择标签" },
+  "@todayDateLabel": {
+    "description": "日期选择标签"
+  },
   "todayPreviousDay": "Previous day",
-  "@todayPreviousDay": { "description": "前一天按钮" },
+  "@todayPreviousDay": {
+    "description": "前一天按钮"
+  },
   "todayNextDay": "Next day",
-  "@todayNextDay": { "description": "后一天按钮" },
+  "@todayNextDay": {
+    "description": "后一天按钮"
+  },
   "todayProgressTitle": "Progress",
-  "@todayProgressTitle": { "description": "进度标题" },
+  "@todayProgressTitle": {
+    "description": "进度标题"
+  },
   "todayStageSnapshot": "Freezing the input snapshot",
-  "@todayStageSnapshot": { "description": "阶段：快照" },
+  "@todayStageSnapshot": {
+    "description": "阶段：快照"
+  },
   "todayStageRequiredSites": "Fetching required sites",
-  "@todayStageRequiredSites": { "description": "阶段：必访站" },
+  "@todayStageRequiredSites": {
+    "description": "阶段：必访站"
+  },
   "todayStageSearch": "Searching the web",
-  "@todayStageSearch": { "description": "阶段：检索" },
+  "@todayStageSearch": {
+    "description": "阶段：检索"
+  },
   "todayStageGenerate": "Drafting",
-  "@todayStageGenerate": { "description": "阶段：生成" },
+  "@todayStageGenerate": {
+    "description": "阶段：生成"
+  },
   "todayStageVerify": "Verifying independent sources",
-  "@todayStageVerify": { "description": "阶段：核验" },
+  "@todayStageVerify": {
+    "description": "阶段：核验"
+  },
   "todayStageSave": "Saving the version",
-  "@todayStageSave": { "description": "阶段：保存" },
+  "@todayStageSave": {
+    "description": "阶段：保存"
+  },
   "todayNoVersionTitle": "No news for this day yet",
-  "@todayNoVersionTitle": { "description": "空态标题" },
+  "@todayNoVersionTitle": {
+    "description": "空态标题"
+  },
   "todayNoVersionBody": "News is produced only when you press Generate: it uses the configured required sites, search keywords and model, and builds cited items from your local articles plus fetched material. Until then this page stays empty instead of inventing content.",
-  "@todayNoVersionBody": { "description": "空态说明" },
+  "@todayNoVersionBody": {
+    "description": "空态说明"
+  },
   "todayMaterialCount": "{count} input materials this run",
   "@todayMaterialCount": {
     "description": "材料数说明",
-    "placeholders": { "count": { "type": "int", "example": "12" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
   },
   "todayRejectedCount": "{count} items were dropped for citing material that does not exist",
   "@todayRejectedCount": {
     "description": "被退回条目数",
-    "placeholders": { "count": { "type": "int", "example": "2" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "todaySiteFailedTitle": "Required sites",
-  "@todaySiteFailedTitle": { "description": "逐站状态标题" },
+  "@todaySiteFailedTitle": {
+    "description": "逐站状态标题"
+  },
   "todaySiteOk": "Fetched ({chars} characters)",
   "@todaySiteOk": {
     "description": "站点成功",
-    "placeholders": { "chars": { "type": "int", "example": "1200" } }
+    "placeholders": {
+      "chars": {
+        "type": "int",
+        "example": "1200"
+      }
+    }
   },
   "todaySiteTimeout": "Timed out",
-  "@todaySiteTimeout": { "description": "站点超时" },
+  "@todaySiteTimeout": {
+    "description": "站点超时"
+  },
   "todaySiteFailed": "Failed ({reason})",
   "@todaySiteFailed": {
     "description": "站点失败",
-    "placeholders": { "reason": { "type": "String", "example": "network" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
   },
   "todaySiteSkipped": "Not attempted",
-  "@todaySiteSkipped": { "description": "站点未执行" },
+  "@todaySiteSkipped": {
+    "description": "站点未执行"
+  },
   "todayLabelSingleSource": "Single source",
-  "@todayLabelSingleSource": { "description": "证据标签：来源单一" },
+  "@todayLabelSingleSource": {
+    "description": "证据标签：来源单一"
+  },
   "todayLabelInsufficient": "Insufficient material",
-  "@todayLabelInsufficient": { "description": "证据标签：材料不足" },
+  "@todayLabelInsufficient": {
+    "description": "证据标签：材料不足"
+  },
   "todayLabelConflict": "Sources conflict",
-  "@todayLabelConflict": { "description": "证据标签：来源冲突" },
+  "@todayLabelConflict": {
+    "description": "证据标签：来源冲突"
+  },
   "todayLabelNotVerified": "Not verified online",
-  "@todayLabelNotVerified": { "description": "证据标签：未联网核验" },
+  "@todayLabelNotVerified": {
+    "description": "证据标签：未联网核验"
+  },
   "todayLabelLegend": "Labels: single source = only one independent source found; insufficient material = verification got no usable result; sources conflict = a second source explicitly denies the claim; not verified online = no search service is configured. These describe the verification process, not a guarantee of truth.",
-  "@todayLabelLegend": { "description": "标签说明" },
+  "@todayLabelLegend": {
+    "description": "标签说明"
+  },
   "todayCitationLocal": "Local article",
-  "@todayCitationLocal": { "description": "引用类型：本机文章" },
+  "@todayCitationLocal": {
+    "description": "引用类型：本机文章"
+  },
   "todayCitationOpen": "Open in browser",
-  "@todayCitationOpen": { "description": "引用外开按钮" },
+  "@todayCitationOpen": {
+    "description": "引用外开按钮"
+  },
   "todayCitationRss": "RSS",
-  "@todayCitationRss": { "description": "引用获取方式：RSS" },
+  "@todayCitationRss": {
+    "description": "引用获取方式：RSS"
+  },
   "todayCitationFetch": "Fetched page",
-  "@todayCitationFetch": { "description": "引用获取方式：抓取" },
+  "@todayCitationFetch": {
+    "description": "引用获取方式：抓取"
+  },
   "todayCitationSearch": "Search snippet",
-  "@todayCitationSearch": { "description": "引用获取方式：检索" },
+  "@todayCitationSearch": {
+    "description": "引用获取方式：检索"
+  },
   "todayCitationIncomplete": "This citation is missing: {fields}",
   "@todayCitationIncomplete": {
     "description": "引用不完整提示",
-    "placeholders": { "fields": { "type": "String", "example": "url, excerpt" } }
+    "placeholders": {
+      "fields": {
+        "type": "String",
+        "example": "url, excerpt"
+      }
+    }
   },
   "todayUnknownCitation": "The model cited material that does not exist; those items were dropped: {ids}",
   "@todayUnknownCitation": {
     "description": "编造引用提示",
-    "placeholders": { "ids": { "type": "String", "example": "rss.999" } }
+    "placeholders": {
+      "ids": {
+        "type": "String",
+        "example": "rss.999"
+      }
+    }
   },
   "todayVersionsTitle": "Versions",
-  "@todayVersionsTitle": { "description": "版本列表标题" },
+  "@todayVersionsTitle": {
+    "description": "版本列表标题"
+  },
   "todayVersionItem": "Version {version} ({status})",
   "@todayVersionItem": {
     "description": "版本条目",
     "placeholders": {
-      "version": { "type": "int", "example": "2" },
-      "status": { "type": "String", "example": "partial" }
+      "version": {
+        "type": "int",
+        "example": "2"
+      },
+      "status": {
+        "type": "String",
+        "example": "partial"
+      }
     }
   },
   "todayVersionCurrent": "Shown now",
-  "@todayVersionCurrent": { "description": "当前版本标记" },
+  "@todayVersionCurrent": {
+    "description": "当前版本标记"
+  },
   "todayVersionUse": "Show this version",
-  "@todayVersionUse": { "description": "切换版本按钮" },
+  "@todayVersionUse": {
+    "description": "切换版本按钮"
+  },
   "todayVersionSwitched": "Switched to version {version}",
   "@todayVersionSwitched": {
     "description": "切换版本回执",
-    "placeholders": { "version": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "todayDraftLabel": "Draft",
-  "@todayDraftLabel": { "description": "初稿版本标记" },
+  "@todayDraftLabel": {
+    "description": "初稿版本标记"
+  },
   "todayVerifiedLabel": "Verified",
-  "@todayVerifiedLabel": { "description": "核验后版本标记" },
+  "@todayVerifiedLabel": {
+    "description": "核验后版本标记"
+  },
   "todayModelLabel": "Model: {model}",
   "@todayModelLabel": {
     "description": "模型元数据",
-    "placeholders": { "model": { "type": "String", "example": "deepseek/deepseek-chat" } }
+    "placeholders": {
+      "model": {
+        "type": "String",
+        "example": "deepseek/deepseek-chat"
+      }
+    }
   },
   "todayVerificationMethod": "Verification method: {method}",
   "@todayVerificationMethod": {
     "description": "核验方法记录",
-    "placeholders": { "method": { "type": "String", "example": "search=yes queries=3" } }
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "search=yes queries=3"
+      }
+    }
   },
   "todayCostConfirmTitle": "Confirm generation (this costs money)",
-  "@todayCostConfirmTitle": { "description": "费用确认标题" },
+  "@todayCostConfirmTitle": {
+    "description": "费用确认标题"
+  },
   "todayCostConfirmBody": "Generation uses model calls and web searches and may cost money: up to {articles} articles, {sites} required sites and {queries} queries this run, bounded by the time limit and the token budget. It is a real network request that sends data.",
   "@todayCostConfirmBody": {
     "description": "费用确认正文",
     "placeholders": {
-      "articles": { "type": "int", "example": "50" },
-      "sites": { "type": "int", "example": "10" },
-      "queries": { "type": "int", "example": "10" }
+      "articles": {
+        "type": "int",
+        "example": "50"
+      },
+      "sites": {
+        "type": "int",
+        "example": "10"
+      },
+      "queries": {
+        "type": "int",
+        "example": "10"
+      }
     }
   },
   "todayCostConfirmRegenerate": "This day already has a generated version; generating again adds a version and costs money again.",
-  "@todayCostConfirmRegenerate": { "description": "再生成的额外说明" },
+  "@todayCostConfirmRegenerate": {
+    "description": "再生成的额外说明"
+  },
   "todayCostConfirmSend": "Generate",
-  "@todayCostConfirmSend": { "description": "确认按钮" },
+  "@todayCostConfirmSend": {
+    "description": "确认按钮"
+  },
   "todayCostConfirmCancel": "Not now",
-  "@todayCostConfirmCancel": { "description": "取消按钮" },
+  "@todayCostConfirmCancel": {
+    "description": "取消按钮"
+  },
   "todayGenerateFailed": "Generation did not finish: {reason}",
   "@todayGenerateFailed": {
     "description": "生成失败说明",
-    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "validation"
+      }
+    }
   },
   "todayGenerateSucceeded": "Saved as version {version}",
   "@todayGenerateSucceeded": {
     "description": "生成成功回执",
-    "placeholders": { "version": { "type": "int", "example": "2" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
-  "todayShortfallNoInput": "There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the SET-050 per-feed switches, the required-sites list, and whether your articles have been refreshed.",
-  "@todayShortfallNoInput": { "description": "缺输入说明" },
+  "todayShortfallNoInput": "There was no usable input this run (no articles selected for news, no keywords, and no required site returned content), so nothing was generated. Check the per-feed switches, the required-sites list, and whether your articles have been refreshed.",
+  "@todayShortfallNoInput": {
+    "description": "缺输入说明"
+  },
   "todayShortfallGlobalDisabled": "The RSS master switch is off and there is no other input (keywords or required sites), so nothing was generated. You can turn it on in Settings → News generation.",
-  "@todayShortfallGlobalDisabled": { "description": "总开关关闭说明" },
+  "@todayShortfallGlobalDisabled": {
+    "description": "总开关关闭说明"
+  },
   "todayJournalNotice": "Labels, versions and materials all come from local records; model output is not a guarantee of truth — check the citations yourself.",
-  "@todayJournalNotice": { "description": "今日页底部说明" },
+  "@todayJournalNotice": {
+    "description": "今日页底部说明"
+  },
   "todayRecentLabel": "Last 7 days",
-  "@todayRecentLabel": { "description": "今日页顶部日期条带说明" },
+  "@todayRecentLabel": {
+    "description": "今日页顶部日期条带说明"
+  },
   "todayPickDate": "Pick a date",
-  "@todayPickDate": { "description": "日历弹层入口" },
+  "@todayPickDate": {
+    "description": "日历弹层入口"
+  },
   "todayTodayChip": "Today",
-  "@todayTodayChip": { "description": "日期条带上的今天标记" },
+  "@todayTodayChip": {
+    "description": "日期条带上的今天标记"
+  },
   "todayIsToday": "Today",
-  "@todayIsToday": { "description": "当前查看的就是今天时的说明" },
+  "@todayIsToday": {
+    "description": "当前查看的就是今天时的说明"
+  },
   "todayHistoryBanner": "You are viewing versions for {date}. Historical records keep the device time zone in effect when they were generated; changing time zones now does not rewrite them.",
   "@todayHistoryBanner": {
     "description": "历史日期说明",
-    "placeholders": { "date": { "type": "String", "example": "2026-09-01" } }
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2026-09-01"
+      }
+    }
   },
   "todaySitesProgressTitle": "Required sites (per site)",
-  "@todaySitesProgressTitle": { "description": "生成中的逐站进度标题" },
+  "@todaySitesProgressTitle": {
+    "description": "生成中的逐站进度标题"
+  },
   "todaySitePending": "Waiting",
-  "@todaySitePending": { "description": "必访站尚未轮到" },
+  "@todaySitePending": {
+    "description": "必访站尚未轮到"
+  },
   "todayCancelling": "Cancelling…",
-  "@todayCancelling": { "description": "取消已请求、任务尚未收尾" },
+  "@todayCancelling": {
+    "description": "取消已请求、任务尚未收尾"
+  },
   "todayStatusTitle": "This run's status",
-  "@todayStatusTitle": { "description": "非成功记录的状态说明标题" },
+  "@todayStatusTitle": {
+    "description": "非成功记录的状态说明标题"
+  },
   "todayStatusCancelled": "This run was cancelled. Stage information already completed is kept in the record below.",
-  "@todayStatusCancelled": { "description": "状态说明：取消" },
+  "@todayStatusCancelled": {
+    "description": "状态说明：取消"
+  },
   "todayStatusInterrupted": "This task was terminated by the system before it finished (app quit or crash). It is not retried automatically, so a request that may already have been billed is not sent twice; you can generate again manually when you want.",
-  "@todayStatusInterrupted": { "description": "状态说明：中断" },
+  "@todayStatusInterrupted": {
+    "description": "状态说明：中断"
+  },
   "todayStatusWaitingConfiguration": "Required configuration is missing (no enabled AI model, or the first-time cost notice has not been confirmed), so no request was sent. Generate again after you finish the setup.",
-  "@todayStatusWaitingConfiguration": { "description": "状态说明：等待配置" },
+  "@todayStatusWaitingConfiguration": {
+    "description": "状态说明：等待配置"
+  },
   "todayStatusWaitingNetwork": "The device had no network while generating; the task paused and ended without a usable result. Generate again once you are online.",
-  "@todayStatusWaitingNetwork": { "description": "状态说明：等待网络" },
+  "@todayStatusWaitingNetwork": {
+    "description": "状态说明：等待网络"
+  },
   "todayStatusRunning": "A task record is still marked as running. If the app was force-quit, it has been marked interrupted and will not be retried automatically.",
-  "@todayStatusRunning": { "description": "状态说明：仍在运行/中断的占位" },
+  "@todayStatusRunning": {
+    "description": "状态说明：仍在运行/中断的占位"
+  },
   "todayStatusFailed": "This run failed: {reason}. The last successful summary is unaffected.",
   "@todayStatusFailed": {
     "description": "状态说明：失败",
-    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "validation"
+      }
+    }
   },
   "todayStatusInsufficient": "Insufficient material: there was not enough input (no articles selected for news, no keywords, and no required site returned content), so no items were generated and nothing was invented.",
-  "@todayStatusInsufficient": { "description": "状态说明：材料不足" },
+  "@todayStatusInsufficient": {
+    "description": "状态说明：材料不足"
+  },
   "todayStatusStage": "Stopped at the \"{stage}\" step.",
   "@todayStatusStage": {
     "description": "中止阶段说明",
-    "placeholders": { "stage": { "type": "String", "example": "Search" } }
+    "placeholders": {
+      "stage": {
+        "type": "String",
+        "example": "Search"
+      }
+    }
   },
   "todayNoResultYet": "This day's generation has not produced any usable items yet.",
-  "@todayNoResultYet": { "description": "有记录但没有可用结果" },
+  "@todayNoResultYet": {
+    "description": "有记录但没有可用结果"
+  },
   "todayVersionItemDetail": "Version {version} · {status} · {time} · {model}",
   "@todayVersionItemDetail": {
     "description": "版本条目（含时间与模型）",
     "placeholders": {
-      "version": { "type": "int", "example": "2" },
-      "status": { "type": "String", "example": "Verified" },
-      "time": { "type": "String", "example": "2026-09-22 21:03" },
-      "model": { "type": "String", "example": "deepseek/deepseek-chat" }
+      "version": {
+        "type": "int",
+        "example": "2"
+      },
+      "status": {
+        "type": "String",
+        "example": "Verified"
+      },
+      "time": {
+        "type": "String",
+        "example": "2026-09-22 21:03"
+      },
+      "model": {
+        "type": "String",
+        "example": "deepseek/deepseek-chat"
+      }
     }
   },
   "todayVersionModelUnknown": "model not recorded",
-  "@todayVersionModelUnknown": { "description": "记录里没有模型信息" },
+  "@todayVersionModelUnknown": {
+    "description": "记录里没有模型信息"
+  },
   "todayVersionDelete": "Delete",
-  "@todayVersionDelete": { "description": "删除历史版本按钮" },
+  "@todayVersionDelete": {
+    "description": "删除历史版本按钮"
+  },
   "todayVersionDeleteTooltip": "Delete this historical version (the currently shown version cannot be deleted)",
-  "@todayVersionDeleteTooltip": { "description": "删除按钮提示" },
+  "@todayVersionDeleteTooltip": {
+    "description": "删除按钮提示"
+  },
   "todayVersionDeleteConfirmTitle": "Delete version {version}?",
   "@todayVersionDeleteConfirmTitle": {
     "description": "删除确认标题",
-    "placeholders": { "version": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "todayVersionDeleteConfirmBody": "This permanently deletes version {version} for this day. The currently shown version is not deleted and other versions and material records are unaffected.",
   "@todayVersionDeleteConfirmBody": {
     "description": "删除确认正文",
-    "placeholders": { "version": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "todayVersionDeleteConfirmOk": "Delete",
-  "@todayVersionDeleteConfirmOk": { "description": "删除确认按钮" },
+  "@todayVersionDeleteConfirmOk": {
+    "description": "删除确认按钮"
+  },
   "todayVersionDeleteCancel": "Cancel",
-  "@todayVersionDeleteCancel": { "description": "删除取消按钮" },
+  "@todayVersionDeleteCancel": {
+    "description": "删除取消按钮"
+  },
   "todayVersionDeleted": "Deleted version {version}",
   "@todayVersionDeleted": {
     "description": "删除成功回执",
-    "placeholders": { "version": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "version": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "todayVersionDeleteFailed": "Delete failed: {reason}",
   "@todayVersionDeleteFailed": {
     "description": "删除失败回执",
-    "placeholders": { "reason": { "type": "String", "example": "validation" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "validation"
+      }
+    }
   },
   "todayCitationContentCleared": "This local article's body has been cleared (for example by cache cleanup); only the minimal excerpt saved at the time can be shown.",
-  "@todayCitationContentCleared": { "description": "本机正文已清理说明" },
+  "@todayCitationContentCleared": {
+    "description": "本机正文已清理说明"
+  },
   "todayCitationExcerptCleared": "The original has been cleared; only the minimal excerpt is kept.",
-  "@todayCitationExcerptCleared": { "description": "引用摘录为空时的说明" },
+  "@todayCitationExcerptCleared": {
+    "description": "引用摘录为空时的说明"
+  },
   "todayCacheClearedNotice": "On this day, {count} cited local articles have had their bodies cleared; the minimal excerpts saved at the time are still shown.",
   "@todayCacheClearedNotice": {
     "description": "历史记录里正文已被清理的条数",
-    "placeholders": { "count": { "type": "int", "example": "2" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "newsScheduleTitle": "Daily scheduled summary",
-  "@newsScheduleTitle": { "description": "定时小节标题" },
+  "@newsScheduleTitle": {
+    "description": "定时小节标题"
+  },
   "newsScheduleEnableLabel": "Scheduled summary on this device",
-  "@newsScheduleEnableLabel": { "description": "SET-056 开关标签" },
+  "@newsScheduleEnableLabel": {
+    "description": "SET-056 开关标签"
+  },
   "newsScheduleEnableHint": "On by default. When enabled, a summary runs automatically once a day at the set time. If the setup is incomplete or the cost notice has not been confirmed, it shows \"waiting for configuration\" and sends no requests at all. This is a per-device setting and is not carried to other devices by sync.",
-  "@newsScheduleEnableHint": { "description": "SET-056 开关说明" },
+  "@newsScheduleEnableHint": {
+    "description": "SET-056 开关说明"
+  },
   "newsScheduleTimeLabel": "Daily run time",
-  "@newsScheduleTimeLabel": { "description": "SET-057 时间标签" },
+  "@newsScheduleTimeLabel": {
+    "description": "SET-057 时间标签"
+  },
   "newsScheduleTimeHint": "Uses the current device time zone: {zone}.",
   "@newsScheduleTimeHint": {
     "description": "SET-057 时间说明",
-    "placeholders": { "zone": { "type": "String", "example": "Asia/Shanghai" } }
+    "placeholders": {
+      "zone": {
+        "type": "String",
+        "example": "Asia/Shanghai"
+      }
+    }
   },
   "newsScheduleTimeEdit": "Change time",
-  "@newsScheduleTimeEdit": { "description": "打开时间选择器" },
+  "@newsScheduleTimeEdit": {
+    "description": "打开时间选择器"
+  },
   "newsScheduleTimeSaved": "Run time changed to {time}",
   "@newsScheduleTimeSaved": {
     "description": "时间保存回执",
-    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "20:00"
+      }
+    }
   },
   "newsScheduleNextRun": "Next run: {time}",
   "@newsScheduleNextRun": {
     "description": "下次运行时间",
-    "placeholders": { "time": { "type": "String", "example": "2026-09-22 20:00" } }
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "2026-09-22 20:00"
+      }
+    }
   },
   "newsScheduleCompletedToday": "Already done today (it will not run again automatically)",
-  "@newsScheduleCompletedToday": { "description": "今天已生成" },
+  "@newsScheduleCompletedToday": {
+    "description": "今天已生成"
+  },
   "newsScheduleRunning": "Running…",
-  "@newsScheduleRunning": { "description": "定时任务正在运行" },
+  "@newsScheduleRunning": {
+    "description": "定时任务正在运行"
+  },
   "newsScheduleDisabled": "Off: this device will not run the scheduled summary automatically.",
-  "@newsScheduleDisabled": { "description": "SET-056 关闭说明" },
+  "@newsScheduleDisabled": {
+    "description": "SET-056 关闭说明"
+  },
   "newsScheduleWaitingTitle": "Waiting for configuration: no requests are sent",
-  "@newsScheduleWaitingTitle": { "description": "等待配置标题" },
+  "@newsScheduleWaitingTitle": {
+    "description": "等待配置标题"
+  },
   "newsScheduleWaitingNoModel": "No AI model is enabled. Add and enable one under AI services.",
-  "@newsScheduleWaitingNoModel": { "description": "等待配置：没有模型" },
+  "@newsScheduleWaitingNoModel": {
+    "description": "等待配置：没有模型"
+  },
   "newsScheduleWaitingNoCredential": "The enabled models have no API key. Add credentials under AI services.",
-  "@newsScheduleWaitingNoCredential": { "description": "等待配置：没有凭据" },
+  "@newsScheduleWaitingNoCredential": {
+    "description": "等待配置：没有凭据"
+  },
   "newsScheduleWaitingCostNotice": "The cost and data-sending notice for the scheduled task has not been confirmed yet. It will only run automatically after you confirm.",
-  "@newsScheduleWaitingCostNotice": { "description": "等待配置：费用告知未确认" },
+  "@newsScheduleWaitingCostNotice": {
+    "description": "等待配置：费用告知未确认"
+  },
   "newsScheduleWaitingModelReadFailed": "Reading the model list failed, so it is unclear whether it can run; no request was sent.",
-  "@newsScheduleWaitingModelReadFailed": { "description": "等待配置：模型列表读失败" },
+  "@newsScheduleWaitingModelReadFailed": {
+    "description": "等待配置：模型列表读失败"
+  },
   "newsScheduleWaitingUnknown": "Required configuration is missing, so no request was sent.",
-  "@newsScheduleWaitingUnknown": { "description": "等待配置：其它原因" },
+  "@newsScheduleWaitingUnknown": {
+    "description": "等待配置：其它原因"
+  },
   "newsScheduleCostNoticeAck": "I understand (it will run on schedule)",
-  "@newsScheduleCostNoticeAck": { "description": "确认费用告知按钮" },
+  "@newsScheduleCostNoticeAck": {
+    "description": "确认费用告知按钮"
+  },
   "newsScheduleCostNoticeDone": "Confirmed; the scheduled task will run at the next due time.",
-  "@newsScheduleCostNoticeDone": { "description": "确认费用告知回执" },
+  "@newsScheduleCostNoticeDone": {
+    "description": "确认费用告知回执"
+  },
   "newsScheduleCostNoticeFailed": "Saving the confirmation failed: {reason}. To avoid an unannounced paid run, the scheduled task still will not run automatically.",
   "@newsScheduleCostNoticeFailed": {
     "description": "确认写入失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
   "newsScheduleCostNoticeBody": "The scheduled summary runs once a day at {time} (device local time): it searches the web, fetches your required sites and calls the models you configured, which may cost money. If a successful version already exists for the day it will not run again automatically. On macOS there is no background execution once the app quits — a missed time is caught up once the next time you open the app (that same day only).",
   "@newsScheduleCostNoticeBody": {
     "description": "费用告知正文",
-    "placeholders": { "time": { "type": "String", "example": "20:00" } }
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "20:00"
+      }
+    }
   },
   "newsScheduleSearchMissing": "No web search service is configured: the scheduled summary still runs, but verification is labelled \"not verified online\".",
-  "@newsScheduleSearchMissing": { "description": "缺搜索服务的提示（非阻塞）" },
+  "@newsScheduleSearchMissing": {
+    "description": "缺搜索服务的提示（非阻塞）"
+  },
   "newsScheduleLastRunFailed": "The last automatic run did not finish ({reason}).",
   "@newsScheduleLastRunFailed": {
     "description": "上次自动运行失败说明",
-    "placeholders": { "reason": { "type": "String", "example": "network" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
   },
   "newsScheduleInterruptedNote": "A task still running when the app quits is marked \"interrupted\" and is not sent again automatically, so content that may already have been billed is not charged twice.",
-  "@newsScheduleInterruptedNote": { "description": "中断语义说明" },
+  "@newsScheduleInterruptedNote": {
+    "description": "中断语义说明"
+  },
   "newsScheduleTimePickerTitle": "Pick the daily run time",
-  "@newsScheduleTimePickerTitle": { "description": "时间选择器标题" },
-
+  "@newsScheduleTimePickerTitle": {
+    "description": "时间选择器标题"
+  },
   "syncSettingsTitle": "Sync & backup",
-  "@syncSettingsTitle": { "description": "同步设置页标题" },
+  "@syncSettingsTitle": {
+    "description": "同步设置页标题"
+  },
   "syncSectionServer": "WebDAV server",
-  "@syncSectionServer": { "description": "服务器小节标题" },
+  "@syncSectionServer": {
+    "description": "服务器小节标题"
+  },
   "syncUrlLabel": "WebDAV URL",
-  "@syncUrlLabel": { "description": "SET-070 地址" },
+  "@syncUrlLabel": {
+    "description": "SET-070 地址"
+  },
   "syncUrlHint": "For example https://dav.example.com/remote.php/dav/files/yourname; a LAN address is fine too (running your own NAS is a legitimate setup)",
-  "@syncUrlHint": { "description": "地址说明" },
+  "@syncUrlHint": {
+    "description": "地址说明"
+  },
   "syncUrlMalformed": "That does not look like a complete http/https address",
-  "@syncUrlMalformed": { "description": "地址非法" },
+  "@syncUrlMalformed": {
+    "description": "地址非法"
+  },
   "syncUrlScheme": "Only http and https addresses are supported",
-  "@syncUrlScheme": { "description": "协议不符" },
+  "@syncUrlScheme": {
+    "description": "协议不符"
+  },
   "syncUrlMissingHost": "The address has no host name",
-  "@syncUrlMissingHost": { "description": "缺少主机名" },
+  "@syncUrlMissingHost": {
+    "description": "缺少主机名"
+  },
   "syncUsernameLabel": "Username",
-  "@syncUsernameLabel": { "description": "SET-070 用户名" },
+  "@syncUsernameLabel": {
+    "description": "SET-070 用户名"
+  },
   "syncPasswordLabel": "Password / token",
-  "@syncPasswordLabel": { "description": "SET-071 密码" },
+  "@syncPasswordLabel": {
+    "description": "SET-071 密码"
+  },
   "syncPasswordStored": "Saved in the system keychain (never displayed again)",
-  "@syncPasswordStored": { "description": "密码已存" },
+  "@syncPasswordStored": {
+    "description": "密码已存"
+  },
   "syncPasswordNotStored": "Not saved yet; saving puts it in the system keychain, never in sync payloads or plaintext backups",
-  "@syncPasswordNotStored": { "description": "密码未存" },
+  "@syncPasswordNotStored": {
+    "description": "密码未存"
+  },
   "syncSecretStoreUnavailable": "No secure storage is available on this device, so the password cannot be saved and sync stays off",
-  "@syncSecretStoreUnavailable": { "description": "无安全存储" },
+  "@syncSecretStoreUnavailable": {
+    "description": "无安全存储"
+  },
   "syncDeviceNameLabel": "Device name",
-  "@syncDeviceNameLabel": { "description": "SET-070 设备名" },
+  "@syncDeviceNameLabel": {
+    "description": "SET-070 设备名"
+  },
   "syncDeviceNameHint": "Only used to tell which device published a remote manifest",
-  "@syncDeviceNameHint": { "description": "设备名说明" },
+  "@syncDeviceNameHint": {
+    "description": "设备名说明"
+  },
   "syncSaveEndpoint": "Save server",
-  "@syncSaveEndpoint": { "description": "保存地址按钮" },
+  "@syncSaveEndpoint": {
+    "description": "保存地址按钮"
+  },
   "syncSavePassword": "Save password",
-  "@syncSavePassword": { "description": "保存密码按钮" },
+  "@syncSavePassword": {
+    "description": "保存密码按钮"
+  },
   "syncPasswordSaved": "Password saved to the system keychain.",
-  "@syncPasswordSaved": { "description": "密码保存成功" },
+  "@syncPasswordSaved": {
+    "description": "密码保存成功"
+  },
   "syncPasswordSaveFailed": "Could not save the password; it was not written to plaintext storage either.",
-  "@syncPasswordSaveFailed": { "description": "密码保存失败" },
+  "@syncPasswordSaveFailed": {
+    "description": "密码保存失败"
+  },
   "syncTestConnection": "Test connection",
-  "@syncTestConnection": { "description": "测试连接按钮" },
+  "@syncTestConnection": {
+    "description": "测试连接按钮"
+  },
   "syncTestConnectionHint": "Testing only reads (it lists the folder and fetches the manifest once); it never writes to or changes anything on the server.",
-  "@syncTestConnectionHint": { "description": "只读探测说明" },
+  "@syncTestConnectionHint": {
+    "description": "只读探测说明"
+  },
   "syncProbeOk": "Connected ({directory}).",
   "@syncProbeOk": {
     "description": "探测成功",
-    "placeholders": { "directory": { "type": "String", "example": "remote folder exists" } }
+    "placeholders": {
+      "directory": {
+        "type": "String",
+        "example": "remote folder exists"
+      }
+    }
   },
   "syncProbeDirExists": "the remote folder exists",
-  "@syncProbeDirExists": { "description": "目录存在" },
+  "@syncProbeDirExists": {
+    "description": "目录存在"
+  },
   "syncProbeDirMissing": "the remote folder does not exist yet and will be created by the first sync",
-  "@syncProbeDirMissing": { "description": "目录不存在" },
+  "@syncProbeDirMissing": {
+    "description": "目录不存在"
+  },
   "syncProbeFailed": "Could not connect ({reason}); nothing was written to the server.",
   "@syncProbeFailed": {
     "description": "探测失败",
-    "placeholders": { "reason": { "type": "String", "example": "unauthorized" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "unauthorized"
+      }
+    }
   },
   "syncSectionTriggers": "Triggers",
-  "@syncSectionTriggers": { "description": "触发小节标题" },
+  "@syncSectionTriggers": {
+    "description": "触发小节标题"
+  },
   "syncEnableLabel": "Enable sync",
-  "@syncEnableLabel": { "description": "SET-072 开关" },
+  "@syncEnableLabel": {
+    "description": "SET-072 开关"
+  },
   "syncEnableHint": "When off no sync request is made at all, not even a manual one.",
-  "@syncEnableHint": { "description": "SET-072 说明" },
+  "@syncEnableHint": {
+    "description": "SET-072 说明"
+  },
   "syncOnStartLabel": "Sync on launch",
-  "@syncOnStartLabel": { "description": "SET-072 启动同步" },
+  "@syncOnStartLabel": {
+    "description": "SET-072 启动同步"
+  },
   "syncOnChangeLabel": "Sync after changes",
-  "@syncOnChangeLabel": { "description": "SET-072 变更同步" },
+  "@syncOnChangeLabel": {
+    "description": "SET-072 变更同步"
+  },
   "syncOnChangeHint": "Edits trigger one sync after {seconds} quiet seconds, so a burst of edits syncs only once.",
   "@syncOnChangeHint": {
     "description": "防抖说明",
-    "placeholders": { "seconds": { "type": "int", "example": "5" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "5"
+      }
+    }
   },
   "syncManualOnlyLabel": "Manual sync only",
-  "@syncManualOnlyLabel": { "description": "SET-073 仅手动" },
+  "@syncManualOnlyLabel": {
+    "description": "SET-073 仅手动"
+  },
   "syncIntervalLabel": "Automatic sync interval",
-  "@syncIntervalLabel": { "description": "SET-073 间隔" },
+  "@syncIntervalLabel": {
+    "description": "SET-073 间隔"
+  },
   "syncIntervalOption": "{minutes} min",
   "@syncIntervalOption": {
     "description": "间隔选项",
-    "placeholders": { "minutes": { "type": "int", "example": "30" } }
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "30"
+      }
+    }
   },
   "syncSectionScope": "Sync scope",
-  "@syncSectionScope": { "description": "范围小节标题" },
+  "@syncSectionScope": {
+    "description": "范围小节标题"
+  },
   "syncScopeNotice": "This list is derived from the C/D/S classification in the SET registry rather than hand-copied; credentials, device paths and article bodies never leave this device.",
-  "@syncScopeNotice": { "description": "范围说明" },
+  "@syncScopeNotice": {
+    "description": "范围说明"
+  },
   "syncScopeCommonSettings": "Sync shared settings",
-  "@syncScopeCommonSettings": { "description": "SET-074 共通设置" },
+  "@syncScopeCommonSettings": {
+    "description": "SET-074 共通设置"
+  },
   "syncScopeReadingState": "Sync reading state and favourites",
-  "@syncScopeReadingState": { "description": "SET-074 阅读状态" },
+  "@syncScopeReadingState": {
+    "description": "SET-074 阅读状态"
+  },
   "syncScopeIncludedTitle": "Leaves this device",
-  "@syncScopeIncludedTitle": { "description": "纳入清单标题" },
+  "@syncScopeIncludedTitle": {
+    "description": "纳入清单标题"
+  },
   "syncScopeIncludedCount": "{count} shared settings (class C and persistable), plus subscriptions and folders, reading state and favourites, and news source rules.",
   "@syncScopeIncludedCount": {
     "description": "纳入数量",
-    "placeholders": { "count": { "type": "int", "example": "42" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
+    }
   },
   "syncScopeFeedNote": "Subscriptions sync only cross-device identity, URL, name, folder, enabled and favourite fields; local ids, credential references and fetch diagnostics stay behind.",
-  "@syncScopeFeedNote": { "description": "订阅字段说明" },
+  "@syncScopeFeedNote": {
+    "description": "订阅字段说明"
+  },
   "syncScopeExcludedTitle": "Never leaves this device",
-  "@syncScopeExcludedTitle": { "description": "排除清单标题" },
+  "@syncScopeExcludedTitle": {
+    "description": "排除清单标题"
+  },
   "syncScopeExcludedCount": "{count} items (API keys, the WebDAV password, private feed auth, device paths/fonts/backgrounds, window layout, execution toggles).",
   "@syncScopeExcludedCount": {
     "description": "排除数量",
-    "placeholders": { "count": { "type": "int", "example": "28" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "28"
+      }
+    }
   },
   "syncScopeExcludedNote": "Article bodies, images, AI output and reading time are not synced automatically either; use a plaintext backup for a full migration.",
-  "@syncScopeExcludedNote": { "description": "内容排除说明" },
+  "@syncScopeExcludedNote": {
+    "description": "内容排除说明"
+  },
   "syncSectionStatus": "Current status",
-  "@syncSectionStatus": { "description": "状态小节标题" },
+  "@syncSectionStatus": {
+    "description": "状态小节标题"
+  },
   "syncNeverSynced": "Never synced",
-  "@syncNeverSynced": { "description": "从未同步" },
+  "@syncNeverSynced": {
+    "description": "从未同步"
+  },
   "syncLastSynced": "Last sync: {at} (stored in UTC, shown in local time)",
   "@syncLastSynced": {
     "description": "上次同步时间",
-    "placeholders": { "at": { "type": "String", "example": "2026-09-22 10:00" } }
+    "placeholders": {
+      "at": {
+        "type": "String",
+        "example": "2026-09-22 10:00"
+      }
+    }
   },
   "syncPendingCount": "Pending changes: {count}",
   "@syncPendingCount": {
     "description": "待同步数",
-    "placeholders": { "count": { "type": "int", "example": "3" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
   },
   "syncConflictCount": "Conflicts: {count}",
   "@syncConflictCount": {
     "description": "冲突数",
-    "placeholders": { "count": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "syncCapabilityUnknown": "Server capability not probed yet (the next sync probes it first)",
-  "@syncCapabilityUnknown": { "description": "能力未探测" },
+  "@syncCapabilityUnknown": {
+    "description": "能力未探测"
+  },
   "syncLastError": "Last attempt did not finish: {reason}",
   "@syncLastError": {
     "description": "上次失败原因",
-    "placeholders": { "reason": { "type": "String", "example": "network" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
   },
   "syncRunning": "Syncing…",
-  "@syncRunning": { "description": "正在同步" },
+  "@syncRunning": {
+    "description": "正在同步"
+  },
   "syncNowButton": "Sync now",
-  "@syncNowButton": { "description": "手动同步按钮" },
+  "@syncNowButton": {
+    "description": "手动同步按钮"
+  },
   "syncAlreadyRunning": "A sync is already running; this request was merged and will run in order once the current one finishes.",
-  "@syncAlreadyRunning": { "description": "同步在途提示" },
+  "@syncAlreadyRunning": {
+    "description": "同步在途提示"
+  },
   "syncResultSucceeded": "Sync finished: {count} items written locally.",
   "@syncResultSucceeded": {
     "description": "同步成功",
-    "placeholders": { "count": { "type": "int", "example": "12" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
   },
   "syncResultAlreadyPublished": "The remote already holds this device's version, so only the local confirmation was completed — nothing was uploaded again.",
-  "@syncResultAlreadyPublished": { "description": "幂等补确认" },
+  "@syncResultAlreadyPublished": {
+    "description": "幂等补确认"
+  },
   "syncResultConflicts": "{count} same-field concurrent conflicts found; nothing was uploaded. Choose which value to keep below.",
   "@syncResultConflicts": {
     "description": "冲突提示",
-    "placeholders": { "count": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "syncResultRetry": "Another device updated the remote in the meantime and three retries did not succeed; the remote is untouched and the next sync will retry.",
-  "@syncResultRetry": { "description": "等待重试" },
+  "@syncResultRetry": {
+    "description": "等待重试"
+  },
   "syncResultReadonly": "This server does not support reliable conditional writes, so sync has degraded to read-only pull: nothing will be written to the remote.",
-  "@syncResultReadonly": { "description": "降级只读" },
+  "@syncResultReadonly": {
+    "description": "降级只读"
+  },
   "syncResultFailed": "Sync failed: {reason} (neither the remote nor local data was changed).",
   "@syncResultFailed": {
     "description": "同步失败",
-    "placeholders": { "reason": { "type": "String", "example": "network" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "network"
+      }
+    }
   },
   "syncDegradedBanner": "Degraded mode: this server does not support reliable conditional writes (strong ETag / If-Match), so sync only pulls. It will not overwrite remote or local content automatically.",
-  "@syncDegradedBanner": { "description": "降级提示条" },
+  "@syncDegradedBanner": {
+    "description": "降级提示条"
+  },
   "syncFirstMergeTitle": "First merge preview",
-  "@syncFirstMergeTitle": { "description": "首次合并标题" },
+  "@syncFirstMergeTitle": {
+    "description": "首次合并标题"
+  },
   "syncFirstMergeCounts": "The remote holds {remote} items and this device {local}.",
   "@syncFirstMergeCounts": {
     "description": "首次合并数量",
     "placeholders": {
-      "remote": { "type": "int", "example": "10" },
-      "local": { "type": "int", "example": "12" }
+      "remote": {
+        "type": "int",
+        "example": "10"
+      },
+      "local": {
+        "type": "int",
+        "example": "12"
+      }
     }
   },
   "syncFirstMergeDifferences": "Fields that differ: {count}.",
   "@syncFirstMergeDifferences": {
     "description": "差异处数",
-    "placeholders": { "count": { "type": "int", "example": "2" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
   },
   "syncFirstMergeRemoteDeletions": "The remote also proposes {count} deletions awaiting confirmation (nothing local has been cleared).",
   "@syncFirstMergeRemoteDeletions": {
     "description": "远端删除数",
-    "placeholders": { "count": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "syncFirstMergePolicyNote": "Nothing is published and no common baseline is established until you confirm. The default keeps this device's content; only if you pick \"use the remote\" will remote values overwrite those fields.",
-  "@syncFirstMergePolicyNote": { "description": "首次合并策略说明" },
+  "@syncFirstMergePolicyNote": {
+    "description": "首次合并策略说明"
+  },
   "syncFirstMergeKeepLocal": "Merge and keep this device",
-  "@syncFirstMergeKeepLocal": { "description": "首次合并保留本机" },
+  "@syncFirstMergeKeepLocal": {
+    "description": "首次合并保留本机"
+  },
   "syncFirstMergeUseRemote": "Use the remote",
-  "@syncFirstMergeUseRemote": { "description": "首次合并以远端为准" },
+  "@syncFirstMergeUseRemote": {
+    "description": "首次合并以远端为准"
+  },
   "syncConflictTitle": "Choose a version: {count} same-field conflicts",
   "@syncConflictTitle": {
     "description": "冲突标题",
-    "placeholders": { "count": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "syncConflictNote": "The same field was changed to different values on two devices. Nothing is merged for you here — for example there is no middle value between \"read\" and \"later\" — so pick the version to keep for each one.",
-  "@syncConflictNote": { "description": "冲突说明" },
+  "@syncConflictNote": {
+    "description": "冲突说明"
+  },
   "syncConflictBaseValue": "Common baseline: {value}",
   "@syncConflictBaseValue": {
     "description": "基线值",
-    "placeholders": { "value": { "type": "String", "example": "unread" } }
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "unread"
+      }
+    }
   },
   "syncConflictLocalValue": "This device: {value}",
   "@syncConflictLocalValue": {
     "description": "本机值",
-    "placeholders": { "value": { "type": "String", "example": "read" } }
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "read"
+      }
+    }
   },
   "syncConflictRemoteValue": "Remote: {value}",
   "@syncConflictRemoteValue": {
     "description": "远端值",
-    "placeholders": { "value": { "type": "String", "example": "later" } }
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "later"
+      }
+    }
   },
   "syncConflictApply": "Merge with the chosen versions and upload",
-  "@syncConflictApply": { "description": "应用选择按钮" },
+  "@syncConflictApply": {
+    "description": "应用选择按钮"
+  },
   "syncRemoteDeletionTitle": "The remote deleted {count} items",
   "@syncRemoteDeletionTitle": {
     "description": "远端删除标题",
-    "placeholders": { "count": { "type": "int", "example": "1" } }
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
   },
   "syncRemoteDeletionNote": "Nothing local has been cleared: a cross-device deletion needs its impact reviewed and then confirmed item by item (until you confirm, not a single row changes).",
-  "@syncRemoteDeletionNote": { "description": "远端删除说明" },
+  "@syncRemoteDeletionNote": {
+    "description": "远端删除说明"
+  },
   "syncSaveFailed": "Could not save: {reason}",
   "@syncSaveFailed": {
     "description": "保存失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
   "settingsSyncEntryTitle": "Sync & backup",
-  "@settingsSyncEntryTitle": { "description": "设置页同步入口标题" },
+  "@settingsSyncEntryTitle": {
+    "description": "设置页同步入口标题"
+  },
   "syncRemoteDeletionApply": "Confirm and apply this deletion",
-  "@syncRemoteDeletionApply": { "description": "应用远端删除按钮（T045）" },
+  "@syncRemoteDeletionApply": {
+    "description": "应用远端删除按钮（T045）"
+  },
   "syncRemoteDeletionKeepFavorites": "Keep favorites (non-favorited articles, including Later, are cleared)",
-  "@syncRemoteDeletionKeepFavorites": { "description": "保留收藏勾选项" },
+  "@syncRemoteDeletionKeepFavorites": {
+    "description": "保留收藏勾选项"
+  },
   "syncRemoteDeletionImpact": "This will clear {articles} articles: {favorites} favorites are kept, the other {others} (including {later} marked Later) are removed; kept favorites detach from the feed and keep a frozen source snapshot.",
   "@syncRemoteDeletionImpact": {
     "description": "远端删除的影响范围",
     "placeholders": {
-      "articles": { "type": "int" },
-      "favorites": { "type": "int" },
-      "others": { "type": "int" },
-      "later": { "type": "int" }
+      "articles": {
+        "type": "int"
+      },
+      "favorites": {
+        "type": "int"
+      },
+      "others": {
+        "type": "int"
+      },
+      "later": {
+        "type": "int"
+      }
     }
   },
   "syncRemoteDeletionNoArticles": "This feed has no articles yet.",
-  "@syncRemoteDeletionNoArticles": { "description": "无文章的影响说明" },
+  "@syncRemoteDeletionNoArticles": {
+    "description": "无文章的影响说明"
+  },
   "syncRemoteDeletionUnsupported": "This item is not aligned with anything on this device ({reason}), so it cannot be applied; local data stays unchanged.",
   "@syncRemoteDeletionUnsupported": {
     "description": "不可应用的远端删除",
-    "placeholders": { "reason": { "type": "String", "example": "feedNotAligned" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "feedNotAligned"
+      }
+    }
   },
   "syncRemoteDeletionApplied": "Applied the remote deletion: {deleted} articles cleared, {kept} favorites kept (the choice you made here syncs to your other devices).",
   "@syncRemoteDeletionApplied": {
     "description": "应用完成回执",
     "placeholders": {
-      "deleted": { "type": "int" },
-      "kept": { "type": "int" }
+      "deleted": {
+        "type": "int"
+      },
+      "kept": {
+        "type": "int"
+      }
     }
   },
   "syncRemoteDeletionPreviewFailed": "Could not read the impact: {reason}",
   "@syncRemoteDeletionPreviewFailed": {
     "description": "预览失败",
-    "placeholders": { "reason": { "type": "String", "example": "storage" } }
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "storage"
+      }
+    }
   },
   "readingBodyNotSyncedNotice": "Body not synced yet: this article's reading state came from another device and this one has not fetched its body yet. Refreshing the feed will fill it in; the blank here does not mean an empty body.",
-  "@readingBodyNotSyncedNotice": { "description": "占位行详情页说明（T045）" },
+  "@readingBodyNotSyncedNotice": {
+    "description": "占位行详情页说明（T045）"
+  },
   "readingBodyNotSyncedBadge": "Body not synced",
-  "@readingBodyNotSyncedBadge": { "description": "占位行列表/详情徽标（T045）" },
+  "@readingBodyNotSyncedBadge": {
+    "description": "占位行列表/详情徽标（T045）"
+  },
   "settingsBackupSectionTitle": "Backup & restore",
-  "@settingsBackupSectionTitle": {"description": "备份小节标题（T046）"},
+  "@settingsBackupSectionTitle": {
+    "description": "备份小节标题（T046）"
+  },
   "settingsBackupNotice": "A plaintext backup contains your subscriptions and article bodies, and anyone holding the file can read it. Passwords and API keys are never written into a backup (they live only in the system keychain).",
-  "@settingsBackupNotice": {"description": "备份风险告知（架构 5.3）"},
+  "@settingsBackupNotice": {
+    "description": "备份风险告知（架构 5.3）"
+  },
   "settingsBackupIncludeMedia": "Include the image cache (larger file; without it, images are re-downloaded after a restore)",
-  "@settingsBackupIncludeMedia": {"description": "SET-076 含媒体开关"},
+  "@settingsBackupIncludeMedia": {
+    "description": "SET-076 含媒体开关"
+  },
   "settingsBackupExport": "Export plaintext backup…",
-  "@settingsBackupExport": {"description": "导出按钮"},
+  "@settingsBackupExport": {
+    "description": "导出按钮"
+  },
   "settingsBackupRestore": "Restore from a backup…",
-  "@settingsBackupRestore": {"description": "恢复按钮"},
+  "@settingsBackupRestore": {
+    "description": "恢复按钮"
+  },
   "settingsBackupExportDone": "Backup exported: {entries} entries, {size} KB.",
-  "@settingsBackupExportDone": {"description": "导出回执", "placeholders": {"entries": {"type": "int"}, "size": {"type": "int"}}},
+  "@settingsBackupExportDone": {
+    "description": "导出回执",
+    "placeholders": {
+      "entries": {
+        "type": "int"
+      },
+      "size": {
+        "type": "int"
+      }
+    }
+  },
   "settingsBackupRiskConfirmTitle": "Export a plaintext backup",
-  "@settingsBackupRiskConfirmTitle": {"description": "导出前风险确认标题"},
+  "@settingsBackupRiskConfirmTitle": {
+    "description": "导出前风险确认标题"
+  },
   "settingsBackupRiskConfirmContinue": "I understand, export it",
-  "@settingsBackupRiskConfirmContinue": {"description": "风险确认按钮"},
+  "@settingsBackupRiskConfirmContinue": {
+    "description": "风险确认按钮"
+  },
   "settingsBackupCancel": "Cancel",
-  "@settingsBackupCancel": {"description": "取消按钮"},
+  "@settingsBackupCancel": {
+    "description": "取消按钮"
+  },
   "settingsBackupRestorePreviewTitle": "Backup contents",
-  "@settingsBackupRestorePreviewTitle": {"description": "恢复预检标题"},
+  "@settingsBackupRestorePreviewTitle": {
+    "description": "恢复预检标题"
+  },
   "settingsBackupPreviewLine": "Backed up {time} · schema v{schema} · {articles} articles · {feeds} feeds · {media}",
-  "@settingsBackupPreviewLine": {"description": "恢复预检信息行", "placeholders": {"time": {"type": "String"}, "schema": {"type": "int"}, "articles": {"type": "int"}, "feeds": {"type": "int"}, "media": {"type": "String"}}},
+  "@settingsBackupPreviewLine": {
+    "description": "恢复预检信息行",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "schema": {
+        "type": "int"
+      },
+      "articles": {
+        "type": "int"
+      },
+      "feeds": {
+        "type": "int"
+      },
+      "media": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupWithMedia": "includes the media cache",
-  "@settingsBackupWithMedia": {"description": "含媒体"},
+  "@settingsBackupWithMedia": {
+    "description": "含媒体"
+  },
   "settingsBackupWithoutMedia": "without the media cache",
-  "@settingsBackupWithoutMedia": {"description": "不含媒体"},
+  "@settingsBackupWithoutMedia": {
+    "description": "不含媒体"
+  },
   "settingsBackupRestoreConfirmBody": "Restoring first writes the backup into a NEW data directory and verifies it is usable; only then does it switch. If any step fails, your current data is untouched.",
-  "@settingsBackupRestoreConfirmBody": {"description": "恢复二次确认正文"},
+  "@settingsBackupRestoreConfirmBody": {
+    "description": "恢复二次确认正文"
+  },
   "settingsBackupRestoreConfirmAction": "Restore and switch",
-  "@settingsBackupRestoreConfirmAction": {"description": "恢复确认按钮"},
+  "@settingsBackupRestoreConfirmAction": {
+    "description": "恢复确认按钮"
+  },
   "settingsBackupRestoreDone": "Restored into a new directory and verified: {articles} articles, {media} media files. Your current data was not modified; restart the app to use the restored data.",
-  "@settingsBackupRestoreDone": {"description": "恢复完成回执", "placeholders": {"articles": {"type": "int"}, "media": {"type": "int"}}},
+  "@settingsBackupRestoreDone": {
+    "description": "恢复完成回执",
+    "placeholders": {
+      "articles": {
+        "type": "int"
+      },
+      "media": {
+        "type": "int"
+      }
+    }
+  },
   "settingsBackupFailed": "Operation failed: {reason} (your current data was not modified)",
-  "@settingsBackupFailed": {"description": "失败回执", "placeholders": {"reason": {"type": "String"}}},
+  "@settingsBackupFailed": {
+    "description": "失败回执",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "settingsBackupPathNote": "Saved to: {path}",
-  "@settingsBackupPathNote": {"description": "保存路径", "placeholders": {"path": {"type": "String"}}},
+  "@settingsBackupPathNote": {
+    "description": "保存路径",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "settingsSyncEntrySubtitle": "WebDAV sync, sync scope, first merge and conflict handling",
-  "@settingsSyncEntrySubtitle": { "description": "设置页同步入口说明" },
+  "@settingsSyncEntrySubtitle": {
+    "description": "设置页同步入口说明"
+  },
   "settingsStorageEntryTitle": "Storage & cleanup",
-  "@settingsStorageEntryTitle": {"description": "设置页存储入口标题（T047）"},
+  "@settingsStorageEntryTitle": {
+    "description": "设置页存储入口标题（T047）"
+  },
   "settingsStorageEntrySubtitle": "Category usage, one-tap cache clearing, automatic cleanup and permanent deletion",
-  "@settingsStorageEntrySubtitle": {"description": "设置页存储入口说明"},
+  "@settingsStorageEntrySubtitle": {
+    "description": "设置页存储入口说明"
+  },
   "storagePageTitle": "Storage & cleanup",
-  "@storagePageTitle": {"description": "存储页标题"},
+  "@storagePageTitle": {
+    "description": "存储页标题"
+  },
   "storageSectionUsage": "Usage by category",
-  "@storageSectionUsage": {"description": "占用分类小节标题"},
+  "@storageSectionUsage": {
+    "description": "占用分类小节标题"
+  },
   "storageCategoryMedia": "Media cache (images, re-downloadable)",
-  "@storageCategoryMedia": {"description": "媒体缓存分类"},
+  "@storageCategoryMedia": {
+    "description": "媒体缓存分类"
+  },
   "storageCategoryArticleBody": "Article bodies",
-  "@storageCategoryArticleBody": {"description": "文章正文分类"},
+  "@storageCategoryArticleBody": {
+    "description": "文章正文分类"
+  },
   "storageCategorySummary": "News summaries (paid output)",
-  "@storageCategorySummary": {"description": "新闻总结分类"},
+  "@storageCategorySummary": {
+    "description": "新闻总结分类"
+  },
   "storageCategoryOtherCache": "Other caches (AI results, failed drafts)",
-  "@storageCategoryOtherCache": {"description": "其他缓存分类"},
+  "@storageCategoryOtherCache": {
+    "description": "其他缓存分类"
+  },
   "storageCategoryDatabase": "Settings & state database",
-  "@storageCategoryDatabase": {"description": "数据库分类"},
+  "@storageCategoryDatabase": {
+    "description": "数据库分类"
+  },
   "storageCategoryLine": "{category}: {size} ({count} items)",
-  "@storageCategoryLine": {"description": "分类占用行", "placeholders": {"category": {"type": "String"}, "size": {"type": "String"}, "count": {"type": "int"}}},
+  "@storageCategoryLine": {
+    "description": "分类占用行",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "storageTotalLine": "Total: {size}",
-  "@storageTotalLine": {"description": "合计占用", "placeholders": {"size": {"type": "String"}}},
+  "@storageTotalLine": {
+    "description": "合计占用",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "storageMeasuredAt": "Measured at: {time}",
-  "@storageMeasuredAt": {"description": "测量时间", "placeholders": {"time": {"type": "String"}}},
-  "storageMediaLimitLine": "Media cache limit: {limit} (SET-080; oldest accessed entries are evicted beyond it)",
-  "@storageMediaLimitLine": {"description": "媒体上限说明", "placeholders": {"limit": {"type": "String"}}},
+  "@storageMeasuredAt": {
+    "description": "测量时间",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "storageMediaLimitLine": "Media cache limit: {limit}",
+  "@storageMediaLimitLine": {
+    "description": "媒体上限说明",
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
   "storageRefreshUsage": "Refresh usage",
-  "@storageRefreshUsage": {"description": "刷新占用按钮"},
+  "@storageRefreshUsage": {
+    "description": "刷新占用按钮"
+  },
   "storageMeasureFailed": "Failed to read usage: {reason}",
-  "@storageMeasureFailed": {"description": "读取占用失败", "placeholders": {"reason": {"type": "String"}}},
+  "@storageMeasureFailed": {
+    "description": "读取占用失败",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "storageSectionClear": "One-tap cache clearing",
-  "@storageSectionClear": {"description": "一键清缓存小节标题"},
+  "@storageSectionClear": {
+    "description": "一键清缓存小节标题"
+  },
   "storageClearNotice": "Only regenerable content is deleted: the media cache, the AI result cache and failed task drafts. Reading state, favorites, subscriptions, prompts, keys and successful paid output are never deleted.",
-  "@storageClearNotice": {"description": "清缓存边界说明（架构 5.3）"},
+  "@storageClearNotice": {
+    "description": "清缓存边界说明（架构 5.3）"
+  },
   "storageClearPaidNote": "Paid output such as news summaries is handled separately (see automatic cleanup below, or delete it individually).",
-  "@storageClearPaidNote": {"description": "付费结果另行处理提示"},
+  "@storageClearPaidNote": {
+    "description": "付费结果另行处理提示"
+  },
   "storageClearPreview": "Preview space to be freed",
-  "@storageClearPreview": {"description": "预览按钮"},
+  "@storageClearPreview": {
+    "description": "预览按钮"
+  },
   "storageClearImpact": "Will free {size}: {media} media items, {ai} AI results, {drafts} failed drafts.",
-  "@storageClearImpact": {"description": "清缓存影响预览", "placeholders": {"size": {"type": "String"}, "media": {"type": "int"}, "ai": {"type": "int"}, "drafts": {"type": "int"}}},
+  "@storageClearImpact": {
+    "description": "清缓存影响预览",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "media": {
+        "type": "int"
+      },
+      "ai": {
+        "type": "int"
+      },
+      "drafts": {
+        "type": "int"
+      }
+    }
+  },
   "storageClearEmpty": "Nothing to clear (the regenerable caches are already empty).",
-  "@storageClearEmpty": {"description": "无可清理内容"},
+  "@storageClearEmpty": {
+    "description": "无可清理内容"
+  },
   "storageClearConfirmTitle": "Clear regenerable caches",
-  "@storageClearConfirmTitle": {"description": "清缓存确认标题"},
+  "@storageClearConfirmTitle": {
+    "description": "清缓存确认标题"
+  },
   "storageClearConfirmBody": "This deletes the media cache, the AI result cache and failed task drafts. Reading state, favorites, subscriptions, prompts, keys and successful paid output are left untouched.",
-  "@storageClearConfirmBody": {"description": "清缓存确认正文"},
+  "@storageClearConfirmBody": {
+    "description": "清缓存确认正文"
+  },
   "storageClearConfirmAction": "Clear",
-  "@storageClearConfirmAction": {"description": "清缓存确认按钮"},
+  "@storageClearConfirmAction": {
+    "description": "清缓存确认按钮"
+  },
   "storageClearDone": "Freed {size}.",
-  "@storageClearDone": {"description": "清缓存完成回执", "placeholders": {"size": {"type": "String"}}},
+  "@storageClearDone": {
+    "description": "清缓存完成回执",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "storageSectionAuto": "Automatic cleanup",
-  "@storageSectionAuto": {"description": "自动清理小节标题"},
+  "@storageSectionAuto": {
+    "description": "自动清理小节标题"
+  },
   "storageAutoNotice": "All three switches default to off; while off nothing is deleted automatically. Article bodies are released by publish/fetch time — only the body is cleared, identity and reading state are kept, so a refresh will not turn an article back into unread.",
-  "@storageAutoNotice": {"description": "自动清理说明（架构 5.3）"},
+  "@storageAutoNotice": {
+    "description": "自动清理说明（架构 5.3）"
+  },
   "storageAutoMediaSwitch": "Clean the media cache by last-accessed time",
-  "@storageAutoMediaSwitch": {"description": "媒体自动清理开关（SET-077）"},
+  "@storageAutoMediaSwitch": {
+    "description": "媒体自动清理开关（SET-077）"
+  },
   "storageAutoArticleSwitch": "Release the bodies of expired articles",
-  "@storageAutoArticleSwitch": {"description": "正文自动清理开关（SET-077）"},
+  "@storageAutoArticleSwitch": {
+    "description": "正文自动清理开关（SET-077）"
+  },
   "storageAutoSummarySwitch": "Delete expired news summaries",
-  "@storageAutoSummarySwitch": {"description": "总结自动清理开关（SET-077）"},
+  "@storageAutoSummarySwitch": {
+    "description": "总结自动清理开关（SET-077）"
+  },
   "storageAutoDays": "Retention days",
-  "@storageAutoDays": {"description": "保留天数输入"},
+  "@storageAutoDays": {
+    "description": "保留天数输入"
+  },
   "storageProtectFavorite": "Automatic cleanup includes favorites",
-  "@storageProtectFavorite": {"description": "SET-078 收藏开关"},
+  "@storageProtectFavorite": {
+    "description": "SET-078 收藏开关"
+  },
   "storageProtectLater": "Automatic cleanup includes read-later",
-  "@storageProtectLater": {"description": "SET-078 later 开关"},
+  "@storageProtectLater": {
+    "description": "SET-078 later 开关"
+  },
   "storageProtectWarning": "When enabled, favorites and read-later articles are also matched by the automatic cleanup rules.",
-  "@storageProtectWarning": {"description": "保护规则关闭时的警告"},
+  "@storageProtectWarning": {
+    "description": "保护规则关闭时的警告"
+  },
   "storageAutoPreview": "Preview automatic cleanup",
-  "@storageAutoPreview": {"description": "自动清理预览按钮"},
+  "@storageAutoPreview": {
+    "description": "自动清理预览按钮"
+  },
   "storageAutoRunNow": "Run once now",
-  "@storageAutoRunNow": {"description": "立即执行自动清理"},
+  "@storageAutoRunNow": {
+    "description": "立即执行自动清理"
+  },
   "storageAutoImpact": "Will free {size}: {media} media items, {bodies} bodies, {summaries} summaries; {protected} articles skipped by protection rules.",
-  "@storageAutoImpact": {"description": "自动清理影响", "placeholders": {"size": {"type": "String"}, "media": {"type": "int"}, "bodies": {"type": "int"}, "summaries": {"type": "int"}, "protected": {"type": "int"}}},
+  "@storageAutoImpact": {
+    "description": "自动清理影响",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "media": {
+        "type": "int"
+      },
+      "bodies": {
+        "type": "int"
+      },
+      "summaries": {
+        "type": "int"
+      },
+      "protected": {
+        "type": "int"
+      }
+    }
+  },
   "storageAutoDisabled": "All three switches are off; automatic cleanup will not do anything.",
-  "@storageAutoDisabled": {"description": "自动清理全关说明"},
+  "@storageAutoDisabled": {
+    "description": "自动清理全关说明"
+  },
   "storageAutoConfirmTitle": "Run automatic cleanup now",
-  "@storageAutoConfirmTitle": {"description": "自动清理确认标题"},
+  "@storageAutoConfirmTitle": {
+    "description": "自动清理确认标题"
+  },
   "storageAutoConfirmBody": "Content will be deleted according to the switches and retention days above. Bodies are released (identity and reading state are kept); media and summaries are deleted.",
-  "@storageAutoConfirmBody": {"description": "自动清理确认正文"},
+  "@storageAutoConfirmBody": {
+    "description": "自动清理确认正文"
+  },
   "storageAutoConfirmAction": "Run",
-  "@storageAutoConfirmAction": {"description": "自动清理确认按钮"},
+  "@storageAutoConfirmAction": {
+    "description": "自动清理确认按钮"
+  },
   "storageAutoDone": "Freed {size}.",
-  "@storageAutoDone": {"description": "自动清理完成", "placeholders": {"size": {"type": "String"}}},
+  "@storageAutoDone": {
+    "description": "自动清理完成",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "storageSectionOrphan": "Orphan snapshot cleanup",
-  "@storageSectionOrphan": {"description": "孤儿快照小节标题"},
+  "@storageSectionOrphan": {
+    "description": "孤儿快照小节标题"
+  },
   "storageOrphanNotice": "An interrupted sync upload may leave snapshots that no version references. They are not the current version and are only collected once they are older than 90 days and unreferenced.",
-  "@storageOrphanNotice": {"description": "孤儿快照说明（T042 遗留）"},
+  "@storageOrphanNotice": {
+    "description": "孤儿快照说明（T042 遗留）"
+  },
   "storageOrphanUnavailable": "Sync is not configured, so there is no remote snapshot to collect.",
-  "@storageOrphanUnavailable": {"description": "未配置同步"},
+  "@storageOrphanUnavailable": {
+    "description": "未配置同步"
+  },
   "storageOrphanPreview": "Check for orphan snapshots",
-  "@storageOrphanPreview": {"description": "孤儿快照检查按钮"},
+  "@storageOrphanPreview": {
+    "description": "孤儿快照检查按钮"
+  },
   "storageOrphanCollect": "Collect orphan snapshots",
-  "@storageOrphanCollect": {"description": "孤儿快照回收按钮"},
+  "@storageOrphanCollect": {
+    "description": "孤儿快照回收按钮"
+  },
   "storageOrphanResult": "The remote has {considered} snapshots; {collectable} are collectable and {skipped} were skipped for missing server timestamps.",
-  "@storageOrphanResult": {"description": "孤儿快照结果", "placeholders": {"considered": {"type": "int"}, "collectable": {"type": "int"}, "skipped": {"type": "int"}}},
+  "@storageOrphanResult": {
+    "description": "孤儿快照结果",
+    "placeholders": {
+      "considered": {
+        "type": "int"
+      },
+      "collectable": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
   "storageOrphanDone": "Collected {count} orphan snapshots.",
-  "@storageOrphanDone": {"description": "孤儿快照回收完成", "placeholders": {"count": {"type": "int"}}},
+  "@storageOrphanDone": {
+    "description": "孤儿快照回收完成",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "storageFailed": "Operation failed: {reason}",
-  "@storageFailed": {"description": "存储页失败提示", "placeholders": {"reason": {"type": "String"}}},
+  "@storageFailed": {
+    "description": "存储页失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "storagePurgeSection": "Permanently delete an article",
-  "@storagePurgeSection": {"description": "彻底删除小节"},
+  "@storagePurgeSection": {
+    "description": "彻底删除小节"
+  },
   "storagePurgeNotice": "Permanent deletion removes the article, its translations, reading sessions and cached images, and breaks pointers from citations (the citations themselves keep their minimal snapshot). This cannot be undone.",
-  "@storagePurgeNotice": {"description": "彻底删除说明（架构 5.3）"},
+  "@storagePurgeNotice": {
+    "description": "彻底删除说明（架构 5.3）"
+  },
   "storagePurgeTitle": "Permanently delete this article",
-  "@storagePurgeTitle": {"description": "彻底删除对话框标题"},
+  "@storagePurgeTitle": {
+    "description": "彻底删除对话框标题"
+  },
   "storagePurgeImpact": "Will delete: {translations} translations, {sessions} reading sessions, {media} cached images; will break {citations} citations (the citations themselves are kept).",
-  "@storagePurgeImpact": {"description": "彻底删除关联范围", "placeholders": {"translations": {"type": "int"}, "sessions": {"type": "int"}, "media": {"type": "int"}, "citations": {"type": "int"}}},
+  "@storagePurgeImpact": {
+    "description": "彻底删除关联范围",
+    "placeholders": {
+      "translations": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "media": {
+        "type": "int"
+      },
+      "citations": {
+        "type": "int"
+      }
+    }
+  },
   "storagePurgeNone": "This article has no related content to clean up.",
-  "@storagePurgeNone": {"description": "无关联内容"},
+  "@storagePurgeNone": {
+    "description": "无关联内容"
+  },
   "storagePurgeConfirmAction": "Delete permanently",
-  "@storagePurgeConfirmAction": {"description": "彻底删除按钮"},
+  "@storagePurgeConfirmAction": {
+    "description": "彻底删除按钮"
+  },
   "readingPurgeArticle": "Permanently delete this article",
-  "@readingPurgeArticle": {"description": "阅读页彻底删除入口"},
+  "@readingPurgeArticle": {
+    "description": "阅读页彻底删除入口"
+  },
   "storagePurgeDone": "Permanently deleted: {citations} citations, {translations} translations, {sessions} sessions, {media} cached images.",
-  "@storagePurgeDone": {"description": "彻底删除完成", "placeholders": {"citations": {"type": "int"}, "translations": {"type": "int"}, "sessions": {"type": "int"}, "media": {"type": "int"}}},
+  "@storagePurgeDone": {
+    "description": "彻底删除完成",
+    "placeholders": {
+      "citations": {
+        "type": "int"
+      },
+      "translations": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "media": {
+        "type": "int"
+      }
+    }
+  },
   "settingsDiagnosticsEntryTitle": "Diagnostics & recovery",
-  "@settingsDiagnosticsEntryTitle": {"description": "设置页诊断入口标题（T048）"},
+  "@settingsDiagnosticsEntryTitle": {
+    "description": "设置页诊断入口标题（T048）"
+  },
   "settingsDiagnosticsEntrySubtitle": "Export a sanitized diagnostics bundle and inspect restore orchestration",
-  "@settingsDiagnosticsEntrySubtitle": {"description": "设置页诊断入口说明"},
+  "@settingsDiagnosticsEntrySubtitle": {
+    "description": "设置页诊断入口说明"
+  },
   "diagnosticsPageTitle": "Diagnostics & recovery",
-  "@diagnosticsPageTitle": {"description": "诊断页标题"},
+  "@diagnosticsPageTitle": {
+    "description": "诊断页标题"
+  },
   "diagnosticsSectionExport": "Export diagnostics",
-  "@diagnosticsSectionExport": {"description": "导出小节标题"},
+  "@diagnosticsSectionExport": {
+    "description": "导出小节标题"
+  },
   "diagnosticsExportNotice": "The bundle contains system information (OS and Dart versions, architecture, locale and theme), storage statistics, a sync status summary and already-sanitized logs. It does **not** contain article text, AI inputs or prompts, keys or subscription addresses.",
-  "@diagnosticsExportNotice": {"description": "诊断包内容与排除项说明（架构第 8 节）"},
+  "@diagnosticsExportNotice": {
+    "description": "诊断包内容与排除项说明（架构第 8 节）"
+  },
   "diagnosticsExportConfirmTitle": "Export sanitized diagnostics",
-  "@diagnosticsExportConfirmTitle": {"description": "导出确认标题"},
+  "@diagnosticsExportConfirmTitle": {
+    "description": "导出确认标题"
+  },
   "diagnosticsExportConfirmBody": "The content is limited by an allowlist and has been sanitized twice; it contains no article text, prompts or credentials. Please still treat it as internal material.",
-  "@diagnosticsExportConfirmBody": {"description": "导出确认正文"},
+  "@diagnosticsExportConfirmBody": {
+    "description": "导出确认正文"
+  },
   "diagnosticsExportConfirmAction": "Export",
-  "@diagnosticsExportConfirmAction": {"description": "导出确认按钮"},
+  "@diagnosticsExportConfirmAction": {
+    "description": "导出确认按钮"
+  },
   "diagnosticsExportAction": "Export diagnostics…",
-  "@diagnosticsExportAction": {"description": "导出按钮"},
+  "@diagnosticsExportAction": {
+    "description": "导出按钮"
+  },
   "diagnosticsExportDone": "Exported {fields} fields and {logEntries} log lines ({size}).",
-  "@diagnosticsExportDone": {"description": "导出回执", "placeholders": {"fields": {"type": "int"}, "logEntries": {"type": "int"}, "size": {"type": "String"}}},
+  "@diagnosticsExportDone": {
+    "description": "导出回执",
+    "placeholders": {
+      "fields": {
+        "type": "int"
+      },
+      "logEntries": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsExportFailed": "Export failed: {reason}",
-  "@diagnosticsExportFailed": {"description": "导出失败", "placeholders": {"reason": {"type": "String"}}},
+  "@diagnosticsExportFailed": {
+    "description": "导出失败",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsExportPath": "Saved to: {path}",
-  "@diagnosticsExportPath": {"description": "保存路径", "placeholders": {"path": {"type": "String"}}},
+  "@diagnosticsExportPath": {
+    "description": "保存路径",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsSectionRestore": "Restore orchestration",
-  "@diagnosticsSectionRestore": {"description": "恢复编排小节标题"},
+  "@diagnosticsSectionRestore": {
+    "description": "恢复编排小节标题"
+  },
   "diagnosticsRestoreIdle": "No restore is waiting to be orchestrated. Restoring into a new directory takes effect after restarting the app.",
-  "@diagnosticsRestoreIdle": {"description": "无待编排恢复"},
+  "@diagnosticsRestoreIdle": {
+    "description": "无待编排恢复"
+  },
   "diagnosticsRestorePending": "Restored into a new directory and verified; this takes effect after restarting the app. Your current data directory is still the original one and remains fully usable until then.",
-  "@diagnosticsRestorePending": {"description": "待重启切换"},
+  "@diagnosticsRestorePending": {
+    "description": "待重启切换"
+  },
   "diagnosticsRestoreSwitched": "The restore is in effect. The previous data directory is still on disk; delete it once you have confirmed everything.",
-  "@diagnosticsRestoreSwitched": {"description": "已切换（待清理旧目录）"},
+  "@diagnosticsRestoreSwitched": {
+    "description": "已切换（待清理旧目录）"
+  },
   "diagnosticsRestoreSuperseded": "Previous data directory: {path}",
-  "@diagnosticsRestoreSuperseded": {"description": "旧数据目录路径", "placeholders": {"path": {"type": "String"}}},
+  "@diagnosticsRestoreSuperseded": {
+    "description": "旧数据目录路径",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsRestoreRestored": "Restored data directory: {path}",
-  "@diagnosticsRestoreRestored": {"description": "恢复出的目录路径", "placeholders": {"path": {"type": "String"}}},
+  "@diagnosticsRestoreRestored": {
+    "description": "恢复出的目录路径",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsRestoreCleanupAction": "Delete the previous data directory",
-  "@diagnosticsRestoreCleanupAction": {"description": "清理旧目录按钮"},
+  "@diagnosticsRestoreCleanupAction": {
+    "description": "清理旧目录按钮"
+  },
   "diagnosticsRestoreCleanupConfirmTitle": "Delete the previous data directory",
-  "@diagnosticsRestoreCleanupConfirmTitle": {"description": "清理确认标题"},
+  "@diagnosticsRestoreCleanupConfirmTitle": {
+    "description": "清理确认标题"
+  },
   "diagnosticsRestoreCleanupConfirmBody": "This permanently deletes the superseded data directory (the data from before the restore). The data currently in use is not affected.",
-  "@diagnosticsRestoreCleanupConfirmBody": {"description": "清理确认正文"},
+  "@diagnosticsRestoreCleanupConfirmBody": {
+    "description": "清理确认正文"
+  },
   "diagnosticsRestoreCleanupDone": "The previous data directory was deleted.",
-  "@diagnosticsRestoreCleanupDone": {"description": "清理完成"},
+  "@diagnosticsRestoreCleanupDone": {
+    "description": "清理完成"
+  },
   "diagnosticsRestoreAbandonAction": "Abandon this restore",
-  "@diagnosticsRestoreAbandonAction": {"description": "放弃恢复按钮"},
+  "@diagnosticsRestoreAbandonAction": {
+    "description": "放弃恢复按钮"
+  },
   "diagnosticsRestoreAbandonDone": "This restore was abandoned. The restored directory is left on disk and was not deleted.",
-  "@diagnosticsRestoreAbandonDone": {"description": "放弃恢复回执"},
+  "@diagnosticsRestoreAbandonDone": {
+    "description": "放弃恢复回执"
+  },
   "diagnosticsRestoreFailure": "The last restore orchestration did not finish: {reason}. Your current data directory was not modified and remains usable.",
-  "@diagnosticsRestoreFailure": {"description": "编排失败提示", "placeholders": {"reason": {"type": "String"}}},
+  "@diagnosticsRestoreFailure": {
+    "description": "编排失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsRestoreRolledBack": "The last restore switch failed and rolled back to the original data directory.",
-  "@diagnosticsRestoreRolledBack": {"description": "切换回退提示"},
+  "@diagnosticsRestoreRolledBack": {
+    "description": "切换回退提示"
+  },
   "diagnosticsFailed": "Operation failed: {reason}",
-  "@diagnosticsFailed": {"description": "诊断页失败提示", "placeholders": {"reason": {"type": "String"}}},
+  "@diagnosticsFailed": {
+    "description": "诊断页失败提示",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "shortcutHelpTitle": "Keyboard shortcuts",
-  "@shortcutHelpTitle": {"description": "快捷键说明面板标题"},
+  "@shortcutHelpTitle": {
+    "description": "快捷键说明面板标题"
+  },
   "shortcutHelpAction": "Keyboard shortcuts",
-  "@shortcutHelpAction": {"description": "快捷键说明入口（工具提示）"},
+  "@shortcutHelpAction": {
+    "description": "快捷键说明入口（工具提示）"
+  },
   "shortcutGroupNavigation": "Switch destination",
-  "@shortcutGroupNavigation": {"description": "快捷键分组：导航"},
+  "@shortcutGroupNavigation": {
+    "description": "快捷键分组：导航"
+  },
   "shortcutNavToday": "⌘1 Today",
-  "@shortcutNavToday": {"description": "快捷键：切到今日新闻"},
+  "@shortcutNavToday": {
+    "description": "快捷键：切到今日新闻"
+  },
   "shortcutNavReading": "⌘2 Reading",
-  "@shortcutNavReading": {"description": "快捷键：切到 RSS 阅读"},
+  "@shortcutNavReading": {
+    "description": "快捷键：切到 RSS 阅读"
+  },
   "shortcutNavMine": "⌘3 Mine / Settings",
-  "@shortcutNavMine": {"description": "快捷键：切到我的"},
+  "@shortcutNavMine": {
+    "description": "快捷键：切到我的"
+  },
   "shortcutGroupList": "Article list",
-  "@shortcutGroupList": {"description": "快捷键分组：列表"},
+  "@shortcutGroupList": {
+    "description": "快捷键分组：列表"
+  },
   "shortcutListMove": "↑ / ↓ Previous / next row",
-  "@shortcutListMove": {"description": "快捷键：列表上下选择"},
+  "@shortcutListMove": {
+    "description": "快捷键：列表上下选择"
+  },
   "shortcutListOpen": "Return Open the selected article",
-  "@shortcutListOpen": {"description": "快捷键：回车打开"},
+  "@shortcutListOpen": {
+    "description": "快捷键：回车打开"
+  },
   "shortcutGroupClose": "Close and cancel",
-  "@shortcutGroupClose": {"description": "快捷键分组：关闭"},
+  "@shortcutGroupClose": {
+    "description": "快捷键分组：关闭"
+  },
   "shortcutCloseLayer": "Esc Close a layer / leave search / clear list selection",
-  "@shortcutCloseLayer": {"description": "快捷键：Esc 关闭"},
+  "@shortcutCloseLayer": {
+    "description": "快捷键：Esc 关闭"
+  },
   "shortcutGroupOther": "Other",
-  "@shortcutGroupOther": {"description": "快捷键分组：其它"},
+  "@shortcutGroupOther": {
+    "description": "快捷键分组：其它"
+  },
   "shortcutHelpOpen": "⌘/ Open this list",
-  "@shortcutHelpOpen": {"description": "快捷键：打开说明面板"},
+  "@shortcutHelpOpen": {
+    "description": "快捷键：打开说明面板"
+  },
   "shortcutHelpFooter": "Every control is reachable with Tab and activates with Return or Space; lists, subscription rows and the article body also have context menus.",
-  "@shortcutHelpFooter": {"description": "快捷键面板页脚说明"},
+  "@shortcutHelpFooter": {
+    "description": "快捷键面板页脚说明"
+  },
   "a11yListSelection": "Selected row {index} of {total}; press Return to open",
-  "@a11yListSelection": {"description": "列表选中行的读屏播报", "placeholders": {"index": {"type": "int"}, "total": {"type": "int"}}},
+  "@a11yListSelection": {
+    "description": "列表选中行的读屏播报",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "a11yListLoading": "Loading the article list",
-  "@a11yListLoading": {"description": "列表加载中的读屏标签"},
+  "@a11yListLoading": {
+    "description": "列表加载中的读屏标签"
+  },
   "a11yDetailLoading": "Loading the article body",
-  "@a11yDetailLoading": {"description": "详情加载中的读屏标签"},
+  "@a11yDetailLoading": {
+    "description": "详情加载中的读屏标签"
+  },
   "a11yImagePlaceholder": "Image placeholder: {alt}",
-  "@a11yImagePlaceholder": {"description": "图片占位读屏标签", "placeholders": {"alt": {"type": "String"}}},
+  "@a11yImagePlaceholder": {
+    "description": "图片占位读屏标签",
+    "placeholders": {
+      "alt": {
+        "type": "String"
+      }
+    }
+  },
   "readingContextSearchSelection": "Search the library for this text",
-  "@readingContextSearchSelection": {"description": "正文选区菜单：在库中检索"},
+  "@readingContextSearchSelection": {
+    "description": "正文选区菜单：在库中检索"
+  },
   "readingContextSearchRequested": "Switched to Reading and searched for the selected text.",
-  "@readingContextSearchRequested": {"description": "检索跳转回执"},
+  "@readingContextSearchRequested": {
+    "description": "检索跳转回执"
+  },
   "readingContextTranslateArticle": "Translate this article",
-  "@readingContextTranslateArticle": {"description": "正文选区菜单：翻译本文"},
+  "@readingContextTranslateArticle": {
+    "description": "正文选区菜单：翻译本文"
+  },
   "articleMenuDelete": "Delete this article…",
-  "@articleMenuDelete": {"description": "列表项菜单：彻底删除"},
+  "@articleMenuDelete": {
+    "description": "列表项菜单：彻底删除"
+  },
   "articlePurgeDone": "Article deleted, along with {citations} citations, {translations} translations, {sessions} reading sessions and {media} cached files.",
-  "@articlePurgeDone": {"description": "彻底删除回执", "placeholders": {"citations": {"type": "int"}, "translations": {"type": "int"}, "sessions": {"type": "int"}, "media": {"type": "int"}}},
+  "@articlePurgeDone": {
+    "description": "彻底删除回执",
+    "placeholders": {
+      "citations": {
+        "type": "int"
+      },
+      "translations": {
+        "type": "int"
+      },
+      "sessions": {
+        "type": "int"
+      },
+      "media": {
+        "type": "int"
+      }
+    }
+  },
   "settingsMotionLabel": "Reduce motion",
-  "@settingsMotionLabel": {"description": "SET-014 标题"},
-  "settingsMotionId": "SET-014 · Device-only",
-  "@settingsMotionId": {"description": "SET-014 编号与分类"},
+  "@settingsMotionLabel": {
+    "description": "SET-014 标题"
+  },
+  "settingsMotionId": "· Device-only",
+  "@settingsMotionId": {
+    "description": "SET-014 编号与分类"
+  },
   "settingsMotionHint": "Follow system resolves from the OS \"Reduce motion\" setting; you can also force it on or off on this device. It only affects transition durations on this machine.",
-  "@settingsMotionHint": {"description": "SET-014 说明"},
+  "@settingsMotionHint": {
+    "description": "SET-014 说明"
+  },
   "settingsOptionMotionSystem": "Follow system",
-  "@settingsOptionMotionSystem": {"description": "SET-014 取值：跟随系统"},
+  "@settingsOptionMotionSystem": {
+    "description": "SET-014 取值：跟随系统"
+  },
   "settingsOptionMotionOn": "Always reduce",
-  "@settingsOptionMotionOn": {"description": "SET-014 取值：强制开启"},
+  "@settingsOptionMotionOn": {
+    "description": "SET-014 取值：强制开启"
+  },
   "settingsOptionMotionOff": "Do not reduce",
-  "@settingsOptionMotionOff": {"description": "SET-014 取值：强制关闭"},
+  "@settingsOptionMotionOff": {
+    "description": "SET-014 取值：强制关闭"
+  },
   "readingOpenOriginal": "Open original in browser",
-  "@readingOpenOriginal": {"description": "列表项菜单：外部打开原文"},
+  "@readingOpenOriginal": {
+    "description": "列表项菜单：外部打开原文"
+  },
   "readingSourceUrlMissing": "This article has no original URL to open.",
-  "@readingSourceUrlMissing": {"description": "原文地址缺失提示"},
+  "@readingSourceUrlMissing": {
+    "description": "原文地址缺失提示"
+  },
   "menuFile": "File",
   "menuView": "View",
   "menuHelp": "Help",
   "menuRefresh": "Refresh Feeds",
   "menuSettings": "Settings…",
   "menuTheme": "Theme"
-
 }

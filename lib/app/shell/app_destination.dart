@@ -44,13 +44,6 @@ enum AppDestination {
     AppDestination.reading => l10n.navReading,
     AppDestination.mine => l10n.navMine,
   };
-
-  /// 该去向当前对应的计划任务号（用于占位页明确说明「谁负责实现」）。
-  String get plannedTasks => switch (this) {
-    AppDestination.today => 'T036–T040',
-    AppDestination.reading => 'T013–T024',
-    AppDestination.mine => 'T011 起，其余见各 SET 项对应任务',
-  };
 }
 
 /// 全部去向，顺序即导航顺序。

@@ -357,9 +357,45 @@ ParsedFeedEntry? _rssItem(XmlElement item) {
         parseFeedDate(_textOf(item, 'pubDate')) ??
         parseFeedDate(_textOf(item, 'date')),
     summary: description,
-    contentHtml: contentEncoded,
+    // content:encoded 缺失时，长/富文本的 description 兜底为正文：大量 Hugo/Hexo
+    // 站点的 RSS 把全文放在 description（没有 content:encoded），此前只认
+    // content:encoded 会让这类源全部落入「仅摘要」。判定用「长度或含块级标签」：
+    // 真摘要（一两句话、纯文本）不误伤；全文 description 几乎必然含 <p>/<h2> 等。
+    // description 在这条路径上仍是 HTML 片段，后续清洗管线与其它正文走同一条
+    // 受控路径。
+    contentHtml: contentEncoded ?? _fullTextCandidate(description),
     enclosureImageUrl: _rssEnclosureImage(item),
   );
+}
+
+/// 判断 RSS `description` 是否可能是全文而不是摘要。
+///
+/// 真摘要通常是「一两句话、纯文本」；把全文塞进 description 的源几乎必然有块级
+/// 标签（段落/标题/表格/图片）。两条判据满足其一即视为全文候选：
+/// 长度超过 200 字符，或包含常见块级标签。阈值刻意保守：宁可让一篇「长摘要」
+/// 被当成正文（渲染出来仍然可读），也不要让「全文源」继续落入仅摘要。
+String? _fullTextCandidate(String? description) {
+  if (description == null || description.isEmpty) {
+    return null;
+  }
+  const Set<String> blockTags = <String>{
+    '<p',
+    '<h1',
+    '<h2',
+    '<h3',
+    '<h4',
+    '<h5',
+    '<h6',
+    '<ul',
+    '<ol',
+    '<table',
+    '<figure',
+    '<blockquote',
+    '<pre',
+    '<img',
+  };
+  final bool hasBlock = blockTags.any(description.toLowerCase().contains);
+  return (hasBlock || description.length > 200) ? description : null;
 }
 
 /// RSS `<enclosure>` 中的图片地址（仅在 MIME 是图片时采用）。
@@ -438,7 +474,9 @@ ParsedFeedEntry? _atomEntry(XmlElement entry, {String? feedAuthor}) {
         parseFeedDate(_textOf(entry, 'updated')),
     updatedAt: parseFeedDate(_textOf(entry, 'updated')),
     summary: _nonEmpty(_textOf(entry, 'summary')),
-    contentHtml: contentHtml,
+    // 与 RSS 路径同一口径：content 缺失或为空时，长/富文本 summary 兜底为正文。
+    contentHtml:
+        contentHtml ?? _fullTextCandidate(_nonEmpty(_textOf(entry, 'summary'))),
     enclosureImageUrl: _atomEnclosureImage(entry),
   );
 }

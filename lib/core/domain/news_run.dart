@@ -792,6 +792,10 @@ final RegExp _citationPattern = RegExp(r'\[([^\[\]\(\)]{1,64})\]');
 NewsDraftParseResult parseNewsDraft({
   required String text,
   required Set<String> knownSourceIds,
+  // 模型自带联网检索时的 web 引用放行开关（架构 4.3 的能力路由：只有任务明确
+  // 声明「本次允许模型自检索」才打开；普通 RSS 材料任务保持关闭，避免编造引用
+  // 被静默接受）。
+  bool allowWebCitations = false,
 }) {
   final List<NewsDraftItem> items = <NewsDraftItem>[];
   final List<String> headings = <String>[];
@@ -841,7 +845,15 @@ NewsDraftParseResult parseNewsDraft({
     final List<String> resolved = <String>[];
     final List<String> bad = <String>[];
     for (final String id in cited) {
-      if (knownSourceIds.contains(id)) {
+      // web: 引用只放行「web: + 合法 http(s) 网址」：指令示例被模型照抄时
+      // （例如 [web:来源网址]）不是真实检索结果，必须退回而不是静默接受。
+      final String webUrl = id.startsWith('web:') ? id.substring(4) : '';
+      final Uri? webUri = webUrl.isEmpty ? null : Uri.tryParse(webUrl);
+      final bool isWebRef = allowWebCitations &&
+          webUri != null &&
+          (webUri.scheme == 'http' || webUri.scheme == 'https') &&
+          webUri.host.isNotEmpty;
+      if (knownSourceIds.contains(id) || isWebRef) {
         if (!resolved.contains(id)) {
           resolved.add(id);
         }

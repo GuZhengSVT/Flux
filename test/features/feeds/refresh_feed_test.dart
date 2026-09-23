@@ -852,6 +852,29 @@ void main() {
       expect(stored.summary, '这是摘要');
     });
 
+    test('长 description（无 content:encoded）视为全文入库', () async {
+      const String fullInDescription = '''<rss version="2.0"><channel>
+  <item><title>全文在 description</title><guid>s-2</guid>
+  <description>&lt;p&gt;第一段，这是正文内容而不是摘要。&lt;/p&gt;
+  &lt;p&gt;第二段，Hugo 生成的 RSS 常把全文放在 description 里。&lt;/p&gt;
+  &lt;p&gt;第三段，为了超过摘要长度阈值，这里再补一句说明性文字。&lt;/p&gt;</description></item>
+</channel></rss>''';
+      await buildUseCase(
+        routes: <String, http.Response>{
+          'https://feeds.example.com/a.xml': _xml(fullInDescription),
+        },
+      )(
+        FeedRefreshRequest(
+          feedId: feedA,
+          url: Uri.parse('https://feeds.example.com/a.xml'),
+        ),
+      );
+      final Article stored = (await allArticles()).single;
+      expect(stored.bodyCompleteness, BodyCompleteness.sourceBody);
+      expect(stored.body, isNotNull);
+      expect(stored.body, contains('第一段'));
+    });
+
     test('源内摘要是 HTML 时被清洗成纯文本（列表里不出现标签）', () async {
       const String htmlSummary = '''<rss version="2.0"><channel>
   <item><title>带 HTML 摘要</title><guid>h-2</guid>

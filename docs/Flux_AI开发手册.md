@@ -1,6 +1,6 @@
 # Flux AI 开发手册
 
-版本：1.0 · 更新日期：2026-09-21 · 主要执行者：DeepSeek V4.1 Flash
+版本：1.0 · 更新日期：2026-09-23 · 主要执行者：Codex（gpt-6-astra）
 
 本文是新 Flux 的执行手册、任务台账和验证记录。产品规则的唯一来源是 [项目架构说明书](./Flux_项目架构说明书.md)；用户/贡献者说明见 [README](../README.md)。不要把已完成的规划当成已完成代码，也不要借用旧 Flux 的构建和功能状态。
 
@@ -63,7 +63,7 @@
 M4 进度（R051/R052 之后）：**T049 已 DONE 但范围收窄**（键盘导航、右键菜单、读屏语义、大字号/窄窗回归与 SET-014 真实生效），其遗留的**菜单栏与 profile/release 记录已由 T052 补齐**；仍未做的输入法专项与真实 VoiceOver 人工走查按 6.4 记 REVIEW（见 R049/R052）。**T051 部分 DONE**：图标资源范围已交付（28 个 SVG 的 16px 辨识验证与四个图标重绘、原创应用图标七个尺寸、第三方许可证声明），但手册 T051 原文要求的**全设置审计（SET 表逐项 UI 入口 + 48dp/对比度走查）未做**，见 R051。**T052 macOS 部分 DONE / Android NOT_RUN**：文档归位（把 R050 的性能基线并入 T052）、`flutter build macos --release` 成功且 **Release .app 31 MB**、profile 下的滚动帧复测（真实 FrameTiming：稳态 **P50 9.34 ms**，对比 debug 23.2 ms，但仍未完全达标，记 FAIL）、macOS 原生菜单栏最小集、窗口标题修复（xib 模板占位符 `APP_NAME`），逐项见 §7.5 的平台验收矩阵。**能耗、VoiceOver 真机走查、输入法、Android 全部 NOT_RUN**，不冒充通过；**性能阈值仍未批准**，因此只记录实测值、不宣称达标（见 R052）。
 
 ### 2.2 功能状态（每轮同步维护）
-“已实现列表”：空。“已验收列表”：空。下表是未实现/延期列表，不是旧项目审计结论。
+“已实现列表”和“已验收列表”不再留空占位；当前以任务表、各轮证据和本手册末尾最新轮次记录为准。下表是功能组汇总，仍需结合每项任务的 PASS/FAIL/REVIEW/NOT_RUN 口径阅读，不能把代码存在或 fixture 测试等同于真实平台验收。
 
 | 功能组 | 要求/对应设置 | 关联任务 | 当前状态 |
 | --- | --- | --- | --- |
@@ -4869,3 +4869,41 @@ FTS5 tokenizer 的实测结论（架构 4.2 要求的「实测确定语义」，
 6. 提交：android 初始化 c14f242；本状态更新随 push 前最后提交。
 
 边界：未做正式签名/公证（需维护者密钥）；未做 T053–T056；Android 验收项未在真机执行。
+
+## 9.3 轮次记录 R053（macOS 实际软件走查与开发手册复核）
+
+日期：2026-09-23。执行者：Codex（gpt-6-astra）。用户要求：打开软件逐项实际测试相关功能，并将修改意见写入本手册。
+
+### 本轮环境与方法
+
+- 工作区：/Volumes/taurus/Document/Code/Flux；工作树开始时无未提交修改；基线为 22b29f7 security: remove leaked DeepSeek API key from handbook。
+- 设备：macOS 27.0 (26A428)，Apple Silicon；flutter devices 只发现 1 台 macOS 桌面设备，没有 Android 真机或模拟器。
+- 实际启动：flutter run -d macos 成功，真实窗口出现并显示「今日新闻」页。窗口实测可见日期切换、近 7 天日期条、生成今日新闻按钮、左侧「今日新闻 / RSS 阅读 / 我的」导航和无数据空态；无配置/无文章时没有伪造新闻内容，符合 waitingConfiguration/空态边界。
+- 代码级回归：flutter analyze 通过（No issues found）；flutter test 通过（2199 passed，3 skipped，0 failed；跳过项由环境变量/测试条件控制）。
+- 真实 integration_test：单独/批量启动均做过尝试。批量执行 flutter test integration_test -d macos 在第一个测试后出现 log reader stopped unexpectedly，后续 5 个文件无法启动；并行启动多个 macOS Flutter 测试进一步复现了 Waiting for another flutter command to release the startup lock、临时 listener.dart 消失和 debug_unpack_macos 的 rsync renameat 失败。该问题属于测试执行编排/构建缓存竞争，不能写成业务功能通过或业务功能失败。
+
+### 功能实际走查结论
+
+| 项目 | macOS 本轮结果 | 说明与修改意见 |
+| --- | --- | --- |
+| 应用启动与窗口 | PASS | Debug 构建成功，真实窗口启动；后续应保留冷启动/首帧证据，并避免把 debug 性能当发布性能。 |
+| 今日新闻空态 | PASS | 日期条、生成入口、空态解释可见；无配置时不联网、不伪造内容。建议补一条真实 UI 回归，断言按钮点击后的 waitingConfiguration/费用确认链路。 |
+| 顶层导航 | REVIEW | 截图中三个去向可见，但本轮受 macOS 辅助功能脚本权限与 integration_test 构建竞争影响，未完成每个去向的人工点击闭环；不能把导航代码存在当作逐项实测。下轮逐页单独启动并截图。 |
+| RSS、订阅管理、文章阅读器 | REVIEW | 源码和既有 widget/golden/fixture 测试覆盖较完整，但本轮没有稳定完成真实窗口逐项点击；需用预置公开 fixture 数据启动独立测试宿主，实际验证添加源、刷新、筛选、三态、收藏、打开正文、返回锚点。 |
+| 搜索与统计 | REVIEW | 既有测试及 t023 曾有证据；本轮批量 integration_test 被启动器问题打断，不能新增真实窗口 PASS。建议将 t022/t023 改为串行单文件命令，并在报告中固定测试设备与窗口截图路径。 |
+| AI/搜索供应商真实调用 | NOT_RUN | 本轮未读取或使用任何凭据，未产生外部调用费用；除手册已记录的 DeepSeek 历史证据外，其他供应商仍不得宣称支持。 |
+| 同步/WebDAV、备份恢复 | NOT_RUN | 本轮无第二设备和真实 WebDAV 服务；继续保持 NOT_RUN，Mock 证据不能替代兼容性验收。 |
+| 设置、可访问性、输入法、能耗 | REVIEW/NOT_RUN | 设置页面的源码与测试存在，但本轮未完成 SET 逐项人工入口审计；VoiceOver、IME、能耗按既有口径仍是 NOT_RUN。 |
+| Android | NOT_RUN | 没有设备/模拟器；即使 Android release APK 已构建，也不能替代真机行为、生命周期、Keystore 和权限验收。 |
+
+### 本轮新增修改意见（转为后续任务）
+
+1. 新增“单文件 integration_test 串行执行”脚本或 CI job：同一 macOS 设备不得并发启动 Flutter 构建；每个测试完成后等待进程退出，再启动下一个。构建目录/临时 listener 生命周期要有失败清理，避免 startup lock、listener 文件消失和 framework rsync 竞争。
+2. 将真实 UI 走查拆成可重复的独立场景：启动、顶层导航、RSS/订阅、文章阅读、搜索、统计、设置分别保存截图与结果；测试数据使用公开/本地 fixture，避免依赖用户数据库和真实私密订阅。
+3. 在手册和 README 中统一“实现状态”和“验收状态”：实现完成、fixture 通过、macOS 真实窗口通过、Android 真机通过、真实供应商通过必须分栏记录；修复 README 当前仍可能让读者误以为“尚未交付任何可用功能”的过时表述。
+4. 对今日新闻生成按钮补充无配置、已配置但未确认费用、生成中、成功、失败和中断六种窗口级证据；其中无配置场景必须断言零网络请求。
+5. 继续保留 T052 性能 FAIL、T051 全设置审计缺口、VoiceOver/IME/能耗、Android、真实 WebDAV 和非 DeepSeek 供应商为未完成或 NOT_RUN，不因本轮启动成功而提前提升状态。
+
+### 本轮安全与数据影响
+
+未读取 API Key、未向 AI/搜索/WebDAV 发送数据、未修改数据库用户数据、未执行清理/发布/推送。修改仅限本手册状态和验证记录。软件启动产生的临时构建/运行缓存不作为产品证据。

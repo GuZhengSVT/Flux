@@ -144,8 +144,10 @@ Map<String, Object?> responsesRequestBody(AiRequest request, String modelId) {
     if (instructions.isNotEmpty) 'instructions': instructions.toString(),
     if (request.maxTokens != null) 'max_output_tokens': request.maxTokens,
     if (request.temperature != null) 'temperature': request.temperature,
-    if (request.tools.isNotEmpty)
+    if (request.tools.isNotEmpty || request.builtInWebSearch)
       'tools': <Map<String, Object?>>[
+        if (request.builtInWebSearch)
+          <String, Object?>{'type': 'web_search'},
         for (final AiToolDeclaration tool in request.tools)
           <String, Object?>{
             'type': 'function',

@@ -33,8 +33,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get emptyNoFeedsTitle => '还没有订阅';
 
   @override
-  String get emptyNoFeedsBody =>
-      '添加订阅或导入 OPML 之后，文章会出现在这里。订阅相关的界面与用例由 T013–T016 交付。';
+  String get emptyNoFeedsBody => '添加订阅或导入 OPML 之后，文章会出现在这里。';
 
   @override
   String get emptyAllReadTitle => '所有文章已读';
@@ -46,7 +45,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get emptyNoResultsTitle => '没有匹配结果';
 
   @override
-  String get emptyNoResultsBody => '换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。';
+  String get emptyNoResultsBody => '换个关键词，或调整搜索范围与筛选条件后重试。';
 
   @override
   String get shellDatabaseFailedTitle => '本地数据库打不开';
@@ -87,7 +86,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get onboardingFeedsBody =>
-      '单条添加、编辑、分组与 OPML 批量导入由 T013–T016 交付。现在还没有可用的导入界面，因此本步骤不创建任何订阅，也不会伪造示例数据；你可以直接跳过，进入应用后再添加。';
+      '你可以在这里添加订阅源，也可以稍后在「订阅管理」里添加或导入 OPML；也可以直接跳过这一步。';
 
   @override
   String get onboardingFeedsSkipNote => '跳过不会影响后续功能，也不会写入任何订阅。';
@@ -97,7 +96,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get onboardingAiBody =>
-      '未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。提供商协议、模型管理、凭据、连通性测试与费用提醒由 T025/T031 交付；在此之前本步骤不请求任何凭据，也不发起任何请求。';
+      '未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。相关服务可以在设置里随时配置；你可以直接跳过这一步。';
 
   @override
   String get onboardingAiSkipNote => '没有配置 AI 也可以直接开始使用：所有本地功能都不受影响。';
@@ -222,7 +221,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String aboutVersionValue(String version) {
-    return '$version（M0 骨架版本号占位，发行版本在 T054 确定）';
+    return '$version';
   }
 
   @override
@@ -232,7 +231,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutLicenseValue => 'MIT License';
 
   @override
-  String get aboutLicenseNote => '仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明在 T054 落地。';
+  String get aboutLicenseNote => '仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明见仓库说明。';
 
   @override
   String get aboutRepositoryLabel => 'GitHub 仓库';
@@ -257,7 +256,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutReadOnlyNote =>
-      '关于信息为只读发布元数据（SET-084）。仓库与 Issue 地址尚未在本机配置，因此显示「未配置」，不提供猜测的地址；检查更新由 T053 交付。';
+      '关于信息为只读发布元数据。仓库与 Issue 地址尚未在本机配置时显示「未配置」，不提供猜测的地址。';
 
   @override
   String get aboutUnverifiedNote =>
@@ -314,7 +313,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get subscriptionManagerTitle => '订阅管理';
 
   @override
-  String get subscriptionManagerNotice => '本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。';
+  String get subscriptionManagerNotice => '本页管理订阅与分组。';
 
   @override
   String get subscriptionGroupsSection => '分组与订阅';
@@ -446,11 +445,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get subscriptionGroupDeleteFeedsOption => '删除其中的订阅';
 
   @override
-  String get subscriptionGroupDeleteFeedsHint => '保留收藏选项在 T018 生效；本期只记录，不会真正删除';
+  String get subscriptionGroupDeleteFeedsHint => '删除分组时可以保留收藏；确认后才会真正删除。';
 
   @override
   String subscriptionGroupDeleteFeedsPending(int count) {
-    return '已记录 $count 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据';
+    return '已记录 $count 个待处理订阅；确认后才会真正删除。';
   }
 
   @override
@@ -497,14 +496,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get subscriptionEmptyTitle => '还没有订阅';
 
   @override
-  String get subscriptionEmptyBody => '点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。';
+  String get subscriptionEmptyBody => '点击「添加订阅」输入 RSS/Atom 地址；也可以批量导入与导出。';
 
   @override
   String get subscriptionRefreshPolicyTitle => '刷新策略';
 
   @override
-  String get subscriptionRefreshPolicyNote =>
-      '这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。';
+  String get subscriptionRefreshPolicyNote => '这里只保存设置；自动刷新在后台按计划执行。';
 
   @override
   String get subscriptionGlobalRefreshLabel => '全局自动刷新';
@@ -553,10 +551,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get subscriptionEnabledNote => '已停用：自动刷新会跳过该源（SET-022）';
+  String get subscriptionEnabledNote => '已停用：自动刷新会跳过该源';
 
   @override
-  String get subscriptionFavoriteNote => '加精只影响显示，不参与新闻选材（SET-023）';
+  String get subscriptionFavoriteNote => '加精只影响显示，不参与新闻选材';
 
   @override
   String get subscriptionDragHandleLabel => '拖动或按上下方向键调整顺序';
@@ -871,8 +869,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingOpenArticle => '打开正文';
 
   @override
-  String get readingDetailPlaceholderNotice =>
-      '正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。';
+  String get readingDetailPlaceholderNotice => '正文阅读器支持标题排版、代码、公式、目录与上下篇。';
 
   @override
   String get readingDetailNoBody => '这篇文章没有可显示的正文（源只提供了摘要）。';
@@ -1088,7 +1085,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingImagePlaceholder => '图片占位';
 
   @override
-  String get readingImageNotice => '远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。';
+  String get readingImageNotice => '远程图片按需加载并缓存在本机；点击可打开查看器。';
 
   @override
   String get readingImageRetry => '重新加载这张图片';
@@ -1111,7 +1108,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingLinkCopied => '链接已复制';
 
   @override
-  String get readingLinkOpenHint => '外链打开属 T020，当前可复制地址。';
+  String get readingLinkOpenHint => '外链将在系统浏览器中打开。';
 
   @override
   String get readingCopyAll => '复制全文';
@@ -1139,8 +1136,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingSelectionExplainGoSettings => '去设置';
 
   @override
-  String get readingSelectionExplainPending =>
-      '选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。';
+  String get readingSelectionExplainPending => '选词解释需要先在设置里配置 AI 服务。';
 
   @override
   String get readingImageAnalyzeAction => '分析这张图';
@@ -1222,8 +1218,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get readingSummaryTruncatedNotice =>
-      '正文超过单篇预算（SET-061 的 8000 字符），摘要只依据前一部分生成。';
+  String get readingSummaryTruncatedNotice => '正文超过单篇预算，摘要只依据前一部分生成。';
 
   @override
   String get readingSummarySourceKept => '源摘要仍然保留，未被 AI 摘要覆盖。';
@@ -1245,7 +1240,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get readingSummaryAutoToggleHint =>
-      '默认关闭。开启后只在**列表刷新**时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限（SET-064，默认 50）约束；关闭时列表会截取正文作为兜底。';
+      '默认关闭。开启后只在列表刷新时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限约束；关闭时列表会截取正文作为兜底。';
 
   @override
   String get readingSummaryAutoToggleDone => '自动摘要已开启；下次刷新时会补齐缺摘要的文章。';
@@ -1332,7 +1327,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingImageTapToDownload => '点击下载这张图片';
 
   @override
-  String get readingImageAutoLoadOff => '自动加载远程图片已关闭（SET-012）；点击图片可单独下载。';
+  String get readingImageAutoLoadOff => '自动加载远程图片已关闭；点击图片可单独下载。';
 
   @override
   String get readingShareUnavailable => '系统分享不可用，已改为复制。';
@@ -1519,7 +1514,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get statsDisabledNotice => '阅读统计已关闭（SET-015），本页显示的是已有历史记录。';
+  String get statsDisabledNotice => '阅读统计已关闭，本页显示的是已有历史记录。';
 
   @override
   String statsLoadFailed(Object reason) {
@@ -1583,7 +1578,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAiEntryTitle => 'AI 服务';
 
   @override
-  String get settingsAiEntrySubtitle => '提供商、模型、能力与凭据（SET-030–033）';
+  String get settingsAiEntrySubtitle => '提供商、模型、能力与凭据';
 
   @override
   String get aiPageTitle => 'AI 服务';
@@ -1672,7 +1667,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiModelIdHint => '列表接口不可用时可以手填；必须与服务商的模型名完全一致。';
 
   @override
-  String get aiApiKeyLabel => 'API Key（SET-031）';
+  String get aiApiKeyLabel => 'API Key';
 
   @override
   String aiApiKeyConfigured(String preview) {
@@ -1695,7 +1690,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiApiKeyUnavailable => '本机安全存储不可用，本次会话可以填 Key 但不会保存。';
 
   @override
-  String get aiCapabilitySection => '能力（SET-033）';
+  String get aiCapabilitySection => '能力';
 
   @override
   String get aiCapabilityHint => '能力由你声明，不由模型名推断。未声明视觉能力的模型不会收到图片。';
@@ -1742,7 +1737,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiMoveDown => '下移（故障转移顺序）';
 
   @override
-  String get aiSortHint => '顺序决定故障转移的先后（SET-032/035）；停用的模型不参与。';
+  String get aiSortHint => '顺序决定故障转移的先后；停用的模型不参与。';
 
   @override
   String get aiSaveAction => '保存';
@@ -1851,10 +1846,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiReferenceDefaultForTasks => '任务默认模型';
 
   @override
-  String get aiReferenceVisionModel => 'SET-034 专用视觉模型';
+  String get aiReferenceVisionModel => '专用视觉模型';
 
   @override
-  String get aiReferenceFailover => 'SET-035 故障转移允许列表';
+  String get aiReferenceFailover => '故障转移允许列表';
 
   @override
   String get aiDeleteConfirmYes => '仍然删除';
@@ -1876,8 +1871,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get aiPlannedNotice =>
-      '自动摘要开关（SET-037）属 T034，本页只做提供商与模型配置；故障转移的五次无响应、总时限与 Token 预算已由 T029 落地（见设置 → AI 任务记录）。';
+  String get aiPlannedNotice => '本页只做提供商与模型配置；故障转移的总时限与 Token 预算见设置 → AI 任务记录。';
 
   @override
   String get aiTaskListTitle => 'AI 任务记录';
@@ -1994,11 +1988,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String searchBudgetHint(int maxResults, int timeoutSeconds) {
-    return '每次取 $maxResults 条 · 超时 $timeoutSeconds 秒（SET-040）';
+    return '每次取 $maxResults 条 · 超时 $timeoutSeconds 秒';
   }
 
   @override
-  String get searchPrivateApproved => '已显式批准内网/HTTP 端点（SET-041）';
+  String get searchPrivateApproved => '已显式批准内网/HTTP 端点';
 
   @override
   String get searchCredentialMissingHint => '尚未配置凭据：该协议没有 Key 一定失败，因此测试按钮已禁用。';
@@ -2094,15 +2088,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchTimeoutField => '超时秒数（5–60）';
 
   @override
-  String get searchAllowPrivateLabel => '允许内网/HTTP 端点（SET-041）';
+  String get searchAllowPrivateLabel => '允许内网/HTTP 端点';
 
   @override
   String get searchAllowPrivateHint =>
       '仅在自建实例位于局域网或使用明文 HTTP 时打开。未批准时该端点会被地址守卫拒绝，不会发出请求。';
 
   @override
-  String get searchPlannedNotice =>
-      '查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。';
+  String get searchPlannedNotice => '本页只做搜索服务本身；查询关键词与过滤规则在新闻生成设置里。';
 
   @override
   String get readingTranslateAction => '翻译';
@@ -2152,8 +2145,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get readingTranslateSourceKept => '原文始终保留，切换只改变显示。';
 
   @override
-  String get readingTranslateTruncatedNotice =>
-      '有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。';
+  String get readingTranslateTruncatedNotice => '有段落超过单段预算，这些段只翻译了前一部分。';
 
   @override
   String get readingTranslateStale => '这篇正文在上次翻译之后变化过；以下译文对应的是上一版正文。';
@@ -2193,8 +2185,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get newsSettingsEntryTitle => '新闻生成';
 
   @override
-  String get newsSettingsEntrySubtitle =>
-      '来源选择、必访网站、关键词与总 prompt（SET-050–055）；今日新闻的生成流程属 T037–T040。';
+  String get newsSettingsEntrySubtitle => '来源选择、必访网站、关键词与总 prompt';
 
   @override
   String get newsPageTitle => '新闻生成来源与 prompt';
@@ -2211,7 +2202,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get newsGlobalSwitchHint => '关闭后本次生成完全不使用订阅内容；逐源开关只影响单个源，与加精无关。';
 
   @override
-  String get newsFeedSectionTitle => '逐源开关（SET-050）';
+  String get newsFeedSectionTitle => '逐源开关';
 
   @override
   String get newsFeedSectionHint => '「跟随」表示按该源的订阅启用状态决定；可以排除某个源的新闻但保留它的订阅刷新。';
@@ -2232,7 +2223,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get newsFeedEmpty => '还没有订阅源；添加订阅后可以在这里逐源设置。';
 
   @override
-  String get newsRequiredSectionTitle => '必访问网站（SET-051）';
+  String get newsRequiredSectionTitle => '必访问网站';
 
   @override
   String get newsRequiredSectionHint =>
@@ -2259,19 +2250,19 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get newsListKeywordsTitle => '联网搜索关键词（SET-052）';
+  String get newsListKeywordsTitle => '联网搜索关键词';
 
   @override
   String get newsListKeywordsHint => '空列表且没有 RSS 材料时会提示缺少输入，而不是凭空生成新闻。';
 
   @override
-  String get newsListBlockedTitle => '禁止发送的查询词（SET-053）';
+  String get newsListBlockedTitle => '禁止发送的查询词';
 
   @override
   String get newsListBlockedHint => '含这些词的查询不会发给搜索服务（按包含匹配）；它不影响生成时排除哪些主题。';
 
   @override
-  String get newsListTopicsTitle => '排除的内容主题（SET-053）';
+  String get newsListTopicsTitle => '排除的内容主题';
 
   @override
   String get newsListTopicsHint => '这些主题不会被写进结果；与上面的查询禁词是两个独立列表。';
@@ -2291,7 +2282,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get newsPromptModeTitle => '总 prompt 模式（SET-055）';
+  String get newsPromptModeTitle => '总 prompt 模式';
 
   @override
   String get newsPromptModeComposed => '自动组合';
@@ -2385,8 +2376,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get newsEffectiveQueriesEmpty => '当前没有可发送的查询（关键词为空或被禁词全部挡住）。';
 
   @override
-  String get newsPlannedNotice =>
-      '今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。';
+  String get newsPlannedNotice => '本页配置新闻来源、关键词与总 prompt。';
 
   @override
   String get todayGenerate => '生成今天的新闻';
@@ -2568,7 +2558,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get todayShortfallNoInput =>
-      '本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。';
+      '本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查新闻选材总开关、必访列表与文章是否已刷新。';
 
   @override
   String get todayShortfallGlobalDisabled =>
@@ -3232,7 +3222,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String storageMediaLimitLine(String limit) {
-    return '媒体缓存上限：$limit（SET-080，超出后按最后访问时间淘汰）';
+    return '媒体缓存上限：$limit（超出后按最后访问时间淘汰）';
   }
 
   @override
@@ -3595,7 +3585,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsMotionLabel => '减少动态效果';
 
   @override
-  String get settingsMotionId => 'SET-014 · 设备专属';
+  String get settingsMotionId => '界面动效 · 设备专属';
 
   @override
   String get settingsMotionHint =>

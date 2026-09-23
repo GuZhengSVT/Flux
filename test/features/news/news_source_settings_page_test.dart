@@ -136,9 +136,9 @@ void main() {
 
   testWidgets('三个列表编辑器各自独立（改关键词不动禁词）', (WidgetTester tester) async {
     await pumpPage(tester);
-    expect(find.text('联网搜索关键词（SET-052）'), findsOneWidget);
-    expect(find.text('禁止发送的查询词（SET-053）'), findsOneWidget);
-    expect(find.text('排除的内容主题（SET-053）'), findsOneWidget);
+    expect(find.text('联网搜索关键词'), findsOneWidget);
+    expect(find.text('禁止发送的查询词'), findsOneWidget);
+    expect(find.text('排除的内容主题'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).at(0), 'AI 芯片');
     await tester.testTextInput.receiveAction(TextInputAction.done);

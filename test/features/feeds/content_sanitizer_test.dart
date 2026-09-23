@@ -258,7 +258,6 @@ void main() {
       for (final String url in <String>[
         '/path/to/page',
         'page.html',
-        '#anchor',
         '//example.com/x',
       ]) {
         final SanitizerReport report = sanitizeHtmlToDocument(
@@ -271,6 +270,21 @@ void main() {
         );
         expect(_rejected(report), hasLength(1));
       }
+    });
+
+    test('页内锚点不当作外链：空锚点丢弃，带文字的只保留文字', () {
+      final SanitizerReport emptyAnchor = sanitizeHtmlToDocument(
+        '<h2 id="a"><a href="#a"></a>标题文字</h2>',
+      );
+      expect(
+        collectDocInlines(emptyAnchor.document).whereType<DocLinkInline>(),
+        isEmpty,
+        reason: '页内锚点不是可点外链',
+      );
+      expect(_rejected(emptyAnchor), isEmpty);
+      final String plain = docDocumentPlainText(emptyAnchor.document.children);
+      expect(plain, contains('标题文字'));
+      expect(plain, isNot(contains('#a')));
     });
 
     test('危险协议的图片同样被拒绝且不可加载', () {

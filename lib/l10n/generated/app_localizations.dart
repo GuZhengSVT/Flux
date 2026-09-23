@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// 空态：无订阅说明
   ///
   /// In zh, this message translates to:
-  /// **'添加订阅或导入 OPML 之后，文章会出现在这里。订阅相关的界面与用例由 T013–T016 交付。'**
+  /// **'添加订阅或导入 OPML 之后，文章会出现在这里。'**
   String get emptyNoFeedsBody;
 
   /// 空态：全部已读
@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// 空态：无结果说明
   ///
   /// In zh, this message translates to:
-  /// **'换个关键词，或调整搜索范围与筛选条件后重试。本地全文检索由 T022 交付。'**
+  /// **'换个关键词，或调整搜索范围与筛选条件后重试。'**
   String get emptyNoResultsBody;
 
   /// 启动失败态标题
@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// 向导第 2 步：订阅导入占位说明
   ///
   /// In zh, this message translates to:
-  /// **'单条添加、编辑、分组与 OPML 批量导入由 T013–T016 交付。现在还没有可用的导入界面，因此本步骤不创建任何订阅，也不会伪造示例数据；你可以直接跳过，进入应用后再添加。'**
+  /// **'你可以在这里添加订阅源，也可以稍后在「订阅管理」里添加或导入 OPML；也可以直接跳过这一步。'**
   String get onboardingFeedsBody;
 
   /// 向导第 2 步补充说明
@@ -257,7 +257,7 @@ abstract class AppLocalizations {
   /// 向导第 3 步：可跳过的 AI 配置说明
   ///
   /// In zh, this message translates to:
-  /// **'未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。提供商协议、模型管理、凭据、连通性测试与费用提醒由 T025/T031 交付；在此之前本步骤不请求任何凭据，也不发起任何请求。'**
+  /// **'未配置 AI 与搜索服务也能完整使用离线阅读、本地搜索和阅读统计。相关服务可以在设置里随时配置；你可以直接跳过这一步。'**
   String get onboardingAiBody;
 
   /// 向导第 3 步补充说明
@@ -497,7 +497,7 @@ abstract class AppLocalizations {
   /// 关于：版本显示；version 来自 pubspec
   ///
   /// In zh, this message translates to:
-  /// **'{version}（M0 骨架版本号占位，发行版本在 T054 确定）'**
+  /// **'{version}'**
   String aboutVersionValue(String version);
 
   /// 关于：许可
@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// 关于：许可说明
   ///
   /// In zh, this message translates to:
-  /// **'仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明在 T054 落地。'**
+  /// **'仓库内的 LICENSE 为 MIT；第三方依赖与原创素材的完整声明见仓库说明。'**
   String get aboutLicenseNote;
 
   /// 关于：仓库链接
@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   /// 关于：只读说明
   ///
   /// In zh, this message translates to:
-  /// **'关于信息为只读发布元数据（SET-084）。仓库与 Issue 地址尚未在本机配置，因此显示「未配置」，不提供猜测的地址；检查更新由 T053 交付。'**
+  /// **'关于信息为只读发布元数据。仓库与 Issue 地址尚未在本机配置时显示「未配置」，不提供猜测的地址。'**
   String get aboutReadOnlyNote;
 
   /// 关于：地址来源与核实说明（不伪造 URL）
@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// 订阅管理页的范围说明，避免被当成已交付文章列表
   ///
   /// In zh, this message translates to:
-  /// **'本页管理订阅与分组；文章列表与批量状态操作属 T017–T019。'**
+  /// **'本页管理订阅与分组。'**
   String get subscriptionManagerNotice;
 
   /// 分组列表小节标题
@@ -905,13 +905,13 @@ abstract class AppLocalizations {
   /// 删除订阅分支说明（本期为预留）
   ///
   /// In zh, this message translates to:
-  /// **'保留收藏选项在 T018 生效；本期只记录，不会真正删除'**
+  /// **'删除分组时可以保留收藏；确认后才会真正删除。'**
   String get subscriptionGroupDeleteFeedsHint;
 
   /// 预留分支的结果说明
   ///
   /// In zh, this message translates to:
-  /// **'已记录 {count} 个待处理订阅；保留收藏规则在 T018 生效，本期没有删除任何数据'**
+  /// **'已记录 {count} 个待处理订阅；确认后才会真正删除。'**
   String subscriptionGroupDeleteFeedsPending(int count);
 
   /// 删除分组成功提示
@@ -995,7 +995,7 @@ abstract class AppLocalizations {
   /// 订阅管理页空态正文
   ///
   /// In zh, this message translates to:
-  /// **'点击「添加订阅」输入 RSS/Atom 地址；批量导入与导出属 T015。'**
+  /// **'点击「添加订阅」输入 RSS/Atom 地址；也可以批量导入与导出。'**
   String get subscriptionEmptyBody;
 
   /// 刷新策略区标题（SET-020/021）
@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// 刷新策略范围说明
   ///
   /// In zh, this message translates to:
-  /// **'这里只保存设置；后台定时调度在 T016 落地，本期不会自动联网。'**
+  /// **'这里只保存设置；自动刷新在后台按计划执行。'**
   String get subscriptionRefreshPolicyNote;
 
   /// SET-020 开关标签
@@ -1085,13 +1085,13 @@ abstract class AppLocalizations {
   /// 停用订阅的说明
   ///
   /// In zh, this message translates to:
-  /// **'已停用：自动刷新会跳过该源（SET-022）'**
+  /// **'已停用：自动刷新会跳过该源'**
   String get subscriptionEnabledNote;
 
   /// 加精的说明
   ///
   /// In zh, this message translates to:
-  /// **'加精只影响显示，不参与新闻选材（SET-023）'**
+  /// **'加精只影响显示，不参与新闻选材'**
   String get subscriptionFavoriteNote;
 
   /// 排序把手的读屏标签
@@ -1637,7 +1637,7 @@ abstract class AppLocalizations {
   /// 详情占位页的范围说明
   ///
   /// In zh, this message translates to:
-  /// **'正文阅读器（标题排版、代码、公式、目录与上下篇）属 T019；当前是最简占位，只显示标题与纯文本正文。'**
+  /// **'正文阅读器支持标题排版、代码、公式、目录与上下篇。'**
   String get readingDetailPlaceholderNotice;
 
   /// 文章无正文时的说明
@@ -1996,7 +1996,7 @@ abstract class AppLocalizations {
   /// 图片位的范围说明（T021 起为真实缓存加载）
   ///
   /// In zh, this message translates to:
-  /// **'远程图片按需加载并缓存在本机（SET-080 上限）；点击可打开查看器。'**
+  /// **'远程图片按需加载并缓存在本机；点击可打开查看器。'**
   String get readingImageNotice;
 
   /// 图片加载失败后的重试按钮
@@ -2038,7 +2038,7 @@ abstract class AppLocalizations {
   /// 链接外开的范围说明
   ///
   /// In zh, this message translates to:
-  /// **'外链打开属 T020，当前可复制地址。'**
+  /// **'外链将在系统浏览器中打开。'**
   String get readingLinkOpenHint;
 
   /// 复制全文按钮（正文纯文本）
@@ -2086,7 +2086,7 @@ abstract class AppLocalizations {
   /// 选词解释：已配置 AI 时的占位说明（不发起调用）
   ///
   /// In zh, this message translates to:
-  /// **'选词解释需要 AI 服务，调用本身属 T034；本轮只做入口与提示，不会发出请求。'**
+  /// **'选词解释需要先在设置里配置 AI 服务。'**
   String get readingSelectionExplainPending;
 
   /// 图片查看器：分析这张图的入口
@@ -2230,7 +2230,7 @@ abstract class AppLocalizations {
   /// AI 摘要面板：正文被截断的说明
   ///
   /// In zh, this message translates to:
-  /// **'正文超过单篇预算（SET-061 的 8000 字符），摘要只依据前一部分生成。'**
+  /// **'正文超过单篇预算，摘要只依据前一部分生成。'**
   String get readingSummaryTruncatedNotice;
 
   /// AI 摘要面板：不覆盖源摘要的说明
@@ -2266,7 +2266,7 @@ abstract class AppLocalizations {
   /// SET-037 的界面开关说明
   ///
   /// In zh, this message translates to:
-  /// **'默认关闭。开启后只在**列表刷新**时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限（SET-064，默认 50）约束；关闭时列表会截取正文作为兜底。'**
+  /// **'默认关闭。开启后只在列表刷新时补齐缺摘要的文章，每篇摘要单独计费，并受当天上限约束；关闭时列表会截取正文作为兜底。'**
   String get readingSummaryAutoToggleHint;
 
   /// 开启自动摘要后的提示
@@ -2403,7 +2403,7 @@ abstract class AppLocalizations {
   /// SET-012 关闭时正文里的范围说明
   ///
   /// In zh, this message translates to:
-  /// **'自动加载远程图片已关闭（SET-012）；点击图片可单独下载。'**
+  /// **'自动加载远程图片已关闭；点击图片可单独下载。'**
   String get readingImageAutoLoadOff;
 
   /// 系统分享不可用时的回退说明（架构 4.2）
@@ -2727,7 +2727,7 @@ abstract class AppLocalizations {
   /// No description provided for @statsDisabledNotice.
   ///
   /// In zh, this message translates to:
-  /// **'阅读统计已关闭（SET-015），本页显示的是已有历史记录。'**
+  /// **'阅读统计已关闭，本页显示的是已有历史记录。'**
   String get statsDisabledNotice;
 
   /// No description provided for @statsLoadFailed.
@@ -2841,7 +2841,7 @@ abstract class AppLocalizations {
   /// 设置页入口副标题
   ///
   /// In zh, this message translates to:
-  /// **'提供商、模型、能力与凭据（SET-030–033）'**
+  /// **'提供商、模型、能力与凭据'**
   String get settingsAiEntrySubtitle;
 
   /// AI 服务页标题
@@ -3015,7 +3015,7 @@ abstract class AppLocalizations {
   /// API Key 标签
   ///
   /// In zh, this message translates to:
-  /// **'API Key（SET-031）'**
+  /// **'API Key'**
   String get aiApiKeyLabel;
 
   /// 已配置 Key 时的遮盖显示；preview 为固定长度的掩码
@@ -3057,7 +3057,7 @@ abstract class AppLocalizations {
   /// 能力分区标题
   ///
   /// In zh, this message translates to:
-  /// **'能力（SET-033）'**
+  /// **'能力'**
   String get aiCapabilitySection;
 
   /// 能力说明
@@ -3147,7 +3147,7 @@ abstract class AppLocalizations {
   /// 排序说明
   ///
   /// In zh, this message translates to:
-  /// **'顺序决定故障转移的先后（SET-032/035）；停用的模型不参与。'**
+  /// **'顺序决定故障转移的先后；停用的模型不参与。'**
   String get aiSortHint;
 
   /// 保存按钮
@@ -3320,13 +3320,13 @@ abstract class AppLocalizations {
   /// 引用来源：视觉模型
   ///
   /// In zh, this message translates to:
-  /// **'SET-034 专用视觉模型'**
+  /// **'专用视觉模型'**
   String get aiReferenceVisionModel;
 
   /// 引用来源：故障转移允许列表
   ///
   /// In zh, this message translates to:
-  /// **'SET-035 故障转移允许列表'**
+  /// **'故障转移允许列表'**
   String get aiReferenceFailover;
 
   /// 确认删除
@@ -3362,7 +3362,7 @@ abstract class AppLocalizations {
   /// 未实现部分说明
   ///
   /// In zh, this message translates to:
-  /// **'自动摘要开关（SET-037）属 T034，本页只做提供商与模型配置；故障转移的五次无响应、总时限与 Token 预算已由 T029 落地（见设置 → AI 任务记录）。'**
+  /// **'本页只做提供商与模型配置；故障转移的总时限与 Token 预算见设置 → AI 任务记录。'**
   String get aiPlannedNotice;
 
   /// 任务记录页标题
@@ -3578,13 +3578,13 @@ abstract class AppLocalizations {
   /// 预算提示
   ///
   /// In zh, this message translates to:
-  /// **'每次取 {maxResults} 条 · 超时 {timeoutSeconds} 秒（SET-040）'**
+  /// **'每次取 {maxResults} 条 · 超时 {timeoutSeconds} 秒'**
   String searchBudgetHint(int maxResults, int timeoutSeconds);
 
   /// 已批准内网
   ///
   /// In zh, this message translates to:
-  /// **'已显式批准内网/HTTP 端点（SET-041）'**
+  /// **'已显式批准内网/HTTP 端点'**
   String get searchPrivateApproved;
 
   /// 缺凭据提示
@@ -3752,7 +3752,7 @@ abstract class AppLocalizations {
   /// 内网批准开关
   ///
   /// In zh, this message translates to:
-  /// **'允许内网/HTTP 端点（SET-041）'**
+  /// **'允许内网/HTTP 端点'**
   String get searchAllowPrivateLabel;
 
   /// 内网批准说明
@@ -3764,7 +3764,7 @@ abstract class AppLocalizations {
   /// 未实现部分说明
   ///
   /// In zh, this message translates to:
-  /// **'查询关键词列表（SET-052）、禁止查询词与主题过滤（SET-053）以及每日新闻的检索编排（T036/T037）属后续任务；本页只做搜索服务本身。'**
+  /// **'本页只做搜索服务本身；查询关键词与过滤规则在新闻生成设置里。'**
   String get searchPlannedNotice;
 
   /// 详情页：全文翻译入口
@@ -3848,7 +3848,7 @@ abstract class AppLocalizations {
   /// 有段落被截断的说明
   ///
   /// In zh, this message translates to:
-  /// **'有段落超过单段预算（SET-061 的 8000 字符），这些段只翻译了前一部分。'**
+  /// **'有段落超过单段预算，这些段只翻译了前一部分。'**
   String get readingTranslateTruncatedNotice;
 
   /// 译文对应旧版正文的说明
@@ -3914,7 +3914,7 @@ abstract class AppLocalizations {
   /// 设置入口说明
   ///
   /// In zh, this message translates to:
-  /// **'来源选择、必访网站、关键词与总 prompt（SET-050–055）；今日新闻的生成流程属 T037–T040。'**
+  /// **'来源选择、必访网站、关键词与总 prompt'**
   String get newsSettingsEntrySubtitle;
 
   /// 页面标题
@@ -3944,7 +3944,7 @@ abstract class AppLocalizations {
   /// 逐源小节标题
   ///
   /// In zh, this message translates to:
-  /// **'逐源开关（SET-050）'**
+  /// **'逐源开关'**
   String get newsFeedSectionTitle;
 
   /// 逐源说明
@@ -3986,7 +3986,7 @@ abstract class AppLocalizations {
   /// 必访小节标题
   ///
   /// In zh, this message translates to:
-  /// **'必访问网站（SET-051）'**
+  /// **'必访问网站'**
   String get newsRequiredSectionTitle;
 
   /// 必访说明
@@ -4034,7 +4034,7 @@ abstract class AppLocalizations {
   /// 关键词小节标题
   ///
   /// In zh, this message translates to:
-  /// **'联网搜索关键词（SET-052）'**
+  /// **'联网搜索关键词'**
   String get newsListKeywordsTitle;
 
   /// 关键词说明
@@ -4046,7 +4046,7 @@ abstract class AppLocalizations {
   /// 查询禁词小节标题
   ///
   /// In zh, this message translates to:
-  /// **'禁止发送的查询词（SET-053）'**
+  /// **'禁止发送的查询词'**
   String get newsListBlockedTitle;
 
   /// 查询禁词说明
@@ -4058,7 +4058,7 @@ abstract class AppLocalizations {
   /// 主题排除小节标题
   ///
   /// In zh, this message translates to:
-  /// **'排除的内容主题（SET-053）'**
+  /// **'排除的内容主题'**
   String get newsListTopicsTitle;
 
   /// 主题排除说明
@@ -4094,7 +4094,7 @@ abstract class AppLocalizations {
   /// 模式小节标题
   ///
   /// In zh, this message translates to:
-  /// **'总 prompt 模式（SET-055）'**
+  /// **'总 prompt 模式'**
   String get newsPromptModeTitle;
 
   /// 模式：自动组合
@@ -4256,7 +4256,7 @@ abstract class AppLocalizations {
   /// 未实现部分说明
   ///
   /// In zh, this message translates to:
-  /// **'今日新闻的检索编排、事件聚合与初稿（T037）、来源核验（T038）与定时执行（T040）属后续任务；本页只做 SET-050–055 的配置。'**
+  /// **'本页配置新闻来源、关键词与总 prompt。'**
   String get newsPlannedNotice;
 
   /// 今日页生成按钮
@@ -4562,7 +4562,7 @@ abstract class AppLocalizations {
   /// 缺输入说明
   ///
   /// In zh, this message translates to:
-  /// **'本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查 SET-050 的选材开关、必访列表与文章是否已刷新。'**
+  /// **'本次没有可用输入（没有参与新闻的文章、没有关键词、必访网站也没有取到内容），因此没有生成任何内容。请检查新闻选材总开关、必访列表与文章是否已刷新。'**
   String get todayShortfallNoInput;
 
   /// 总开关关闭说明
@@ -5634,7 +5634,7 @@ abstract class AppLocalizations {
   /// 媒体上限说明
   ///
   /// In zh, this message translates to:
-  /// **'媒体缓存上限：{limit}（SET-080，超出后按最后访问时间淘汰）'**
+  /// **'媒体缓存上限：{limit}（超出后按最后访问时间淘汰）'**
   String storageMediaLimitLine(String limit);
 
   /// 刷新占用按钮
@@ -6237,7 +6237,7 @@ abstract class AppLocalizations {
   /// SET-014 编号与分类
   ///
   /// In zh, this message translates to:
-  /// **'SET-014 · 设备专属'**
+  /// **'界面动效 · 设备专属'**
   String get settingsMotionId;
 
   /// SET-014 说明

@@ -402,6 +402,11 @@ final class NewsRunService {
     final Result<bool> searchReady = await searchAvailability
         .hasEnabledService();
     final bool searchConfigured = searchReady.isOk && searchReady.valueOrNull!;
+    diagnostics.info(
+      '检索可用性配置 searchConfigured=$searchConfigured '
+      'ok=${searchReady.isOk} value=${searchReady.valueOrNull}',
+      tag: 'news.run',
+    );
     final List<NewsMaterial> searchMaterials = <NewsMaterial>[];
     final List<String> issued = <String>[];
     int searchResultCount = 0;
@@ -489,11 +494,16 @@ final class NewsRunService {
       searchResultCount: searchResultCount,
       blockedQueryCount: blockedQueries,
     );
-    final NewsInputShortfall? shortfall = detectInputShortfall(
-      aggregation: aggregation,
-      snapshot: snapshot,
-    );
-    if (shortfall != null || materials.isEmpty) {
+    // 模型自带联网检索的可用性：没有配置搜索服务、但配置了关键词时，如果启用的
+    // 模型声明了原生工具/检索能力（capability.tools），任务把关键词交给模型自行
+    // 检索（引用走 web: 前缀），而不是直接判「无输入」。这对应架构 4.3「业务以
+    // 能力路由」：检索通道不唯一，客户端搜索服务只是其中一种。
+    final bool hasKeywords = snapshot.keywords.isNotEmpty;
+    final bool modelsCanSelfSearch = hasKeywords && !searchConfigured;
+    final NewsInputShortfall? shortfall = modelsCanSelfSearch
+        ? null
+        : detectInputShortfall(aggregation: aggregation, snapshot: snapshot);
+    if ((shortfall != null || materials.isEmpty) && !modelsCanSelfSearch) {
       // 缺少输入：**不生成、不编造**（架构 4.4、手册 6.3「无搜索配置等待」）。
       _stage(NewsRunStage.save);
       final AppError error = ValidationError(
@@ -573,12 +583,16 @@ final class NewsRunService {
       taskId: input.taskId,
       request: AiRequest(
         modelId: models.valueOrNull!.first.modelId,
+        builtInWebSearch: modelsCanSelfSearch,
         messages: <AiMessage>[
           AiMessage.user(
             buildNewsUserMessage(
               promptText: promptText,
               materialBlock: buildNewsMaterialBlock(materials),
               siteStatusBlock: buildSiteStatusBlock(siteResults),
+              extraInstruction: modelsCanSelfSearch
+                  ? _selfSearchInstruction(snapshot.keywords)
+                  : null,
             ),
           ),
         ],
@@ -615,6 +629,7 @@ final class NewsRunService {
     final NewsDraftParseResult parsed = parseNewsDraft(
       text: text,
       knownSourceIds: byId.keys.toSet(),
+      allowWebCitations: modelsCanSelfSearch,
     );
     if (parsed.hasFabricatedCitation) {
       diagnostics.warning(
@@ -959,6 +974,35 @@ final class NewsRunService {
         : '${config.versions.first.version}';
     return '${config.language.code}#$version';
   }
+}
+
+/// 模型自带联网检索时的关键词指令（仅当没有配置搜索服务时附加）。
+///
+/// 引用格式用 `web:<url>` 前缀：解析层据此放行（[parseNewsDraft] 的
+/// allowWebCitations），同时保持与本地材料引用相同的方括号形状，界面无需特判。
+String _selfSearchInstruction(List<String> keywords) {
+  if (keywords.isEmpty) {
+    return '';
+  }
+  final StringBuffer buffer = StringBuffer()
+    ..writeln(
+      '本次没有预取的检索材料。请使用你自带的联网搜索能力，'
+      '围绕以下关键词检索当天新闻，并基于检索结果生成条目：',
+    )
+    ..writeln(keywords.join('、'))
+    ..writeln()
+    ..writeln('要求：')
+    ..writeln('1. 只写检索到的事实，不要依赖训练记忆编造新闻；')
+    ..writeln(
+      '2. 每条结论后的引用必须是方括号包裹的真实网址，以 web: 开头，'
+      '网址来自你本次检索的真实结果；不要把这条要求本身当作引用写出；',
+    )
+    ..writeln('3. 检索不到对应新闻的关键词直接跳过，不要硬凑条目；')
+    ..writeln(
+      '4. 如果你无法联网检索，只输出一行「本次未能联网检索」，'
+      '不要生成任何条目。',
+    );
+  return buffer.toString();
 }
 
 /// 一次站点抓取的内部结果（状态 + 可能的材料）。

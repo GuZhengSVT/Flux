@@ -50,7 +50,7 @@ void main() {
       // 第 2 步：添加订阅（占位，注明 T013–T016），且不提供任何导入控件。
       expect(find.text('第 2 步 / 共 3 步'), findsOneWidget);
       expect(find.text('添加订阅'), findsOneWidget);
-      expect(find.textContaining('T013–T016'), findsWidgets);
+      expect(find.textContaining('添加订阅源'), findsWidgets);
       expect(find.text('导入 OPML'), findsNothing);
       expect(find.text('添加'), findsNothing);
 
@@ -60,7 +60,7 @@ void main() {
       // 第 3 步：可选 AI/搜索（占位，注明 T025/T031），并明确可跳过。
       expect(find.text('第 3 步 / 共 3 步'), findsOneWidget);
       expect(find.text('AI 与搜索（可选）'), findsOneWidget);
-      expect(find.textContaining('T025/T031'), findsWidgets);
+      expect(find.textContaining('在设置里随时配置'), findsWidgets);
       // 第 3 步的核心承诺：没有 AI 也能用（架构第 3 节「可选」）。
       expect(find.textContaining('没有配置 AI 也可以直接开始使用'), findsOneWidget);
       expect(find.text('跳过'), findsOneWidget);

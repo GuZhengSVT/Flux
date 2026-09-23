@@ -406,19 +406,17 @@ class _ChoiceRow extends StatelessWidget {
   }
 }
 
-/// 一个尚未实现的设置项（只有名称、编号、分类、计划任务）。
+/// 一个尚未实现的设置项（只有名称、编号、分类）。
 final class _PlannedSetting {
   const _PlannedSetting({
     required this.id,
     required this.titleBuilder,
     required this.classification,
-    required this.tasks,
   });
 
   final SettingId id;
   final String Function(AppLocalizations l10n) titleBuilder;
   final SettingClassification classification;
-  final String tasks;
 }
 
 /// T011 期间展示为「即将推出」的阅读与外观项（SET-003–016，排除已生效的 001/002）。
@@ -431,79 +429,66 @@ final List<_PlannedSetting> _plannedSettings = <_PlannedSetting>[
     id: SettingId.set003,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet003,
     classification: SettingClassification.device,
-    tasks: 'T012/T051',
   ),
   _PlannedSetting(
     id: SettingId.set004,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet004,
     classification: SettingClassification.device,
-    tasks: 'T012/T051',
   ),
   _PlannedSetting(
     id: SettingId.set005,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet005,
     classification: SettingClassification.device,
-    tasks: 'T012/T051',
   ),
   _PlannedSetting(
     id: SettingId.set006,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet006,
     classification: SettingClassification.device,
-    tasks: 'T012/T051',
   ),
   _PlannedSetting(
     id: SettingId.set007,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet007,
     classification: SettingClassification.device,
-    tasks: 'T019/T051',
   ),
   _PlannedSetting(
     id: SettingId.set008,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet008,
     classification: SettingClassification.device,
-    tasks: 'T019/T051',
   ),
   _PlannedSetting(
     id: SettingId.set009,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet009,
     classification: SettingClassification.device,
-    tasks: 'T019/T051',
   ),
   _PlannedSetting(
     id: SettingId.set010,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet010,
     classification: SettingClassification.common,
-    tasks: 'T017',
   ),
   _PlannedSetting(
     id: SettingId.set011,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet011,
     classification: SettingClassification.common,
-    tasks: 'T035',
   ),
   _PlannedSetting(
     id: SettingId.set012,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet012,
     classification: SettingClassification.device,
-    tasks: 'T021',
   ),
   _PlannedSetting(
     id: SettingId.set013,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet013,
     classification: SettingClassification.device,
-    tasks: 'T016/T021',
   ),
   _PlannedSetting(
     id: SettingId.set014,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet014,
     classification: SettingClassification.device,
-    tasks: 'T012/T051',
   ),
   _PlannedSetting(
     id: SettingId.set016,
     titleBuilder: (AppLocalizations l10n) => l10n.settingsItemSet016,
     classification: SettingClassification.device,
-    tasks: 'T019/T058',
   ),
 ];
 
@@ -553,11 +538,7 @@ class _PlannedSettingRow extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: FluxSpacing.xxs),
-                    Text(
-                      '${item.id.code} · $classification · '
-                      '${l10n.settingsItemPlannedTask(item.tasks)}',
-                      style: theme.textTheme.labelSmall,
-                    ),
+                    Text(classification, style: theme.textTheme.labelSmall),
                   ],
                 ),
               ),
@@ -592,7 +573,7 @@ class _AboutBlock extends StatelessWidget {
           _AboutRow(
             label: l10n.aboutVersionLabel,
             value: l10n.aboutVersionValue(fluxAppVersion),
-            note: '$fluxVersionSource；检查更新由 T053/T083 交付',
+            note: fluxVersionSource,
           ),
           _AboutRow(
             label: l10n.aboutLicenseLabel,

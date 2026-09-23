@@ -153,9 +153,9 @@ void main() {
       await pumpPage(tester);
 
       expect(find.text('订阅管理'), findsWidgets);
-      expect(find.textContaining('文章列表与批量状态操作属 T017–T019'), findsOneWidget);
+      expect(find.textContaining('本页管理订阅与分组'), findsOneWidget);
       expect(find.text('刷新策略'), findsOneWidget);
-      expect(find.textContaining('后台定时调度在 T016 落地'), findsOneWidget);
+      expect(find.textContaining('自动刷新在后台按计划执行'), findsOneWidget);
       expect(find.text('全局自动刷新'), findsOneWidget);
       expect(find.text('启动时刷新'), findsOneWidget);
       // 保留组（未分类）在有订阅时作为归属区块出现。它的显示名来自 l10n 而不是
@@ -167,7 +167,7 @@ void main() {
       await pumpPage(tester);
 
       expect(find.text('还没有订阅'), findsOneWidget);
-      expect(find.textContaining('批量导入与导出属 T015'), findsOneWidget);
+      expect(find.textContaining('也可以批量导入与导出'), findsOneWidget);
     });
 
     testWidgets('刷新策略三项真实落库（SET-020/021）', (WidgetTester tester) async {
@@ -383,7 +383,7 @@ void main() {
       await pumpPage(tester);
 
       expect(find.text('已停用'), findsOneWidget);
-      expect(find.byTooltip('已停用：自动刷新会跳过该源（SET-022）'), findsOneWidget);
+      expect(find.byTooltip('已停用：自动刷新会跳过该源'), findsOneWidget);
     });
 
     testWidgets('未读数显示真实统计（later 不算未读）', (WidgetTester tester) async {
@@ -527,7 +527,7 @@ void main() {
       // 两个分支都列出，且删除订阅分支明确标注本期不生效。
       expect(find.text('移动到未分类'), findsOneWidget);
       expect(find.text('删除其中的订阅'), findsOneWidget);
-      expect(find.textContaining('保留收藏选项在 T018 生效'), findsOneWidget);
+      expect(find.textContaining('确认后才会真正删除'), findsOneWidget);
 
       await tester.tap(find.text('移动到未分类'));
       await tester.pumpAndSettle();

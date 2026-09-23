@@ -204,10 +204,10 @@ void main() {
       await tester.pumpWidget(wrapWrap(bootstrap));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('SET-003'), findsOneWidget);
-      expect(find.textContaining('SET-016'), findsOneWidget);
+      expect(find.textContaining('主题背景图'), findsOneWidget);
+      expect(find.textContaining('专注阅读布局'), findsOneWidget);
       expect(find.textContaining('设备专属'), findsWidgets);
-      // SET-010 是 C 类，必须显示可同步分类。
+      // 共通分类必须显示「可同步」标记。
       expect(find.textContaining('共通·可同步'), findsWidgets);
     });
 

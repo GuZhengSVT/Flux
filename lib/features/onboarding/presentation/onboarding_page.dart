@@ -92,13 +92,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           l10n.onboardingFeedsBody,
           l10n.onboardingFeedsSkipNote,
         ],
-        plannedTasks: 'T013–T016',
       ),
       _ => _StepBlock(
         icon: Icons.hub_outlined,
         title: l10n.onboardingAiTitle,
         paragraphs: <String>[l10n.onboardingAiBody, l10n.onboardingAiSkipNote],
-        plannedTasks: 'T025/T031',
       ),
     };
   }
@@ -229,7 +227,6 @@ class _StepBlock extends StatelessWidget {
     required this.title,
     required this.paragraphs,
     this.footer,
-    this.plannedTasks,
   });
 
   final IconData icon;
@@ -237,12 +234,8 @@ class _StepBlock extends StatelessWidget {
   final List<String> paragraphs;
   final Widget? footer;
 
-  /// 该步骤对应但尚未实现的任务号（占位步骤才有）。
-  final String? plannedTasks;
-
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
     final ThemeData theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,13 +249,6 @@ class _StepBlock extends StatelessWidget {
           // 段间距 0.8em（架构第 7 节）。常量表达式，可以 const。
           const SizedBox(height: FluxTypography.paragraphSpacing),
         ],
-        ?switch (plannedTasks) {
-          final String tasks => Text(
-            l10n.placeholderPageBody(tasks),
-            style: theme.textTheme.bodySmall,
-          ),
-          null => null,
-        },
         ?footer,
       ],
     );

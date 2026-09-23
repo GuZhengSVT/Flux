@@ -1240,6 +1240,12 @@ class _Converter {
       depth: depth + 1,
     );
     final String label = docInlinePlainText(children);
+    if (raw.startsWith('#')) {
+      // 页内锚点（Hugo/Hexo 的标题自链接常是 <a href="#.."></a>）：不是外链。
+      // 空锚点直接丢弃（否则 href 文本会被当作正文印出来，形如 #%e8...起因）；
+      // 带文字的锚点只保留文字。
+      return DocText(label);
+    }
     if (raw.isEmpty) {
       // 没有 href 的 <a>：只保留文字。
       return DocText(label);
